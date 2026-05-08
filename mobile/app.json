@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Qurban.az",
+    "slug": "qurban-az",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "az.qurban.app"
+    },
+    "android": {
+      "package": "az.qurban.app"
+    },
+    "plugins": ["expo-font"]
+  }
+}
