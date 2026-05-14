@@ -18,6 +18,10 @@ import MyOrdersScreen from "../screens/MyOrdersScreen";
 import OrderDetailScreen from "../screens/OrderDetailScreen";
 import KnowledgeScreen from "../screens/KnowledgeScreen";
 import OrphanDonationScreen from "../screens/OrphanDonationScreen";
+import NeedSupportDetailScreen from "../screens/NeedSupportDetailScreen";
+import CharityPaymentScreen from "../screens/CharityPaymentScreen";
+import CharityConfirmationScreen from "../screens/CharityConfirmationScreen";
+import CharityOrderDetailScreen from "../screens/CharityOrderDetailScreen";
 import HowItWorksScreen from "../screens/HowItWorksScreen";
 import NeedSupportScreen from "../screens/NeedSupportScreen";
 import QurbanRulesScreen from "../screens/QurbanRulesScreen";
@@ -99,6 +103,26 @@ function MainStack() {
         name="NeedSupport"
         component={NeedSupportScreen}
         options={{ title: "Ehdiyaclıları Sevindir", animation: "fade" }}
+      />
+      <Stack.Screen
+        name="NeedSupportDetail"
+        component={NeedSupportDetailScreen}
+        options={{ title: "Xeyriyyə seçimi", animation: "fade_from_bottom" }}
+      />
+      <Stack.Screen
+        name="CharityPayment"
+        component={CharityPaymentScreen}
+        options={{ title: "Ödəniş", animation: "slide_from_right" }}
+      />
+      <Stack.Screen
+        name="CharityConfirmation"
+        component={CharityConfirmationScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CharityOrderDetail"
+        component={CharityOrderDetailScreen}
+        options={{ title: "Xeyriyyə Detayı" }}
       />
       <Stack.Screen
         name="QurbanRules"

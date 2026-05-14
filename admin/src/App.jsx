@@ -6,6 +6,8 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import OrderDetailPage from "./pages/OrderDetailPage.jsx";
 import CategoriesPage from "./pages/CategoriesPage.jsx";
+import DeliveryOptionsPage from "./pages/DeliveryOptionsPage.jsx";
+import CharityOptionsPage from "./pages/CharityOptionsPage.jsx";
 import SharedCustomersPage from "./pages/SharedCustomersPage.jsx";
 import Layout from "./components/Layout.jsx";
 
@@ -43,6 +45,8 @@ export default function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="categories" element={<CategoriesPage />} />
+            <Route path="delivery-options" element={<DeliveryOptionsPage />} />
+            <Route path="charity-options" element={<CharityOptionsPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="orders/:orderId" element={<OrderDetailPage />} />
             <Route path="shared-customers" element={<SharedCustomersPage />} />

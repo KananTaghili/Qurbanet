@@ -26,6 +26,19 @@ const toBool = (value) => {
   return ["true", "1", "yes", "on"].includes(value.toLowerCase());
 };
 
+const parseArray = (val) => {
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string") {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+};
+
 const getBaseUrl = (req) => `${req.protocol}://${req.get("host")}`;
 
 // Replace stored host with actual request host so mobile/admin always get correct URLs
@@ -57,6 +70,15 @@ const parseCategoryPayload = (body) => {
     pricePerShare: Number(body.pricePerShare),
     totalShares: Number(body.totalShares || 1),
     isActive: toBool(body.isActive),
+    // Yeni sahələr:
+    weightOptions: parseArray(body.weightOptions),
+    hasHeadOption: toBool(body.hasHeadOption ?? true),
+    headFee: Number(body.headFee || 0),
+    headProcessingFee: Number(body.headProcessingFee || 0),
+    hasFeetOption: toBool(body.hasFeetOption ?? true),
+    feetFee: Number(body.feetFee || 0),
+    feetProcessingFee: Number(body.feetProcessingFee || 0),
+    cutStyleOptions: parseArray(body.cutStyleOptions),
   };
 
   if (!payload.nameAz) {
@@ -92,6 +114,11 @@ const cleanupFiles = (req) => {
 };
 
 const ensureDefaultCategories = async () => {
+  // Seed defaults only when collection is empty.
+  // Otherwise admin deletions would get re-created on every list call.
+  const existingCount = await Category.countDocuments({});
+  if (existingCount > 0) return;
+
   const existingCategories = await Category.find({}).select("type").lean();
   const existingTypes = new Set(
     existingCategories.map((item) => normalizeType(item.type)),

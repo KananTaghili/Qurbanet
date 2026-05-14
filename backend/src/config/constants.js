@@ -14,7 +14,7 @@ const ANIMALS = {
   },
   dana: {
     type: "dana",
-    nameAz: "Dana (İnek)",
+    nameAz: "Dana",
     emoji: "🐄",
     pricePerShare: 3200,
     totalShares: 7,
@@ -152,12 +152,75 @@ const ORDER_STATUS_LABELS = {
   cancelled: "Ləğv edildi",
 };
 
-const DELIVERY_TIME_WINDOWS = [
-  "09:00-12:00",
-  "12:00-15:00",
-  "15:00-18:00",
-  "18:00-21:00",
-];
+const DELIVERY_TIME_WINDOWS = ["12:00-15:00", "15:00-18:00", "18:00-21:00"];
+
+const QURBAN_PART_FEES_BY_ANIMAL = {
+  quzu: { head: 5, feet: 6 },
+  qoyun: { head: 6, feet: 7 },
+  qoc: { head: 8, feet: 9 },
+  keci: { head: 6, feet: 7 },
+  dana: { head: 15, feet: 18 },
+  deve: { head: 20, feet: 24 },
+};
+
+// Doğrama pulu (ütülmüş və doğranmış üçün əlavə pul)
+const QURBAN_PART_PROCESSING_FEES_BY_ANIMAL = {
+  quzu: { head: 3, feet: 3 },
+  qoyun: { head: 4, feet: 4 },
+  qoc: { head: 5, feet: 5 },
+  keci: { head: 4, feet: 4 },
+  dana: { head: 8, feet: 8 },
+  deve: { head: 10, feet: 10 },
+};
+
+// Çatdırılma pulu (özünüz götürsəniz pulsuz)
+const DELIVERY_FEE = 10;
+
+const CUT_STYLE_LABELS = {
+  tam_cemdek: "Tam cəmdək",
+  kababliq: "Kabablıq",
+  qazan_yemekleri: "Qazan yeməkləri üçün",
+  kababliq_qazan: "Kabablıq + qazan yeməkləri üçün",
+};
+
+const CUT_STYLE_FEES_BY_ANIMAL = {
+  quzu: {
+    tam_cemdek: 0,
+    kababliq: 10,
+    qazan_yemekleri: 8,
+    kababliq_qazan: 14,
+  },
+  qoyun: {
+    tam_cemdek: 0,
+    kababliq: 12,
+    qazan_yemekleri: 10,
+    kababliq_qazan: 16,
+  },
+  qoc: {
+    tam_cemdek: 0,
+    kababliq: 14,
+    qazan_yemekleri: 12,
+    kababliq_qazan: 18,
+  },
+  keci: {
+    tam_cemdek: 0,
+    kababliq: 11,
+    qazan_yemekleri: 9,
+    kababliq_qazan: 15,
+  },
+  dana: {
+    tam_cemdek: 0,
+    kababliq: 35,
+    qazan_yemekleri: 30,
+    kababliq_qazan: 50,
+  },
+  deve: {
+    tam_cemdek: 0,
+    kababliq: 40,
+    qazan_yemekleri: 36,
+    kababliq_qazan: 58,
+  },
+};
 
 module.exports = {
   ANIMALS,
@@ -168,4 +231,9 @@ module.exports = {
   ORDER_STATUS,
   ORDER_STATUS_LABELS,
   DELIVERY_TIME_WINDOWS,
+  QURBAN_PART_FEES_BY_ANIMAL,
+  QURBAN_PART_PROCESSING_FEES_BY_ANIMAL,
+  DELIVERY_FEE,
+  CUT_STYLE_LABELS,
+  CUT_STYLE_FEES_BY_ANIMAL,
 };

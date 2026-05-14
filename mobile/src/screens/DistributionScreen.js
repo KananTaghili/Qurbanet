@@ -5,33 +5,26 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../context/AuthContext";
 import { Colors } from "../theme/colors";
 import OrderStepHeader from "../components/OrderStepHeader";
 import useCategoryActiveGuard from "../hooks/useCategoryActiveGuard";
 
 const DISTRIBUTION_OPTIONS = [
-  { key: "catdirilsin", icon: "🚚", title: "Sizə çatdırılsın" },
-  { key: "ozun_gotur", icon: "🏠", title: "Özünüz götürün" },
-  { key: "usaqlar_evi", icon: "🏫", title: "Uşaqlar evinə verilsin" },
-  { key: "qocalar_evi", icon: "👵", title: "Qocalar evinə verilsin" },
   {
-    key: "ehtiyac_sahibleri",
-    icon: "🤲",
-    title: "Ehtiyac sahiblərinə paylanılsın",
+    key: "catdirilsin",
+    icon: "truck-delivery-outline",
+    title: "Sizə çatdırılsın",
   },
-];
-
-const CHARITY_TARGETS = [
-  { key: "usaqlar_evi", label: "Uşaqlar evi" },
-  { key: "qocalar_evi", label: "Qocalar evi" },
-  { key: "ehtiyac_sahibleri", label: "Ehtiyac sahibləri" },
+  { key: "ozun_gotur", icon: "storefront-outline", title: "Özünüz götürün" },
 ];
 
 export default function DistributionScreen({ navigation, route }) {
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const draft = route.params || {};
   useCategoryActiveGuard({
@@ -45,9 +38,6 @@ export default function DistributionScreen({ navigation, route }) {
     route.params?.pickedLocation || null,
   );
   const [contactInfo, setContactInfo] = useState(null);
-  const [orphanEnabled, setOrphanEnabled] = useState(false);
-  const [orphanTarget, setOrphanTarget] = useState("usaqlar_evi");
-  const [orphanAmount, setOrphanAmount] = useState("0");
 
   useEffect(() => {
     const load = async () => {
@@ -78,11 +68,6 @@ export default function DistributionScreen({ navigation, route }) {
         location: needsLocation ? deliveryLocation?.address : undefined,
         coordinates: needsLocation ? deliveryLocation?.coordinates : undefined,
       },
-      orphanDelight: {
-        enabled: orphanEnabled,
-        target: orphanTarget,
-        extraAmount: orphanEnabled ? Number(orphanAmount || 0) : 0,
-      },
     };
 
     if (
@@ -110,105 +95,90 @@ export default function DistributionScreen({ navigation, route }) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <OrderStepHeader currentStep={2} />
-      <Text style={styles.sectionTitle}>Çatdırılma seç</Text>
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <OrderStepHeader currentStep={2} />
+        <Text style={styles.sectionTitle}>Ət paylanması</Text>
 
-      {DISTRIBUTION_OPTIONS.map((option) => (
-        <TouchableOpacity
-          key={option.key}
-          style={[
-            styles.optionCard,
-            selected === option.key && styles.optionCardSelected,
-          ]}
-          onPress={() => setSelected(option.key)}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.optionIcon}>{option.icon}</Text>
-          <Text style={styles.optionTitle}>{option.title}</Text>
-        </TouchableOpacity>
-      ))}
-
-      {selected === "catdirilsin" ? (
-        <View style={styles.card}>
-          <Text style={styles.label}>Çatdırılma ünvanı</Text>
-          <Text style={styles.deliveryFreeText}>Çatdırılma pulsuzdur</Text>
+        {DISTRIBUTION_OPTIONS.map((option) => (
           <TouchableOpacity
-            style={styles.mapBtn}
-            onPress={() =>
-              navigation.navigate("DeliveryLocationPicker", {
-                initialLocation: deliveryLocation,
-                animalType: draft?.animal?.type,
-              })
-            }
+            key={option.key}
+            style={[
+              styles.optionCard,
+              selected === option.key && styles.optionCardSelected,
+            ]}
+            onPress={() => setSelected(option.key)}
+            activeOpacity={0.85}
           >
-            <Text style={styles.mapBtnText}>Xəritədə konum seç</Text>
-          </TouchableOpacity>
-          <Text style={styles.addressPreview}>
-            {deliveryLocation?.address || "Hələ ünvan seçilməyib"}
-          </Text>
-        </View>
-      ) : null}
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Yetimləri Sevindir</Text>
-        <TouchableOpacity
-          style={styles.toggle}
-          onPress={() => setOrphanEnabled((v) => !v)}
-        >
-          <Text style={styles.toggleText}>
-            {orphanEnabled ? "Aktivdir" : "Aktiv et"}
-          </Text>
-        </TouchableOpacity>
-
-        {orphanEnabled ? (
-          <>
-            <View style={styles.rowWrap}>
-              {CHARITY_TARGETS.map((target) => (
-                <TouchableOpacity
-                  key={target.key}
-                  style={[
-                    styles.chip,
-                    orphanTarget === target.key && styles.chipActive,
-                  ]}
-                  onPress={() => setOrphanTarget(target.key)}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      orphanTarget === target.key && styles.chipTextActive,
-                    ]}
-                  >
-                    {target.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            <View
+              style={[
+                styles.optionIconWrap,
+                selected === option.key && styles.optionIconWrapSelected,
+              ]}
+            >
+              <MaterialCommunityIcons
+                name={option.icon}
+                size={20}
+                color={selected === option.key ? Colors.white : Colors.primary}
+              />
             </View>
-            <TextInput
-              style={styles.input}
-              keyboardType="number-pad"
-              value={orphanAmount}
-              onChangeText={setOrphanAmount}
-              placeholder="Əlavə ödəniş (AZN)"
-            />
-          </>
+            <Text style={styles.optionTitle}>{option.title}</Text>
+          </TouchableOpacity>
+        ))}
+
+        {selected === "catdirilsin" ? (
+          <View style={styles.card}>
+            <Text style={styles.label}>Çatdırılma ünvanı</Text>
+            <Text style={styles.deliveryFreeText}>Çatdırılma pulsuzdur</Text>
+            <TouchableOpacity
+              style={styles.mapBtn}
+              onPress={() =>
+                navigation.navigate("DeliveryLocationPicker", {
+                  initialLocation: deliveryLocation,
+                  animalType: draft?.animal?.type,
+                })
+              }
+            >
+              <Text style={styles.mapBtnText}>Xəritədə konum seç</Text>
+            </TouchableOpacity>
+            <Text style={styles.addressPreview}>
+              {deliveryLocation?.address || "Hələ ünvan seçilməyib"}
+            </Text>
+          </View>
         ) : null}
-      </View>
+      </ScrollView>
 
       <TouchableOpacity
-        style={[styles.button, !isValid && styles.buttonDisabled]}
+        style={[
+          styles.button,
+          styles.buttonFloating,
+          { bottom: insets.bottom + 10 },
+          !isValid && styles.buttonDisabled,
+        ]}
         onPress={handleContinue}
         disabled={!isValid}
       >
-        <Text style={styles.buttonText}>Növbəti: Ödəniş seç</Text>
+        <View style={styles.buttonContentRow}>
+          <Text style={styles.buttonText}>Ödəniş</Text>
+          <MaterialCommunityIcons
+            name="chevron-double-right"
+            size={28}
+            color={Colors.white}
+          />
+        </View>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: 16, paddingBottom: 30 },
+  scrollView: { flex: 1 },
+  content: { padding: 16, paddingBottom: 120 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
@@ -230,7 +200,17 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
     backgroundColor: Colors.primarySurface,
   },
-  optionIcon: { fontSize: 22 },
+  optionIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.primarySurface,
+  },
+  optionIconWrapSelected: {
+    backgroundColor: Colors.primary,
+  },
   optionTitle: { fontSize: 15, fontWeight: "600", color: Colors.textPrimary },
   card: {
     backgroundColor: Colors.white,
@@ -293,10 +273,26 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.primary,
     borderRadius: 12,
-    paddingVertical: 15,
+    paddingVertical: 16,
     alignItems: "center",
-    marginTop: 14,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    width: "48.5%",
   },
-  buttonDisabled: { opacity: 0.4 },
-  buttonText: { color: Colors.white, fontWeight: "700", fontSize: 16 },
+  buttonFloating: {
+    position: "absolute",
+    right: 16,
+  },
+  buttonContentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 20,
+  },
+  buttonDisabled: { opacity: 0.45 },
+  buttonText: {
+    color: Colors.white,
+    fontWeight: "700",
+    fontSize: 16,
+    paddingLeft: 7,
+  },
 });

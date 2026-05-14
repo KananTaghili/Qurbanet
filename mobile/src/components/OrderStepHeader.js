@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 
-const STEPS = ["QURBAN SEC", "CATDIRILMA SEC", "ODEME SEC"];
+const STEPS = ["Qurban Seç", "Çatdırılma Seç", "Ödəniş Seç"];
 
 export default function OrderStepHeader({ currentStep = 1 }) {
   return (
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    justifyContent: "center",
   },
   stepCol: {
     alignItems: "center",
@@ -92,10 +92,11 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   line: {
-    flex: 1,
+    width: 22,
     height: 2,
     backgroundColor: Colors.border,
-    marginHorizontal: 6,
+    marginHorizontal: 4,
+    marginBottom: 14,
   },
   lineDone: {
     backgroundColor: Colors.success,

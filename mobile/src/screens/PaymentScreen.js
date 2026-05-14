@@ -28,6 +28,60 @@ export default function PaymentScreen({ navigation, route }) {
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Price breakdown
+  const basePrice = Number(order.pricePerUnit || 0);
+  const qty =
+    order.orderMode === "serikli"
+      ? Number(order.sharedPortion || 1)
+      : Number(order.quantity || 1);
+  const baseTotalPrice = Number((basePrice * qty).toFixed(2));
+  const cutStyleExtra = Number(order.cutStyle?.extraFee || 0);
+  const headFee = Number(order.qurbanParts?.headFee || 0);
+  const feetFee = Number(order.qurbanParts?.feetFee || 0);
+  const partsExtra = Number((headFee + feetFee).toFixed(2));
+  const orphanExtra = order.orphanDelight?.enabled
+    ? Number(order.orphanDelight.extraAmount || 0)
+    : 0;
+  const deliveryFee = Number(order.deliveryFee || 0);
+
+  // Detect if there are TWO delivery fees (double fee)
+  const hasDoubleFee =
+    deliveryFee === 20 && order.distribution?.type === "catdirilsin";
+
+  const breakdownRows = [
+    {
+      label:
+        order.orderMode === "serikli"
+          ? `${order.animalNameAz} (${order.sharedPortion} hissə × ${basePrice} ₼)`
+          : `${order.animalNameAz} (${order.quantity} ədəd × ${basePrice} ₼)`,
+      value: baseTotalPrice,
+    },
+    cutStyleExtra > 0 && {
+      label: `Doğranma (${order.cutStyle?.labelAz || ""})`,
+      value: cutStyleExtra,
+    },
+    partsExtra > 0 && {
+      label: "Baş/Ayaq emalı",
+      value: partsExtra,
+    },
+    orphanExtra > 0 && {
+      label: "Yetimləri sevindir",
+      value: orphanExtra,
+    },
+    hasDoubleFee && {
+      label: "Çatdırılma (Sizə)",
+      value: 10,
+    },
+    hasDoubleFee && {
+      label: "Çatdırılma (Ehtiyaclılara)",
+      value: 10,
+    },
+    !hasDoubleFee && {
+      label: deliveryFee > 0 ? "Çatdırılma" : "Çatdırılma (pulsuz)",
+      value: deliveryFee,
+    },
+  ].filter(Boolean);
+
   const isCardValid =
     cardNumber.replace(/\s/g, "").length === 16 &&
     expiry.length === 5 &&
@@ -69,12 +123,31 @@ export default function PaymentScreen({ navigation, route }) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       <OrderStepHeader currentStep={3} />
 
-      <View style={styles.amountCard}>
+      <View style={[styles.amountCard, { marginTop: 16 }]}>
         <Text style={styles.amountLabel}>Ödənilməli məbləğ</Text>
         <Text style={styles.amountValue}>{order.totalPrice} ₼</Text>
+      </View>
+
+      <View style={[styles.card, { marginTop: 6 }]}>
+        <Text style={styles.title}>Qiymət tərkibi</Text>
+        {breakdownRows.map((row, i) => (
+          <View key={i} style={styles.breakdownRow}>
+            <Text style={styles.breakdownLabel}>{row.label}</Text>
+            <Text style={styles.breakdownValue}>{row.value.toFixed(2)} ₼</Text>
+          </View>
+        ))}
+        <View style={styles.breakdownDivider} />
+        <View style={styles.breakdownRow}>
+          <Text style={styles.breakdownTotal}>Cəmi</Text>
+          <Text style={styles.breakdownTotalValue}>{order.totalPrice} ₼</Text>
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -208,4 +281,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonText: { color: Colors.white, fontWeight: "700", fontSize: 16 },
+  breakdownRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  breakdownLabel: {
+    color: Colors.textSecondary,
+    fontSize: 13,
+    flex: 1,
+    marginRight: 8,
+  },
+  breakdownValue: {
+    color: Colors.textPrimary,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  breakdownDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 6,
+  },
+  breakdownTotal: {
+    color: Colors.textPrimary,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  breakdownTotalValue: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: "900",
+  },
 });

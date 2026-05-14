@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
         user,
         token,
         isLoading,
-        isGuest: !user?.name || user?.name === "Qonaq",
+        isGuest: !user?.name || user?.name === "",
         isAuthenticated: !!token,
         login,
         logout,

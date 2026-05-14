@@ -54,7 +54,23 @@ export default function Layout() {
               `${styles.navItem} ${isActive ? styles.navItemActive : ""}`
             }
           >
-            Kateqoriyalar
+            <span>🐑</span> Kateqoriyalar
+          </NavLink>
+          <NavLink
+            to="/delivery-options"
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.navItemActive : ""}`
+            }
+          >
+            <span>🚚</span> Çatdırma Qiymətləri
+          </NavLink>
+          <NavLink
+            to="/charity-options"
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.navItemActive : ""}`
+            }
+          >
+            <span>🤲</span> Xeyriyyə Seçimləri
           </NavLink>
         </nav>
 

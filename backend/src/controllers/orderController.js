@@ -1,5 +1,7 @@
 const Order = require("../models/Order");
 const Category = require("../models/Category");
+const DeliveryOption = require("../models/DeliveryOption");
+const CharityOption = require("../models/CharityOption");
 const {
   ANIMALS,
   ORDER_STATUS,
@@ -7,6 +9,11 @@ const {
   WEIGHT_OPTIONS_BY_ANIMAL,
   MEAT_FORM_OPTIONS,
   DELIVERY_TIME_WINDOWS,
+  QURBAN_PART_FEES_BY_ANIMAL,
+  QURBAN_PART_PROCESSING_FEES_BY_ANIMAL,
+  DELIVERY_FEE,
+  CUT_STYLE_LABELS,
+  CUT_STYLE_FEES_BY_ANIMAL,
 } = require("../config/constants");
 const { success, error } = require("../utils/response");
 
@@ -52,6 +59,11 @@ const getAnimalEmoji = (animalType, emoji) => {
 };
 
 const ensureDefaultCategories = async () => {
+  // Seed defaults only when collection is empty.
+  // Otherwise deletions in admin would keep coming back.
+  const existingCount = await Category.countDocuments({});
+  if (existingCount > 0) return;
+
   const existingCategories = await Category.find({}).select("type").lean();
   const existingTypes = new Set(
     existingCategories.map((item) => normalizeType(item.type)),
@@ -171,6 +183,30 @@ const buildCuttingProcessNotes = (order) => {
   ];
 };
 
+const getQurbanPartFees = (animalType) => {
+  return QURBAN_PART_FEES_BY_ANIMAL[animalType] || { head: 0, feet: 0 };
+};
+
+const getQurbanPartProcessingFees = (animalType) => {
+  return (
+    QURBAN_PART_PROCESSING_FEES_BY_ANIMAL[animalType] || { head: 0, feet: 0 }
+  );
+};
+
+const getCutStyleFees = (animalType) => {
+  return (
+    CUT_STYLE_FEES_BY_ANIMAL[animalType] ||
+    CUT_STYLE_FEES_BY_ANIMAL.qoyun || {
+      tam_cemdek: 0,
+      kababliq: 0,
+      qazan_yemekleri: 0,
+      kababliq_qazan: 0,
+    }
+  );
+};
+
+const CUT_STYLE_KEYS = Object.keys(CUT_STYLE_LABELS);
+
 const formatOrder = (order, req) => {
   const animalInfo = ANIMALS[order.animalType] || {};
   return {
@@ -190,7 +226,9 @@ const formatOrder = (order, req) => {
     sharedPortion: order.sharedPortion,
     lambSelection: order.lambSelection,
     qurbanParts: order.qurbanParts,
+    cutStyle: order.cutStyle,
     pricePerUnit: order.pricePerUnit,
+    deliveryFee: order.deliveryFee ?? 0,
     totalPrice: order.totalPrice,
     distribution: order.distribution,
     payment: order.payment,
@@ -224,27 +262,55 @@ const formatOrder = (order, req) => {
 const getAnimals = async (req, res) => {
   try {
     await ensureDefaultCategories();
-    const animals = await Category.find({ isActive: true })
-      .sort({ createdAt: 1 })
-      .select("-__v");
+
+    // Fetch all data in parallel
+    const [animals, deliveryOptions, charityOptions] = await Promise.all([
+      Category.find({ isActive: true }).sort({ createdAt: 1 }).select("-__v"),
+      DeliveryOption.find({ isActive: true })
+        .populate("categorySpecificPrices.categoryId", "nameAz type")
+        .sort({ key: 1 }),
+      CharityOption.find({ isActive: true }).sort({
+        sortOrder: 1,
+        createdAt: 1,
+      }),
+    ]);
 
     const fixed = animals.map((a) => {
       const obj = a.toObject();
       obj.emoji = getAnimalEmoji(obj.type, obj.emoji);
       obj.imageUrl = fixMediaUrl(obj.imageUrl, req);
       obj.videoUrl = fixMediaUrl(obj.videoUrl, req);
-      const weightOptions = WEIGHT_OPTIONS_BY_ANIMAL[obj.type];
-      if (weightOptions?.length) {
-        obj.weightOptions = weightOptions;
-      }
-      if (obj.type === "quzu") {
-        obj.meatFormOptions = Object.values(MEAT_FORM_OPTIONS);
-      }
+
+      // Admin panelindən gələn qiymətləri tənzimləyirik
+      obj.weightOptions = obj.weightOptions?.length
+        ? obj.weightOptions
+        : WEIGHT_OPTIONS_BY_ANIMAL[obj.type] || [];
+      obj.qurbanPartFees = {
+        head: obj.headFee ?? getQurbanPartFees(obj.type).head,
+        feet: obj.feetFee ?? getQurbanPartFees(obj.type).feet,
+      };
+      obj.qurbanPartProcessingFees = {
+        head:
+          obj.headProcessingFee ?? getQurbanPartProcessingFees(obj.type).head,
+        feet:
+          obj.feetProcessingFee ?? getQurbanPartProcessingFees(obj.type).feet,
+      };
+      obj.cutStyleOptions = obj.cutStyleOptions || [];
+
+      return obj;
+    });
+
+    const fixedCharityOptions = charityOptions.map((c) => {
+      const obj = c.toObject();
+      obj.imageUrl = fixMediaUrl(obj.imageUrl, req);
+      obj.videoUrl = fixMediaUrl(obj.videoUrl, req);
       return obj;
     });
 
     return success(res, {
       animals: fixed,
+      deliveryOptions: deliveryOptions,
+      charityOptions: fixedCharityOptions,
       deliveryWindows: DELIVERY_TIME_WINDOWS,
     });
   } catch (err) {
@@ -261,8 +327,8 @@ const createOrder = async (req, res) => {
       distribution,
       orderMode,
       sharedPortion,
-      lambSelection,
       qurbanParts,
+      cutStyle,
       slaughterDate,
       deliveryDate,
       deliveryWindow,
@@ -270,6 +336,7 @@ const createOrder = async (req, res) => {
       contactInfo,
       orphanDelight,
       paymentMethod,
+      userNote,
     } = req.body;
 
     const normalizedType = normalizeType(animalType);
@@ -403,13 +470,199 @@ const createOrder = async (req, res) => {
     const normalizedPaymentMethod =
       paymentMethod === "cash_on_delivery" ? "cash_on_delivery" : "bank_card";
 
+    const toCount = (value) => Math.max(0, Number(value) || 0);
+    const hasCountFields =
+      qurbanParts?.headTotalCount != null ||
+      qurbanParts?.feetTotalCount != null;
+
+    const legacyHeadReady = Boolean(qurbanParts?.headReady);
+    const legacyFeetReady = Boolean(qurbanParts?.feetReady);
+
+    const headTotalCount = hasCountFields
+      ? toCount(qurbanParts?.headTotalCount)
+      : Boolean(qurbanParts?.head)
+        ? 1
+        : 0;
+    const headFreeCount = hasCountFields
+      ? toCount(qurbanParts?.headFreeCount)
+      : headTotalCount - (legacyHeadReady ? 1 : 0);
+    const headCharityCount = hasCountFields
+      ? toCount(qurbanParts?.headCharityCount)
+      : 0;
+    const headTorchedCount = hasCountFields
+      ? toCount(qurbanParts?.headTorchedCount)
+      : 0;
+    const headReadyCount = hasCountFields
+      ? toCount(qurbanParts?.headReadyCount)
+      : legacyHeadReady
+        ? 1
+        : 0;
+
+    const feetTotalCount = hasCountFields
+      ? toCount(qurbanParts?.feetTotalCount)
+      : Boolean(qurbanParts?.feet)
+        ? 4
+        : 0;
+    const feetFreeCount = hasCountFields
+      ? toCount(qurbanParts?.feetFreeCount)
+      : feetTotalCount - (legacyFeetReady ? 1 : 0);
+    const feetCharityCount = hasCountFields
+      ? toCount(qurbanParts?.feetCharityCount)
+      : 0;
+    const feetTorchedCount = hasCountFields
+      ? toCount(qurbanParts?.feetTorchedCount)
+      : 0;
+    const feetReadyCount = hasCountFields
+      ? toCount(qurbanParts?.feetReadyCount)
+      : legacyFeetReady
+        ? 1
+        : 0;
+
+    // Detect if user has charity parts
+    const hasCharityParts = headCharityCount > 0 || feetCharityCount > 0;
+    // Detect if user is taking some meat for themselves (from other parts like free, ready, torched)
+    const hasOwnParts =
+      headFreeCount +
+        headReadyCount +
+        headTorchedCount +
+        feetFreeCount +
+        feetReadyCount +
+        feetTorchedCount >
+      0;
+
     const finalQurbanParts = {
-      head: Boolean(qurbanParts?.head),
-      feet: Boolean(qurbanParts?.feet),
-      confirmed: false,
+      head: headTotalCount > 0,
+      headTotalCount,
+      headFreeCount,
+      headCharityCount,
+      headTorchedCount,
+      headReadyCount,
+      headReady: headReadyCount > 0,
+      headProcess:
+        headReadyCount > 0
+          ? "utulun"
+          : headCharityCount > 0
+            ? "sedeqe"
+            : headTorchedCount > 0
+              ? "utulun"
+              : "none",
+      feet: feetTotalCount > 0,
+      feetTotalCount,
+      feetFreeCount,
+      feetCharityCount,
+      feetTorchedCount,
+      feetReadyCount,
+      feetReady: feetReadyCount > 0,
+      feetProcess:
+        feetReadyCount > 0
+          ? "utulun"
+          : feetCharityCount > 0
+            ? "sedeqe"
+            : feetTorchedCount > 0
+              ? "utulun"
+              : "none",
+      confirmed: headTotalCount > 0 || feetTotalCount > 0,
+      headFee: 0,
+      feetFee: 0,
+      extraCharge: 0,
     };
 
-    finalQurbanParts.confirmed = finalQurbanParts.head || finalQurbanParts.feet;
+    const partFees = getQurbanPartFees(normalizedType);
+    const processingFees = getQurbanPartProcessingFees(normalizedType);
+
+    const headFeeTotal = Number(
+      (
+        headTorchedCount * Number(partFees.head || 0) +
+        (headReadyCount + headCharityCount) *
+          (Number(partFees.head || 0) + Number(processingFees.head || 0))
+      ).toFixed(2),
+    );
+    const feetFeeTotal = Number(
+      (
+        feetTorchedCount * Number(partFees.feet || 0) +
+        (feetReadyCount + feetCharityCount) *
+          (Number(partFees.feet || 0) + Number(processingFees.feet || 0))
+      ).toFixed(2),
+    );
+    const qurbanPartsExtraCharge = Number(
+      (headFeeTotal + feetFeeTotal).toFixed(2),
+    );
+
+    finalQurbanParts.headFee = headFeeTotal;
+    finalQurbanParts.feetFee = feetFeeTotal;
+    finalQurbanParts.extraCharge = qurbanPartsExtraCharge;
+
+    const categoryCutStyles = animal.cutStyleOptions || [];
+    const validCutStyleKeys = categoryCutStyles.map((c) => c.key);
+
+    const fallbackCutStyleKey = Object.prototype.hasOwnProperty.call(
+      validCutStyleKeys, // Massivdə dəyər yoxlamaq üçün 'includes' istifadə edilməlidir
+      cutStyle?.key,
+    )
+      ? cutStyle.key
+      : validCutStyleKeys[0] || "tam_cemdek";
+
+    const expectedCutStyleCount =
+      normalizedMode === "serikli" ? 1 : Math.max(1, qty);
+
+    const allocationMap = validCutStyleKeys.reduce((acc, key) => {
+      acc[key] = 0;
+      return acc;
+    }, {});
+
+    if (validCutStyleKeys.length > 0) {
+      const incomingAllocations = Array.isArray(cutStyle?.allocations)
+        ? cutStyle.allocations
+        : [];
+      incomingAllocations.forEach((item) => {
+        const key = item?.key;
+        if (!validCutStyleKeys.includes(key)) return;
+        const count = Math.max(0, Number(item?.count) || 0);
+        allocationMap[key] += count;
+      });
+
+      let allocationTotal = validCutStyleKeys.reduce(
+        (sum, key) => sum + allocationMap[key],
+        0,
+      );
+
+      if (allocationTotal < expectedCutStyleCount) {
+        allocationMap[fallbackCutStyleKey] +=
+          expectedCutStyleCount - allocationTotal;
+        allocationTotal = expectedCutStyleCount;
+      }
+    }
+
+    const finalCutStyleAllocations = categoryCutStyles.map((style) => {
+      const count = Math.max(0, Number(allocationMap[style.key] || 0));
+      const unitFee = Number(style.fee || 0);
+      return {
+        key: style.key,
+        labelAz: style.labelAz,
+        count,
+        unitFee,
+        extraFee: Number((count * unitFee).toFixed(2)),
+      };
+    });
+
+    const selectedCutStyleKey =
+      finalCutStyleAllocations.slice().sort((a, b) => b.count - a.count)[0]
+        ?.key || fallbackCutStyleKey;
+
+    const cutStyleExtraCharge = Number(
+      finalCutStyleAllocations
+        .reduce((sum, item) => sum + item.extraFee, 0)
+        .toFixed(2),
+    );
+
+    const finalCutStyle = {
+      key: selectedCutStyleKey,
+      labelAz:
+        categoryCutStyles.find((s) => s.key === selectedCutStyleKey)?.labelAz ||
+        "Naməlum",
+      extraFee: cutStyleExtraCharge,
+      allocations: finalCutStyleAllocations,
+    };
 
     let finalPricePerUnit;
     let finalTotalPrice;
@@ -425,29 +678,7 @@ const createOrder = async (req, res) => {
     }
 
     const totalShares = Math.max(1, Number(animal.totalShares) || 1);
-    if (normalizedType === "quzu") {
-      const selectedMeatForm =
-        MEAT_FORM_OPTIONS[lambSelection?.meatFormKey] ||
-        MEAT_FORM_OPTIONS.tam_cemdek;
-
-      normalizedLambSelection = {
-        weightCategoryKey: selectedWeight.key,
-        weightCategoryLabel: selectedWeight.labelAz,
-        meatFormKey: selectedMeatForm.key,
-        meatFormLabel: selectedMeatForm.labelAz,
-        meatFormExtraFee: selectedMeatForm.extraFee,
-      };
-
-      finalPricePerUnit = Number(
-        (selectedWeight.price + selectedMeatForm.extraFee).toFixed(2),
-      );
-      finalTotalPrice = Number((finalPricePerUnit * qty).toFixed(2));
-    } else if (selectedWeight) {
-      normalizedLambSelection = {
-        weightCategoryKey: selectedWeight.key,
-        weightCategoryLabel: selectedWeight.labelAz,
-      };
-
+    if (selectedWeight) {
       if (normalizedMode === "serikli") {
         finalPricePerUnit = Number(
           (selectedWeight.price / totalShares).toFixed(2),
@@ -495,6 +726,24 @@ const createOrder = async (req, res) => {
       }
     }
 
+    const deliveryFeeCharge = (() => {
+      if (distribution.type === "ozun_gotur") {
+        // User picks it up themselves - no delivery fee
+        return 0;
+      }
+      if (
+        distribution.type === "catdirilsin" &&
+        hasCharityParts &&
+        hasOwnParts
+      ) {
+        // User wants delivery AND has both own meat AND charity meat
+        // Need TWO delivery fees (one for user delivery, one for charity delivery)
+        return DELIVERY_FEE * 2;
+      }
+      // All other cases: one delivery fee
+      return DELIVERY_FEE;
+    })();
+
     const order = await Order.create({
       user: req.userId,
       animalType: animal.type,
@@ -507,8 +756,18 @@ const createOrder = async (req, res) => {
         normalizedMode === "serikli" ? normalizedSharedPortion : undefined,
       lambSelection: normalizedLambSelection,
       qurbanParts: finalQurbanParts,
+      cutStyle: finalCutStyle,
       pricePerUnit: finalPricePerUnit,
-      totalPrice: Number((finalTotalPrice + orphanExtraCharge).toFixed(2)),
+      deliveryFee: deliveryFeeCharge,
+      totalPrice: Number(
+        (
+          finalTotalPrice +
+          qurbanPartsExtraCharge +
+          cutStyleExtraCharge +
+          orphanExtraCharge +
+          deliveryFeeCharge
+        ).toFixed(2),
+      ),
       distribution: {
         type: distribution.type,
         location: requiresAddress ? distribution.location.trim() : undefined,
@@ -533,6 +792,7 @@ const createOrder = async (req, res) => {
         mobile: userMobile,
       },
       orphanDelight: finalOrphanDelight,
+      userNote: userNote ? String(userNote).trim().slice(0, 300) : undefined,
       slaughterDate: parsedSlaughterDate,
       deliveryDate: parsedDeliveryDate,
       deliveryWindow,

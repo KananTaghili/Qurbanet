@@ -14,7 +14,7 @@ import {
 import { Colors } from "../theme/colors";
 import api, { BASE_URL } from "../config/api";
 
-const LOGO = require("../assets/logo.jpg");
+const LOGO = require("../assets/logo.png");
 
 const formatPhone = (value) => {
   const digits = value.replace(/\D/g, "");

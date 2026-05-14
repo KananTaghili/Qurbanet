@@ -10,7 +10,9 @@ const rateLimit = require("express-rate-limit");
 const connectDB = require("./src/config/database");
 const authRoutes = require("./src/routes/authRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
+const charityOrderRoutes = require("./src/routes/charityOrderRoutes");
 const adminRoutes = require("./src/routes/adminRoutes");
+const appConfigRoutes = require("./src/routes/appConfigRoutes");
 const socketService = require("./src/socket");
 
 const app = express();
@@ -68,8 +70,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
+app.use("/api/app-config", appConfigRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/charity-orders", charityOrderRoutes);
 app.use("/api/admin", adminRoutes);
 
 // ─── Health Check ───────────────────────────────────────────────────────────

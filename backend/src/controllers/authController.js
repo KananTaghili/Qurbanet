@@ -147,7 +147,7 @@ const guestLogin = async (req, res) => {
     if (!user) {
       user = await User.create({
         phone,
-        name: "Qonaq",
+        name: "",
         isVerified: true,
       });
     }
