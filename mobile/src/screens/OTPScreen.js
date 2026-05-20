@@ -16,12 +16,14 @@ import api from "../config/api";
 const OTP_LENGTH = 6;
 
 export default function OTPScreen({ navigation, route }) {
-  const { phone } = route.params;
+  const { identifier, identifierType, phone: legacyPhone } = route.params;
+  const id = identifier || legacyPhone;
+  const idType = identifierType || "phone";
   const { login } = useAuth();
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(60);
-  const inputs = useRef([]);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -36,36 +38,28 @@ export default function OTPScreen({ navigation, route }) {
     return () => clearInterval(interval);
   }, []);
 
-  const handleChange = (value, index) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    if (value && index < OTP_LENGTH - 1) {
-      inputs.current[index + 1]?.focus();
-    }
-    if (newOtp.every((d) => d !== "") && value) {
-      handleVerify(newOtp.join(""));
-    }
-  };
-
-  const handleKeyPress = (e, index) => {
-    if (e.nativeEvent.key === "Backspace" && !otp[index] && index > 0) {
-      inputs.current[index - 1]?.focus();
+  const handleChange = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, OTP_LENGTH);
+    setOtp(digits);
+    if (digits.length === OTP_LENGTH) {
+      handleVerify(digits);
     }
   };
 
   const handleVerify = async (code) => {
     if (loading) return;
-    const fullCode = code || otp.join("");
+    const fullCode = code ?? otp;
     if (fullCode.length !== OTP_LENGTH) {
       Alert.alert("Xəta", "6 rəqəmli kodu tam daxil edin.");
       return;
     }
-
     setLoading(true);
     try {
-      const res = await api.post("/auth/verify-otp", { phone, code: fullCode });
+      const payload =
+        idType === "email"
+          ? { email: id, code: fullCode }
+          : { phone: id, code: fullCode };
+      const res = await api.post("/auth/verify-otp", payload);
       if (res.data.success) {
         const { token, user, needsName } = res.data.data;
         if (needsName) {
@@ -78,8 +72,8 @@ export default function OTPScreen({ navigation, route }) {
       const msg =
         err.response?.data?.message || "Kod yanlışdır. Yenidən cəhd edin.";
       Alert.alert("Xəta", msg);
-      setOtp(["", "", "", "", "", ""]);
-      inputs.current[0]?.focus();
+      setOtp("");
+      inputRef.current?.focus();
     } finally {
       setLoading(false);
     }
@@ -88,9 +82,11 @@ export default function OTPScreen({ navigation, route }) {
   const handleResend = async () => {
     if (resendTimer > 0) return;
     try {
-      await api.post("/auth/send-otp", { phone });
+      const payload =
+        idType === "email" ? { email: id } : { phone: id };
+      await api.post("/auth/send-otp", payload);
       setResendTimer(60);
-      setOtp(["", "", "", "", "", ""]);
+      setOtp("");
       Alert.alert("✅", "Yeni kod göndərildi.");
     } catch (err) {
       Alert.alert("Xəta", "Kod göndərilə bilmədi.");
@@ -103,11 +99,7 @@ export default function OTPScreen({ navigation, route }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.inner}>
-        {/* Başlıq */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.back}
-        >
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.back}>
           <Text style={styles.backText}>← Geri</Text>
         </TouchableOpacity>
 
@@ -115,36 +107,54 @@ export default function OTPScreen({ navigation, route }) {
           <Text style={styles.icon}>📱</Text>
           <Text style={styles.title}>Doğrulama kodu</Text>
           <Text style={styles.subtitle}>
-            <Text style={styles.phone}>{phone}</Text> nömrəsinə{"\n"}6 rəqəmli
+            <Text style={styles.phone}>{id}</Text>
+            {idType === "email" ? " ünvanına" : " nömrəsinə"}{"\n"}6 rəqəmli
             kod göndərildi
           </Text>
         </View>
 
-        {/* OTP inputlar */}
-        <View style={styles.otpContainer}>
-          {otp.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => (inputs.current[index] = ref)}
-              style={[styles.otpInput, digit ? styles.otpInputFilled : null]}
-              value={digit}
-              onChangeText={(val) => handleChange(val, index)}
-              onKeyPress={(e) => handleKeyPress(e, index)}
-              keyboardType="number-pad"
-              maxLength={1}
-              autoFocus={index === 0}
-            />
-          ))}
-        </View>
+        {/* Gizli real input — bütün kodu alır */}
+        <TextInput
+          ref={inputRef}
+          style={styles.hiddenInput}
+          value={otp}
+          onChangeText={handleChange}
+          keyboardType="number-pad"
+          maxLength={OTP_LENGTH}
+          autoFocus
+          textContentType="oneTimeCode"
+          autoComplete="sms-otp"
+        />
 
-        {/* Yoxla düyməsi */}
+        {/* Vizual qutular — yalnız göstərir */}
+        <TouchableOpacity
+          style={styles.otpContainer}
+          onPress={() => inputRef.current?.focus()}
+          activeOpacity={1}
+        >
+          {Array(OTP_LENGTH)
+            .fill("")
+            .map((_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.otpInput,
+                  otp[i] ? styles.otpInputFilled : null,
+                  i === otp.length && styles.otpInputActive,
+                ]}
+              >
+                <Text style={styles.otpDigit}>{otp[i] || ""}</Text>
+              </View>
+            ))}
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.button,
-            (loading || otp.some((d) => !d)) && styles.buttonDisabled,
+            (loading || otp.length < OTP_LENGTH) && styles.buttonDisabled,
           ]}
-          onPress={() => handleVerify()}
-          disabled={loading || otp.some((d) => !d)}
+          onPress={() => handleVerify(otp)}
+          disabled={loading || otp.length < OTP_LENGTH}
           activeOpacity={0.8}
         >
           <Text style={styles.buttonText}>
@@ -152,11 +162,8 @@ export default function OTPScreen({ navigation, route }) {
           </Text>
         </TouchableOpacity>
 
-        {/* Yenidən göndər */}
         <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0}>
-          <Text
-            style={[styles.resend, resendTimer > 0 && styles.resendDisabled]}
-          >
+          <Text style={[styles.resend, resendTimer > 0 && styles.resendDisabled]}>
             {resendTimer > 0
               ? `Yenidən göndər (${resendTimer}s)`
               : "Kodu yenidən göndər"}
@@ -190,6 +197,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   phone: { fontWeight: "700", color: Colors.white },
+  hiddenInput: {
+    position: "absolute",
+    width: 1,
+    height: 1,
+    opacity: 0,
+  },
   otpContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -203,14 +216,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: "rgba(255,255,255,0.3)",
-    textAlign: "center",
-    fontSize: 22,
-    fontWeight: "700",
-    color: Colors.white,
+    alignItems: "center",
+    justifyContent: "center",
   },
   otpInputFilled: {
     backgroundColor: "rgba(255,255,255,0.25)",
     borderColor: Colors.accent,
+  },
+  otpInputActive: {
+    borderColor: Colors.white,
+  },
+  otpDigit: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: Colors.white,
   },
   button: {
     backgroundColor: Colors.accent,
