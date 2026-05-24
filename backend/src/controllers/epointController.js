@@ -1,6 +1,6 @@
 const Order = require("../models/Order");
 const CharityOrder = require("../models/CharityOrder");
-const { createPayment, getTransactionStatus, verifySignature, decodeData, getAzPaymentErrorMessage } = require("../utils/epoint");
+const { createPayment, createWidget, getTransactionStatus, verifySignature, decodeData, getAzPaymentErrorMessage } = require("../utils/epoint");
 const { success, error } = require("../utils/response");
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
@@ -322,11 +322,75 @@ const handleReturn = async (req, res) => {
   }
 };
 
+// ─── Regular Order: Widget (Google Pay / Apple Pay) ───────────────────────
+// POST /api/orders/:orderId/epoint/widget
+const startWidgetPayment = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findOne({ _id: orderId, user: req.userId });
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+    if (order.payment?.status === "paid") {
+      return error(res, "Bu sifariş artıq ödənilib.", 400);
+    }
+
+    const epointOrderId = `${order._id}_${Date.now()}`;
+
+    const result = await createWidget({
+      orderId: epointOrderId,
+      amount: order.totalPrice,
+      description: `QurbanEt #${order.orderNumber || orderId}`,
+    });
+
+    order.payment.method = "epoint";
+    order.payment.status = "pending";
+    order.payment.epointOrderId = epointOrderId;
+    await order.save();
+
+    return success(res, { widget_url: result.widget_url });
+  } catch (err) {
+    console.error("[EPoint] startWidgetPayment xətası:", err.message);
+    return error(res, err.message || "Google Pay başladıla bilmədi.", 500);
+  }
+};
+
+// ─── Charity Order: Widget (Google Pay / Apple Pay) ───────────────────────
+// POST /api/charity-orders/:orderId/epoint/widget
+const startCharityWidgetPayment = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await CharityOrder.findOne({ _id: orderId, user: req.userId });
+    if (!order) return error(res, "Xeyriyyə sifarişi tapılmadı.", 404);
+    if (order.paymentStatus === "paid") {
+      return error(res, "Bu sifariş artıq ödənilib.", 400);
+    }
+
+    const epointOrderId = `chr_${order._id}_${Date.now()}`;
+
+    const result = await createWidget({
+      orderId: epointOrderId,
+      amount: order.totalAmount,
+      description: `Xeyriyyə #${order.orderNumber || orderId}`,
+    });
+
+    order.paymentMethod = "epoint";
+    order.paymentStatus = "pending";
+    order.epointOrderId = epointOrderId;
+    await order.save();
+
+    return success(res, { widget_url: result.widget_url });
+  } catch (err) {
+    console.error("[EPoint] startCharityWidgetPayment xətası:", err.message);
+    return error(res, err.message || "Google Pay başladıla bilmədi.", 500);
+  }
+};
+
 module.exports = {
   startPayment,
   verifyPayment,
+  startWidgetPayment,
   startCharityPayment,
   verifyCharityPayment,
+  startCharityWidgetPayment,
   handleResult,
   handleReturn,
 };
