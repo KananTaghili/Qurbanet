@@ -11,6 +11,7 @@ const charityOrderController  = require("../controllers/charityOrderController")
 const appSettingsController = require("../controllers/appSettingsController");
 const cashPaymentController = require("../controllers/cashPaymentController");
 const deliveryConfirmController = require("../controllers/deliveryConfirmController");
+const pricingConfigController = require("../controllers/pricingConfigController");
 const adminAuth = require("../middleware/adminAuth");
 
 // ─── Multer konfiqurasiyası (memory — fayllar GridFS-ə göndərilir) ───────
@@ -123,6 +124,11 @@ router.delete(
   "/categories/:categoryId",
   categoryAdminController.deleteCategory,
 );
+
+// ─── Pricing Config ───────────────────────────────────────────────────────
+router.get("/pricing",                    pricingConfigController.list);
+router.get("/pricing/:categoryId",        pricingConfigController.getByCategory);
+router.put("/pricing/:categoryId",        pricingConfigController.upsert);
 
 // ─── App Settings ─────────────────────────────────────────────────────────
 // GET /api/admin/settings
