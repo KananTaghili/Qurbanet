@@ -18,20 +18,23 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install Dependencies and Build Next.js
+      - name: Install & Build
         env:
           NEXT_PUBLIC_API_URL: https://api.qurbanet.az/api
         run: |
           npm ci
           npm run build
+          # Standalone build-in yanına static və public faylları əlavə et
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
 
-      - name: Copy Build Files to Server via SSH
+      - name: Upload standalone build to Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: ".next,public,package.json,package-lock.json,next.config.js"
+          source: ".next/standalone/."
           target: "/var/www/qurbanetfront"
           rm: false
 
@@ -45,8 +48,9 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             set -e
-            cd /var/www/qurbanetfront
-            [ -d .next ] || { echo "ERROR: .next folder missing after SCP!"; exit 1; }
-            npm ci --omit=dev
-            pm2 restart qurbanetfrontpm || pm2 start npm --name "qurbanetfrontpm" -- run start
+
+            [ -f /var/www/qurbanetfront/server.js ] || { echo "ERROR: server.js not found!"; exit 1; }
+
+            PORT=3001 pm2 restart qurbanetfrontpm --update-env \
+              || PORT=3001 pm2 start /var/www/qurbanetfront/server.js --name "qurbanetfrontpm"
             pm2 save
