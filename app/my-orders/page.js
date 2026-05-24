@@ -1,0 +1,195 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ClipboardList, Video, Heart, ArrowRight } from 'lucide-react';
+import BackHeader from '../../components/BackHeader';
+import StatusBadge from '../../components/StatusBadge';
+import BottomNav from '../../components/BottomNav';
+import api from '../../lib/api';
+import { useSocket } from '../../hooks/useSocket';
+
+const AZ_MONTHS = ['Yan','Fev','Mar','Apr','May','İyun','İyul','Avq','Sen','Okt','Noy','Dek'];
+
+function fmtDate(ds) {
+  if (!ds) return '—';
+  const d = new Date(ds);
+  return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const CHARITY_LABELS = {
+  usaqlar_evi:       'Uşaqlar evi',
+  qocalar_evi:       'Qocalar evi',
+  ehtiyac_sahibleri: 'Ehtiyac sahibləri',
+};
+
+const ANIMAL_IMAGES = {
+  quzu:  '/qoyun.jpg',
+  qoyun: '/qoyun.jpg',
+  qoc:   '/qoc.jpg',
+  dana:  '/dana.jpg',
+  deve:  '/deve.jpg',
+};
+
+const STATUS_COLOR = {
+  placed:          '#F59E0B',
+  pending_payment: '#F59E0B',
+  confirmed:       '#3B82F6',
+  paid:            '#3B82F6',
+  slaughtering:    '#EF4444',
+  preparing:       '#10B981',
+  delivering:      '#3B82F6',
+  completed:       '#22C55E',
+  cancelled:       '#9CA3AF',
+};
+
+function OrderCard({ item }) {
+  const itemId     = item.id || item._id;
+  const isCharity  = item._type === 'charity';
+  const href       = isCharity ? `/charity-order/${itemId}` : `/my-orders/${itemId}`;
+  const status     = item.status || 'placed';
+  const accentColor = STATUS_COLOR[status] || '#9CA3AF';
+  const title      = isCharity
+    ? (CHARITY_LABELS[item.charityTarget] || 'Xeyriyyə')
+    : (item.animal?.nameAz || item.animalNameAz || 'Heyvan');
+  const orderNum  = item.orderNumber || String(itemId).slice(-6).toUpperCase();
+  const qty       = item.quantity || item.sharedPortion || 1;
+
+  return (
+    <Link href={href} className="no-underline block group">
+      <div
+        className="bg-surface rounded-2xl border border-border shadow-card overflow-hidden transition-all duration-150 group-hover:shadow-md group-hover:-translate-y-0.5"
+        style={{ borderLeftWidth: 4, borderLeftColor: accentColor }}
+      >
+
+        {/* Top row: image + title + status */}
+        <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+          <div
+            className="w-16 h-16 rounded-xl overflow-hidden bg-primary-surface flex-shrink-0 flex items-center justify-center"
+            style={{ outline: `2px solid ${accentColor}`, outlineOffset: 2 }}
+          >
+            {isCharity ? (
+              <Heart size={28} className="text-primary" />
+            ) : (
+              <img
+                src={item.animal?.imageUrl || ANIMAL_IMAGES[item.animalType] || '/qoyun.jpg'}
+                alt={title}
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-extrabold text-text-primary truncate">{title}</p>
+            <p className="text-xs text-text-secondary mt-0.5 font-mono">{orderNum}</p>
+          </div>
+          <div className="flex-shrink-0">
+            {isCharity
+              ? <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary-surface text-primary border border-primary/20">
+                  <Heart size={10} /> Xeyriyyə
+                </span>
+              : <StatusBadge status={status} />
+            }
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="mx-4 border-t border-border/60" />
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 divide-x divide-border/60 px-0 py-3">
+          <div className="flex flex-col items-center gap-0.5 px-3">
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">Miqdar</span>
+            <span className="text-sm font-extrabold text-text-primary">{qty} ədəd</span>
+          </div>
+          <div className="flex flex-col items-center gap-0.5 px-3">
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">Məbləğ</span>
+            <span className="text-sm font-extrabold text-primary">{item.totalPrice ?? item.totalAmount ?? '—'} AZN</span>
+          </div>
+          <div className="flex flex-col items-center gap-0.5 px-3">
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">Tarix</span>
+            <span className="text-[11px] font-bold text-text-primary text-center leading-tight">{fmtDate(item.createdAt)}</span>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-4 pb-3">
+          {item.mediaFiles?.length > 0 ? (
+            <span className="inline-flex items-center gap-1 text-xs text-blue-500 font-semibold">
+              <Video size={12} /> Video mövcuddur
+            </span>
+          ) : <span />}
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-primary">
+            Ətraflı bax <ArrowRight size={13} />
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export default function MyOrdersPage() {
+  const router = useRouter();
+  const [orders,        setOrders]        = useState([]);
+  const [charityOrders, setCharityOrders] = useState([]);
+  const [loading,       setLoading]       = useState(true);
+
+  useEffect(() => { fetchAll(); }, []);
+
+  useSocket({
+    'order:updated':         () => fetchAll(),
+    'charity_order:updated': () => fetchAll(),
+  });
+
+  const fetchAll = async () => {
+    try {
+      const [ordRes, charRes] = await Promise.allSettled([
+        api.get('/orders/my'),
+        api.get('/charity-orders'),
+      ]);
+      if (ordRes.status  === 'fulfilled') setOrders(ordRes.value.data.data?.orders || []);
+      if (charRes.status === 'fulfilled') setCharityOrders(charRes.value.data.data?.orders || []);
+    } catch { /* ignore */ } finally { setLoading(false); }
+  };
+
+  const allItems = [
+    ...orders.map((o)        => ({ ...o, _type: 'order' })),
+    ...charityOrders.map((o) => ({ ...o, _type: 'charity' })),
+  ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  return (
+    <div className="flex flex-col flex-1">
+      <BackHeader title="Sifarişlərim" onBack={() => router.push('/')} />
+
+      <div className="flex-1 page-scroll">
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : allItems.length === 0 ? (
+          <div className="flex flex-col items-center py-24 px-8 text-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-primary-surface flex items-center justify-center">
+              <ClipboardList size={36} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-xl font-extrabold text-text-primary">Sifariş yoxdur</p>
+              <p className="text-sm text-text-secondary mt-1">Hələ heç bir sifarişiniz yoxdur.</p>
+            </div>
+            <Link href="/" className="btn-primary mt-1 px-8 no-underline text-center">
+              Sifariş ver
+            </Link>
+          </div>
+        ) : (
+          <div className="p-4 md:p-6 max-w-6xl mx-auto w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {allItems.map((item) => (
+                <OrderCard key={item.id || item._id} item={item} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+}
