@@ -864,8 +864,7 @@ const createOrder = async (req, res) => {
     const charityPortionCount = Number(portionSplit?.charityParts) || 0;
     const hasAnythingForCharity =
       distribution.type === "ehtiyac_sahibleri" ||
-      charityPortionCount > 0 ||
-      hasCharityParts;
+      charityPortionCount > 0;
     if (hasAnythingForCharity) {
       const ehtiyacOpt = await DeliveryOption.findOne({
         key: "ehtiyac_sahibleri",

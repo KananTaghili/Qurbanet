@@ -55,6 +55,10 @@ const appSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    charityPageEnabled: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true },
 );
