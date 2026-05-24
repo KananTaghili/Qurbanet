@@ -22,8 +22,6 @@ jobs:
 
       # 3. GitHub serverində paketləri yazırıq və layihəni BUILD edirik
       - name: Install Dependencies and Build Next.js
-        env:
-          NEXT_PUBLIC_API_URL: https://api.qurbanet.az/api
         run: |
           npm install
           npm run build
