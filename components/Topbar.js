@@ -10,6 +10,7 @@ const PAGE_TITLES = {
   "/qurban-rules": "Qurbanın Əhkamları",
   "/settings": "Parametrlər",
   "/auth/login": "Giriş",
+  "/auth/register": "Qeydiyyat",
   "/auth/otp": "Doğrulama",
   "/auth/name": "Ad daxil edin",
   "/auth/forgot-password": "Şifrəni Sıfırla",

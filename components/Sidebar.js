@@ -11,6 +11,7 @@ import {
   BookOpen,
   LogIn,
   LogOut,
+  UserPlus,
 } from "lucide-react";
 
 const NAV = [
@@ -106,29 +107,46 @@ export default function Sidebar() {
       {/* ── User / Auth ── */}
       <div className="p-2 flex-shrink-0">
         {isGuest ? (
-          <Link
-            href="/auth/login"
-            className="sidebar-item"
-            style={{ background: "rgba(255,255,255,0.12)", color: "#fff" }}
-          >
-            <span
-              className="sidebar-item-icon"
-              style={{ background: "rgba(255,255,255,0.18)" }}
+          <div className="flex flex-col gap-1.5">
+            <Link
+              href="/auth/register"
+              className="sidebar-item"
+              style={{ background: "rgba(134,239,172,0.18)", color: "#86efac" }}
             >
-              <LogIn size={17} strokeWidth={2.5} />
-            </span>
-            <div className="min-w-0">
-              <div className="text-sm font-bold text-white truncate">
-                Daxil ol
-              </div>
-              <div
-                className="text-[11px] lg:text-xs truncate"
-                style={{ color: "rgba(255,255,255,0.55)" }}
+              <span
+                className="sidebar-item-icon"
+                style={{ background: "rgba(134,239,172,0.2)" }}
               >
-                Hesabınıza girin
+                <UserPlus size={17} strokeWidth={2.5} />
+              </span>
+              <div className="min-w-0">
+                <div className="text-sm font-bold truncate" style={{ color: "#86efac" }}>
+                  Qeydiyyat
+                </div>
+                <div className="text-[11px] lg:text-xs truncate" style={{ color: "rgba(134,239,172,0.65)" }}>
+                  OTP ilə hesab aç
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+            <Link
+              href="/auth/login"
+              className="sidebar-item"
+              style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)" }}
+            >
+              <span
+                className="sidebar-item-icon"
+                style={{ background: "rgba(255,255,255,0.12)" }}
+              >
+                <LogIn size={17} strokeWidth={2.5} />
+              </span>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold truncate">Daxil ol</div>
+                <div className="text-[11px] lg:text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  Hesabınıza girin
+                </div>
+              </div>
+            </Link>
+          </div>
         ) : (
           <>
             <div className="flex items-center gap-2 lg:gap-2.5 px-2.5 lg:px-3 py-2">
