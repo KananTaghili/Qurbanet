@@ -81,11 +81,20 @@ export default function ConfirmationPage() {
       </div>
 
       <div className="mobile-action-bar mobile-only">
-        <button className="btn-primary" onClick={handleGoOrders}>Sifarişimi izlə</button>
-        <button
-          onClick={handleGoHome}
-          className="w-full py-3.5 text-primary font-bold text-sm border-2 border-primary rounded-2xl bg-transparent cursor-pointer mt-2.5"
-        >Ana səhifəyə qayıt</button>
+        <div className="flex gap-3">
+          <button
+            className="btn-primary flex-1"
+            onClick={handleGoOrders}
+          >
+            Sifarişimi izlə
+          </button>
+          <button
+            onClick={handleGoHome}
+            className="flex-1 py-3.5 text-primary font-bold text-sm border-2 border-primary/30 rounded-2xl bg-primary-surface cursor-pointer active:scale-[.98] transition-all"
+          >
+            Ana səhifə
+          </button>
+        </div>
       </div>
     </div>
   );
