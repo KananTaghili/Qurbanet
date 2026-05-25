@@ -116,13 +116,8 @@ export default function HomePage() {
             </div>
             <div className="min-w-0">
               <div
-                style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  color: "white",
-                  letterSpacing: "-0.5px",
-                  lineHeight: 1.15,
-                }}
-                className="text-lg xs:text-xl sm:text-[22px] font-black truncate"
+                style={{ color: "white", letterSpacing: "-0.3px", lineHeight: 1.15 }}
+                className="text-lg xs:text-xl sm:text-[22px] font-black italic truncate"
               >
                 Qurban<span style={{ color: "#86efac" }}>Et</span>
               </div>

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HelpCircle, HandHeart, BookOpen, ClipboardList, PawPrint } from 'lucide-react';
+import { HelpCircle, HandHeart, BookOpen, ClipboardList, Beef } from 'lucide-react';
 import api from '../lib/api';
 
 const BRAND = '#1c5e20';
@@ -11,7 +11,7 @@ const MUTED = '#94a3b8';
 const ALL_TABS = [
   { href: '/how-it-works', label: 'Necə İşləyirik', Icon: HelpCircle,    key: 'how' },
   { href: '/need-support',  label: 'Xeyriyyə',       Icon: HandHeart,     key: 'charity' },
-  { href: '/',              label: 'Heyvan Seçimi',  Icon: PawPrint,      key: 'home' },
+  { href: '/',              label: 'Heyvan Seçimi',  Icon: Beef,          key: 'home' },
   { href: '/qurban-rules',  label: 'Əhkamlar',       Icon: BookOpen,      key: 'rules' },
   { href: '/my-orders',     label: 'Sifarişlərim',   Icon: ClipboardList, key: 'orders' },
 ];

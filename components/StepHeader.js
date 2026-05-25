@@ -5,7 +5,6 @@ const STEPS = ['Qurbanlıq', 'Çatdırılma', 'Ödəniş'];
 export default function StepHeader({ currentStep }) {
   return (
     <div className="mobile-step-header" style={{
-      background: 'var(--surface)',
       borderBottom: '1px solid var(--border)',
       padding: '12px 16px',
       flexShrink: 0,

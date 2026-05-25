@@ -129,7 +129,9 @@ export default function DistributionPage() {
         const animalId = order?.animal?._id;
 
         const delivOpt = options.find((o) => o.key === "catdirilsin" || o.key === "delivery" || o.type === "home");
-        const fee = delivOpt?.basePrice ?? delivOpt?.fee ?? 0;
+        const baseFee = delivOpt?.basePrice ?? delivOpt?.fee ?? 0;
+        const animalDeliveryFee = Number(order?.animal?.deliveryFee);
+        const fee = animalDeliveryFee > 0 ? animalDeliveryFee : baseFee;
         setDeliveryFee(fee);
 
         const data = {

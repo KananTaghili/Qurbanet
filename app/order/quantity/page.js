@@ -220,7 +220,6 @@ export default function QuantityPage() {
   const feetUnassigned = feetTotal - feetAssigned;
 
   const cutStyleError =
-    !singleAnimalMode &&
     submitAttempted &&
     effectiveCutStyles.length > 0 &&
     totalCutCount === 0;
@@ -236,11 +235,7 @@ export default function QuantityPage() {
       alert("Çatdırılma vaxtını seçin.");
       return;
     }
-    if (
-      !singleAnimalMode &&
-      effectiveCutStyles.length > 0 &&
-      totalCutCount === 0
-    ) {
+    if (effectiveCutStyles.length > 0 && totalCutCount === 0) {
       return;
     }
     if (needsHead && headUnassigned > 0) {
@@ -428,7 +423,7 @@ export default function QuantityPage() {
       <BackHeader title="Miqdar seçin" />
       <StepHeader currentStep={1} />
 
-      <div className="flex-1 overflow-y-auto pb-24 xl:pb-6">
+      <div className="flex-1 overflow-y-auto pb-24 xl:pb-6 pt-[124px] xl:pt-0">
         <div
           className="max-w-full mx-auto px-0 sm:px-4 md:px-5 py-3 sm:py-4 xl:py-6
                      xl:grid xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px]
@@ -626,9 +621,7 @@ export default function QuantityPage() {
                               const allZero = Object.fromEntries(
                                 effectiveCutStyles.map((c) => [c.key, 0]),
                               );
-                              return isSelected
-                                ? allZero
-                                : { ...allZero, [cs.key]: 1 };
+                              return { ...allZero, [cs.key]: 1 };
                             })
                           }
                           className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${

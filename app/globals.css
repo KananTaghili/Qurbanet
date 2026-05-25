@@ -112,8 +112,8 @@ html, body {
 }
 
 .mobile-back-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--primary);
+  border-bottom: none;
   display: flex;
   align-items: center;
   height: 54px;
@@ -129,6 +129,7 @@ html, body {
   right: 0;
   z-index: 49;
   background: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -200,7 +201,7 @@ html, body {
   .bottom-nav-wrap      { display: none !important; }
   .mobile-green-header  { display: none !important; }
   .mobile-back-header   { display: none !important; }
-  .mobile-step-header   { position: static; top: auto; z-index: auto; background: transparent; }
+  .mobile-step-header   { position: static; top: auto; z-index: auto; background: transparent; border-bottom: none; }
 
   .page-scroll { padding-bottom: 0; padding-top: 0; overflow-y: visible; }
 
