@@ -6,7 +6,7 @@ export default function BackHeader({ title, onBack }) {
   const handleBack = onBack || (() => router.back());
 
   return (
-    <div className="mobile-back-header mobile-only">
+    <div className="mobile-back-header mobile-only" style={{position:'fixed',top:0,left:0,right:0,zIndex:50}}>
       <button
         onClick={handleBack}
         className="w-9 h-9 rounded-xl bg-primary-surface flex items-center justify-center text-primary font-bold text-xl flex-shrink-0 transition-colors hover:bg-green-100"

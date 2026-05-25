@@ -82,6 +82,7 @@ html, body {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 88px;
+  padding-top: 124px;
 }
 
 .bottom-nav-wrap {
@@ -119,6 +120,15 @@ html, body {
   padding: 0 12px;
   gap: 10px;
   flex-shrink: 0;
+}
+
+.mobile-step-header {
+  position: fixed;
+  top: 54px;
+  left: 0;
+  right: 0;
+  z-index: 49;
+  background: var(--surface);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -190,8 +200,9 @@ html, body {
   .bottom-nav-wrap      { display: none !important; }
   .mobile-green-header  { display: none !important; }
   .mobile-back-header   { display: none !important; }
+  .mobile-step-header   { position: static; top: auto; z-index: auto; background: transparent; }
 
-  .page-scroll { padding-bottom: 0; overflow-y: visible; }
+  .page-scroll { padding-bottom: 0; padding-top: 0; overflow-y: visible; }
 
   .animal-grid {
     display: grid;

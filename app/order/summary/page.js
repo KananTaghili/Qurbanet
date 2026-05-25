@@ -443,18 +443,11 @@ export default function SummaryPage() {
               </div>
             </C>
 
-            <button
-              className="btn-primary hidden md:flex items-center justify-center py-4 rounded-xl font-bold text-base shadow-md transition-all active:scale-[0.98]"
-              onClick={handleCreateOrder}
-              disabled={loading}
-            >
-              {loading ? <Spinner /> : "Sifarişi təsdiqlə →"}
-            </button>
           </div>
         </div>
 
         {/* ── MOBILE action bar ─────────────────────────────────────────── */}
-        <div className="mobile-action-bar md:hidden">
+        <div className="mobile-action-bar">
           <button
             className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
             onClick={handleCreateOrder}

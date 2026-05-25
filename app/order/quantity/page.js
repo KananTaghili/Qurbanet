@@ -568,9 +568,13 @@ export default function QuantityPage() {
                             : "border-border bg-surface-alt text-text-primary"
                         }`}
                       >
-                        <span className="text-[10px] sm:text-[11px] font-bold">{lbl} — {w.price} AZN</span>
+                        <span className="text-[10px] sm:text-[11px] font-bold">
+                          {lbl} — {w.price} AZN
+                        </span>
                         {getMeatWeight(lbl) && (
-                          <span className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}>
+                          <span
+                            className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}
+                          >
                             {getMeatWeight(lbl)}
                           </span>
                         )}
@@ -587,15 +591,17 @@ export default function QuantityPage() {
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide">
                     DOĞRAMA ÜSULU
                   </span>
-                  <span
-                    className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
-                      totalCutCount >= qty && qty > 0
-                        ? "bg-primary text-white"
-                        : "bg-surface-alt text-text-muted"
-                    }`}
-                  >
-                    {totalCutCount}/{qty}
-                  </span>
+                  {!singleAnimalMode && (
+                    <span
+                      className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
+                        totalCutCount >= qty && qty > 0
+                          ? "bg-primary text-white"
+                          : "bg-surface-alt text-text-muted"
+                      }`}
+                    >
+                      {totalCutCount}/{qty}
+                    </span>
+                  )}
                 </div>
 
                 {cutStyleError && (
@@ -641,10 +647,14 @@ export default function QuantityPage() {
                               </span>
                             )}
                           </div>
-                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
-                            isSelected ? "border-primary" : "border-slate-300"
-                          }`}>
-                            {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
+                          <div
+                            className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
+                              isSelected ? "border-primary" : "border-slate-300"
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="w-2 h-2 rounded-full bg-primary" />
+                            )}
                           </div>
                         </button>
                       );
@@ -717,15 +727,17 @@ export default function QuantityPage() {
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
                     Qurbanın əlavə hissələri
                   </span>
-                  <span
-                    className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
-                      headUnassigned + feetUnassigned === 0
-                        ? "bg-primary text-white"
-                        : "bg-surface-alt text-text-muted"
-                    }`}
-                  >
-                    {headAssigned + feetAssigned}/{headTotal + feetTotal}
-                  </span>
+                  {!singleAnimalMode && (
+                    <span
+                      className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
+                        headUnassigned + feetUnassigned === 0
+                          ? "bg-primary text-white"
+                          : "bg-surface-alt text-text-muted"
+                      }`}
+                    >
+                      {headAssigned + feetAssigned}/{headTotal + feetTotal}
+                    </span>
+                  )}
                 </div>
                 <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {needsHead && (
@@ -849,9 +861,13 @@ export default function QuantityPage() {
                             : "border-border bg-surface-alt text-text-primary"
                         }`}
                       >
-                        <span className="text-[10px] sm:text-[11px] font-bold">{lbl} — {w.price} AZN</span>
+                        <span className="text-[10px] sm:text-[11px] font-bold">
+                          {lbl} — {w.price} AZN
+                        </span>
                         {getMeatWeight(lbl) && (
-                          <span className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}>
+                          <span
+                            className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}
+                          >
                             {getMeatWeight(lbl)}
                           </span>
                         )}
@@ -896,8 +912,8 @@ export default function QuantityPage() {
             <span className="text-xl sm:text-2xl font-extrabold text-primary leading-tight">
               {totalPrice} AZN
             </span>
-            {!singleAnimalMode && (
-              mode === "serikli" ? (
+            {!singleAnimalMode &&
+              (mode === "serikli" ? (
                 <span className="text-[10px] text-text-muted truncate">
                   {qty}/{maxShares} pay
                 </span>
@@ -905,8 +921,7 @@ export default function QuantityPage() {
                 <span className="text-[10px] text-text-muted truncate">
                   {qty} × {effectivePrice} AZN
                 </span>
-              )
-            )}
+              ))}
           </div>
           <button
             onClick={handleContinue}
@@ -977,10 +992,14 @@ function PartBucketSection({
                     {opt.fee > 0 ? `+${opt.fee} AZN` : "Pulsuz"}
                   </span>
                 </div>
-                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
-                  isSelected ? "border-primary" : "border-slate-300"
-                }`}>
-                  {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
+                <div
+                  className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
+                    isSelected ? "border-primary" : "border-slate-300"
+                  }`}
+                >
+                  {isSelected && (
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                  )}
                 </div>
               </button>
             );
