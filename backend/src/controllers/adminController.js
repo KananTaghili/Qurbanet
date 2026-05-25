@@ -92,19 +92,23 @@ const adminSendOTP = async (req, res) => {
     const email = rawEmail.trim().toLowerCase();
     if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
-    const settings = await AppSettings.findOne({ singleton: "global" }).select("+adminPasswordHash");
+    const settings = await AppSettings.findOne({ singleton: "global" })
+      .select("+adminPasswordHash +adminCredentials.passwordHash");
     const allowed = settings?.allowedAdminEmails?.length
       ? settings.allowedAdminEmails
       : ["nbiyevmuhammd1@gmail.com"];
 
     if (!allowed.includes(email)) return error(res, "Bu email ünvanına admin girişi icazəsi verilməyib.", 403);
 
-    // Şifrə yoxla
+    // Email-ə məxsus şifrəni yoxla
+    const cred = settings?.adminCredentials?.find((c) => c.email === email);
     let passwordValid = false;
-    if (settings?.adminPasswordHash) {
+    if (cred?.passwordHash) {
+      passwordValid = await bcrypt.compare(password, cred.passwordHash);
+    } else if (settings?.adminPasswordHash) {
       passwordValid = await bcrypt.compare(password, settings.adminPasswordHash);
     } else {
-      passwordValid = password === (process.env.ADMIN_PASSWORD || "Muhammad_123456");
+      passwordValid = password === (process.env.ADMIN_OTP_PASSWORD || "Muhammad_123456");
     }
     if (!passwordValid) return error(res, "Email və ya şifrə yanlışdır.", 401);
 
@@ -161,8 +165,13 @@ const adminVerifyOTP = async (req, res) => {
 // ─── Allowed Emails CRUD ──────────────────────────────────────────────────────
 const getAdminAllowedEmails = async (req, res) => {
   try {
-    const emails = await getAllowedEmails();
-    return success(res, { emails });
+    const settings = await AppSettings.findOne({ singleton: "global" });
+    const emails = settings?.allowedAdminEmails?.length
+      ? settings.allowedAdminEmails
+      : ["nbiyevmuhammd1@gmail.com"];
+    const credEmails = (settings?.adminCredentials || []).map((c) => c.email);
+    const admins = emails.map((email) => ({ email, hasPassword: credEmails.includes(email) }));
+    return success(res, { admins });
   } catch (err) {
     return error(res, "Server xətası.", 500);
   }
@@ -170,17 +179,31 @@ const getAdminAllowedEmails = async (req, res) => {
 
 const addAdminAllowedEmail = async (req, res) => {
   try {
-    const { email: rawEmail } = req.body;
+    const { email: rawEmail, password } = req.body;
     if (!rawEmail) return error(res, "Email tələb olunur.", 400);
+    if (!password) return error(res, "Şifrə tələb olunur.", 400);
     const email = rawEmail.trim().toLowerCase();
     if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
+    const passwordHash = await bcrypt.hash(password, 10);
+
     const settings = await AppSettings.findOneAndUpdate(
       { singleton: "global" },
-      { $addToSet: { allowedAdminEmails: email } },
+      {
+        $addToSet: { allowedAdminEmails: email },
+        $pull: { adminCredentials: { email } },
+      },
       { upsert: true, new: true },
     );
-    return success(res, { emails: settings.allowedAdminEmails }, "Email əlavə edildi.");
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $push: { adminCredentials: { email, passwordHash } } },
+    );
+
+    const updated = await AppSettings.findOne({ singleton: "global" });
+    const credEmails = (updated?.adminCredentials || []).map((c) => c.email);
+    const admins = (updated?.allowedAdminEmails || []).map((e) => ({ email: e, hasPassword: credEmails.includes(e) }));
+    return success(res, { admins }, "Admin əlavə edildi.");
   } catch (err) {
     return error(res, "Server xətası.", 500);
   }
@@ -191,10 +214,17 @@ const removeAdminAllowedEmail = async (req, res) => {
     const email = decodeURIComponent(req.params.email).toLowerCase();
     const settings = await AppSettings.findOneAndUpdate(
       { singleton: "global" },
-      { $pull: { allowedAdminEmails: email } },
+      {
+        $pull: {
+          allowedAdminEmails: email,
+          adminCredentials: { email },
+        },
+      },
       { new: true },
     );
-    return success(res, { emails: settings?.allowedAdminEmails || [] }, "Email silindi.");
+    const credEmails = (settings?.adminCredentials || []).map((c) => c.email);
+    const admins = (settings?.allowedAdminEmails || []).map((e) => ({ email: e, hasPassword: credEmails.includes(e) }));
+    return success(res, { admins }, "Admin silindi.");
   } catch (err) {
     return error(res, "Server xətası.", 500);
   }

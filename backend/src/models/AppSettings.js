@@ -63,6 +63,15 @@ const appSettingsSchema = new mongoose.Schema(
       type: [String],
       default: ["nbiyevmuhammd1@gmail.com"],
     },
+    adminCredentials: {
+      type: [
+        {
+          email: { type: String, required: true },
+          passwordHash: { type: String, required: true, select: false },
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true },
 );

@@ -1,15 +1,15 @@
 const crypto = require("crypto");
 
-const PUBLIC_KEY = () => process.env.EPOINT_PUBLIC_KEY;
-const PRIVATE_KEY = () => process.env.EPOINT_PRIVATE_KEY;
+const EPOINT_API_BASE  = () => process.env.EPOINT_API_BASE  || "https://epoint.az/api/1";
+const PUBLIC_KEY       = () => process.env.EPOINT_PUBLIC_KEY  || "";
+const PRIVATE_KEY      = () => process.env.EPOINT_PRIVATE_KEY || "";
 
 // base64_encode(sha1(private_key + data + private_key, raw=true))
-// Matches PHP: base64_encode(sha1($key . $data . $key, true))
 const buildSignature = (dataStr) => {
   const raw = crypto
     .createHash("sha1")
     .update(PRIVATE_KEY() + dataStr + PRIVATE_KEY())
-    .digest(); // raw binary — PHP sha1(..., 1) equivalent
+    .digest();
   return raw.toString("base64");
 };
 
@@ -19,98 +19,133 @@ const encodeData = (params) =>
 const decodeData = (dataStr) =>
   JSON.parse(Buffer.from(dataStr, "base64").toString("utf-8"));
 
-const verifySignature = (dataStr, signature) =>
-  buildSignature(dataStr) === signature;
+// Timing-safe signature comparison
+const verifySignature = (dataStr, signature) => {
+  const expected = buildSignature(dataStr);
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expected,   "base64"),
+      Buffer.from(signature,  "base64"),
+    );
+  } catch {
+    return false;
+  }
+};
 
-// Epoint standard endpoints expect application/x-www-form-urlencoded (as per official PHP examples)
-const postForm = async (url, dataStr, signature) => {
-  const body = new URLSearchParams({ data: dataStr, signature });
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
+// Build { data, signature } body for Epoint
+const buildEpointBody = (payload) => {
+  const data = encodeData({ public_key: PUBLIC_KEY(), ...payload });
+  const signature = buildSignature(data);
+  return { data, signature };
+};
+
+// POST to Epoint API using JSON
+const epointPost = async (endpoint, payload) => {
+  const body = buildEpointBody(payload);
+  const res = await fetch(`${EPOINT_API_BASE()}${endpoint}`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify(body),
+    signal:  AbortSignal.timeout(15_000),
   });
+  if (!res.ok) throw new Error(`Epoint HTTP ${res.status}`);
   return res.json();
 };
 
-// POST /api/1/request — start payment, returns { status, redirect_url, transaction }
-const createPayment = async ({
-  orderId,
-  amount,
-  description,
-  successUrl,
-  errorUrl,
-}) => {
-  const params = {
-    public_key: PUBLIC_KEY(),
-    amount: Number(amount).toFixed(2),
-    currency: "AZN",
-    language: "az",
-    order_id: String(orderId),
-    description: String(description || "").slice(0, 1000),
+// ─── Payment operations ───────────────────────────────────────────────────────
+
+const createPayment = async ({ orderId, amount, description, successUrl, errorUrl, currency, language }) => {
+  const result = await epointPost("/request", {
+    amount:               Number(amount).toFixed(2),
+    currency:             currency  || "AZN",
+    language:             language  || "az",
+    order_id:             String(orderId),
+    description:          String(description || "").slice(0, 1000),
     success_redirect_url: successUrl,
-    error_redirect_url: errorUrl,
-  };
-
-  const dataStr = encodeData(params);
-  const signature = buildSignature(dataStr);
-  console.log("[EPoint] createPayment →", JSON.stringify(params));
-
-  const result = await postForm(
-    "https://epoint.az/api/1/request",
-    dataStr,
-    signature,
-  );
+    error_redirect_url:   errorUrl,
+  });
   console.log("[EPoint] createPayment ←", JSON.stringify(result));
-
   if (result.status !== "success") {
     throw new Error(`EPoint xətası: ${result.message || result.status}`);
   }
-  return result; // { status, redirect_url, transaction }
+  return result;
 };
 
-// POST /api/1/get-status — query transaction status
-const getTransactionStatus = async (lookup) => {
-  const params = { public_key: PUBLIC_KEY(), ...lookup };
-  const dataStr = encodeData(params);
-  const signature = buildSignature(dataStr);
+const createPreAuth = async ({ orderId, amount, description, successUrl, errorUrl, currency }) => {
+  return epointPost("/pre-auth-request", {
+    amount:               Number(amount).toFixed(2),
+    currency:             currency || "AZN",
+    language:             "az",
+    order_id:             String(orderId),
+    description:          String(description || "").slice(0, 1000),
+    ...(successUrl && { success_redirect_url: successUrl }),
+    ...(errorUrl   && { error_redirect_url:   errorUrl   }),
+  });
+};
 
-  const result = await postForm(
-    "https://epoint.az/api/1/get-status",
-    dataStr,
-    signature,
-  );
+const completePreAuth = async (transaction, amount) =>
+  epointPost("/pre-auth-complete", { amount: String(amount), transaction });
+
+const getTransactionStatus = async (lookup) => {
+  const result = await epointPost("/get-status", lookup);
   console.log("[EPoint] getStatus ←", JSON.stringify(result));
   return result;
 };
 
-// GET /api/1/token/widget — widget URL for Apple Pay / Google Pay
+const reverseTransaction = async (transaction, currency = "AZN", amount) =>
+  epointPost("/reverse", {
+    transaction,
+    language: "az",
+    currency,
+    ...(amount !== undefined && amount !== null && { amount: String(amount) }),
+  });
+
+const registerCard = async ({ description, successUrl, errorUrl, language } = {}) =>
+  epointPost("/card-registration", {
+    language:    language || "az",
+    description: description || "",
+    ...(successUrl && { success_redirect_url: successUrl }),
+    ...(errorUrl   && { error_redirect_url:   errorUrl   }),
+  });
+
+const executePayWithCard = async ({ cardId, orderId, amount, currency, description, language }) =>
+  epointPost("/execute-pay", {
+    language:    language    || "az",
+    card_id:     cardId,
+    order_id:    String(orderId),
+    amount:      String(amount),
+    currency:    currency    || "AZN",
+    description: String(description || "").slice(0, 1000),
+  });
+
+// GET widget URL for Apple Pay / Google Pay
 const createWidget = async ({ orderId, amount, description }) => {
-  const params = {
-    public_key: PUBLIC_KEY(),
-    amount: Number(amount).toFixed(2),
-    order_id: String(orderId),
+  const payload = {
+    public_key:  PUBLIC_KEY(),
+    amount:      Number(amount).toFixed(2),
+    order_id:    String(orderId),
     description: String(description || "ödəniş").slice(0, 1000),
   };
-  const dataStr = encodeData(params);
-  const signature = buildSignature(dataStr);
-  console.log("[EPoint] createWidget →", JSON.stringify(params));
+  const data      = encodeData(payload);
+  const signature = buildSignature(data);
+  console.log("[EPoint] createWidget →", JSON.stringify(payload));
 
-  const url = new URL("https://epoint.az/api/1/token/widget");
-  url.searchParams.set("data", dataStr);
+  const url = new URL(`${EPOINT_API_BASE()}/token/widget`);
+  url.searchParams.set("data",      data);
   url.searchParams.set("signature", signature);
 
-  const res = await fetch(url.toString());
+  const res    = await fetch(url.toString());
   const result = await res.json();
   console.log("[EPoint] createWidget ←", JSON.stringify(result));
 
   if (result.status !== "success") {
     throw new Error(`EPoint widget xətası: ${result.message || result.status}`);
   }
-  return result; // { status, widget_url }
+  return result;
 };
 
-// EPoint API documentation: bank response code comes in the "code" field of get-status response
+// ─── Azerbaijani bank response codes ─────────────────────────────────────────
+
 const AZ_BANK_MESSAGES = {
   116: "Kartınızda kifayət qədər məbləğ yoxdur.",
   101: "Kartınızın istifadə müddəti bitib. Yeni kartla cəhd edin.",
@@ -159,21 +194,14 @@ const AZ_BANK_MESSAGES = {
 };
 
 const getAzPaymentErrorMessage = (bankCode, epointMessage) => {
-  // EPoint returns bank code in "code" field (per API docs)
   const codeStr = String(bankCode || "").trim();
   if (AZ_BANK_MESSAGES[codeStr]) return AZ_BANK_MESSAGES[codeStr];
 
-  // Sometimes the message field itself contains the code
   const rawMsg = String(epointMessage || "").trim();
   if (AZ_BANK_MESSAGES[rawMsg]) return AZ_BANK_MESSAGES[rawMsg];
 
-  // Keyword fallback for English EPoint messages
   const msg = rawMsg.toLowerCase();
-  if (
-    msg.includes("insufficient") ||
-    msg.includes("not enough") ||
-    msg.includes("balance")
-  )
+  if (msg.includes("insufficient") || msg.includes("not enough") || msg.includes("balance"))
     return "Kartınızda kifayət qədər məbləğ yoxdur.";
   if (msg.includes("expired") || msg.includes("expir"))
     return "Kartınızın istifadə müddəti bitib.";
@@ -187,22 +215,25 @@ const getAzPaymentErrorMessage = (bankCode, epointMessage) => {
   if (msg.includes("pin")) return "Yanlış PIN kod daxil edildi.";
   if (msg.includes("declined") || msg.includes("decline"))
     return "Ödəniş rədd edildi. Bankınızla əlaqə saxlayın.";
-  if (
-    msg.includes("server") ||
-    msg.includes("technical") ||
-    msg.includes("system")
-  )
+  if (msg.includes("server") || msg.includes("technical") || msg.includes("system"))
     return "Texniki xəta baş verdi. Bir az sonra yenidən cəhd edin.";
   return "Ödəniş rədd edildi. Kartınızda kifayət qədər məbləğ yoxdur. Başqa kart ilə cəhd edin.";
 };
 
 module.exports = {
-  createPayment,
-  createWidget,
-  getTransactionStatus,
-  verifySignature,
-  decodeData,
   encodeData,
+  decodeData,
   buildSignature,
+  buildEpointBody,
+  epointPost,
+  verifySignature,
+  createPayment,
+  createPreAuth,
+  completePreAuth,
+  getTransactionStatus,
+  reverseTransaction,
+  registerCard,
+  executePayWithCard,
+  createWidget,
   getAzPaymentErrorMessage,
 };

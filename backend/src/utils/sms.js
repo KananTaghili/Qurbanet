@@ -291,6 +291,22 @@ const sendEmail = async (toEmail, code, lang = "az") => {
           &nbsp;|&nbsp;
           <b>E-mail:</b> <a href="mailto:info@qurbanet.az" style="color:${green};text-decoration:none;">info@qurbanet.az</a>
         </p>
+        <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 16px;">
+          <tr>
+            <td style="padding:0 8px;">
+              <a href="https://www.instagram.com/qurbanet.az/" target="_blank"
+                 style="display:inline-block;background:#E1306C;color:#fff;text-decoration:none;font-size:13px;font-weight:700;padding:9px 20px;border-radius:999px;letter-spacing:0.3px;">
+                &#x1F4F7; Instagram
+              </a>
+            </td>
+            <td style="padding:0 8px;">
+              <a href="https://www.facebook.com/profile.php?id=61589737567463" target="_blank"
+                 style="display:inline-block;background:#1877F2;color:#fff;text-decoration:none;font-size:13px;font-weight:700;padding:9px 20px;border-radius:999px;letter-spacing:0.3px;">
+                &#x1F4C4; Facebook
+              </a>
+            </td>
+          </tr>
+        </table>
         <p class="footer-copy">
           &copy; 2026 <b style="color:#6B7280;">QurbanEt MMC</b> &nbsp;&middot;&nbsp;
           ${isAz ? "Bakı şəhəri, Azərbaycan" : "Baku, Azerbaijan"}

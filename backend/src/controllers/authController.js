@@ -376,7 +376,8 @@ const updateProfile = async (req, res) => {
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
     const user = await User.findByIdAndUpdate(req.userId, updateData, { new: true, select: "-__v -password" });
-    return success(res, { user }, "Profil yeniləndi.");
+    const token = makeToken(user);
+    return success(res, { token, user }, "Profil yeniləndi.");
   } catch (err) {
     return error(res, "Server xətası.", 500);
   }

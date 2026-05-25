@@ -34,7 +34,7 @@ connectDB()
   })
   .catch((err) => {
     console.error("\n❌ MongoDB bağlantı xətası:", err.message);
-    console.error("⚠️  .env faylında MONGODB_URI-ni yoxlayın!");
+    console.error("⚠️  .env faylında MONGO_URI-ni yoxlayın!");
     if (process.pkg) {
       console.error("📂 .env faylı backend.exe ilə eyni qovluqda olmalıdır");
     }
@@ -62,12 +62,32 @@ app.use(
 //   }),
 // );
 
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  }),
-);
+const defaultOrigins = [
+  "https://admin.qurbanet.az",
+  "https://qurbanet.az",
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173",
+];
+
+const envOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+  : [];
+
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error("CORS: icazəsiz origin — " + origin));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 
 // ─── Rate Limiting ──────────────────────────────────────────────────────────
 const globalLimiter = rateLimit({
@@ -129,11 +149,13 @@ app.use((err, req, res, next) => {
 });
 
 // ─── Start ──────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 socketService.init(httpServer);
 httpServer.listen(PORT, () => {
-  console.log(`\n🚀 Qurban API serveri işləyir: http://localhost:${PORT}`);
+  console.log(`\n🚀 Qurbanet API serveri işləyir: http://localhost:${PORT}`);
   console.log(`📋 Admin Panel API: http://localhost:${PORT}/api/admin`);
+  console.log(`💳 Epoint Callback: ${process.env.BACKEND_URL || `http://localhost:${PORT}`}/api/epoint/result`);
+  console.log(`🌐 CORS Origin: ${process.env.CORS_ORIGIN || "*"}`);
   console.log(
     `🔑 Test Mode: ${process.env.TEST_MODE === "true" ? "AÇIQ (OTP: 123456)" : "BAĞLI"}\n`,
   );
