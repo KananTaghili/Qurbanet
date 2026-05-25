@@ -236,7 +236,7 @@ export default function PaymentPage() {
       <BackHeader title="Ödəniş" />
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 overflow-y-auto pb-28 md:pb-6">
+      <div className="flex-1 overflow-y-auto pb-28 md:pb-6 pt-[124px] md:pt-0">
         <div className="p-4 md:p-6 max-w-5xl mx-auto w-full md:grid md:grid-cols-[1fr_360px] md:gap-6 md:items-start">
 
           {/* ── LEFT: Məbləğ + Qiymət tərkibi ──────────────────────────── */}

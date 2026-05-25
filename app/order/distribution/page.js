@@ -307,7 +307,7 @@ export default function DistributionPage() {
       <BackHeader title="Ət paylanması" />
       <StepHeader currentStep={2} />
 
-      <div className="flex-1 overflow-y-auto pb-24 lg:pb-6">
+      <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
                         lg:grid lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px]
                         lg:gap-5 lg:items-start">

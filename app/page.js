@@ -12,6 +12,7 @@ import {
   PawPrint,
   LogIn,
   LogOut,
+  UserPlus,
   MoreVertical,
   Loader2,
   ChevronRight,
@@ -154,16 +155,28 @@ export default function HomePage() {
                 />
                 <div className="absolute right-0 top-11 sm:top-12 bg-surface rounded-xl shadow-card-lg border border-border z-50 min-w-[160px] py-1 overflow-hidden">
                   {isGuest ? (
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        router.push("/auth/login");
-                      }}
-                      className="w-full text-left px-4 py-3 text-sm font-semibold text-primary flex items-center gap-2 active:bg-primary-surface"
-                    >
-                      <LogIn size={15} color={BRAND} strokeWidth={2} />
-                      Daxil ol
-                    </button>
+                    <>
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          router.push("/auth/login");
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm font-semibold text-primary flex items-center gap-2 active:bg-primary-surface"
+                      >
+                        <LogIn size={15} color={BRAND} strokeWidth={2} />
+                        Daxil ol
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          router.push("/auth/register");
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm font-semibold text-primary flex items-center gap-2 active:bg-primary-surface border-t border-border"
+                      >
+                        <UserPlus size={15} color={BRAND} strokeWidth={2} />
+                        Qeydiyyat
+                      </button>
+                    </>
                   ) : (
                     <button
                       onClick={handleLogout}
