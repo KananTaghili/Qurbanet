@@ -18,27 +18,26 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install & Build
+      - name: Install, Build & Package
         env:
           NEXT_PUBLIC_API_URL: https://api.qurbanet.az/api
         run: |
           npm ci
           npm run build
-          # Standalone build-in yanına static və public faylları əlavə et
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
+          tar -czf deploy.tar.gz -C .next/standalone .
 
-      - name: Upload standalone build to Server
+      - name: Upload archive to Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: ".next/standalone"
+          source: "deploy.tar.gz"
           target: "/var/www/qurbanetfront"
-          rm: false
 
-      - name: Restart App on Server
+      - name: Extract & Restart
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -49,8 +48,12 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             set -e
 
-            [ -f /var/www/qurbanetfront/standalone/server.js ] || { echo "ERROR: server.js not found!"; exit 1; }
+            cd /var/www/qurbanetfront
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
+
+            [ -f server.js ] || { echo "ERROR: server.js not found!"; exit 1; }
 
             PORT=3001 pm2 restart qurbanetfrontpm --update-env \
-              || PORT=3001 pm2 start /var/www/qurbanetfront/standalone/server.js --name "qurbanetfrontpm"
+              || PORT=3001 pm2 start server.js --name "qurbanetfrontpm"
             pm2 save
