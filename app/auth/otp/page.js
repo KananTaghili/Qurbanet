@@ -86,93 +86,143 @@ export default function OtpPage() {
     : `nömrəsinə göndərilən 4 rəqəmli kodu daxil edin.`;
 
   return (
-    <div className="flex-1 flex flex-col bg-primary">
-      <div className="flex-1 flex flex-col justify-center items-center px-6 gap-8 py-8">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-20 h-20 rounded-3xl overflow-hidden bg-white/20">
-            <Image src="/logo.png" alt="QurbanEt" width={80} height={80} className="w-full h-full object-cover" />
-          </div>
-          <div className="text-3xl font-black text-white italic">Qurban<span className="text-green-300">Et</span></div>
-        </div>
+    <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col lg:flex-row">
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-md">
-          <h2 className="text-xl font-bold text-text-primary mb-1">Kodu daxil edin</h2>
-          <p className="text-sm text-text-secondary mb-5 leading-5">
-            <strong>{identifier}</strong>{' '}{subtitle}
-          </p>
-
-          {/* 4-digit code boxes */}
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 24 }} onPaste={handlePaste}>
-            {code.map((d, i) => (
-              <input
-                key={i}
-                ref={(el) => (inputs.current[i] = el)}
-                type="tel"
-                inputMode="numeric"
-                maxLength={1}
-                value={d}
-                onChange={(e) => handleChange(i, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(i, e)}
-                style={{
-                  width: 60, height: 68, textAlign: 'center', fontSize: 26, fontWeight: 700,
-                  border: `2px solid ${d ? '#1B5E20' : '#E0E0E0'}`,
-                  borderRadius: 16, outline: 'none',
-                  background: d ? '#E8F5E9' : '#F8F9FA',
-                  color: d ? '#1B5E20' : '#111827',
-                  transition: 'border-color 0.15s, background 0.15s',
-                  fontFamily: 'inherit',
-                }}
-                autoFocus={i === 0}
-              />
-            ))}
-          </div>
-
-          {/* Password field */}
-          <div className="mb-5">
-            <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrə *</label>
-            <div className="relative">
-              <input
-                ref={passwordRef}
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                placeholder="Ən az 6 simvol"
-                className="field-input pr-10"
-                maxLength={128}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl mb-4">
-              {error}
-            </div>
-          )}
-
-          <button type="submit" className="btn-primary w-full" disabled={loading}>
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Yoxlanılır...
-              </span>
-            ) : 'Təsdiq et'}
-          </button>
-
+        {/* ── Brand panel ── */}
+        <div
+          className="relative flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
+          style={{ background: 'linear-gradient(160deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)' }}
+        >
+          {/* Back button — mobile only */}
           <button
             type="button"
             onClick={() => router.push('/auth/register')}
-            className="w-full text-center text-sm text-text-secondary mt-3 py-2 hover:text-primary transition-colors"
+            className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
+            style={{ background: 'rgba(255,255,255,0.18)', color: '#fff' }}
+            aria-label="Geri qayıt"
           >
-            ← {identifierType === 'email' ? 'Email ünvanını dəyiş' : 'Telefon nömrəsini dəyiş'}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
-        </form>
+
+          <div className="flex flex-col items-center gap-5 text-center animate-fade-up">
+            <div
+              className="w-24 h-24 lg:w-32 lg:h-32 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0"
+              style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.25)' }}
+            >
+              <Image src="/logo.png" alt="QurbanEt" width={128} height={128} className="w-full h-full object-cover" />
+            </div>
+
+            <div>
+              <div className="text-4xl lg:text-5xl font-black text-white italic leading-none">
+                Qurban<span style={{ color: '#86efac' }}>Et</span>
+              </div>
+              <div
+                className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto"
+                style={{ color: 'rgba(255,255,255,0.65)' }}
+              >
+                İlahi qurbanınızı etibarla kəsdirin
+              </div>
+            </div>
+
+            <div
+              className="flex items-center gap-3 text-[10px] font-bold tracking-widest"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
+              <span>ETİBARLI</span>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
+              <span>HALAL</span>
+              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
+              <span>SÜRƏTLİ</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Form panel ── */}
+        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10 bg-surface">
+          <div className="w-full max-w-sm animate-fade-up">
+            <h2 className="text-2xl font-black text-text-primary mb-1">Kodu daxil edin</h2>
+            <p className="text-sm text-text-secondary mb-6 leading-5">
+              <strong>{identifier}</strong>{' '}{subtitle}
+            </p>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {/* 4-digit code boxes */}
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }} onPaste={handlePaste}>
+                {code.map((d, i) => (
+                  <input
+                    key={i}
+                    ref={(el) => (inputs.current[i] = el)}
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={d}
+                    onChange={(e) => handleChange(i, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(i, e)}
+                    style={{
+                      width: 64, height: 72, textAlign: 'center', fontSize: 28, fontWeight: 700,
+                      border: `2px solid ${d ? '#1B5E20' : '#E0E0E0'}`,
+                      borderRadius: 16, outline: 'none',
+                      background: d ? '#E8F5E9' : '#F8F9FA',
+                      color: d ? '#1B5E20' : '#111827',
+                      transition: 'border-color 0.15s, background 0.15s',
+                      fontFamily: 'inherit',
+                    }}
+                    autoFocus={i === 0}
+                  />
+                ))}
+              </div>
+
+              {/* Password field */}
+              <div>
+                <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrə *</label>
+                <div className="relative">
+                  <input
+                    ref={passwordRef}
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                    placeholder="Ən az 6 simvol"
+                    className="field-input pr-10"
+                    maxLength={128}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-red-50 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Yoxlanılır...
+                  </span>
+                ) : 'Təsdiq et'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push('/auth/register')}
+                className="w-full text-center text-sm text-text-secondary py-1 hover:text-primary transition-colors"
+              >
+                ← {identifierType === 'email' ? 'Email ünvanını dəyiş' : 'Telefon nömrəsini dəyiş'}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

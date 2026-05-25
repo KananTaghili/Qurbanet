@@ -40,6 +40,8 @@ export default function ContactPage() {
   const { order, updateOrder } = useOrder();
   const { user, login } = useAuth();
 
+  const isRegistered = !!user?.name;
+
   const [step, setStep] = useState("info");
 
   const [firstName, setFirstName] = useState("");
@@ -64,11 +66,20 @@ export default function ContactPage() {
   useEffect(() => () => clearInterval(timerRef.current), []);
 
   useEffect(() => {
-    if (!order) {
-      router.replace("/");
+    if (!order) { router.replace("/"); return; }
+
+    if (isRegistered) {
+      // Pre-fill from user profile — no OTP needed
+      setFirstName(user.name || "");
+      setLastName(user.lastName || "");
+      if (user.phone) {
+        setPhone(user.phone.replace(/^\+?994/, "0"));
+      }
+      setEmail(user.email || "");
       return;
     }
-    // Try saved contact info from localStorage first
+
+    // Guest: restore previously saved contact info
     try {
       const raw = localStorage.getItem('contact_info');
       if (raw) {
@@ -89,24 +100,33 @@ export default function ContactPage() {
       setEmail(order.contactInfo.email || "");
       if (order.contactInfo.verifyMethod)
         setVerifyMethod(order.contactInfo.verifyMethod);
-    } else if (user?.name) {
-      const parts = user.name.split(" ");
-      setFirstName(parts[0] || "");
-      setLastName(parts.slice(1).join(" ") || "");
     }
   }, []);
 
   if (!order) return null;
 
+  // ── Registered user: confirm and proceed ──────────────────────────────────
+  const handleRegisteredSubmit = () => {
+    setError("");
+    if (firstName.trim().length < 2) { setError("Ad ən az 2 simvol olmalıdır."); return; }
+
+    const contactInfo = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      ...(user.phone ? { phone: user.phone } : {}),
+      ...(user.email ? { email: user.email } : {}),
+    };
+    updateOrder({ contactInfo });
+    router.push("/order/summary");
+  };
+
+  // ── Guest OTP flow ─────────────────────────────────────────────────────────
   const startTimer = () => {
     clearInterval(timerRef.current);
     setResendTimer(60);
     timerRef.current = setInterval(() => {
       setResendTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          return 0;
-        }
+        if (prev <= 1) { clearInterval(timerRef.current); return 0; }
         return prev - 1;
       });
     }, 1000);
@@ -115,18 +135,9 @@ export default function ContactPage() {
   const handleSendOtp = async () => {
     setError("");
     setPhoneError("");
-    if (firstName.trim().length < 2) {
-      setError("Ad ən az 2 simvol olmalıdır.");
-      return;
-    }
-    if (lastName.trim().length < 2) {
-      setError("Soyad ən az 2 simvol olmalıdır.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Şifrə ən az 6 simvol olmalıdır.");
-      return;
-    }
+    if (firstName.trim().length < 2) { setError("Ad ən az 2 simvol olmalıdır."); return; }
+    if (lastName.trim().length < 2) { setError("Soyad ən az 2 simvol olmalıdır."); return; }
+    if (password.length < 6) { setError("Şifrə ən az 6 simvol olmalıdır."); return; }
 
     setSending(true);
     try {
@@ -142,11 +153,7 @@ export default function ContactPage() {
         setNormalizedPhone(norm);
       } else {
         const em = email.trim().toLowerCase();
-        if (!isValidEmail(em)) {
-          setError("Düzgün Gmail ünvanı daxil edin.");
-          setSending(false);
-          return;
-        }
+        if (!isValidEmail(em)) { setError("Düzgün Gmail ünvanı daxil edin."); setSending(false); return; }
         await api.post("/auth/send-otp", { email: em });
       }
       setOtpCode("");
@@ -154,9 +161,7 @@ export default function ContactPage() {
       startTimer();
       setTimeout(() => otpInputRef.current?.focus(), 350);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "OTP göndərilmədi. Yenidən cəhd edin.",
-      );
+      setError(err.response?.data?.message || "OTP göndərilmədi. Yenidən cəhd edin.");
     } finally {
       setSending(false);
     }
@@ -185,9 +190,7 @@ export default function ContactPage() {
         verifyMethod,
       };
 
-      // Save for future orders — skip contact page next time
       try { localStorage.setItem('contact_info', JSON.stringify(contactInfo)); } catch (_) {}
-
       updateOrder({ contactInfo });
       router.push("/order/summary");
     } catch (err) {
@@ -209,10 +212,9 @@ export default function ContactPage() {
     if (resendTimer > 0) return;
     setError("");
     try {
-      const body =
-        verifyMethod === "sms"
-          ? { phone: normalizedPhone, channel: "sms" }
-          : { email: email.trim().toLowerCase() };
+      const body = verifyMethod === "sms"
+        ? { phone: normalizedPhone, channel: "sms" }
+        : { email: email.trim().toLowerCase() };
       await api.post("/auth/send-otp", body);
       setOtpCode("");
       startTimer();
@@ -252,238 +254,284 @@ export default function ContactPage() {
 
       <div className="flex-1 page-scroll">
         <div className="p-4 w-full max-w-3xl mx-auto flex flex-col gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-text-primary">
-              Əlaqə Məlumatları
-            </h1>
-            <p className="text-sm text-text-secondary mt-1">
-              {verifyMethod === "email"
-                ? "Ad, Soyad, Gmail və Şifrə tələb olunur."
-                : "Ad, Soyad, Nömrə və Şifrə tələb olunur."}
-            </p>
-          </div>
 
-          {/* Fields card */}
-          <div className="bg-surface rounded-2xl border border-border overflow-hidden">
-            <div className="p-4 flex flex-col gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-text-secondary mb-1.5">
-                    Ad
-                  </label>
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Ad"
-                    className={inputCls}
-                    autoCapitalize="words"
-                    disabled={step === "otp"}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-text-secondary mb-1.5">
-                    Soyad
-                  </label>
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Soyad"
-                    className={inputCls}
-                    autoCapitalize="words"
-                    disabled={step === "otp"}
-                  />
-                </div>
+          {/* ── Registered user view ─────────────────────────────────────── */}
+          {isRegistered ? (
+            <>
+              <div>
+                <h1 className="text-xl font-bold text-text-primary">Əlaqə Məlumatları</h1>
+                <p className="text-sm text-text-secondary mt-1">Məlumatlarınız profildən götürüldü.</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  {verifyMethod === "email" ? (
-                    <>
-                      <label className="block text-sm text-text-secondary mb-1.5">
-                        Gmail
-                      </label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="example@gmail.com"
-                        className={inputCls}
-                        autoComplete="email"
-                        disabled={step === "otp"}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <label className="block text-sm text-text-secondary mb-1.5">
-                        Mobil nömrə
-                      </label>
-                      <div
-                        className={`flex items-center bg-surface-alt border rounded-xl focus-within:bg-white transition-colors ${
-                          phoneError ? "border-red-400 focus-within:border-red-400" : "border-border focus-within:border-primary"
-                        } ${step === "otp" ? "opacity-60" : ""}`}
-                      >
-                        <div className="flex items-center gap-1.5 px-3 border-r border-border shrink-0">
-                          <span className="text-lg leading-none">🇦🇿</span>
-                          <span className="text-sm font-semibold text-text-secondary">
-                            +994
-                          </span>
-                        </div>
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => {
-                            setPhoneError("");
-                            setPhone(formatPhone(e.target.value));
-                          }}
-                          placeholder="50 123 45 67"
-                          className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-3 py-3 font-medium border-none"
-                          inputMode="numeric"
-                          maxLength={12}
-                          disabled={step === "otp"}
-                        />
-                      </div>
-                      {phoneError && (
-                        <p className="text-xs text-red-500 font-semibold mt-1">{phoneError}</p>
-                      )}
-                    </>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm text-text-secondary mb-1.5">
-                    Şifrə <span className="text-red-500">*</span>
-                  </label>
-                  <div
-                    className={`flex items-center bg-surface-alt border border-border rounded-xl focus-within:border-primary focus-within:bg-white transition-colors ${step === "otp" ? "opacity-60" : ""}`}
-                  >
+              <div className="bg-surface rounded-2xl border border-border p-4 flex flex-col gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-text-secondary mb-1.5">Ad</label>
                     <input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Ən az 6 simvol"
-                      className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-4 py-3 font-medium border-none"
-                      disabled={step === "otp"}
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => { setFirstName(e.target.value); setError(""); }}
+                      placeholder="Ad"
+                      className={inputCls}
+                      autoCapitalize="words"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="px-4 py-3 text-text-muted hover:text-text-secondary transition-colors cursor-pointer"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-text-secondary mb-1.5">Soyad</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Soyad"
+                      className={inputCls}
+                      autoCapitalize="words"
+                    />
                   </div>
                 </div>
+
+                {user?.phone && (
+                  <div>
+                    <label className="block text-sm text-text-secondary mb-1.5">Mobil nömrə</label>
+                    <div className="flex items-center bg-surface-alt border border-border rounded-xl opacity-60">
+                      <div className="flex items-center gap-1.5 px-3 border-r border-border shrink-0">
+                        <span className="text-lg leading-none">🇦🇿</span>
+                        <span className="text-sm font-semibold text-text-secondary">+994</span>
+                      </div>
+                      <span className="flex-1 px-3 py-3 text-sm text-text-primary font-medium">
+                        {user.phone.replace(/^\+?994/, "")}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {user?.email && !user?.phone && (
+                  <div>
+                    <label className="block text-sm text-text-secondary mb-1.5">Email</label>
+                    <input type="email" value={user.email} disabled className={inputCls} />
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
 
-          {/* Channel selector */}
-          {step === "info" && (
-            <div className="bg-surface rounded-2xl border border-border p-4">
-              <p className="text-sm text-text-secondary mb-3">
-                Kodu necə almaq istərsiniz?
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { k: "sms", label: "SMS", Icon: MessageSquare },
-                  { k: "email", label: "Gmail", Icon: Mail },
-                ].map(({ k, label, Icon }) => (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => { setVerifyMethod(k); setPhoneError(""); }}
-                    className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 font-bold text-sm transition-all cursor-pointer ${
-                      verifyMethod === k
-                        ? "border-primary bg-primary-surface text-primary"
-                        : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"
-                    }`}
-                  >
-                    <Icon size={17} /> {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+              {error && (
+                <div className="bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
+                  {error}
+                </div>
+              )}
 
-          {error && (
-            <div className="bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
-              {error}
-            </div>
-          )}
-
-          {/* Step 1: Send OTP */}
-          {step === "info" && (
-            <button
-              className={`btn-primary ${sending ? "opacity-50 cursor-not-allowed" : ""}`}
-              onClick={handleSendOtp}
-              disabled={sending}
-            >
-              {sending ? "Göndərilir..." : "Ödəniş mərhələsinə keç"}
-            </button>
-          )}
-
-          {/* Step 2: OTP verify */}
-          {step === "otp" && (
-            <div className="bg-surface rounded-2xl border-2 border-primary/30 p-6 flex flex-col gap-4">
-              <div className="text-center">
-                <h2 className="text-base font-bold text-text-primary mb-1">
-                  Doğrulama kodu
-                </h2>
-                <p className="text-sm text-text-secondary">
+              <button className="btn-primary" onClick={handleRegisteredSubmit}>
+                Ödəniş mərhələsinə keç
+              </button>
+            </>
+          ) : (
+            /* ── Guest OTP flow ───────────────────────────────────────────── */
+            <>
+              <div>
+                <h1 className="text-xl font-bold text-text-primary">Əlaqə Məlumatları</h1>
+                <p className="text-sm text-text-secondary mt-1">
                   {verifyMethod === "email"
-                    ? `Kod ${email.trim()} ünvanına göndərildi`
-                    : `Kod ${normalizedPhone} nömrəsinə SMS ilə göndərildi`}
+                    ? "Ad, Soyad, Gmail və Şifrə tələb olunur."
+                    : "Ad, Soyad, Nömrə və Şifrə tələb olunur."}
                 </p>
               </div>
 
-              <div
-                className="flex justify-center gap-3 cursor-pointer"
-                onClick={() => otpInputRef.current?.focus()}
-              >
-                {renderOtpBoxes()}
+              {/* Fields card */}
+              <div className="bg-surface rounded-2xl border border-border overflow-hidden">
+                <div className="p-4 flex flex-col gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-text-secondary mb-1.5">Ad</label>
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Ad"
+                        className={inputCls}
+                        autoCapitalize="words"
+                        disabled={step === "otp"}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-text-secondary mb-1.5">Soyad</label>
+                      <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Soyad"
+                        className={inputCls}
+                        autoCapitalize="words"
+                        disabled={step === "otp"}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      {verifyMethod === "email" ? (
+                        <>
+                          <label className="block text-sm text-text-secondary mb-1.5">Gmail</label>
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="example@gmail.com"
+                            className={inputCls}
+                            autoComplete="email"
+                            disabled={step === "otp"}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <label className="block text-sm text-text-secondary mb-1.5">Mobil nömrə</label>
+                          <div
+                            className={`flex items-center bg-surface-alt border rounded-xl focus-within:bg-white transition-colors ${
+                              phoneError ? "border-red-400 focus-within:border-red-400" : "border-border focus-within:border-primary"
+                            } ${step === "otp" ? "opacity-60" : ""}`}
+                          >
+                            <div className="flex items-center gap-1.5 px-3 border-r border-border shrink-0">
+                              <span className="text-lg leading-none">🇦🇿</span>
+                              <span className="text-sm font-semibold text-text-secondary">+994</span>
+                            </div>
+                            <input
+                              type="tel"
+                              value={phone}
+                              onChange={(e) => { setPhoneError(""); setPhone(formatPhone(e.target.value)); }}
+                              placeholder="50 123 45 67"
+                              className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-3 py-3 font-medium border-none"
+                              inputMode="numeric"
+                              maxLength={12}
+                              disabled={step === "otp"}
+                            />
+                          </div>
+                          {phoneError && (
+                            <p className="text-xs text-red-500 font-semibold mt-1">{phoneError}</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm text-text-secondary mb-1.5">
+                        Şifrə <span className="text-red-500">*</span>
+                      </label>
+                      <div
+                        className={`flex items-center bg-surface-alt border border-border rounded-xl focus-within:border-primary focus-within:bg-white transition-colors ${step === "otp" ? "opacity-60" : ""}`}
+                      >
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Ən az 6 simvol"
+                          className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-4 py-3 font-medium border-none"
+                          disabled={step === "otp"}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          className="px-4 py-3 text-text-muted hover:text-text-secondary transition-colors cursor-pointer"
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <input
-                ref={otpInputRef}
-                value={otpCode}
-                onChange={(e) => handleOtpChange(e.target.value)}
-                inputMode="numeric"
-                maxLength={OTP_LENGTH}
-                autoComplete="one-time-code"
-                autoFocus
-                className="sr-only"
-              />
+              {/* Channel selector */}
+              {step === "info" && (
+                <div className="bg-surface rounded-2xl border border-border p-4">
+                  <p className="text-sm text-text-secondary mb-3">Kodu necə almaq istərsiniz?</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { k: "sms", label: "SMS", Icon: MessageSquare },
+                      { k: "email", label: "Gmail", Icon: Mail },
+                    ].map(({ k, label, Icon }) => (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => { setVerifyMethod(k); setPhoneError(""); }}
+                        className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 font-bold text-sm transition-all cursor-pointer ${
+                          verifyMethod === k
+                            ? "border-primary bg-primary-surface text-primary"
+                            : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"
+                        }`}
+                      >
+                        <Icon size={17} /> {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              <button
-                className={`btn-primary ${verifying || otpCode.length < OTP_LENGTH ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => handleVerify()}
-                disabled={verifying || otpCode.length < OTP_LENGTH}
-              >
-                {verifying ? "Yoxlanılır..." : "Təsdiqləyin"}
-              </button>
+              {error && (
+                <div className="bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
+                  {error}
+                </div>
+              )}
 
-              <button
-                onClick={handleResend}
-                disabled={resendTimer > 0}
-                className={`text-sm font-semibold text-center py-1 ${resendTimer > 0 ? "text-text-muted cursor-default" : "text-primary cursor-pointer"}`}
-              >
-                {resendTimer > 0
-                  ? `Yenidən göndər (${resendTimer}s)`
-                  : "Yenidən göndər"}
-              </button>
+              {step === "info" && (
+                <button
+                  className={`btn-primary ${sending ? "opacity-50 cursor-not-allowed" : ""}`}
+                  onClick={handleSendOtp}
+                  disabled={sending}
+                >
+                  {sending ? "Göndərilir..." : "Ödəniş mərhələsinə keç"}
+                </button>
+              )}
 
-              <button
-                onClick={() => {
-                  setStep("info");
-                  clearInterval(timerRef.current);
-                  setError("");
-                }}
-                className="text-sm text-text-secondary text-center py-1 cursor-pointer hover:text-text-primary transition-colors"
-              >
-                Məlumatları dəyişdir
-              </button>
-            </div>
+              {step === "otp" && (
+                <div className="bg-surface rounded-2xl border-2 border-primary/30 p-6 flex flex-col gap-4">
+                  <div className="text-center">
+                    <h2 className="text-base font-bold text-text-primary mb-1">Doğrulama kodu</h2>
+                    <p className="text-sm text-text-secondary">
+                      {verifyMethod === "email"
+                        ? `Kod ${email.trim()} ünvanına göndərildi`
+                        : `Kod ${normalizedPhone} nömrəsinə SMS ilə göndərildi`}
+                    </p>
+                  </div>
+
+                  <div
+                    className="flex justify-center gap-3 cursor-pointer"
+                    onClick={() => otpInputRef.current?.focus()}
+                  >
+                    {renderOtpBoxes()}
+                  </div>
+
+                  <input
+                    ref={otpInputRef}
+                    value={otpCode}
+                    onChange={(e) => handleOtpChange(e.target.value)}
+                    inputMode="numeric"
+                    maxLength={OTP_LENGTH}
+                    autoComplete="one-time-code"
+                    autoFocus
+                    className="sr-only"
+                  />
+
+                  <button
+                    className={`btn-primary ${verifying || otpCode.length < OTP_LENGTH ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => handleVerify()}
+                    disabled={verifying || otpCode.length < OTP_LENGTH}
+                  >
+                    {verifying ? "Yoxlanılır..." : "Təsdiqləyin"}
+                  </button>
+
+                  <button
+                    onClick={handleResend}
+                    disabled={resendTimer > 0}
+                    className={`text-sm font-semibold text-center py-1 ${resendTimer > 0 ? "text-text-muted cursor-default" : "text-primary cursor-pointer"}`}
+                  >
+                    {resendTimer > 0 ? `Yenidən göndər (${resendTimer}s)` : "Yenidən göndər"}
+                  </button>
+
+                  <button
+                    onClick={() => { setStep("info"); clearInterval(timerRef.current); setError(""); }}
+                    className="text-sm text-text-secondary text-center py-1 cursor-pointer hover:text-text-primary transition-colors"
+                  >
+                    Məlumatları dəyişdir
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
