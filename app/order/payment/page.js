@@ -7,7 +7,8 @@ import StepHeader from '../../../components/StepHeader';
 import { useOrder } from '../../../context/OrderContext';
 import api from '../../../lib/api';
 
-// Polling removed - using Epoint webhook/callback mechanism only
+const POLL_INTERVAL = 3000;
+const POLL_TIMEOUT  = 10 * 60 * 1000;
 
 function Spinner() {
   return (
@@ -53,17 +54,6 @@ function GooglePayIcon() {
 
 function EPointFrame({ url, onClose }) {
   const [frameLoading, setFrameLoading] = useState(true);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.data?.type === 'EPOINT_RESULT') {
-        onClose();
-      }
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, [onClose]);
-
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col bg-black/60">
       <div className="flex items-center justify-between px-4 py-3.5" style={{ background: '#1B5E20' }}>
@@ -108,8 +98,9 @@ export default function PaymentPage() {
   const [frameUrl,    setFrameUrl]    = useState('');
   const [error,       setError]       = useState('');
 
-  const paidRef      = useRef(false);
   const pollRef      = useRef(null);
+  const startTimeRef = useRef(null);
+  const paidRef      = useRef(false);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('qurbanet_order');
@@ -126,7 +117,7 @@ export default function PaymentPage() {
         }
       })
       .catch(() => {});
-    return () => {};
+    return () => clearInterval(pollRef.current);
   }, []);
 
   if (!isLoaded || !order?.createdOrderId) return null;
@@ -151,6 +142,36 @@ export default function PaymentPage() {
     return rows;
   })();
 
+  const startPolling = (orderId) => {
+    paidRef.current = false;
+    startTimeRef.current = Date.now();
+    pollRef.current = setInterval(async () => {
+      if (paidRef.current) { clearInterval(pollRef.current); return; }
+      if (Date.now() - startTimeRef.current > POLL_TIMEOUT) {
+        clearInterval(pollRef.current);
+        setFrameUrl('');
+        setError('Ödəniş statusu təsdiqlənmədi. Sifarişlərim bölməsini yoxlayın.');
+        return;
+      }
+      try {
+        const res = await api.post(`/orders/${orderId}/epoint/verify`);
+        const d = res.data?.data;
+        if (d?.order?.payment?.status === 'paid' && !paidRef.current) {
+          paidRef.current = true;
+          clearInterval(pollRef.current);
+          setFrameUrl('');
+          updateOrder({ paymentMethod: method });
+          router.push('/order/confirmation');
+        } else if (d?.epointStatus === 'error' || d?.epointStatus === 'returned') {
+          paidRef.current = true;
+          clearInterval(pollRef.current);
+          setFrameUrl('');
+          setError(d.userMessage || 'Ödəniş rədd edildi. Yenidən cəhd edin.');
+        }
+      } catch (_) {}
+    }, POLL_INTERVAL);
+  };
+
   const handlePay = async () => {
     setError('');
     setLoading(true);
@@ -159,11 +180,13 @@ export default function PaymentPage() {
         const res = await api.post(`/orders/${createdOrderId}/epoint/start`);
         if (res.data.success) {
           setFrameUrl(res.data.data.redirect_url);
+          startPolling(createdOrderId);
         }
       } else if (method === 'googlepay') {
         const res = await api.post(`/orders/${createdOrderId}/epoint/widget`);
         if (res.data.success) {
           setFrameUrl(res.data.data.widget_url);
+          startPolling(createdOrderId);
         }
       } else {
         const res = await api.post(`/orders/${createdOrderId}/pay`, { paymentMethod: 'cash_on_delivery' });
