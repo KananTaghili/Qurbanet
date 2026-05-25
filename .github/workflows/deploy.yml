@@ -34,7 +34,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: ".next/standalone/."
+          source: ".next/standalone"
           target: "/var/www/qurbanetfront"
           rm: false
 
@@ -49,8 +49,8 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             set -e
 
-            [ -f /var/www/qurbanetfront/server.js ] || { echo "ERROR: server.js not found!"; exit 1; }
+            [ -f /var/www/qurbanetfront/standalone/server.js ] || { echo "ERROR: server.js not found!"; exit 1; }
 
             PORT=3001 pm2 restart qurbanetfrontpm --update-env \
-              || PORT=3001 pm2 start /var/www/qurbanetfront/server.js --name "qurbanetfrontpm"
+              || PORT=3001 pm2 start /var/www/qurbanetfront/standalone/server.js --name "qurbanetfrontpm"
             pm2 save
