@@ -18,6 +18,7 @@ export default function OtpPage() {
   const [error, setError] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [identifierType, setIdentifierType] = useState('phone');
+  const [isLogin, setIsLogin] = useState(false);
   const inputs = useRef([]);
   const nameRef = useRef(null);
   const passwordRef = useRef(null);
@@ -25,9 +26,11 @@ export default function OtpPage() {
   useEffect(() => {
     const id = sessionStorage.getItem('otp_identifier') || sessionStorage.getItem('otp_phone');
     const idType = sessionStorage.getItem('otp_identifier_type') || 'phone';
+    const flow = sessionStorage.getItem('otp_flow') || 'register';
     if (!id) { router.replace('/auth/login'); return; }
     setIdentifier(id);
     setIdentifierType(idType);
+    setIsLogin(flow === 'login');
   }, [router]);
 
   const handleChange = (i, val) => {
@@ -39,7 +42,12 @@ export default function OtpPage() {
     if (digit && i < 3) {
       inputs.current[i + 1]?.focus();
     } else if (digit && i === 3) {
-      nameRef.current?.focus();
+      if (isLogin) {
+        // Auto-submit on last digit for login
+        handleSubmit(null, next.join(''));
+      } else {
+        nameRef.current?.focus();
+      }
     }
   };
 
@@ -51,36 +59,44 @@ export default function OtpPage() {
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
     if (pasted.length === 4) {
       setCode(pasted.split(''));
-      nameRef.current?.focus();
+      if (isLogin) {
+        handleSubmit(null, pasted);
+      } else {
+        nameRef.current?.focus();
+      }
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, autoCode) => {
     e?.preventDefault();
-    const otp = code.join('');
+    const otp = autoCode || code.join('');
     if (otp.length < 4) { setError('4 rəqəmli kodu daxil edin.'); return; }
-    if (name.trim().length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
-    if (!password || password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır.'); return; }
+    if (!isLogin) {
+      if (name.trim().length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
+      if (!password || password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır.'); return; }
+    }
     if (loading) return;
 
     setLoading(true);
     try {
       const payload = identifierType === 'email'
-        ? { email: identifier, code: otp, password }
-        : { phone: identifier, code: otp, password };
+        ? { email: identifier, code: otp }
+        : { phone: identifier, code: otp };
+
+      if (!isLogin && password) payload.password = password;
+
       const res = await api.post('/auth/verify-otp', payload);
       if (res.data.success) {
         const { token, user } = res.data.data;
 
-        // Save name immediately after OTP verification
-        if (name.trim()) {
+        if (!isLogin && name.trim()) {
           try {
             const profileRes = await api.put('/auth/profile', {
               name: name.trim(),
               lastName: lastName.trim() || undefined,
             }, { headers: { Authorization: `Bearer ${token}` } });
             const freshToken = profileRes.data.data?.token || token;
-            const updatedUser = profileRes.data.data?.user || { ...user, name: name.trim(), lastName: lastName.trim() };
+            const updatedUser = profileRes.data.data?.user || { ...user, name: name.trim() };
             login(freshToken, updatedUser);
           } catch {
             login(token, user);
@@ -92,6 +108,7 @@ export default function OtpPage() {
         sessionStorage.removeItem('otp_identifier');
         sessionStorage.removeItem('otp_identifier_type');
         sessionStorage.removeItem('otp_phone');
+        sessionStorage.removeItem('otp_flow');
         router.push('/');
       }
     } catch (err) {
@@ -116,7 +133,7 @@ export default function OtpPage() {
         >
           <button
             type="button"
-            onClick={() => router.push('/auth/register')}
+            onClick={() => router.push(isLogin ? '/auth/login' : '/auth/register')}
             className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
             style={{ background: 'rgba(255,255,255,0.18)', color: '#fff' }}
             aria-label="Geri qayıt"
@@ -188,57 +205,59 @@ export default function OtpPage() {
                 ))}
               </div>
 
-              {/* Name */}
-              <div>
-                <label className="text-sm font-semibold text-text-primary mb-2 block">Ad *</label>
-                <input
-                  ref={nameRef}
-                  type="text"
-                  value={name}
-                  onChange={(e) => { setName(e.target.value); setError(''); }}
-                  placeholder="Məsələn: Əli"
-                  className="field-input"
-                  autoCapitalize="words"
-                  maxLength={60}
-                />
-              </div>
+              {/* Register-only fields: name, surname, password */}
+              {!isLogin && (
+                <>
+                  <div>
+                    <label className="text-sm font-semibold text-text-primary mb-2 block">Ad *</label>
+                    <input
+                      ref={nameRef}
+                      type="text"
+                      value={name}
+                      onChange={(e) => { setName(e.target.value); setError(''); }}
+                      placeholder="Məsələn: Əli"
+                      className="field-input"
+                      autoCapitalize="words"
+                      maxLength={60}
+                    />
+                  </div>
 
-              {/* Last name */}
-              <div>
-                <label className="text-sm font-semibold text-text-primary mb-2 block">Soyad</label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Məsələn: Hüseynov"
-                  className="field-input"
-                  autoCapitalize="words"
-                  maxLength={60}
-                />
-              </div>
+                  <div>
+                    <label className="text-sm font-semibold text-text-primary mb-2 block">Soyad</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Məsələn: Hüseynov"
+                      className="field-input"
+                      autoCapitalize="words"
+                      maxLength={60}
+                    />
+                  </div>
 
-              {/* Password */}
-              <div>
-                <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrə *</label>
-                <div className="relative">
-                  <input
-                    ref={passwordRef}
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                    placeholder="Ən az 6 simvol"
-                    className="field-input pr-10"
-                    maxLength={128}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
+                  <div>
+                    <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrə *</label>
+                    <div className="relative">
+                      <input
+                        ref={passwordRef}
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                        placeholder="Ən az 6 simvol"
+                        className="field-input pr-10"
+                        maxLength={128}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
 
               {error && (
                 <div className="bg-red-50 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
@@ -246,19 +265,28 @@ export default function OtpPage() {
                 </div>
               )}
 
-              <button type="submit" className="btn-primary" disabled={loading}>
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Yoxlanılır...
-                  </span>
-                ) : 'Təsdiq et'}
-              </button>
+              {/* Login: show spinner while auto-submitting, or manual button */}
+              {isLogin ? (
+                loading && (
+                  <div className="flex justify-center py-2">
+                    <span className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )
+              ) : (
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Yoxlanılır...
+                    </span>
+                  ) : 'Təsdiq et'}
+                </button>
+              )}
 
               <button
                 type="button"
-                onClick={() => router.push('/auth/register')}
-                className="w-full text-center text-sm text-text-secondary py-1 hover.text-primary transition-colors"
+                onClick={() => router.push(isLogin ? '/auth/login' : '/auth/register')}
+                className="w-full text-center text-sm text-text-secondary py-1 hover:text-primary transition-colors"
               >
                 ← {identifierType === 'email' ? 'Email ünvanını dəyiş' : 'Telefon nömrəsini dəyiş'}
               </button>
