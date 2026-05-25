@@ -1,9 +1,25 @@
 const Order = require("../models/Order");
 const CharityOrder = require("../models/CharityOrder");
-const { createPayment, createWidget, getTransactionStatus, verifySignature, decodeData, getAzPaymentErrorMessage } = require("../utils/epoint");
+const { ORDER_STATUS } = require("../config/constants");
+const {
+  createPayment,
+  createPreAuth,
+  completePreAuth,
+  getTransactionStatus,
+  reverseTransaction,
+  registerCard,
+  executePayWithCard,
+  createWidget,
+  verifySignature,
+  decodeData,
+  getAzPaymentErrorMessage,
+} = require("../utils/epoint");
 const { success, error } = require("../utils/response");
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
+
+// In-memory transaction store (mirrors Qurbanet-Service pattern)
+const txStore = new Map();
 
 // ─── Helper ────────────────────────────────────────────────────────────────
 // epointOrderId format:
@@ -12,7 +28,7 @@ const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
 const parseEpointOrderId = (raw) => {
   if (!raw) return { type: null, realId: null };
   if (raw.startsWith("chr_")) {
-    const parts = raw.split("_"); // ["chr", "<mongoId>", "<timestamp>"]
+    const parts = raw.split("_");
     return { type: "charity", realId: parts[1] };
   }
   return { type: "order", realId: raw.split("_")[0] };
@@ -29,7 +45,6 @@ const startPayment = async (req, res) => {
       return error(res, "Bu sifariş artıq ödənilib.", 400);
     }
 
-    // EPoint eyni order_id-ni ikinci dəfə qəbul etmir — timestamp əlavə et
     const epointOrderId = `${order._id}_${Date.now()}`;
 
     const successUrl = `${BACKEND_URL}/api/epoint/return?orderId=${orderId}&status=success`;
@@ -48,6 +63,16 @@ const startPayment = async (req, res) => {
     order.payment.epointOrderId = epointOrderId;
     order.payment.transactionId = result.transaction;
     await order.save();
+
+    txStore.set(result.transaction, {
+      transaction:   result.transaction,
+      orderId:       epointOrderId,
+      amount:        String(order.totalPrice),
+      currency:      "AZN",
+      createdAt:     new Date().toISOString(),
+      paymentStatus: "pending",
+      mongoOrderId:  String(orderId),
+    });
 
     return success(res, { redirect_url: result.redirect_url });
   } catch (err) {
@@ -77,8 +102,6 @@ const verifyPayment = async (req, res) => {
 
     const ep = await getTransactionStatus(lookup);
 
-    // ep.code is the bank response code per EPoint API docs (page 8: "code — Bankın cavab kodu")
-    // ep.bank_response is the bank's textual response — different field
     const bankCode = ep.code || ep.bank_code || ep.bank_response_code ||
       ep.rc || ep.response_code || ep.bank_rc || ep.error_code;
 
@@ -86,13 +109,24 @@ const verifyPayment = async (req, res) => {
       ? getAzPaymentErrorMessage(bankCode, ep.message)
       : null;
 
-    console.log(`[EPoint] verifyPayment: status=${ep.status} code=${ep.code} bank_response=${ep.bank_response} userMessage=${userMessage}`);
+    console.log(`[EPoint] verifyPayment: status=${ep.status} code=${ep.code} userMessage=${userMessage}`);
 
     if (ep.status === "success") {
       order.payment.status = "paid";
       order.payment.paidAt = new Date();
       if (ep.transaction) order.payment.transactionId = ep.transaction;
+      if (order.status === ORDER_STATUS.AWAITING_PAYMENT) {
+        order.status = ORDER_STATUS.PLACED;
+        order.statusHistory.push({ status: ORDER_STATUS.PLACED, note: "Ödəniş tamamlandı." });
+      }
       await order.save();
+
+      const stored = txStore.get(order.payment.transactionId);
+      if (stored) {
+        stored.paymentStatus = "success";
+        stored.verifiedAt = new Date().toISOString();
+      }
+
       console.log(`[EPoint] verifyPayment: ödənildi: ${orderId}`);
     }
 
@@ -133,6 +167,17 @@ const startCharityPayment = async (req, res) => {
     order.transactionId = result.transaction;
     await order.save();
 
+    txStore.set(result.transaction, {
+      transaction:   result.transaction,
+      orderId:       epointOrderId,
+      amount:        String(order.totalAmount),
+      currency:      "AZN",
+      createdAt:     new Date().toISOString(),
+      paymentStatus: "pending",
+      mongoOrderId:  String(orderId),
+      orderType:     "charity",
+    });
+
     return success(res, { redirect_url: result.redirect_url });
   } catch (err) {
     console.error("[EPoint] startCharityPayment xətası:", err.message);
@@ -168,7 +213,7 @@ const verifyCharityPayment = async (req, res) => {
       ? getAzPaymentErrorMessage(bankCode, ep.message)
       : null;
 
-    console.log(`[EPoint] verifyCharityPayment: status=${ep.status} code=${ep.code} bank_response=${ep.bank_response} userMessage=${userMessage}`);
+    console.log(`[EPoint] verifyCharityPayment: status=${ep.status} code=${ep.code} userMessage=${userMessage}`);
 
     if (ep.status === "success") {
       order.paymentStatus = "paid";
@@ -186,7 +231,8 @@ const verifyCharityPayment = async (req, res) => {
 };
 
 // ─── Server-to-Server Callback ─────────────────────────────────────────────
-// POST /api/epoint/result  — Epoint merchant panel-də result_url olaraq qeyd et
+// POST /api/epoint/result  — merchant panel-də result_url olaraq qeyd et
+// POST /api/epoint/callback/result — Qurbanet-Service uyğun alternativ yol
 const handleResult = async (req, res) => {
   try {
     const { data, signature } = req.body;
@@ -203,9 +249,22 @@ const handleResult = async (req, res) => {
     const payload = decodeData(data);
     console.log("[EPoint] handleResult payload:", JSON.stringify(payload));
 
-    const status = payload.status;
-    const rawOrderId = payload.orderId || payload.order_id;
+    const status      = payload.status;
+    const rawOrderId  = payload.orderId || payload.order_id;
     const transaction = payload.transaction;
+    const { rrn, card_mask, card_name, operation_code, code } = payload;
+
+    // Update in-memory store
+    const stored = txStore.get(transaction);
+    if (stored) {
+      stored.paymentStatus  = status;
+      stored.verifiedAt     = new Date().toISOString();
+      stored.code           = code           || stored.code           || null;
+      stored.cardMask       = card_mask      || stored.cardMask       || null;
+      stored.cardName       = card_name      || stored.cardName       || null;
+      stored.rrn            = rrn            || stored.rrn            || null;
+      stored.operationCode  = operation_code || stored.operationCode  || null;
+    }
 
     const { type, realId } = parseEpointOrderId(rawOrderId);
 
@@ -225,6 +284,10 @@ const handleResult = async (req, res) => {
           order.payment.status = "paid";
           order.payment.paidAt = new Date();
           if (transaction) order.payment.transactionId = transaction;
+          if (order.status === ORDER_STATUS.AWAITING_PAYMENT) {
+            order.status = ORDER_STATUS.PLACED;
+            order.statusHistory.push({ status: ORDER_STATUS.PLACED, note: "Ödəniş tamamlandı." });
+          }
           await order.save();
           console.log(`[EPoint] Sifariş ödənildi (callback): ${realId}`);
         }
@@ -245,11 +308,9 @@ const handleResult = async (req, res) => {
 const handleReturn = async (req, res) => {
   try {
     const { orderId, status, type = "order" } = req.query;
-    // Log all params EPoint sends — helps identify bank_code field name
     console.log("[EPoint] handleReturn ALL params:", JSON.stringify(req.query));
     const isPaid = status === "success";
 
-    // Optimistically mark as paid (server callback is authoritative, but be fast for UX)
     if (isPaid && orderId) {
       if (type === "charity") {
         const order = await CharityOrder.findById(orderId);
@@ -264,15 +325,19 @@ const handleReturn = async (req, res) => {
         if (order && order.payment?.status !== "paid") {
           order.payment.status = "paid";
           order.payment.paidAt = new Date();
+          if (order.status === ORDER_STATUS.AWAITING_PAYMENT) {
+            order.status = ORDER_STATUS.PLACED;
+            order.statusHistory.push({ status: ORDER_STATUS.PLACED, note: "Ödəniş tamamlandı." });
+          }
           await order.save();
           console.log(`[EPoint] Sifariş ödənildi (browser return): ${orderId}`);
         }
       }
     }
 
-    const titleAz = isPaid ? "Ödəniş uğurlu" : "Ödəniş uğursuz";
+    const titleAz   = isPaid ? "Ödəniş uğurlu" : "Ödəniş uğursuz";
     const headingAz = isPaid ? "Ödəniş uğurlu tamamlandı!" : "Ödəniş uğursuz oldu";
-    const bodyAz = isPaid
+    const bodyAz    = isPaid
       ? "Sifarişiniz qəbul edildi. Tətbiqə qayıdın."
       : "Ödəniş zamanı xəta baş verdi. Tətbiqdən yenidən cəhd edin.";
     const iconColor = isPaid ? "#1B5E20" : "#C62828";
@@ -308,9 +373,7 @@ const handleReturn = async (req, res) => {
         status: '${isPaid ? "success" : "fail"}',
         orderId: '${orderId || ""}'
       });
-      // React Native WebView
       try { if (window.ReactNativeWebView) { window.ReactNativeWebView.postMessage(msg); } } catch(e) {}
-      // Web iframe parent
       try { window.parent.postMessage(JSON.parse(msg), '*'); } catch(e) {}
     })();
   </script>
@@ -384,13 +447,242 @@ const startCharityWidgetPayment = async (req, res) => {
   }
 };
 
+// ─── Standalone: Create Transaction (no MongoDB) ─────────────────────────
+// POST /api/epoint/create-transaction
+const createTransactionHandler = async (req, res) => {
+  const { amount, currency, description, orderId, successRedirectUrl, errorRedirectUrl } = req.body;
+
+  if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "Yanlış məbləğ" });
+  }
+
+  const resolvedOrderId = orderId || `ORD-${Date.now()}`;
+
+  try {
+    const result = await createPayment({
+      amount: String(amount), currency, orderId: resolvedOrderId, description,
+      successUrl: successRedirectUrl,
+      errorUrl:   errorRedirectUrl,
+    });
+
+    txStore.set(result.transaction, {
+      transaction:   result.transaction,
+      orderId:       resolvedOrderId,
+      amount:        String(amount),
+      currency:      currency || "AZN",
+      description:   description || "",
+      createdAt:     new Date().toISOString(),
+      paymentStatus: "new",
+    });
+
+    console.log(`[create-transaction] tx=${result.transaction} order=${resolvedOrderId} amount=${amount}`);
+    return res.json({ transaction: result.transaction, redirectUrl: result.redirect_url });
+  } catch (err) {
+    console.error("[create-transaction]", err.message);
+    return res.status(502).json({ error: "Əməliyyat yaradıla bilmədi" });
+  }
+};
+
+// ─── Standalone: Create Pre-Auth ─────────────────────────────────────────
+// POST /api/epoint/create-preauth
+const createPreAuthHandler = async (req, res) => {
+  const { amount, currency, description, orderId, successRedirectUrl, errorRedirectUrl } = req.body;
+
+  if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "Yanlış məbləğ" });
+  }
+
+  const resolvedOrderId = orderId || `PREAUTH-${Date.now()}`;
+
+  try {
+    const result = await createPreAuth({
+      amount: String(amount), currency, orderId: resolvedOrderId, description,
+      successUrl: successRedirectUrl,
+      errorUrl:   errorRedirectUrl,
+    });
+
+    if (result.status !== "success") {
+      return res.status(502).json({ error: "Epoint preauth sorğusunu rədd etdi", details: result });
+    }
+
+    txStore.set(result.transaction, {
+      transaction:   result.transaction,
+      orderId:       resolvedOrderId,
+      amount:        String(amount),
+      currency:      currency || "AZN",
+      description:   description || "",
+      createdAt:     new Date().toISOString(),
+      paymentStatus: "new",
+      operationCode: "preauth",
+    });
+
+    console.log(`[create-preauth] tx=${result.transaction} order=${resolvedOrderId} amount=${amount}`);
+    return res.json({ transaction: result.transaction, redirectUrl: result.redirect_url });
+  } catch (err) {
+    console.error("[create-preauth]", err.message);
+    return res.status(502).json({ error: "Preauth yaradıla bilmədi" });
+  }
+};
+
+// ─── Standalone: Complete Pre-Auth ───────────────────────────────────────
+// POST /api/epoint/preauth-complete/:id
+const completePreAuthHandler = async (req, res) => {
+  const { id: transaction } = req.params;
+  const local  = txStore.get(transaction);
+  const amount = req.body.amount ?? local?.amount;
+
+  if (!amount) {
+    return res.status(400).json({ error: "Məbləğ tələb olunur" });
+  }
+
+  try {
+    const result = await completePreAuth(transaction, String(amount));
+
+    if (local) {
+      local.paymentStatus = result.status === "success" ? "success" : "error";
+      local.verifiedAt    = new Date().toISOString();
+    }
+
+    console.log(`[preauth-complete] tx=${transaction} status=${result.status}`);
+    return res.json({ status: result.status, details: result });
+  } catch (err) {
+    console.error("[preauth-complete]", err.message);
+    return res.status(502).json({ error: "Preauth tamamlana bilmədi" });
+  }
+};
+
+// ─── Standalone: Get Transaction Status ──────────────────────────────────
+// GET /api/epoint/transaction/:id
+const getTransactionHandler = async (req, res) => {
+  const { id: transaction } = req.params;
+
+  try {
+    const statusRes = await getTransactionStatus({ transaction });
+    const stored    = txStore.get(transaction);
+
+    if (stored && statusRes.status && statusRes.status !== "new") {
+      stored.paymentStatus = statusRes.status;
+      stored.verifiedAt    = new Date().toISOString();
+      stored.cardMask      = statusRes.card_mask || stored.cardMask || null;
+      stored.cardName      = statusRes.card_name || stored.cardName || null;
+      stored.rrn           = statusRes.rrn        || stored.rrn       || null;
+    }
+
+    return res.json({ transaction: statusRes, local: stored || null });
+  } catch (err) {
+    console.error("[transaction/:id]", err.message);
+    return res.status(502).json({ error: "Status alına bilmədi" });
+  }
+};
+
+// ─── Standalone: List Transactions ───────────────────────────────────────
+// GET /api/epoint/transactions
+const getTransactionsHandler = (req, res) => {
+  const transactions = Array.from(txStore.values()).sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+  return res.json({ transactions });
+};
+
+// ─── Standalone: Reverse Transaction ─────────────────────────────────────
+// POST /api/epoint/reverse/:id
+const reverseHandler = async (req, res) => {
+  const { id: transaction } = req.params;
+  const { currency, amount } = req.body;
+
+  try {
+    const result = await reverseTransaction(transaction, currency || "AZN", amount);
+    const stored = txStore.get(transaction);
+
+    if (stored && result.status === "success") {
+      stored.paymentStatus = "returned";
+    }
+
+    console.log(`[reverse] tx=${transaction} status=${result.status}`);
+    return res.json(result);
+  } catch (err) {
+    console.error("[reverse]", err.message);
+    return res.status(502).json({ error: "Geri ödəniş icra edilə bilmədi" });
+  }
+};
+
+// ─── Standalone: Card Registration ───────────────────────────────────────
+// POST /api/epoint/card-registration
+const registerCardHandler = async (req, res) => {
+  const { description, successRedirectUrl, errorRedirectUrl } = req.body;
+  try {
+    const result = await registerCard({
+      description,
+      successUrl: successRedirectUrl,
+      errorUrl:   errorRedirectUrl,
+    });
+    if (result.status !== "success") {
+      return res.status(502).json({ error: "Kart qeydiyyatı uğursuz oldu", details: result });
+    }
+    return res.json({
+      transaction: result.transaction,
+      redirectUrl: result.redirect_url,
+      card_id:     result.card_id,
+    });
+  } catch (err) {
+    console.error("[card-registration]", err.message);
+    return res.status(502).json({ error: "Kart qeydə alına bilmədi" });
+  }
+};
+
+// ─── Standalone: Execute Pay with Card ───────────────────────────────────
+// POST /api/epoint/execute-pay
+const executePayHandler = async (req, res) => {
+  const { cardId, orderId, amount, currency, description } = req.body;
+
+  if (!cardId || !orderId || !amount) {
+    return res.status(400).json({ error: "cardId, orderId və amount tələb olunur" });
+  }
+
+  try {
+    const result = await executePayWithCard({ cardId, orderId, amount: String(amount), currency, description });
+
+    txStore.set(result.transaction, {
+      transaction:   result.transaction,
+      orderId,
+      amount:        String(amount),
+      currency:      currency || "AZN",
+      description:   description || "",
+      createdAt:     new Date().toISOString(),
+      paymentStatus: result.status === "success" ? "success" : "error",
+      cardMask:      result.card_mask || null,
+      cardName:      result.card_name || null,
+      rrn:           result.rrn       || null,
+    });
+
+    console.log(`[execute-pay] tx=${result.transaction} status=${result.status}`);
+    return res.json(result);
+  } catch (err) {
+    console.error("[execute-pay]", err.message);
+    return res.status(502).json({ error: "Ödəniş icra edilə bilmədi" });
+  }
+};
+
 module.exports = {
+  // Order-specific
   startPayment,
   verifyPayment,
   startWidgetPayment,
   startCharityPayment,
   verifyCharityPayment,
   startCharityWidgetPayment,
+  // Callbacks & redirects
   handleResult,
   handleReturn,
+  // Standalone operations
+  createTransactionHandler,
+  createPreAuthHandler,
+  completePreAuthHandler,
+  getTransactionHandler,
+  getTransactionsHandler,
+  reverseHandler,
+  registerCardHandler,
+  executePayHandler,
+  // Store (for admin / testing)
+  txStore,
 };

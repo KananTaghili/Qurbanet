@@ -928,9 +928,9 @@ const createOrder = async (req, res) => {
         method: normalizedPaymentMethod,
         status: "pending",
       },
-      status: ORDER_STATUS.PLACED,
+      status: ORDER_STATUS.AWAITING_PAYMENT,
       statusHistory: [
-        { status: ORDER_STATUS.PLACED, note: "Sifariş yaradıldı." },
+        { status: ORDER_STATUS.AWAITING_PAYMENT, note: "Sifariş yaradıldı, ödəniş gözlənilir." },
       ],
       contactInfo: {
         firstName,
@@ -1035,7 +1035,10 @@ const processPayment = async (req, res) => {
 const getMyOrders = async (req, res) => {
   try {
     await upsertAutoConfirmForUser(req.userId);
-    const orders = await Order.find({ user: req.userId })
+    const orders = await Order.find({
+      user: req.userId,
+      status: { $ne: ORDER_STATUS.AWAITING_PAYMENT },
+    })
       .sort({ createdAt: -1 })
       .select("-__v");
 

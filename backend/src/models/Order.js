@@ -266,7 +266,7 @@ const orderSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: Object.values(ORDER_STATUS),
-      default: ORDER_STATUS.PLACED,
+      default: ORDER_STATUS.AWAITING_PAYMENT,
     },
     statusHistory: [
       {

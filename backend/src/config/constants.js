@@ -133,6 +133,7 @@ const DISTRIBUTION_TYPES = {
 };
 
 const ORDER_STATUS = {
+  AWAITING_PAYMENT: "awaiting_payment",
   PLACED: "placed",
   CONFIRMED: "confirmed",
   SLAUGHTERING: "slaughtering",
@@ -143,6 +144,7 @@ const ORDER_STATUS = {
 };
 
 const ORDER_STATUS_LABELS = {
+  awaiting_payment: "Ödəniş gözlənilir",
   placed: "Sifariş verildi",
   confirmed: "Sifariş təsdiqləndi",
   slaughtering: "Kəsilir",
