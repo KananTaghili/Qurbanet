@@ -24,6 +24,7 @@ export default function HomePage() {
   const { isGuest, logout, isLoading } = useAuth();
   const [animals, setAnimals] = useState([]);
   const [deliveryWindows, setDeliveryWindows] = useState([]);
+  const [singleAnimalMode, setSingleAnimalMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -55,6 +56,7 @@ export default function HomePage() {
       setAnimals(data.animals || []);
       if (data.deliveryWindows?.length)
         setDeliveryWindows(data.deliveryWindows);
+      setSingleAnimalMode(data.singleAnimalMode === true);
     } catch {
       /* ignore */
     } finally {
@@ -65,6 +67,7 @@ export default function HomePage() {
   const handleSelect = (animal) => {
     sessionStorage.setItem("selected_animal", JSON.stringify(animal));
     sessionStorage.setItem("delivery_windows", JSON.stringify(deliveryWindows));
+    sessionStorage.setItem("single_animal_mode", String(singleAnimalMode));
     router.push("/order/quantity");
   };
 

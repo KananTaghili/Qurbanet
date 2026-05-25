@@ -78,6 +78,7 @@ export default function QuantityPage() {
   const [selectedWeight, setSelectedWeight] = useState(null);
   const [headBuckets, setHeadBuckets] = useState({});
   const [feetBuckets, setFeetBuckets] = useState({});
+  const [singleAnimalMode, setSingleAnimalMode] = useState(false);
 
   useEffect(() => {
     const a = sessionStorage.getItem("selected_animal");
@@ -88,6 +89,8 @@ export default function QuantityPage() {
     }
     const parsed = JSON.parse(a);
     setAnimal(parsed);
+    const sam = sessionStorage.getItem("single_animal_mode");
+    setSingleAnimalMode(sam === "true");
     if (parsed.orderMode === "serikli" && parsed.serikliEnabled) setMode("serikli");
     if (dw) {
       const w = JSON.parse(dw);
@@ -207,7 +210,7 @@ export default function QuantityPage() {
   const feetUnassigned = feetTotal - feetAssigned;
 
   const cutStyleError =
-    submitAttempted && effectiveCutStyles.length > 0 && totalCutCount === 0;
+    !singleAnimalMode && submitAttempted && effectiveCutStyles.length > 0 && totalCutCount === 0;
   const partsError =
     submitAttempted && (headUnassigned + feetUnassigned > 0);
 
@@ -221,7 +224,7 @@ export default function QuantityPage() {
       alert("Çatdırılma vaxtını seçin.");
       return;
     }
-    if (effectiveCutStyles.length > 0 && totalCutCount === 0) {
+    if (!singleAnimalMode && effectiveCutStyles.length > 0 && totalCutCount === 0) {
       return;
     }
     if (needsHead && headUnassigned > 0) {
@@ -453,29 +456,33 @@ export default function QuantityPage() {
                     <span className="text-[10px] font-bold text-text-muted uppercase tracking-wide">
                       Miqdar
                     </span>
-                    <div className="flex items-center gap-2">
-                      <QtyBtn
-                        onClick={() => setQty((q) => Math.max(1, q - 1))}
-                        disabled={qty <= 1}
-                      >
-                        −
-                      </QtyBtn>
-                      <span className="w-7 text-center text-2xl font-extrabold text-primary leading-none">
-                        {qty}
-                      </span>
-                      <QtyBtn
-                        onClick={() =>
-                          setQty((q) =>
-                            mode === "serikli"
-                              ? Math.min(maxShares, q + 1)
-                              : q + 1,
-                          )
-                        }
-                        disabled={mode === "serikli" && qty >= maxShares}
-                      >
-                        +
-                      </QtyBtn>
-                    </div>
+                    {singleAnimalMode ? (
+                      <span className="text-2xl font-extrabold text-primary leading-none">1</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <QtyBtn
+                          onClick={() => setQty((q) => Math.max(1, q - 1))}
+                          disabled={qty <= 1}
+                        >
+                          −
+                        </QtyBtn>
+                        <span className="w-7 text-center text-2xl font-extrabold text-primary leading-none">
+                          {qty}
+                        </span>
+                        <QtyBtn
+                          onClick={() =>
+                            setQty((q) =>
+                              mode === "serikli"
+                                ? Math.min(maxShares, q + 1)
+                                : q + 1,
+                            )
+                          }
+                          disabled={mode === "serikli" && qty >= maxShares}
+                        >
+                          +
+                        </QtyBtn>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -569,62 +576,101 @@ export default function QuantityPage() {
                   </div>
                 )}
 
-                <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {effectiveCutStyles.map((cs) => (
-                    <div
-                      key={cs.key}
-                      className="flex items-center justify-between bg-surface-alt rounded-xl px-3 py-2 gap-2"
-                    >
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
-                          {cs.labelAz}
-                        </span>
-                        {cs.fee > 0 && (
-                          <span className="text-[10px] text-primary font-bold">
-                            +{cs.fee} AZN
+                {singleAnimalMode ? (
+                  <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {effectiveCutStyles.map((cs) => {
+                      const isSelected = (cutStyles[cs.key] || 0) > 0;
+                      return (
+                        <button
+                          key={cs.key}
+                          type="button"
+                          onClick={() =>
+                            setCutStyles(() => {
+                              const allZero = Object.fromEntries(effectiveCutStyles.map((c) => [c.key, 0]));
+                              return isSelected ? allZero : { ...allZero, [cs.key]: 1 };
+                            })
+                          }
+                          className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
+                            isSelected
+                              ? "border-primary bg-primary-surface"
+                              : "border-border bg-surface-alt"
+                          }`}
+                        >
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
+                              {cs.labelAz}
+                            </span>
+                            {cs.fee > 0 && (
+                              <span className="text-[10px] text-primary font-bold">
+                                +{cs.fee} AZN
+                              </span>
+                            )}
+                          </div>
+                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 transition-all ${
+                            isSelected ? "border-primary bg-primary" : "border-border"
+                          }`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {effectiveCutStyles.map((cs) => (
+                      <div
+                        key={cs.key}
+                        className="flex items-center justify-between bg-surface-alt rounded-xl px-3 py-2 gap-2"
+                      >
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
+                            {cs.labelAz}
                           </span>
-                        )}
+                          {cs.fee > 0 && (
+                            <span className="text-[10px] text-primary font-bold">
+                              +{cs.fee} AZN
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <button
+                            onClick={() =>
+                              setCutStyles((p) => ({
+                                ...p,
+                                [cs.key]: Math.max(0, (p[cs.key] || 0) - 1),
+                              }))
+                            }
+                            disabled={!cutStyles[cs.key]}
+                            className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
+                              !cutStyles[cs.key]
+                                ? "bg-border text-text-secondary cursor-default opacity-85"
+                                : "bg-primary text-white cursor-pointer hover:opacity-90"
+                            }`}
+                          >
+                            −
+                          </button>
+                          <span className="w-5 text-center text-sm font-extrabold text-primary">
+                            {cutStyles[cs.key] || 0}
+                          </span>
+                          <button
+                            onClick={() =>
+                              setCutStyles((p) => ({
+                                ...p,
+                                [cs.key]: (p[cs.key] || 0) + 1,
+                              }))
+                            }
+                            disabled={totalCutCount >= qty}
+                            className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
+                              totalCutCount >= qty
+                                ? "bg-border text-text-secondary cursor-default opacity-85"
+                                : "bg-primary text-white cursor-pointer hover:opacity-90"
+                            }`}
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <button
-                          onClick={() =>
-                            setCutStyles((p) => ({
-                              ...p,
-                              [cs.key]: Math.max(0, (p[cs.key] || 0) - 1),
-                            }))
-                          }
-                          disabled={!cutStyles[cs.key]}
-                          className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
-                            !cutStyles[cs.key]
-                              ? "bg-border text-text-secondary cursor-default opacity-85"
-                              : "bg-primary text-white cursor-pointer hover:opacity-90"
-                          }`}
-                        >
-                          −
-                        </button>
-                        <span className="w-5 text-center text-sm font-extrabold text-primary">
-                          {cutStyles[cs.key] || 0}
-                        </span>
-                        <button
-                          onClick={() =>
-                            setCutStyles((p) => ({
-                              ...p,
-                              [cs.key]: (p[cs.key] || 0) + 1,
-                            }))
-                          }
-                          disabled={totalCutCount >= qty}
-                          className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
-                            totalCutCount >= qty
-                              ? "bg-border text-text-secondary cursor-default opacity-85"
-                              : "bg-primary text-white cursor-pointer hover:opacity-90"
-                          }`}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </Card>
             )}
 
@@ -666,6 +712,13 @@ export default function QuantityPage() {
                           return { ...prev, [key]: current + delta };
                         });
                       }}
+                      radioMode={singleAnimalMode}
+                      onRadioSelect={(key) => {
+                        setHeadBuckets((prev) => {
+                          const allZero = Object.fromEntries(Object.keys(prev).map((k) => [k, 0]));
+                          return prev[key] > 0 ? allZero : { ...allZero, [key]: 1 };
+                        });
+                      }}
                       required={needsHead}
                       submitAttempted={submitAttempted}
                     />
@@ -689,6 +742,13 @@ export default function QuantityPage() {
                           if (delta > 0 && unassigned <= 0) return prev;
                           if (delta < 0 && current <= 0) return prev;
                           return { ...prev, [key]: current + delta };
+                        });
+                      }}
+                      radioMode={singleAnimalMode}
+                      onRadioSelect={(key) => {
+                        setFeetBuckets((prev) => {
+                          const allZero = Object.fromEntries(Object.keys(prev).map((k) => [k, 0]));
+                          return prev[key] > 0 ? allZero : { ...allZero, [key]: 4 };
                         });
                       }}
                       required={needsFeet}
@@ -816,10 +876,65 @@ function PartBucketSection({
   buckets,
   unassigned,
   onChangeBucket,
+  radioMode,
+  onRadioSelect,
   required,
   submitAttempted,
 }) {
   const isError = required && submitAttempted && unassigned > 0;
+
+  if (radioMode) {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] sm:text-xs font-bold text-text-secondary">
+            {label}
+          </span>
+          {isError && (
+            <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+              Seçin!
+            </span>
+          )}
+        </div>
+        {isError && (
+          <p className="text-[11px] font-bold text-red-500 mb-2">
+            Davam etmək üçün {label.toLowerCase()} seçin.
+          </p>
+        )}
+        <div className="flex flex-col gap-1.5">
+          {options.map((opt) => {
+            const isSelected = (buckets[opt.key] || 0) > 0;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => onRadioSelect(opt.key)}
+                className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
+                  isSelected
+                    ? "border-primary bg-primary-surface"
+                    : isError
+                      ? "border-red-200 bg-red-50"
+                      : "border-border bg-surface-alt"
+                }`}
+              >
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
+                    {opt.labelAz}
+                  </span>
+                  <span className="text-[10px] text-primary font-bold">
+                    {opt.fee > 0 ? `+${opt.fee} AZN` : "Pulsuz"}
+                  </span>
+                </div>
+                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 transition-all ${
+                  isSelected ? "border-primary bg-primary" : "border-border"
+                }`} />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
