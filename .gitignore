@@ -5,7 +5,7 @@ node_modules/
 .next/
 out/
 
-# Environment variables (secrets — never commit)
+# Environment variables
 .env.local
 .env.*.local
 
