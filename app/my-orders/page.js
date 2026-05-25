@@ -32,6 +32,7 @@ const ANIMAL_IMAGES = {
 };
 
 const STATUS_COLOR = {
+  awaiting_payment: '#9CA3AF',
   placed:          '#F59E0B',
   pending_payment: '#F59E0B',
   confirmed:       '#3B82F6',
