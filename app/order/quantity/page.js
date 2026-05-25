@@ -147,7 +147,7 @@ export default function QuantityPage() {
 
   if (!animal) return null;
 
-  const maxShares = animal.totalShares || 7;
+  const maxShares = Number(animal.totalShares) || 1;
   const effectiveCutStyles = animal.cutStyleOptions || [];
   const pricePerUnit = animal.pricePerShare || 0;
   const weights = animal.weights || animal.weightOptions || [];

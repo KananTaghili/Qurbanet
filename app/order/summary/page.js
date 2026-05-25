@@ -324,7 +324,7 @@ export default function SummaryPage() {
                   <p className="text-xs font-bold text-text-primary">{animal?.nameAz || "Heyvan"}</p>
                   <p className="text-[11px] text-text-secondary mt-0.5">
                     {mode === "serikli"
-                      ? `${qty}/${animal?.totalShares || 7} pay`
+                      ? `${qty}/${animal?.totalShares || "?"} pay`
                       : `${qty} ədəd × ${Math.round(animalBasePrice / qty)} AZN`}
                   </p>
                 </div>
