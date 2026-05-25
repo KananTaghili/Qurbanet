@@ -154,7 +154,7 @@ export default function HomePage() {
                     <button
                       onClick={() => {
                         setMenuOpen(false);
-                        router.push("/auth/phone");
+                        router.push("/auth/login");
                       }}
                       className="w-full text-left px-4 py-3 text-sm font-semibold text-primary flex items-center gap-2 active:bg-primary-surface"
                     >

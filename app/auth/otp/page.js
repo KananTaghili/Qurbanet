@@ -18,7 +18,7 @@ export default function OtpPage() {
   useEffect(() => {
     const id = sessionStorage.getItem('otp_identifier') || sessionStorage.getItem('otp_phone');
     const idType = sessionStorage.getItem('otp_identifier_type') || 'phone';
-    if (!id) { router.replace('/auth/phone'); return; }
+    if (!id) { router.replace('/auth/login'); return; }
     setIdentifier(id);
     setIdentifierType(idType);
   }, [router]);
@@ -123,7 +123,7 @@ export default function OtpPage() {
             </div>
           )}
 
-          <button onClick={() => router.push('/auth/phone')} className="w-full text-center text-sm text-text-secondary mt-2 py-2 hover:text-primary transition-colors">
+          <button onClick={() => router.push('/auth/login')} className="w-full text-center text-sm text-text-secondary mt-2 py-2 hover:text-primary transition-colors">
             ← {identifierType === 'email' ? 'Email ünvanını dəyiş' : 'Telefon nömrəsini dəyiş'}
           </button>
         </div>

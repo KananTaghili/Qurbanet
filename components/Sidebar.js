@@ -107,7 +107,7 @@ export default function Sidebar() {
       <div className="p-2 flex-shrink-0">
         {isGuest ? (
           <Link
-            href="/auth/phone"
+            href="/auth/login"
             className="sidebar-item"
             style={{ background: "rgba(255,255,255,0.12)", color: "#fff" }}
           >

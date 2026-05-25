@@ -70,11 +70,11 @@ export default function SettingsPage() {
 
   const handleLogout = () => {
     logout();
-    router.push("/auth/phone");
+    router.push("/auth/login");
   };
 
   if (!user) {
-    router.push("/auth/phone");
+    router.push("/auth/login");
     return null;
   }
 

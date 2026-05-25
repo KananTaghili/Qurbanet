@@ -275,7 +275,7 @@ export default function ForgotPasswordPage() {
 
                 <button
                   type="button"
-                  onClick={() => router.push("/auth/phone")}
+                  onClick={() => router.push("/auth/login")}
                   className="text-sm text-text-secondary hover:text-primary transition-colors"
                 >
                   ← Geri qayıt
@@ -432,7 +432,7 @@ export default function ForgotPasswordPage() {
 
                 <button
                   type="button"
-                  onClick={() => router.push("/auth/phone")}
+                  onClick={() => router.push("/auth/login")}
                   className="text-sm text-text-secondary hover:text-primary transition-colors"
                 >
                   ← Daxil ol

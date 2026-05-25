@@ -9,7 +9,7 @@ const PAGE_TITLES = {
   "/how-it-works": "Necə İşləyirik?",
   "/qurban-rules": "Qurbanın Əhkamları",
   "/settings": "Parametrlər",
-  "/auth/phone": "Giriş",
+  "/auth/login": "Giriş",
   "/auth/otp": "Doğrulama",
   "/auth/name": "Ad daxil edin",
   "/auth/forgot-password": "Şifrəni Sıfırla",
@@ -44,8 +44,8 @@ const BACK_ROUTES = {
   "/qurban-rules": "/",
   "/my-orders": "/",
   "/charity/payment": "/need-support",
-  "/auth/phone": "/",
-  "/auth/otp": "/auth/phone",
+  "/auth/login": "/",
+  "/auth/otp": "/auth/login",
   "/auth/name": "/",
   "/auth/forgot-password": "/",
 };
@@ -86,7 +86,7 @@ export default function Topbar() {
       <div className="flex items-center gap-3">
         {isGuest ? (
           <button
-            onClick={() => router.push("/auth/phone")}
+            onClick={() => router.push("/auth/login")}
             className="rounded-xl px-3.5 py-1.5 text-sm font-bold transition-colors text-white"
             style={{
               background: "rgba(255,255,255,0.15)",
