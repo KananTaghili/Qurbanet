@@ -170,9 +170,11 @@ export default function DistributionPage() {
 
   if (!order) return null;
 
-  const qty         = order.qty || 1;
-  const totalShares = order.animal?.totalShares || 1;
-  const total       = qty * totalShares;
+  const qty             = order.qty || 1;
+  const maxPortionSplit = order.animal?.hasPortionSplit
+    ? (Number(order.animal?.maxPortionSplit) || 1)
+    : 1;
+  const total           = qty * maxPortionSplit;
 
   const assigned  = Object.values(dist).reduce((s, v) => s + (v || 0), 0);
   const remaining = total - assigned;
@@ -240,7 +242,7 @@ export default function DistributionPage() {
     const distFees = {};
     Object.keys(optionData).forEach((k) => {
       if (k === "catdirilsin" || k === "ozum") {
-        distFees[k] = totalShares > 0 ? (optionData[k]?.fee ?? 0) / totalShares : 0;
+        distFees[k] = maxPortionSplit > 0 ? (optionData[k]?.fee ?? 0) / maxPortionSplit : 0;
       } else {
         distFees[k] = optionData[k]?.fee ?? 0;
       }
