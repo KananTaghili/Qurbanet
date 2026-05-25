@@ -10,6 +10,8 @@ export default function OtpPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [code, setCode] = useState(['', '', '', '']);
+  const [name, setName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,6 +19,7 @@ export default function OtpPage() {
   const [identifier, setIdentifier] = useState('');
   const [identifierType, setIdentifierType] = useState('phone');
   const inputs = useRef([]);
+  const nameRef = useRef(null);
   const passwordRef = useRef(null);
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export default function OtpPage() {
     if (digit && i < 3) {
       inputs.current[i + 1]?.focus();
     } else if (digit && i === 3) {
-      passwordRef.current?.focus();
+      nameRef.current?.focus();
     }
   };
 
@@ -48,7 +51,7 @@ export default function OtpPage() {
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
     if (pasted.length === 4) {
       setCode(pasted.split(''));
-      passwordRef.current?.focus();
+      nameRef.current?.focus();
     }
   };
 
@@ -56,6 +59,7 @@ export default function OtpPage() {
     e?.preventDefault();
     const otp = code.join('');
     if (otp.length < 4) { setError('4 rəqəmli kodu daxil edin.'); return; }
+    if (name.trim().length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
     if (!password || password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır.'); return; }
     if (loading) return;
 
@@ -67,12 +71,28 @@ export default function OtpPage() {
       const res = await api.post('/auth/verify-otp', payload);
       if (res.data.success) {
         const { token, user } = res.data.data;
-        login(token, user);
+
+        // Save name immediately after OTP verification
+        if (name.trim()) {
+          try {
+            const profileRes = await api.put('/auth/profile', {
+              name: name.trim(),
+              lastName: lastName.trim() || undefined,
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            const freshToken = profileRes.data.data?.token || token;
+            const updatedUser = profileRes.data.data?.user || { ...user, name: name.trim(), lastName: lastName.trim() };
+            login(freshToken, updatedUser);
+          } catch {
+            login(token, user);
+          }
+        } else {
+          login(token, user);
+        }
+
         sessionStorage.removeItem('otp_identifier');
         sessionStorage.removeItem('otp_identifier_type');
         sessionStorage.removeItem('otp_phone');
-        if (!user.name) router.push('/auth/name');
-        else router.push('/');
+        router.push('/');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Yanlış kod. Yenidən cəhd edin.');
@@ -94,7 +114,6 @@ export default function OtpPage() {
           className="relative flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
           style={{ background: 'linear-gradient(160deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)' }}
         >
-          {/* Back button — mobile only */}
           <button
             type="button"
             onClick={() => router.push('/auth/register')}
@@ -119,18 +138,12 @@ export default function OtpPage() {
               <div className="text-4xl lg:text-5xl font-black text-white italic leading-none">
                 Qurban<span style={{ color: '#86efac' }}>Et</span>
               </div>
-              <div
-                className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto"
-                style={{ color: 'rgba(255,255,255,0.65)' }}
-              >
+              <div className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 İlahi qurbanınızı etibarla kəsdirin
               </div>
             </div>
 
-            <div
-              className="flex items-center gap-3 text-[10px] font-bold tracking-widest"
-              style={{ color: 'rgba(255,255,255,0.4)' }}
-            >
+            <div className="flex items-center gap-3 text-[10px] font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
               <span>ETİBARLI</span>
               <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
               <span>HALAL</span>
@@ -148,7 +161,7 @@ export default function OtpPage() {
               <strong>{identifier}</strong>{' '}{subtitle}
             </p>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {/* 4-digit code boxes */}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }} onPaste={handlePaste}>
                 {code.map((d, i) => (
@@ -175,7 +188,36 @@ export default function OtpPage() {
                 ))}
               </div>
 
-              {/* Password field */}
+              {/* Name */}
+              <div>
+                <label className="text-sm font-semibold text-text-primary mb-2 block">Ad *</label>
+                <input
+                  ref={nameRef}
+                  type="text"
+                  value={name}
+                  onChange={(e) => { setName(e.target.value); setError(''); }}
+                  placeholder="Məsələn: Əli"
+                  className="field-input"
+                  autoCapitalize="words"
+                  maxLength={60}
+                />
+              </div>
+
+              {/* Last name */}
+              <div>
+                <label className="text-sm font-semibold text-text-primary mb-2 block">Soyad</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Məsələn: Hüseynov"
+                  className="field-input"
+                  autoCapitalize="words"
+                  maxLength={60}
+                />
+              </div>
+
+              {/* Password */}
               <div>
                 <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrə *</label>
                 <div className="relative">
@@ -216,7 +258,7 @@ export default function OtpPage() {
               <button
                 type="button"
                 onClick={() => router.push('/auth/register')}
-                className="w-full text-center text-sm text-text-secondary py-1 hover:text-primary transition-colors"
+                className="w-full text-center text-sm text-text-secondary py-1 hover.text-primary transition-colors"
               >
                 ← {identifierType === 'email' ? 'Email ünvanını dəyiş' : 'Telefon nömrəsini dəyiş'}
               </button>
