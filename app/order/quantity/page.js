@@ -52,6 +52,15 @@ const QtyBtn = ({ onClick, disabled, children }) => (
   </button>
 );
 
+function getMeatWeight(label) {
+  const nums = (label || "").match(/\d+(?:[.,]\d+)?/g);
+  if (!nums || nums.length < 1) return null;
+  const vals = nums.map((n) => parseFloat(n.replace(",", ".")));
+  const lo = Math.floor(Math.min(...vals) * 0.5);
+  const hi = Math.ceil(Math.max(...vals) * 0.5);
+  return lo === hi ? `~${lo} kq ət` : `~${lo}–${hi} kq ət`;
+}
+
 function getTomorrow() {
   const d = new Date();
   d.setDate(d.getDate() + 1);
@@ -91,7 +100,8 @@ export default function QuantityPage() {
     setAnimal(parsed);
     const sam = sessionStorage.getItem("single_animal_mode");
     setSingleAnimalMode(sam === "true");
-    if (parsed.orderMode === "serikli" && parsed.serikliEnabled) setMode("serikli");
+    if (parsed.orderMode === "serikli" && parsed.serikliEnabled)
+      setMode("serikli");
     if (dw) {
       const w = JSON.parse(dw);
       if (w.length) {
@@ -188,7 +198,7 @@ export default function QuantityPage() {
     0,
   );
 
-  const basePrice  = animalSharePrice.toFixed(0);
+  const basePrice = animalSharePrice.toFixed(0);
   const totalPrice = (animalSharePrice + partsFee + cutStyleFee).toFixed(0);
   const totalCutCount = Object.values(cutStyles).reduce(
     (s, v) => s + (v || 0),
@@ -210,9 +220,11 @@ export default function QuantityPage() {
   const feetUnassigned = feetTotal - feetAssigned;
 
   const cutStyleError =
-    !singleAnimalMode && submitAttempted && effectiveCutStyles.length > 0 && totalCutCount === 0;
-  const partsError =
-    submitAttempted && (headUnassigned + feetUnassigned > 0);
+    !singleAnimalMode &&
+    submitAttempted &&
+    effectiveCutStyles.length > 0 &&
+    totalCutCount === 0;
+  const partsError = submitAttempted && headUnassigned + feetUnassigned > 0;
 
   const handleContinue = () => {
     setSubmitAttempted(true);
@@ -224,7 +236,11 @@ export default function QuantityPage() {
       alert("Çatdırılma vaxtını seçin.");
       return;
     }
-    if (!singleAnimalMode && effectiveCutStyles.length > 0 && totalCutCount === 0) {
+    if (
+      !singleAnimalMode &&
+      effectiveCutStyles.length > 0 &&
+      totalCutCount === 0
+    ) {
       return;
     }
     if (needsHead && headUnassigned > 0) {
@@ -437,28 +453,34 @@ export default function QuantityPage() {
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0 flex flex-col justify-between gap-3 self-stretch py-1">
-                  <div>
-                    <div className="text-base sm:text-lg font-extrabold text-text-primary leading-tight">
+                {singleAnimalMode ? (
+                  <div className="flex-1 min-w-0 flex flex-col justify-center gap-2 self-stretch py-1">
+                    <div className="text-xl sm:text-2xl font-extrabold text-text-primary leading-tight">
                       {animal.nameAz}
                     </div>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-2xl sm:text-3xl font-extrabold text-primary">
-                        {effectivePrice} AZN
-                      </span>
-                      <span className="text-[10px] sm:text-xs text-text-secondary">
-                        / ədəd
-                      </span>
+                    <div className="text-3xl sm:text-4xl font-extrabold text-primary leading-none">
+                      {effectivePrice} AZN
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wide">
-                      Miqdar
-                    </span>
-                    {singleAnimalMode ? (
-                      <span className="text-2xl font-extrabold text-primary leading-none">1</span>
-                    ) : (
+                ) : (
+                  <div className="flex-1 min-w-0 flex flex-col justify-between gap-3 self-stretch py-1">
+                    <div>
+                      <div className="text-base sm:text-lg font-extrabold text-text-primary leading-tight">
+                        {animal.nameAz}
+                      </div>
+                      <div className="flex items-baseline gap-1 mt-1">
+                        <span className="text-2xl sm:text-3xl font-extrabold text-primary">
+                          {effectivePrice} AZN
+                        </span>
+                        <span className="text-[10px] sm:text-xs text-text-secondary">
+                          / ədəd
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-wide">
+                        Miqdar
+                      </span>
                       <div className="flex items-center gap-2">
                         <QtyBtn
                           onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -482,46 +504,50 @@ export default function QuantityPage() {
                           +
                         </QtyBtn>
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
-              <div className="px-4 py-2.5 bg-surface-alt border-t border-border flex items-center justify-between gap-2">
-                <span className="text-xs text-text-secondary font-medium">
-                  {mode === "serikli"
-                    ? `${qty}/${maxShares} pay`
-                    : `${qty} × ${effectivePrice} AZN`}
-                </span>
-                <span className="text-sm font-extrabold text-primary whitespace-nowrap">
-                  Cəmi: {basePrice} AZN
-                </span>
-              </div>
+              {!singleAnimalMode && (
+                <div className="px-4 py-2.5 bg-surface-alt border-t border-border flex items-center justify-between gap-2">
+                  <span className="text-xs text-text-secondary font-medium">
+                    {mode === "serikli"
+                      ? `${qty}/${maxShares} pay`
+                      : `${qty} × ${effectivePrice} AZN`}
+                  </span>
+                  <span className="text-sm font-extrabold text-primary whitespace-nowrap">
+                    Cəmi: {basePrice} AZN
+                  </span>
+                </div>
+              )}
             </Card>
 
-            {!animal.orderMode && animal.totalShares > 1 && animal.serikliEnabled && (
-              <Card>
-                <CardHead label="Sifariş növü" />
-                <div className="p-3 flex gap-2">
-                  {[
-                    { k: "tam", l: "Tam heyvan" },
-                    { k: "serikli", l: `Şərikli (/${maxShares})` },
-                  ].map((m) => (
-                    <button
-                      key={m.k}
-                      onClick={() => setMode(m.k)}
-                      className={`flex-1 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-bold border-2 transition-all cursor-pointer ${
-                        mode === m.k
-                          ? "border-primary bg-primary text-white"
-                          : "border-border bg-surface-alt text-text-secondary"
-                      }`}
-                    >
-                      {m.l}
-                    </button>
-                  ))}
-                </div>
-              </Card>
-            )}
+            {!animal.orderMode &&
+              animal.totalShares > 1 &&
+              animal.serikliEnabled && (
+                <Card>
+                  <CardHead label="Sifariş növü" />
+                  <div className="p-3 flex gap-2">
+                    {[
+                      { k: "tam", l: "Tam heyvan" },
+                      { k: "serikli", l: `Şərikli (/${maxShares})` },
+                    ].map((m) => (
+                      <button
+                        key={m.k}
+                        onClick={() => setMode(m.k)}
+                        className={`flex-1 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-bold border-2 transition-all cursor-pointer ${
+                          mode === m.k
+                            ? "border-primary bg-primary text-white"
+                            : "border-border bg-surface-alt text-text-secondary"
+                        }`}
+                      >
+                        {m.l}
+                      </button>
+                    ))}
+                  </div>
+                </Card>
+              )}
 
             {weights.length > 0 && (
               <Card className="xl:hidden">
@@ -536,13 +562,18 @@ export default function QuantityPage() {
                       <button
                         key={w.key || lbl}
                         onClick={() => setSelectedWeight(w)}
-                        className={`px-3 py-2 rounded-xl text-xs font-bold border-2 cursor-pointer transition-all ${
+                        className={`px-3 py-2 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-0.5 ${
                           isSel
                             ? "border-primary bg-primary-surface text-primary"
                             : "border-border bg-surface-alt text-text-primary"
                         }`}
                       >
-                        {lbl} — {w.price} AZN
+                        <span className="text-[10px] sm:text-[11px] font-bold">{lbl} — {w.price} AZN</span>
+                        {getMeatWeight(lbl) && (
+                          <span className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}>
+                            {getMeatWeight(lbl)}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -554,7 +585,7 @@ export default function QuantityPage() {
               <Card className={cutStyleError ? "ring-2 ring-red-400" : ""}>
                 <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide">
-                    DOĞRAMA ÜSULU (İSTƏYƏ BAĞLI)
+                    DOĞRAMA ÜSULU
                   </span>
                   <span
                     className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -586,8 +617,12 @@ export default function QuantityPage() {
                           type="button"
                           onClick={() =>
                             setCutStyles(() => {
-                              const allZero = Object.fromEntries(effectiveCutStyles.map((c) => [c.key, 0]));
-                              return isSelected ? allZero : { ...allZero, [cs.key]: 1 };
+                              const allZero = Object.fromEntries(
+                                effectiveCutStyles.map((c) => [c.key, 0]),
+                              );
+                              return isSelected
+                                ? allZero
+                                : { ...allZero, [cs.key]: 1 };
                             })
                           }
                           className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
@@ -606,9 +641,11 @@ export default function QuantityPage() {
                               </span>
                             )}
                           </div>
-                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 transition-all ${
-                            isSelected ? "border-primary bg-primary" : "border-border"
-                          }`} />
+                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
+                            isSelected ? "border-primary" : "border-slate-300"
+                          }`}>
+                            {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
+                          </div>
                         </button>
                       );
                     })}
@@ -678,7 +715,7 @@ export default function QuantityPage() {
               <Card className={partsError ? "ring-2 ring-red-400" : ""}>
                 <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-                    Qurbanın əlavə hissələri (məcburi)
+                    Qurbanın əlavə hissələri
                   </span>
                   <span
                     className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -715,8 +752,12 @@ export default function QuantityPage() {
                       radioMode={singleAnimalMode}
                       onRadioSelect={(key) => {
                         setHeadBuckets((prev) => {
-                          const allZero = Object.fromEntries(Object.keys(prev).map((k) => [k, 0]));
-                          return prev[key] > 0 ? allZero : { ...allZero, [key]: 1 };
+                          const allZero = Object.fromEntries(
+                            Object.keys(prev).map((k) => [k, 0]),
+                          );
+                          return prev[key] > 0
+                            ? allZero
+                            : { ...allZero, [key]: 1 };
                         });
                       }}
                       required={needsHead}
@@ -747,8 +788,12 @@ export default function QuantityPage() {
                       radioMode={singleAnimalMode}
                       onRadioSelect={(key) => {
                         setFeetBuckets((prev) => {
-                          const allZero = Object.fromEntries(Object.keys(prev).map((k) => [k, 0]));
-                          return prev[key] > 0 ? allZero : { ...allZero, [key]: 4 };
+                          const allZero = Object.fromEntries(
+                            Object.keys(prev).map((k) => [k, 0]),
+                          );
+                          return prev[key] > 0
+                            ? allZero
+                            : { ...allZero, [key]: 4 };
                         });
                       }}
                       required={needsFeet}
@@ -769,7 +814,7 @@ export default function QuantityPage() {
                 <TimeSlotBlock cols="grid-cols-3" />
               </Card>
               <Card>
-                <CardHead label="Qeydlər (isteğe bağlı)" />
+                <CardHead label="Qeydlər" />
                 <div className="p-3">
                   <textarea
                     value={notes}
@@ -798,13 +843,18 @@ export default function QuantityPage() {
                       <button
                         key={w.key || lbl}
                         onClick={() => setSelectedWeight(w)}
-                        className={`px-3 py-2 rounded-xl text-xs font-bold border-2 cursor-pointer transition-all ${
+                        className={`px-3 py-2 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-0.5 ${
                           isSel
                             ? "border-primary bg-primary-surface text-primary"
                             : "border-border bg-surface-alt text-text-primary"
                         }`}
                       >
-                        {lbl} — {w.price} AZN
+                        <span className="text-[10px] sm:text-[11px] font-bold">{lbl} — {w.price} AZN</span>
+                        {getMeatWeight(lbl) && (
+                          <span className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}>
+                            {getMeatWeight(lbl)}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -820,7 +870,7 @@ export default function QuantityPage() {
               <TimeSlotBlock cols="grid-cols-2" />
             </Card>
             <Card>
-              <CardHead label="Qeydlər (isteğe bağlı)" />
+              <CardHead label="Qeydlər" />
               <div className="p-3">
                 <textarea
                   value={notes}
@@ -846,14 +896,16 @@ export default function QuantityPage() {
             <span className="text-xl sm:text-2xl font-extrabold text-primary leading-tight">
               {totalPrice} AZN
             </span>
-            {mode === "serikli" ? (
-              <span className="text-[10px] text-text-muted truncate">
-                {qty}/{maxShares} pay
-              </span>
-            ) : (
-              <span className="text-[10px] text-text-muted truncate">
-                {qty} × {effectivePrice} AZN
-              </span>
+            {!singleAnimalMode && (
+              mode === "serikli" ? (
+                <span className="text-[10px] text-text-muted truncate">
+                  {qty}/{maxShares} pay
+                </span>
+              ) : (
+                <span className="text-[10px] text-text-muted truncate">
+                  {qty} × {effectivePrice} AZN
+                </span>
+              )
             )}
           </div>
           <button
@@ -925,9 +977,11 @@ function PartBucketSection({
                     {opt.fee > 0 ? `+${opt.fee} AZN` : "Pulsuz"}
                   </span>
                 </div>
-                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 transition-all ${
-                  isSelected ? "border-primary bg-primary" : "border-border"
-                }`} />
+                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
+                  isSelected ? "border-primary" : "border-slate-300"
+                }`}>
+                  {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
+                </div>
               </button>
             );
           })}
