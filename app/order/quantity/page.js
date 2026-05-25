@@ -185,6 +185,7 @@ export default function QuantityPage() {
     0,
   );
 
+  const basePrice  = animalSharePrice.toFixed(0);
   const totalPrice = (animalSharePrice + partsFee + cutStyleFee).toFixed(0);
   const totalCutCount = Object.values(cutStyles).reduce(
     (s, v) => s + (v || 0),
@@ -486,7 +487,7 @@ export default function QuantityPage() {
                     : `${qty} × ${effectivePrice} AZN`}
                 </span>
                 <span className="text-sm font-extrabold text-primary whitespace-nowrap">
-                  Cəmi: {totalPrice} AZN
+                  Cəmi: {basePrice} AZN
                 </span>
               </div>
             </Card>
