@@ -85,9 +85,11 @@ export default function SummaryPage() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    const flowActive = sessionStorage.getItem("qurbanet_flow");
-    if (!order || !flowActive) router.replace("/");
-  }, [isLoaded]);
+    try {
+      const flowActive = sessionStorage.getItem("qurbanet_flow");
+      if (!order || !flowActive) router.replace("/");
+    } catch { router.replace("/"); }
+  }, [isLoaded, order, router]);
   if (!isLoaded || !order) return null;
 
   const {

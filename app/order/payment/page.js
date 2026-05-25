@@ -103,13 +103,15 @@ export default function PaymentPage() {
   const paidRef      = useRef(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('qurbanet_order');
-    const savedOrder = saved ? JSON.parse(saved) : null;
-    const flowActive = sessionStorage.getItem('qurbanet_flow');
-    if (!savedOrder?.createdOrderId || !flowActive) {
-      router.replace('/');
-      return;
-    }
+    try {
+      const saved = localStorage.getItem('qurbanet_order');
+      const savedOrder = saved ? JSON.parse(saved) : null;
+      const flowActive = sessionStorage.getItem('qurbanet_flow');
+      if (!savedOrder?.createdOrderId || !flowActive) {
+        router.replace('/');
+        return;
+      }
+    } catch { router.replace('/'); return; }
     api.get('/app-config/settings')
       .then((res) => {
         if (res.data?.data?.cashPaymentEnabled === false) {

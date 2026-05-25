@@ -90,30 +90,31 @@ export default function QuantityPage() {
   const [singleAnimalMode, setSingleAnimalMode] = useState(false);
 
   useEffect(() => {
-    const a = localStorage.getItem("selected_animal");
-    const dw = localStorage.getItem("delivery_windows");
-    const flowActive = sessionStorage.getItem("qurbanet_flow");
-    if (!a || !flowActive) {
-      router.replace("/");
-      return;
-    }
-    const parsed = JSON.parse(a);
-    setAnimal(parsed);
-    const sam = localStorage.getItem("single_animal_mode");
-    setSingleAnimalMode(sam === "true");
-    if (parsed.orderMode === "serikli" && parsed.serikliEnabled)
-      setMode("serikli");
-    if (dw) {
-      const w = JSON.parse(dw);
-      if (w.length) {
-        setDeliveryWindows(w);
-        setTimeSlot(w[0]);
+    try {
+      const a = localStorage.getItem("selected_animal");
+      const dw = localStorage.getItem("delivery_windows");
+      const flowActive = sessionStorage.getItem("qurbanet_flow");
+      if (!a || !flowActive) {
+        router.replace("/");
+        return;
+      }
+      const parsed = JSON.parse(a);
+      setAnimal(parsed);
+      const sam = localStorage.getItem("single_animal_mode");
+      setSingleAnimalMode(sam === "true");
+      if (parsed.orderMode === "serikli" && parsed.serikliEnabled)
+        setMode("serikli");
+      if (dw) {
+        const w = JSON.parse(dw);
+        if (w.length) {
+          setDeliveryWindows(w);
+          setTimeSlot(w[0]);
+        } else {
+          setTimeSlot(TIME_SLOTS[0]);
+        }
       } else {
         setTimeSlot(TIME_SLOTS[0]);
       }
-    } else {
-      setTimeSlot(TIME_SLOTS[0]);
-    }
     const init = {};
     (parsed.cutStyleOptions || []).forEach((c) => {
       init[c.key] = 0;
@@ -161,6 +162,7 @@ export default function QuantityPage() {
     if (ws.length > 0) {
       setSelectedWeight(ws[0]);
     }
+    } catch { router.replace("/"); }
   }, [router]);
 
   useEffect(() => {

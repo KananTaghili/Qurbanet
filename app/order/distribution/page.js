@@ -113,10 +113,11 @@ export default function DistributionPage() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    const flowActive = sessionStorage.getItem("qurbanet_flow");
-    if (!order || !flowActive) { router.replace("/"); return; }
-    if (order.mode === "serikli") { router.replace("/order/contact"); return; }
-
+    try {
+      const flowActive = sessionStorage.getItem("qurbanet_flow");
+      if (!order || !flowActive) { router.replace("/"); return; }
+      if (order.mode === "serikli") { router.replace("/order/contact"); return; }
+    } catch { router.replace("/"); return; }
 
     api.get("/app-config/settings")
       .then((res) => {
@@ -166,15 +167,14 @@ export default function DistributionPage() {
         setOptionData(data);
         setDist((prev) => {
           const next = { ...prev };
-          // only add active charity options to the distribution pool
           charityOpts.forEach((o) => { if (!(o.key in next) && o.isActive) next[o.key] = 0; });
           return next;
         });
       })
       .catch(() => {});
-  }, [order, router]);
+  }, [isLoaded, order, router]);
 
-  if (!order) return null;
+  if (!isLoaded || !order) return null;
 
   const qty             = order.qty || 1;
   const maxPortionSplit = order.animal?.hasPortionSplit

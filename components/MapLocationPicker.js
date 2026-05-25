@@ -159,8 +159,9 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
             const p = m.getLngLat();
             setCoords({ lat: p.lat, lng: p.lng });
             setGeocoding(true);
-            const a = await reverseGeocode(p.lat, p.lng);
+            const { address: a, isBaku } = await reverseGeocode(p.lat, p.lng);
             setAddress(a);
+            setOutsideBaku(isBaku === false);
             setGeocoding(false);
           });
         }
