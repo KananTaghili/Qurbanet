@@ -6,6 +6,7 @@ import ClientShell from "../components/ClientShell";
 export const metadata = {
   title: "QurbanEt",
   description: "Etibarli · Halal · Sürətli",
+  icons: { icon: "/logo.png" },
 };
 
 export const viewport = {
