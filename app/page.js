@@ -225,6 +225,7 @@ export default function HomePage() {
                 key={a._id || a.type}
                 animal={a}
                 onSelect={handleSelect}
+                lang={lang}
               />
             ))}
           </div>
@@ -314,6 +315,7 @@ export default function HomePage() {
                 key={a._id || a.type}
                 animal={a}
                 onSelect={handleSelect}
+                lang={lang}
               />
             ))}
           </div>
@@ -408,7 +410,7 @@ function EmptyState() {
 /* ───────────────────────────────────────────────
    Mobile card: horizontal, fluid heights
    ─────────────────────────────────────────────── */
-function MobileAnimalCard({ animal, onSelect }) {
+function MobileAnimalCard({ animal, onSelect, lang }) {
   const isQoyun = animal.type === "qoyun";
 
   return (
@@ -478,7 +480,7 @@ function MobileAnimalCard({ animal, onSelect }) {
 /* ───────────────────────────────────────────────
    Desktop card: vertical, fluid sizing
    ─────────────────────────────────────────────── */
-function DesktopAnimalCard({ animal, onSelect }) {
+function DesktopAnimalCard({ animal, onSelect, lang }) {
   const isQoyun = animal.type === "qoyun";
 
   return (
