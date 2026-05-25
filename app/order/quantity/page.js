@@ -134,8 +134,30 @@ export default function QuantityPage() {
       });
     setFeetBuckets(initFeet);
 
-    // KORREKSİYA: ReferenceError xətasını həll etmək üçün ws massivini təyin edirik
     const ws = parsed.weights || parsed.weightOptions || [];
+
+    // Restore previously saved form state if available for same animal
+    const savedRaw = sessionStorage.getItem("qurbanet_qty_state");
+    if (savedRaw) {
+      try {
+        const saved = JSON.parse(savedRaw);
+        if (saved.animalId === parsed._id) {
+          if (saved.qty) setQty(saved.qty);
+          if (saved.mode) setMode(saved.mode);
+          if (saved.cutStyles) setCutStyles(saved.cutStyles);
+          if (saved.headBuckets) setHeadBuckets(saved.headBuckets);
+          if (saved.feetBuckets) setFeetBuckets(saved.feetBuckets);
+          if (saved.timeSlot) setTimeSlot(saved.timeSlot);
+          if (saved.notes) setNotes(saved.notes);
+          if (saved.selectedDate) setSelectedDate(new Date(saved.selectedDate));
+          if (saved.selectedWeightKey && ws.length > 0) {
+            const w = ws.find(w => w.key === saved.selectedWeightKey);
+            if (w) { setSelectedWeight(w); return; }
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
     if (ws.length > 0) {
       setSelectedWeight(ws[0]);
     }
@@ -158,6 +180,20 @@ export default function QuantityPage() {
       });
     setFeetBuckets(initFeet);
   }, [qty, animal]);
+
+  // Autosave form state to sessionStorage on every change
+  useEffect(() => {
+    if (!animal) return;
+    try {
+      sessionStorage.setItem("qurbanet_qty_state", JSON.stringify({
+        animalId: animal._id,
+        qty, mode, cutStyles, headBuckets, feetBuckets,
+        selectedWeightKey: selectedWeight?.key || null,
+        selectedDate: selectedDate ? selectedDate.toISOString() : null,
+        timeSlot, notes,
+      }));
+    } catch { /* ignore */ }
+  }, [qty, mode, cutStyles, headBuckets, feetBuckets, selectedWeight, selectedDate, timeSlot, notes, animal]);
 
   if (!animal) return null;
 

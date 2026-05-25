@@ -11,8 +11,9 @@ export default function ConfirmationPage() {
     const saved = localStorage.getItem('qurbanet_order');
     const savedOrder = saved ? JSON.parse(saved) : null;
     if (!savedOrder?.createdOrderId) { router.replace('/'); return; }
-    // Order is done — clear flow and animal selection from storage
+    // Order is done — clear flow and animal/form selection from storage
     sessionStorage.removeItem('qurbanet_flow');
+    sessionStorage.removeItem('qurbanet_qty_state');
     localStorage.removeItem('selected_animal');
     localStorage.removeItem('delivery_windows');
     localStorage.removeItem('single_animal_mode');

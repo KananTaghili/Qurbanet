@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage, LANGUAGES } from "../context/LanguageContext";
+import { t } from "../lib/i18n";
 import {
   Home,
   ClipboardList,
@@ -14,18 +16,19 @@ import {
   UserPlus,
 } from "lucide-react";
 
-const NAV = [
-  { href: "/", Icon: Home, label: "Əsas Səhifə" },
-  { href: "/my-orders", Icon: ClipboardList, label: "Sifarişlərim" },
-  { href: "/need-support", Icon: HandHeart, label: "Xeyriyyə" },
-  { href: "/how-it-works", Icon: HelpCircle, label: "Necə İşləyirik?" },
-  { href: "/qurban-rules", Icon: BookOpen, label: "Qurbanın Əhkamları" },
-];
-
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isGuest, logout } = useAuth();
+  const { lang, setLang } = useLanguage();
+
+  const NAV = [
+    { href: "/", Icon: Home, label: t(lang, 'home') },
+    { href: "/my-orders", Icon: ClipboardList, label: t(lang, 'myOrders') },
+    { href: "/need-support", Icon: HandHeart, label: t(lang, 'charity') },
+    { href: "/how-it-works", Icon: HelpCircle, label: t(lang, 'howItWorks') },
+    { href: "/qurban-rules", Icon: BookOpen, label: t(lang, 'rules') },
+  ];
 
   const handleLogout = async () => {
     if (confirm("Hesabdan çıxmaq istədiyinizə əminsiniz?")) {
@@ -71,6 +74,24 @@ export default function Sidebar() {
             </div>
           </div>
         </Link>
+
+        {/* Language switcher */}
+        <div className="flex gap-1 mt-2 flex-wrap">
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => setLang(l.code)}
+              className="text-[11px] font-bold px-2 py-0.5 rounded-lg transition-all cursor-pointer border-none"
+              style={{
+                background: lang === l.code ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
+                color: lang === l.code ? '#fff' : 'rgba(255,255,255,0.5)',
+              }}
+              title={l.name}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Nav ── */}

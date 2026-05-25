@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { OrderProvider } from "../context/OrderContext";
+import { LanguageProvider } from "../context/LanguageContext";
 import ClientShell from "../components/ClientShell";
 
 export const metadata = {
@@ -33,7 +34,9 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <OrderProvider>
-            <ClientShell>{children}</ClientShell>
+            <LanguageProvider>
+              <ClientShell>{children}</ClientShell>
+            </LanguageProvider>
           </OrderProvider>
         </AuthProvider>
       </body>

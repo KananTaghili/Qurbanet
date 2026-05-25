@@ -43,6 +43,11 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Arabic RTL support */
+html[dir="rtl"] .app-body { margin-left: 0; margin-right: var(--sidebar-w); }
+html[dir="rtl"] .sidebar-component { left: auto; right: 0; }
+html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(--sidebar-w) + 28px); }
+
 /* ═══════════════════════════════════════════════════
    App Shell  (mobile-first)
 ═══════════════════════════════════════════════════ */

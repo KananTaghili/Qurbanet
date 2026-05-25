@@ -1,8 +1,10 @@
 'use client';
-
-const STEPS = ['Qurbanlıq', 'Çatdırılma', 'Ödəniş'];
+import { useLanguage } from '../context/LanguageContext';
+import { t } from '../lib/i18n';
 
 export default function StepHeader({ currentStep }) {
+  const { lang } = useLanguage();
+  const STEPS = [t(lang, 'step1'), t(lang, 'step2'), t(lang, 'step3')];
   return (
     <div className="mobile-step-header" style={{
       borderBottom: '1px solid var(--border)',

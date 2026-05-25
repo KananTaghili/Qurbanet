@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import BottomNav from "../components/BottomNav";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage, LANGUAGES } from "../context/LanguageContext";
+import { t, animalName } from "../lib/i18n";
 import api, { BASE_URL } from "../lib/api";
 import {
   Truck,
@@ -23,6 +25,7 @@ const BRAND = "#1c5e20";
 export default function HomePage() {
   const router = useRouter();
   const { isGuest, logout, isLoading } = useAuth();
+  const { lang, setLang } = useLanguage();
   const [animals, setAnimals] = useState([]);
   const [deliveryWindows, setDeliveryWindows] = useState([]);
   const [singleAnimalMode, setSingleAnimalMode] = useState(false);
@@ -70,6 +73,7 @@ export default function HomePage() {
     localStorage.setItem("delivery_windows", JSON.stringify(deliveryWindows));
     localStorage.setItem("single_animal_mode", String(singleAnimalMode));
     sessionStorage.setItem("qurbanet_flow", "1");
+    sessionStorage.removeItem("qurbanet_qty_state"); // fresh state for new animal
     router.push("/order/quantity");
   };
 
@@ -126,6 +130,23 @@ export default function HomePage() {
                 ETİBARLI · HALAL · SÜRƏTLİ
               </div>
             </div>
+          </div>
+
+          {/* Language switcher (mobile) */}
+          <div className="flex gap-1 flex-shrink-0">
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                className="text-[10px] xs:text-[11px] font-bold px-1.5 py-0.5 rounded-lg border-none transition-all cursor-pointer"
+                style={{
+                  background: lang === l.code ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.10)',
+                  color: lang === l.code ? '#fff' : 'rgba(255,255,255,0.55)',
+                }}
+              >
+                {l.label}
+              </button>
+            ))}
           </div>
 
           {/* Menu button */}
@@ -417,7 +438,7 @@ function MobileAnimalCard({ animal, onSelect }) {
         {animal.imageUrl ? (
           <img
             src={animal.imageUrl}
-            alt={animal.nameAz}
+            alt={animalName(animal, lang)}
             className="w-full h-full object-contain"
             style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
           />
@@ -430,7 +451,7 @@ function MobileAnimalCard({ animal, onSelect }) {
       <div className="flex-1 min-w-0 flex flex-col justify-between px-3 xs:px-4 py-2.5 xs:py-3">
         <div className="min-w-0">
           <div className="text-base xs:text-[17px] sm:text-lg font-bold text-text-primary leading-tight truncate">
-            {animal.nameAz}
+            {animalName(animal, lang)}
           </div>
           {animal.pricePerShare != null && (
             <div className="text-lg xs:text-xl sm:text-[22px] font-extrabold text-primary mt-1 leading-tight">
@@ -486,7 +507,7 @@ function DesktopAnimalCard({ animal, onSelect }) {
         {animal.imageUrl ? (
           <img
             src={animal.imageUrl}
-            alt={animal.nameAz}
+            alt={animalName(animal, lang)}
             className="w-full h-full object-contain"
             style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
           />
@@ -503,7 +524,7 @@ function DesktopAnimalCard({ animal, onSelect }) {
       {/* Info */}
       <div className="p-3 md:p-3.5 lg:p-4">
         <div className="text-[15px] md:text-base lg:text-[17px] font-extrabold text-text-primary mb-1 lg:mb-1.5 tracking-tight truncate">
-          {animal.nameAz}
+          {animalName(animal, lang)}
         </div>
         {animal.pricePerShare != null && (
           <div className="flex items-baseline gap-1 mb-2 lg:mb-2.5">
