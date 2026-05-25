@@ -232,10 +232,11 @@ export default function HomePage() {
           height: "var(--topbar-h)",
           position: "fixed",
           top: 0,
-          left: "var(--sidebar-w)",
+          left: 0,
           right: 0,
-          zIndex: 100,
-          padding: "0 28px",
+          zIndex: 99,
+          paddingLeft: "calc(var(--sidebar-w) + 28px)",
+          paddingRight: 28,
         }}
       >
         <h1 className="text-base font-extrabold tracking-tight text-white">
