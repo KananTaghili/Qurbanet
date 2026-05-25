@@ -103,9 +103,10 @@ export default function PaymentPage() {
   const paidRef      = useRef(false);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('qurbanet_order');
+    const saved = localStorage.getItem('qurbanet_order');
     const savedOrder = saved ? JSON.parse(saved) : null;
-    if (!savedOrder?.createdOrderId) {
+    const flowActive = sessionStorage.getItem('qurbanet_flow');
+    if (!savedOrder?.createdOrderId || !flowActive) {
       router.replace('/');
       return;
     }

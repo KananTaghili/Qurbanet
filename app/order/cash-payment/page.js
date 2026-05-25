@@ -11,9 +11,10 @@ export default function CashPaymentPage() {
   const [cashLocation, setCashLocation] = useState('20 Yanvar metro, Bakı');
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('qurbanet_order');
+    const saved = localStorage.getItem('qurbanet_order');
     const savedOrder = saved ? JSON.parse(saved) : null;
-    if (!savedOrder?.createdOrderId) { router.replace('/'); return; }
+    const flowActive = sessionStorage.getItem('qurbanet_flow');
+    if (!savedOrder?.createdOrderId || !flowActive) { router.replace('/'); return; }
     api.get('/app-config/settings').then((res) => {
       const loc = res.data.data?.settings?.cashPaymentLocation;
       if (loc) setCashLocation(loc);

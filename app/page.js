@@ -66,9 +66,10 @@ export default function HomePage() {
   };
 
   const handleSelect = (animal) => {
-    sessionStorage.setItem("selected_animal", JSON.stringify(animal));
-    sessionStorage.setItem("delivery_windows", JSON.stringify(deliveryWindows));
-    sessionStorage.setItem("single_animal_mode", String(singleAnimalMode));
+    localStorage.setItem("selected_animal", JSON.stringify(animal));
+    localStorage.setItem("delivery_windows", JSON.stringify(deliveryWindows));
+    localStorage.setItem("single_animal_mode", String(singleAnimalMode));
+    sessionStorage.setItem("qurbanet_flow", "1");
     router.push("/order/quantity");
   };
 

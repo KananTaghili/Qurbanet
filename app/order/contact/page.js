@@ -37,7 +37,7 @@ const isValidAzPhone = (formatted) => {
 
 export default function ContactPage() {
   const router = useRouter();
-  const { order, updateOrder } = useOrder();
+  const { order, updateOrder, isLoaded } = useOrder();
   const { user, login } = useAuth();
 
   const isRegistered = !!user?.name;
@@ -66,7 +66,9 @@ export default function ContactPage() {
   useEffect(() => () => clearInterval(timerRef.current), []);
 
   useEffect(() => {
-    if (!order) { router.replace("/"); return; }
+    if (!isLoaded) return;
+    const flowActive = sessionStorage.getItem("qurbanet_flow");
+    if (!order || !flowActive) { router.replace("/"); return; }
 
     if (isRegistered) {
       const contactInfo = {
@@ -102,9 +104,9 @@ export default function ContactPage() {
       if (order.contactInfo.verifyMethod)
         setVerifyMethod(order.contactInfo.verifyMethod);
     }
-  }, []);
+  }, [isLoaded]);
 
-  if (!order) return null;
+  if (!isLoaded || !order) return null;
 
   // ── Registered user: confirm and proceed ──────────────────────────────────
   const handleRegisteredSubmit = () => {

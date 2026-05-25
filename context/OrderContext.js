@@ -10,7 +10,7 @@ export function OrderProvider({ children }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try { setOrderState(JSON.parse(saved)); } catch { /* ignore */ }
     }
@@ -19,8 +19,8 @@ export function OrderProvider({ children }) {
 
   const setOrder = (data) => {
     const next = data ? { ...data } : null;
-    if (next) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    else sessionStorage.removeItem(STORAGE_KEY);
+    if (next) localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    else localStorage.removeItem(STORAGE_KEY);
     setOrderState(next);
   };
 

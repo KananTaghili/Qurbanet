@@ -80,13 +80,15 @@ function PriceItem({ label, sub, value, isFree, sep }) {
 
 export default function SummaryPage() {
   const router = useRouter();
-  const { order, updateOrder } = useOrder();
+  const { order, updateOrder, isLoaded } = useOrder();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!order) router.replace("/");
-  }, []);
-  if (!order) return null;
+    if (!isLoaded) return;
+    const flowActive = sessionStorage.getItem("qurbanet_flow");
+    if (!order || !flowActive) router.replace("/");
+  }, [isLoaded]);
+  if (!isLoaded || !order) return null;
 
   const {
     animal,

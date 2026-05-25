@@ -96,7 +96,7 @@ function DistRow({ optKey, meta, label, fee, min, count, canInc, onDec, onInc, d
 
 export default function DistributionPage() {
   const router = useRouter();
-  const { order, updateOrder } = useOrder();
+  const { order, updateOrder, isLoaded } = useOrder();
   const { user } = useAuth();
 
   // Single distribution pool
@@ -112,7 +112,9 @@ export default function DistributionPage() {
   const [addressNote, setAddressNote] = useState("");
 
   useEffect(() => {
-    if (!order) { router.replace("/"); return; }
+    if (!isLoaded) return;
+    const flowActive = sessionStorage.getItem("qurbanet_flow");
+    if (!order || !flowActive) { router.replace("/"); return; }
     if (order.mode === "serikli") { router.replace("/order/contact"); return; }
 
 

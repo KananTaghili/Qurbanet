@@ -8,9 +8,14 @@ export default function ConfirmationPage() {
   const { order, clearOrder } = useOrder();
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('qurbanet_order');
+    const saved = localStorage.getItem('qurbanet_order');
     const savedOrder = saved ? JSON.parse(saved) : null;
-    if (!savedOrder?.createdOrderId) router.replace('/');
+    if (!savedOrder?.createdOrderId) { router.replace('/'); return; }
+    // Order is done — clear flow and animal selection from storage
+    sessionStorage.removeItem('qurbanet_flow');
+    localStorage.removeItem('selected_animal');
+    localStorage.removeItem('delivery_windows');
+    localStorage.removeItem('single_animal_mode');
   }, []);
 
   if (!order?.createdOrderId) return null;

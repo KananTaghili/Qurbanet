@@ -25,8 +25,19 @@ async function reverseGeocode(lat, lng) {
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=az`,
     );
     const data = await res.json();
-    if (!data.address) return data.display_name?.split(",").slice(0, 3).join(",") || "";
-    const a = data.address;
+    const a = data.address || {};
+
+    const city    = (a.city || a.town || a.village || "").toLowerCase();
+    const county  = (a.county || "").toLowerCase();
+    const state   = (a.state || "").toLowerCase();
+    const country = (a.country_code || "").toLowerCase();
+
+    const isBaku = country === "az" && (
+      city.includes("bak") ||
+      county.includes("abseron") || county.includes("abşeron") || county.includes("absheron") ||
+      state.includes("bak") || state.includes("bakı")
+    );
+
     const parts = [
       a.road || a.pedestrian,
       a.house_number,
@@ -34,9 +45,11 @@ async function reverseGeocode(lat, lng) {
       a.city_district || a.district,
       a.city || a.town || a.village,
     ].filter(Boolean);
-    return parts.length ? parts.join(", ") : data.display_name?.split(",").slice(0, 3).join(",") || "";
+    const address = parts.length ? parts.join(", ") : data.display_name?.split(",").slice(0, 3).join(",") || "";
+
+    return { address, isBaku };
   } catch {
-    return "";
+    return { address: "", isBaku: null };
   }
 }
 
@@ -82,9 +95,10 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
   const initLat = initialLocation?.coordinates ? Number(initialLocation.coordinates.lat) : null;
   const initLng = initialLocation?.coordinates ? Number(initialLocation.coordinates.lng) : null;
 
-  const [coords, setCoords]     = useState(initLat && initLng ? { lat: initLat, lng: initLng } : null);
-  const [address, setAddress]   = useState(initialLocation?.address || "");
-  const [mapReady, setMapReady] = useState(false);
+  const [coords, setCoords]       = useState(initLat && initLng ? { lat: initLat, lng: initLng } : null);
+  const [address, setAddress]     = useState(initialLocation?.address || "");
+  const [outsideBaku, setOutsideBaku] = useState(false);
+  const [mapReady, setMapReady]   = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
 
@@ -103,14 +117,16 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
         const p = m.getLngLat();
         setCoords({ lat: p.lat, lng: p.lng });
         setGeocoding(true);
-        const a = await reverseGeocode(p.lat, p.lng);
+        const { address: a, isBaku } = await reverseGeocode(p.lat, p.lng);
         setAddress(a);
+        setOutsideBaku(isBaku === false);
         setGeocoding(false);
       });
     }
 
-    const a = await reverseGeocode(lat, lng);
+    const { address: a, isBaku } = await reverseGeocode(lat, lng);
     setAddress(a);
+    setOutsideBaku(isBaku === false);
     setGeocoding(false);
   };
 
@@ -125,7 +141,9 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
         container: containerRef.current,
         style: MAP_STYLE,
         center: [centerLng, centerLat],
-        zoom: 14,
+        zoom: 12,
+        minZoom: 9,
+        maxBounds: [[49.3, 39.9], [50.7, 40.8]], // Baku + Absheron peninsula
         attributionControl: false,
         trackResize: false,
       });
@@ -173,7 +191,7 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
   };
 
   const handleConfirm = () => {
-    if (!coords) return;
+    if (!coords || outsideBaku) return;
     onConfirm({
       address: address || `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`,
       coordinates: { lat: coords.lat, lng: coords.lng },
@@ -192,18 +210,28 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
           <MapPin size={16} color="#1B5E20" />
           <span style={{ fontWeight: 700, fontSize: 15, color: "#111827" }}>Çatdırılma ünvanı</span>
         </div>
-        <button onClick={handleConfirm} disabled={!coords}
+        <button onClick={handleConfirm} disabled={!coords || outsideBaku || geocoding}
           style={{
             display: "flex", alignItems: "center", gap: 6,
             padding: "8px 18px", borderRadius: 10, border: "none",
-            cursor: coords ? "pointer" : "not-allowed",
-            background: coords ? "#1B5E20" : "#CBD5E1",
+            cursor: (coords && !outsideBaku && !geocoding) ? "pointer" : "not-allowed",
+            background: (coords && !outsideBaku && !geocoding) ? "#1B5E20" : "#CBD5E1",
             color: "#fff", fontWeight: 700, fontSize: 14,
           }}>
           <Check size={15} strokeWidth={3} />
           Təsdiqlə
         </button>
       </div>
+
+      {/* Baku restriction warning */}
+      {outsideBaku && (
+        <div style={{ background: "#FEF2F2", borderBottom: "1px solid #FECACA", padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <span style={{ fontSize: 16 }}>⚠️</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#991B1B" }}>
+            Çatdırılma yalnız Bakı və Abşeron ərazisinə mümkündür. Zəhmət olmasa Bakı daxilindən ünvan seçin.
+          </span>
+        </div>
+      )}
 
       {/* Map area */}
       <div style={{ flex: 1, position: "relative", minHeight: 0 }}>

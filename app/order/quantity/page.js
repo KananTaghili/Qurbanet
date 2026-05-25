@@ -90,15 +90,16 @@ export default function QuantityPage() {
   const [singleAnimalMode, setSingleAnimalMode] = useState(false);
 
   useEffect(() => {
-    const a = sessionStorage.getItem("selected_animal");
-    const dw = sessionStorage.getItem("delivery_windows");
-    if (!a) {
+    const a = localStorage.getItem("selected_animal");
+    const dw = localStorage.getItem("delivery_windows");
+    const flowActive = sessionStorage.getItem("qurbanet_flow");
+    if (!a || !flowActive) {
       router.replace("/");
       return;
     }
     const parsed = JSON.parse(a);
     setAnimal(parsed);
-    const sam = sessionStorage.getItem("single_animal_mode");
+    const sam = localStorage.getItem("single_animal_mode");
     setSingleAnimalMode(sam === "true");
     if (parsed.orderMode === "serikli" && parsed.serikliEnabled)
       setMode("serikli");
