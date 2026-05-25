@@ -146,7 +146,7 @@ export default function SummaryPage() {
       count,
       fee: distFees[key] ?? 0,
     }));
-  const distFeeTotal = distRows.reduce((s, r) => s + r.count * r.fee, 0);
+  const distFeeTotal = distRows.reduce((s, r) => s + r.fee, 0);
 
   // Fallback for serikli / old orders without dist
   const finalDeliveryFee = distRows.length === 0 && deliveryType === "delivery" ? deliveryFee : 0;
@@ -408,7 +408,7 @@ export default function SummaryPage() {
                         </div>
                         {row.fee === 0
                           ? <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-md shrink-0">Pulsuz</span>
-                          : <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-1.5 py-0.5 rounded-md border border-border/40 shrink-0">+{row.count * row.fee} AZN</span>
+                          : <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-1.5 py-0.5 rounded-md border border-border/40 shrink-0">+{row.fee} AZN</span>
                         }
                       </div>
                     ))}

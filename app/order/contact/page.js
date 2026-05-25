@@ -69,13 +69,14 @@ export default function ContactPage() {
     if (!order) { router.replace("/"); return; }
 
     if (isRegistered) {
-      // Pre-fill from user profile — no OTP needed
-      setFirstName(user.name || "");
-      setLastName(user.lastName || "");
-      if (user.phone) {
-        setPhone(user.phone.replace(/^\+?994/, "0"));
-      }
-      setEmail(user.email || "");
+      const contactInfo = {
+        firstName: user.name || "",
+        lastName: user.lastName || "",
+        ...(user.phone ? { phone: user.phone } : {}),
+        ...(user.email ? { email: user.email } : {}),
+      };
+      updateOrder({ contactInfo });
+      router.replace("/order/summary");
       return;
     }
 

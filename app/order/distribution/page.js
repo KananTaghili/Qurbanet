@@ -243,11 +243,7 @@ export default function DistributionPage() {
 
     const distFees = {};
     Object.keys(optionData).forEach((k) => {
-      if (k === "catdirilsin" || k === "ozum") {
-        distFees[k] = maxPortionSplit > 0 ? (optionData[k]?.fee ?? 0) / maxPortionSplit : 0;
-      } else {
-        distFees[k] = optionData[k]?.fee ?? 0;
-      }
+      distFees[k] = optionData[k]?.fee ?? 0;
     });
 
     const distPatch = {
