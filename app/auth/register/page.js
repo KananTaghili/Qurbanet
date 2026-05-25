@@ -100,20 +100,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Feature chips */}
-            <div className="flex flex-col gap-2 w-full max-w-[200px]">
-              {[
-                { icon: "🔒", text: "Şifrəsiz giriş" },
-                { icon: "⚡", text: "OTP ilə 30 saniyə" },
-                { icon: "✅", text: "Hesab dərhal hazır" },
-              ].map((f) => (
-                <div key={f.text} className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl" style={{ background: "rgba(255,255,255,0.1)" }}>
-                  <span className="text-base">{f.icon}</span>
-                  <span className="text-xs font-semibold text-white/80">{f.text}</span>
-                </div>
-              ))}
-            </div>
-
             <div className="flex items-center gap-3 text-[10px] font-bold tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>
               <span>ETİBARLI</span>
               <span className="w-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.35)" }} />
