@@ -87,13 +87,26 @@ const getAllowedEmails = async () => {
 // ─── Admin Email OTP ──────────────────────────────────────────────────────────
 const adminSendOTP = async (req, res) => {
   try {
-    const { email: rawEmail } = req.body;
-    if (!rawEmail) return error(res, "Email tələb olunur.", 400);
+    const { email: rawEmail, password } = req.body;
+    if (!rawEmail || !password) return error(res, "Email və şifrə tələb olunur.", 400);
     const email = rawEmail.trim().toLowerCase();
     if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
-    const allowed = await getAllowedEmails();
+    const settings = await AppSettings.findOne({ singleton: "global" }).select("+adminPasswordHash");
+    const allowed = settings?.allowedAdminEmails?.length
+      ? settings.allowedAdminEmails
+      : ["nbiyevmuhammd1@gmail.com"];
+
     if (!allowed.includes(email)) return error(res, "Bu email ünvanına admin girişi icazəsi verilməyib.", 403);
+
+    // Şifrə yoxla
+    let passwordValid = false;
+    if (settings?.adminPasswordHash) {
+      passwordValid = await bcrypt.compare(password, settings.adminPasswordHash);
+    } else {
+      passwordValid = password === (process.env.ADMIN_PASSWORD || "Muhammad_123456");
+    }
+    if (!passwordValid) return error(res, "Email və ya şifrə yanlışdır.", 401);
 
     await OTP.deleteMany({ email });
     const code = generateOTP();
