@@ -6,6 +6,7 @@ const sharedGroupSchema = new mongoose.Schema(
     animalType: { type: String, required: true, trim: true, lowercase: true },
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
     filledCapacity: { type: Number, default: 0 }, // sum of sharedPortion (0.0 - 1.0)
+    totalShares: { type: Number, default: null }, // animal's total shares (e.g. 7 for dana)
     status: {
       type: String,
       enum: ["forming", "confirmed"],

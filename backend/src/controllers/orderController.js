@@ -263,6 +263,9 @@ const formatOrder = (order, req) => {
     slaughterTimingHours: order.slaughterTimingHours,
     contactInfo: order.contactInfo,
     orphanDelight: order.orphanDelight,
+    userNote: order.userNote,
+    selfPickup: order.selfPickup,
+    distSnapshot: order.distSnapshot,
     review: order.review,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
@@ -414,6 +417,8 @@ const createOrder = async (req, res) => {
       userNote,
       selfPickup,
       distSnapshot,
+      deliveryPhones,
+      addressNote,
     } = req.body;
 
     const normalizedType = normalizeType(animalType);
@@ -425,40 +430,37 @@ const createOrder = async (req, res) => {
     if (!animal) return error(res, "Yanlış heyvan növü.", 400);
 
     const normalizedMode = orderMode === "serikli" ? "serikli" : "tek";
-    const isLargeAnimal = ["dana", "deve"].includes(normalizedType);
 
     let qty;
     let normalizedSharedPortion;
     let shareCount = 0;
 
     if (normalizedMode === "serikli") {
-      if (!isLargeAnimal) {
+      if (!animal.serikliEnabled) {
         return error(
           res,
-          "Şərikli sifariş yalnız dana və dəvə kateqoriyalarında mümkündür.",
+          "Bu heyvan üçün şərikli sifariş aktiv deyil.",
           400,
         );
       }
 
-      normalizedSharedPortion = Number(sharedPortion);
-      const validStep = Math.round(normalizedSharedPortion * 10) / 10;
-      const hasValidStep =
-        Math.abs(validStep - normalizedSharedPortion) < 0.000001;
+      const animalTotalShares = Math.max(2, Number(animal.totalShares) || 2);
+      const requestedShares = parseInt(quantity, 10);
 
       if (
-        Number.isNaN(normalizedSharedPortion) ||
-        normalizedSharedPortion < 0.1 ||
-        normalizedSharedPortion > 0.6 ||
-        !hasValidStep
+        Number.isNaN(requestedShares) ||
+        requestedShares < 1 ||
+        requestedShares >= animalTotalShares
       ) {
         return error(
           res,
-          "Şərikli hissə 0.1 ilə 0.6 arasında və 0.1 addımla olmalıdır.",
+          `Şərikli hissə 1 ilə ${animalTotalShares - 1} arasında olmalıdır.`,
           400,
         );
       }
 
-      shareCount = Math.round(normalizedSharedPortion * 10);
+      shareCount = requestedShares;
+      normalizedSharedPortion = shareCount / animalTotalShares;
       qty = normalizedSharedPortion;
     } else {
       qty = parseInt(quantity, 10);
@@ -537,15 +539,17 @@ const createOrder = async (req, res) => {
     }
 
     const userMobile = String(
-      contactInfo?.mobile || req.phone || req.user?.phone || "",
+      contactInfo?.mobile || contactInfo?.phone || req.phone || "",
     ).trim();
     const firstName = String(contactInfo?.firstName || "").trim();
     const lastName = String(contactInfo?.lastName || "").trim();
 
-    if (!firstName || !lastName || !userMobile) {
+    // Mobile required only for guests; authenticated users are identified via JWT
+    const isAuthenticated = !!req.userId;
+    if (!firstName || (!userMobile && !isAuthenticated)) {
       return error(
         res,
-        "Əlaqə məlumatları (ad, soyad, mobil) tələb olunur.",
+        "Əlaqə məlumatları (ad, mobil) tələb olunur.",
         400,
       );
     }
@@ -896,6 +900,8 @@ const createOrder = async (req, res) => {
       orderMode: normalizedMode,
       sharedPortion:
         normalizedMode === "serikli" ? normalizedSharedPortion : undefined,
+      shareCount: normalizedMode === "serikli" ? shareCount : undefined,
+      totalShares: normalizedMode === "serikli" ? animal.totalShares : undefined,
       lambSelection: normalizedLambSelection,
       qurbanParts: finalQurbanParts,
       cutStyle: finalCutStyle,
@@ -920,6 +926,12 @@ const createOrder = async (req, res) => {
               lat: Number(distribution.coordinates.lat),
               lng: Number(distribution.coordinates.lng),
             }
+          : undefined,
+        phones: requiresAddress && Array.isArray(deliveryPhones)
+          ? deliveryPhones.map((p) => String(p).trim()).filter(Boolean)
+          : [],
+        note: requiresAddress && addressNote
+          ? String(addressNote).trim().slice(0, 300)
           : undefined,
       },
       selfPickup: selfPickup === true || selfPickup === "true" || false,
@@ -983,23 +995,17 @@ const processPayment = async (req, res) => {
       return error(res, "Ləğv edilmiş sifariş ödənilə bilməz.", 400);
     }
 
-    const selectedMethod =
-      paymentMethod === "cash_on_delivery" ? "cash_on_delivery" : "bank_card";
-
-    if (selectedMethod === "bank_card") {
-      order.payment.status = "paid";
-      order.payment.paidAt = new Date();
-      order.payment.transactionId = `TXN-${Date.now()}`;
-    } else {
-      order.payment.status = "pending";
-      order.payment.transactionId = undefined;
-      order.payment.paidAt = undefined;
-      if (!order.cashPickupCode) {
-        order.cashPickupCode = await generateUniqueCashCode();
-      }
+    if (paymentMethod !== "cash_on_delivery") {
+      return error(res, "Bu endpoint yalnız nağd ödəniş üçündür.", 400);
     }
 
-    order.payment.method = selectedMethod;
+    order.payment.method = "cash_on_delivery";
+    order.payment.status = "pending";
+    order.payment.transactionId = undefined;
+    order.payment.paidAt = undefined;
+    if (!order.cashPickupCode) {
+      order.cashPickupCode = await generateUniqueCashCode();
+    }
     order.status = ORDER_STATUS.PLACED;
 
     if (!order.statusHistory.some((s) => s.status === ORDER_STATUS.PLACED)) {
@@ -1022,9 +1028,7 @@ const processPayment = async (req, res) => {
     return success(
       res,
       { order: formatOrder(order, req) },
-      selectedMethod === "bank_card"
-        ? "Ödəniş uğurla tamamlandı. Sifarişiniz təsdiqə göndərildi."
-        : "Yerində ödəniş seçildi. Kəsim ödənişdən sonra olacaq.",
+      "Yerində ödəniş seçildi. Kəsim ödənişdən sonra olacaq.",
     );
   } catch (err) {
     console.error("processPayment xətası:", err);

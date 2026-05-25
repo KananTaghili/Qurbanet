@@ -680,6 +680,8 @@ const formatAdminOrder = (order) => {
     quantity: order.quantity,
     orderMode: order.orderMode || "tek",
     sharedPortion: order.sharedPortion,
+    shareCount: order.shareCount,
+    totalShares: order.totalShares,
     pricePerUnit: order.pricePerUnit,
     totalPrice: order.totalPrice,
     distribution: order.distribution,
@@ -728,6 +730,7 @@ const getSharedGroups = async (req, res) => {
         groupNumber: g.groupNumber,
         animalType: g.animalType,
         filledCapacity: g.filledCapacity,
+        totalShares: g.totalShares,
         status: g.status,
         confirmedAt: g.confirmedAt,
         createdAt: g.createdAt,
@@ -773,10 +776,12 @@ const createSharedGroup = async (req, res) => {
       return error(res, "Seçilmiş hissələrin cəmi 1-dən çox ola bilməz (7/7-dən artıq).", 400);
     }
 
+    const groupTotalShares = orders[0]?.totalShares || null;
     const group = await SharedGroup.create({
       animalType: resolvedType,
       orders: orders.map((o) => o._id),
       filledCapacity,
+      totalShares: groupTotalShares,
     });
 
     await Order.updateMany(

@@ -74,6 +74,8 @@ const distributionSchema = new mongoose.Schema({
       max: [180, "Longitude düzgün deyil"],
     },
   },
+  phones: [{ type: String, trim: true }],
+  note: { type: String, trim: true, maxlength: [300, "Qeyd 300 simvoldan çox ola bilməz"] },
 });
 
 const contactInfoSchema = new mongoose.Schema({
@@ -91,7 +93,7 @@ const contactInfoSchema = new mongoose.Schema({
     type: String,
     trim: true,
     match: [
-      /^\+994(50|51|55|60|70|77|99)\d{7}$/,
+      /^\+994(10|20|40|41|44|50|51|55|60|70|77|99)\d{7}$/,
       "Düzgün Azərbaycan telefon nömrəsi daxil edin",
     ],
   },
@@ -139,7 +141,7 @@ const orderSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       required: true,
-      min: [0.1, "Miqdar ən az 0.1 olmalıdır"],
+      min: [0, "Miqdar mənfi ola bilməz"],
     },
     orderMode: {
       type: String,
@@ -148,8 +150,14 @@ const orderSchema = new mongoose.Schema(
     },
     sharedPortion: {
       type: Number,
-      min: [0.1, "Hissə ən az 0.1 ola bilər"],
-      max: [0.6, "Hissə ən çox 0.6 ola bilər"],
+      min: [0, "Hissə mənfi ola bilməz"],
+      max: [1, "Hissə 1-dən çox ola bilməz"],
+    },
+    shareCount: {
+      type: Number,
+    },
+    totalShares: {
+      type: Number,
     },
     lambSelection: {
       weightCategoryKey: {

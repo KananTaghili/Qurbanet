@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"d:\\\\Works\\\\Sacrifice\\\\mobile\\\\android\\\\app\\\\src\\\\main\" -Recurse | Where-Object {$_.Extension -match '\\\\.\\(java|kt\\)$'} | Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

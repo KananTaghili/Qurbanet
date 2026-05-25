@@ -101,12 +101,10 @@ const globalLimiter = rateLimit({
 app.use(globalLimiter);
 
 const authLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 10,
-  message: {
-    success: false,
-    message: "Çox sayda giriş cəhdi. 10 dəqiqə sonra yenidən cəhd edin.",
-  },
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: false,
+  legacyHeaders: false,
 });
 
 // ─── General Middleware ─────────────────────────────────────────────────────

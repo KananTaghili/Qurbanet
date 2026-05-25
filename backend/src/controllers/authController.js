@@ -91,8 +91,8 @@ const sendOTP = async (req, res) => {
 
 // ─── OTP Yoxla ───────────────────────────────────────────────────────────────
 //
-// Body: { phone OR email, code (4 rəqəm), password }
-// OTP doğrulandıqdan sonra istifadəçi yaradılır/yenilənir.
+// Body: { phone OR email, code (4 rəqəm), password? }
+// password isteğe bağlıdır: verilsə yenilənir, verilməsə mövcud şifrə saxlanır.
 // ─────────────────────────────────────────────────────────────────────────────
 const verifyOTP = async (req, res) => {
   try {
@@ -102,7 +102,7 @@ const verifyOTP = async (req, res) => {
       return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
     }
 
-    if (!password || password.length < 6) {
+    if (password && password.length < 6) {
       return error(res, "Şifrə ən az 6 simvol olmalıdır.", 400);
     }
 
@@ -153,18 +153,15 @@ const verifyOTP = async (req, res) => {
     const userQuery = identifierType === "phone" ? { phone: identifier } : { email: identifier };
     let user = await User.findOne(userQuery).select("+password");
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     if (!user) {
-      // Yeni qeydiyyat
-      user = await User.create({
+      const userData = {
         ...(identifierType === "phone" ? { phone: identifier } : { email: identifier }),
-        password: hashedPassword,
         isVerified: true,
-      });
+      };
+      if (password) userData.password = await bcrypt.hash(password, 10);
+      user = await User.create(userData);
     } else {
-      // Mövcud istifadəçi — şifrəni yenilə (OTP ilə doğrulandığı üçün icazə var)
-      user.password = hashedPassword;
+      if (password) user.password = await bcrypt.hash(password, 10);
       user.isVerified = true;
       await user.save();
     }
