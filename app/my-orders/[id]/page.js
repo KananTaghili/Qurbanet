@@ -598,7 +598,7 @@ export default function OrderDetailPage() {
                 </p>
               </div>
               <div
-                className="w-40 h-40 rounded-2xl overflow-hidden bg-white flex-shrink-0"
+                className="w-40 h-24 rounded-2xl overflow-hidden bg-white flex-shrink-0"
                 style={{ border: `3px solid ${accentColor}` }}
               >
                 <img
