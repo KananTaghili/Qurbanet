@@ -7,6 +7,11 @@ import {
   Truck, Store, MapPin, Home, HeartHandshake, Heart,
   ChevronRight, AlertCircle, CheckCircle2, Info, Phone, Plus, X,
 } from "lucide-react";
+import BackHeader from "../../../components/BackHeader";
+import StepHeader from "../../../components/StepHeader";
+import { useOrder } from "../../../context/OrderContext";
+import { useAuth } from "../../../context/AuthContext";
+import api from "../../../lib/api";
 
 const AZ_OPERATORS = ["10","20","40","41","44","50","51","55","60","70","77","99"];
 
@@ -31,11 +36,6 @@ const isValidAzPhone = (formatted) => {
   if (d.length === 10) return AZ_OPERATORS.includes(d.slice(1,3));
   return false;
 };
-import BackHeader from "../../../components/BackHeader";
-import StepHeader from "../../../components/StepHeader";
-import { useOrder } from "../../../context/OrderContext";
-import { useAuth } from "../../../context/AuthContext";
-import api from "../../../lib/api";
 
 const MapLocationPicker = dynamic(
   () => import("../../../components/MapLocationPicker"),
