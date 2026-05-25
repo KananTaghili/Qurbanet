@@ -265,6 +265,9 @@ export default function SummaryPage() {
         },
         selfPickup: (dist.ozum || 0) > 0,
         distSnapshot: Object.keys(dist).length ? dist : undefined,
+        userNote: order.notes || undefined,
+        deliveryPhones: order.deliveryPhones?.length ? order.deliveryPhones : undefined,
+        addressNote: order.addressNote || undefined,
       };
       const res = await api.post("/orders", payload);
       if (res.data.success) {
