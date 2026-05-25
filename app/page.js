@@ -249,12 +249,15 @@ export default function HomePage() {
       <div
         className="
           hidden md:flex flex-col
-          w-full max-w-[1400px] mx-auto
+          w-full
           gap-4 lg:gap-5 xl:gap-6
-          px-5 md:px-6 lg:px-8 xl:px-10
           pb-5 md:pb-6 lg:pb-8
         "
-        style={{ paddingTop: "calc(var(--topbar-h) + 20px)" }}
+        style={{
+          paddingTop: "calc(var(--topbar-h) + 12px)",
+          paddingLeft: 28,
+          paddingRight: 28,
+        }}
       >
         {/* Grid */}
         {loading ? (
