@@ -15,7 +15,8 @@ const adminAuth = (req, res, next) => {
     if (decoded.role !== "admin") {
       return error(res, "Admin icazəsi yoxdur.", 403);
     }
-    req.adminUsername = decoded.username;
+    req.adminUsername = decoded.username || decoded.email;
+    req.adminEmail = decoded.email;
     next();
   } catch (err) {
     if (err.name === "TokenExpiredError") {

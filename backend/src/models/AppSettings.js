@@ -59,6 +59,10 @@ const appSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    allowedAdminEmails: {
+      type: [String],
+      default: ["nbiyevmuhammd1@gmail.com"],
+    },
   },
   { timestamps: true },
 );

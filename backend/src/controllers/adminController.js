@@ -15,7 +15,7 @@ const { getDirSizeBytes, enforceStorageQuota, UPLOADS_DIR } = require("../utils/
 const AppSettings = require("../models/AppSettings");
 const SharedGroup = require("../models/SharedGroup");
 const OTP = require("../models/OTP");
-const { generateOTP, sendSMS } = require("../utils/sms");
+const { generateOTP, sendSMS, sendEmail } = require("../utils/sms");
 
 const AUTO_CONFIRM_MESSAGE =
   "1 saat ərzində admin təsdiqləmədiyi üçün sistem avtomatik təsdiqlədi.";
@@ -70,6 +70,120 @@ const maybeAutoConfirm = async (order) => {
       note: AUTO_CONFIRM_MESSAGE,
     });
     await order.save();
+  }
+};
+
+const OTP_EXPIRY_MS = 5 * 60 * 1000;
+const OTP_MAX_ATTEMPTS = 5;
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+const getAllowedEmails = async () => {
+  const settings = await AppSettings.findOne({ singleton: "global" });
+  return settings?.allowedAdminEmails?.length
+    ? settings.allowedAdminEmails
+    : ["nbiyevmuhammd1@gmail.com"];
+};
+
+// ─── Admin Email OTP ──────────────────────────────────────────────────────────
+const adminSendOTP = async (req, res) => {
+  try {
+    const { email: rawEmail } = req.body;
+    if (!rawEmail) return error(res, "Email tələb olunur.", 400);
+    const email = rawEmail.trim().toLowerCase();
+    if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+    const allowed = await getAllowedEmails();
+    if (!allowed.includes(email)) return error(res, "Bu email ünvanına admin girişi icazəsi verilməyib.", 403);
+
+    await OTP.deleteMany({ email });
+    const code = generateOTP();
+    await OTP.create({ email, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
+    await sendEmail(email, code, "az");
+
+    return success(res, { email }, `Doğrulama kodu ${email} ünvanına göndərildi.`);
+  } catch (err) {
+    console.error("adminSendOTP xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const adminVerifyOTP = async (req, res) => {
+  try {
+    const { email: rawEmail, code } = req.body;
+    if (!rawEmail || !code) return error(res, "Email və OTP kodu tələb olunur.", 400);
+    if (!/^\d{4}$/.test(code)) return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
+
+    const email = rawEmail.trim().toLowerCase();
+    const allowed = await getAllowedEmails();
+    if (!allowed.includes(email)) return error(res, "Bu email ünvanına admin girişi icazəsi verilməyib.", 403);
+
+    const otpRecord = await OTP.findOne({ email });
+    if (!otpRecord) return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
+    if (otpRecord.expiresAt < new Date()) {
+      await OTP.deleteMany({ email });
+      return error(res, "OTP kodunun vaxtı keçib. Yenidən göndərin.", 400);
+    }
+    if (otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
+      await OTP.deleteMany({ email });
+      return error(res, "Çox sayda yanlış cəhd. Yenidən göndərin.", 400);
+    }
+    if (otpRecord.code !== code) {
+      await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
+      return error(res, `Yanlış kod. ${OTP_MAX_ATTEMPTS - otpRecord.attempts - 1} cəhdiniz qalıb.`, 400);
+    }
+
+    await OTP.deleteMany({ email });
+    const token = jwt.sign(
+      { role: "admin", email },
+      process.env.ADMIN_JWT_SECRET,
+      { expiresIn: "12h" },
+    );
+    return success(res, { token }, "Admin girişi uğurlu.");
+  } catch (err) {
+    console.error("adminVerifyOTP xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Allowed Emails CRUD ──────────────────────────────────────────────────────
+const getAdminAllowedEmails = async (req, res) => {
+  try {
+    const emails = await getAllowedEmails();
+    return success(res, { emails });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const addAdminAllowedEmail = async (req, res) => {
+  try {
+    const { email: rawEmail } = req.body;
+    if (!rawEmail) return error(res, "Email tələb olunur.", 400);
+    const email = rawEmail.trim().toLowerCase();
+    if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+    const settings = await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $addToSet: { allowedAdminEmails: email } },
+      { upsert: true, new: true },
+    );
+    return success(res, { emails: settings.allowedAdminEmails }, "Email əlavə edildi.");
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const removeAdminAllowedEmail = async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email).toLowerCase();
+    const settings = await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $pull: { allowedAdminEmails: email } },
+      { new: true },
+    );
+    return success(res, { emails: settings?.allowedAdminEmails || [] }, "Email silindi.");
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
   }
 };
 
@@ -822,6 +936,11 @@ const deleteSharedGroup = async (req, res) => {
 
 module.exports = {
   adminLogin,
+  adminSendOTP,
+  adminVerifyOTP,
+  getAdminAllowedEmails,
+  addAdminAllowedEmail,
+  removeAdminAllowedEmail,
   adminForgotPassword,
   adminResetPassword,
   getAllOrders,

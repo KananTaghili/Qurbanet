@@ -50,8 +50,10 @@ const charityOptionUpload = multer({
   limits: { fileSize: 200 * 1024 * 1024 },
 });
 
-// ─── Public: Admin Login + Şifrə sıfırlama ──────────────────────────────
+// ─── Public: Admin Login ─────────────────────────────────────────────────
 router.post("/login", adminController.adminLogin);
+router.post("/send-otp", adminController.adminSendOTP);
+router.post("/verify-otp", adminController.adminVerifyOTP);
 router.post("/forgot-password", adminController.adminForgotPassword);
 router.post("/reset-password", adminController.adminResetPassword);
 
@@ -131,12 +133,14 @@ router.get("/pricing/:categoryId",        pricingConfigController.getByCategory)
 router.put("/pricing/:categoryId",        pricingConfigController.upsert);
 
 // ─── App Settings ─────────────────────────────────────────────────────────
-// GET /api/admin/settings
 router.get("/settings", appSettingsController.getSettings);
-// PUT /api/admin/settings
 router.put("/settings", appSettingsController.updateSettings);
-// GET /api/admin/storage-stats
 router.get("/storage-stats", appSettingsController.getStorageStats);
+
+// ─── Allowed Admin Emails ─────────────────────────────────────────────────
+router.get("/allowed-emails", adminController.getAdminAllowedEmails);
+router.post("/allowed-emails", adminController.addAdminAllowedEmail);
+router.delete("/allowed-emails/:email", adminController.removeAdminAllowedEmail);
 
 // ─── Delivery Options ──────────────────────────────────────────────────────
 // GET /api/admin/delivery-options
