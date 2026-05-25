@@ -54,6 +54,6 @@ jobs:
 
             [ -f server.js ] || { echo "ERROR: server.js not found!"; exit 1; }
 
-            PORT=3001 pm2 restart qurbanetfrontpm --update-env \
-              || PORT=3001 pm2 start server.js --name "qurbanetfrontpm"
+            PORT=443 pm2 restart qurbanetfrontpm --update-env \
+              || PORT=443 pm2 start server.js --name "qurbanetfrontpm"
             pm2 save
