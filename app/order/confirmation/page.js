@@ -81,16 +81,17 @@ export default function ConfirmationPage() {
       </div>
 
       <div className="mobile-action-bar mobile-only">
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-stretch">
           <button
-            className="btn-primary flex-1"
             onClick={handleGoOrders}
+            className="flex-1 bg-primary text-white font-bold text-sm rounded-2xl flex items-center justify-center text-center py-3.5 cursor-pointer active:scale-[.98] transition-all"
+            style={{ boxShadow: "0 2px 8px rgba(27,94,32,.25)" }}
           >
             Sifarişimi izlə
           </button>
           <button
             onClick={handleGoHome}
-            className="flex-1 py-3.5 text-primary font-bold text-sm border-2 border-primary/30 rounded-2xl bg-primary-surface cursor-pointer active:scale-[.98] transition-all"
+            className="flex-1 text-primary font-bold text-sm border-2 border-primary/30 rounded-2xl bg-primary-surface flex items-center justify-center text-center py-3.5 cursor-pointer active:scale-[.98] transition-all"
           >
             Ana səhifə
           </button>
