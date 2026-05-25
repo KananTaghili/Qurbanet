@@ -258,11 +258,11 @@ export default function SummaryPage() {
               feetCharityCount: feetBuckets.charity  || 0,
             }
           : undefined,
-        contactInfo: contactInfo ? {
-          firstName: contactInfo.firstName,
-          lastName:  contactInfo.lastName,
-          mobile:    contactInfo.mobile || contactInfo.phone,
-        } : undefined,
+        contactInfo: {
+          firstName: contactInfo?.firstName || "",
+          lastName:  contactInfo?.lastName  || "",
+          mobile:    contactInfo?.mobile || contactInfo?.phone || "",
+        },
         selfPickup: (dist.ozum || 0) > 0,
         distSnapshot: Object.keys(dist).length ? dist : undefined,
       };

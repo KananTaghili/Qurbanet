@@ -34,6 +34,7 @@ const isValidAzPhone = (formatted) => {
 import BackHeader from "../../../components/BackHeader";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
+import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
 const MapLocationPicker = dynamic(
@@ -96,6 +97,7 @@ function DistRow({ optKey, meta, label, fee, min, count, canInc, onDec, onInc, d
 export default function DistributionPage() {
   const router = useRouter();
   const { order, updateOrder } = useOrder();
+  const { user } = useAuth();
 
   // Single distribution pool
   const [dist, setDist]       = useState({ catdirilsin: 0, ozum: 0 });
@@ -264,13 +266,25 @@ export default function DistributionPage() {
       addressNote: needsLocation ? addressNote.trim() || undefined : undefined,
     };
 
-    // Skip contact page if user already verified and has a valid token
+    // Registered user: skip contact page, auto-fill from profile
+    if (user?.name) {
+      const contactInfo = {
+        firstName: user.name,
+        lastName: user.lastName || "",
+        phone: user.phone || "",
+        email: user.email || "",
+      };
+      updateOrder({ ...distPatch, contactInfo });
+      router.push("/order/summary");
+      return;
+    }
+
+    // Guest: check if saved contact info exists
     try {
       const raw = localStorage.getItem('contact_info');
-      const token = localStorage.getItem('token');
-      if (raw && token) {
+      if (raw) {
         const ci = JSON.parse(raw);
-        if (ci?.firstName && ci?.lastName && (ci?.phone || ci?.email)) {
+        if (ci?.firstName && (ci?.phone || ci?.email)) {
           updateOrder({ ...distPatch, contactInfo: ci });
           router.push('/order/summary');
           return;
