@@ -618,7 +618,7 @@ export default function DistributionPage() {
                   </div>
                 )}
 
-                <OptionList />
+                {OptionList()}
               </Card>
 
               {/* Pickup info — mobile */}
