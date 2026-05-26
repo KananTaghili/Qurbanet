@@ -145,7 +145,8 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
         minZoom: 9,
         maxBounds: [[49.3, 39.9], [50.7, 40.8]], // Baku + Absheron peninsula
         attributionControl: false,
-        trackResize: false,
+        trackResize: true,
+        fadeDuration: 0,
       });
       mapRef.current = map;
 
@@ -235,13 +236,13 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
       )}
 
       {/* Map area */}
-      <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
+      <div style={{ flex: 1, position: "relative", minHeight: 0, overflow: "hidden" }}>
         {!mapReady && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", zIndex: 10, color: "#94A3B8", fontSize: 14 }}>
             Xəritə yüklənir...
           </div>
         )}
-        <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+        <div ref={containerRef} style={{ position: "absolute", inset: 0, overflow: "hidden" }} />
 
         {mapReady && (
           <button onClick={handleUseCurrent} disabled={geoLoading}
