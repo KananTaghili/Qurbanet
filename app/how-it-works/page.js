@@ -5,78 +5,36 @@ import Image from "next/image";
 import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import BackHeader from "../../components/BackHeader";
 import BottomNav from "../../components/BottomNav";
+import { useLanguage } from "../../context/LanguageContext";
+import { t, HOW_IT_WORKS_TEXT } from "../../lib/i18n";
 
-const STEPS = [
-  {
-    title: "Qurbanlıq Seçimi",
-    image: "/qoyun_big.png",
-    imgAlt: "Qoyun",
-    color: "#166534",
-    accent: "#16a34a",
-    label: "Addım 1",
-    desc: "Ölkəmizin müxtəlif bölgələrindən toplanan sağlam, canlı heyvanlar arasından istədiyiniz növü — qoyun, qoç, keçi, dana, dəvə — seçirsiniz. Çəki kateqoriyası və qiymət aralıqlarına görə ən uyğun variantı müəyyənləşdirirsiniz.",
-    points: [
-      "Müxtəlif çəki kateqoriyaları",
-      "Tam heyvan və ya şərikli seçim",
-      "Şəffaf qiymət hesablaması",
-    ],
-  },
-  {
-    title: "Halal Kəsim",
-    image: "/bicaq.png",
-    imgAlt: "Bıçaq",
-    color: "#7c2d12",
-    accent: "#ea580c",
-    label: "Addım 2",
-    desc: "Heyvanlar İslam dininə uyğun olaraq xüsusi kəsim müəssisələrində kəsilir. Kəsim zamanı sizin adınız çəkilərək qısa video çəkilir və tətbiqinizdəki sifariş səhifənizə göndərilir.",
-    points: [
-      "Şəriətə uyğun halal kəsim",
-      "Kəsim anının video çəkilişi",
-      "Peşəkar kəsimçi heyəti",
-    ],
-  },
-  {
-    title: "Hazırlanma",
-    image: "/qutu.png",
-    imgAlt: "Qutu",
-    color: "#14532d",
-    accent: "#15803d",
-    label: "Addım 3",
-    desc: "Kəsimdən sonra ət müəyyən müddət temperaturda dinləndirilir, sonra isə sizin seçdiyiniz üsula görə — kabablıq, qazan yeməkləri, tam cəmdək — doğranır və gigiyenik qablaşdırmaya yerləşdirilir.",
-    points: [
-      "Müxtəlif doğrama üsulları",
-      "Gigiyenik qablaşdırma",
-      "Soyuq zəncirə riayət",
-    ],
-  },
-  {
-    title: "Çatdırılma",
-    image: "/masin.png",
-    imgAlt: "Çatdırılma maşını",
-    color: "#1e3a5f",
-    accent: "#2563eb",
-    label: "Addım 4",
-    desc: "Qablaşdırılmış ət temperaturu idarə olunan soyuduculu avtomobillər vasitəsilə seçdiyiniz vaxt aralığında evinizə çatdırılır. Xeyriyyə payları isə birbaşa ehtiyaclı ailələrə paylanır.",
-    points: [
-      "Temperaturlu soyuduculu çatdırılma",
-      "3 vaxt aralığından seçim",
-      "Seçdiyiniz tarixdə çatdırılma",
-    ],
-  },
+const STEP_IMAGES = ['/qoyun_big.png', '/bicaq.png', '/qutu.png', '/masin.png'];
+const STEP_COLORS = [
+  { color: '#166534', accent: '#16a34a' },
+  { color: '#7c2d12', accent: '#ea580c' },
+  { color: '#14532d', accent: '#15803d' },
+  { color: '#1e3a5f', accent: '#2563eb' },
 ];
 
 export default function HowItWorksPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
   const [active, setActive] = useState(0);
 
-  const step = STEPS[active];
+  const steps = (HOW_IT_WORKS_TEXT[lang] || HOW_IT_WORKS_TEXT.az).map((s, i) => ({
+    ...s,
+    image: STEP_IMAGES[i],
+    ...STEP_COLORS[i],
+  }));
+
+  const step = steps[active];
 
   return (
     <div
       className="flex flex-col flex-1 min-h-screen"
       style={{ background: "#f6f8f6" }}
     >
-      <BackHeader title="Necə İşləyirik?" onBack={() => router.push("/")} />
+      <BackHeader title={t(lang, 'howItWorksHero')} onBack={() => router.push("/")} />
 
       <div className="flex-1 page-scroll pb-6">
         {/* ══════════ MOBILE ══════════ */}
@@ -91,7 +49,6 @@ export default function HowItWorksPage() {
               transition: "border-color 0.3s",
             }}
           >
-            {/* Big image */}
             <div className="relative w-full h-full px-6 pt-4 pb-4">
               <Image
                 src={step.image}
@@ -106,7 +63,7 @@ export default function HowItWorksPage() {
 
           {/* Step tabs */}
           <div className="flex gap-0 px-4 mt-4">
-            {STEPS.map((s, i) => (
+            {steps.map((s, i) => (
               <button
                 key={i}
                 onClick={() => setActive(i)}
@@ -139,13 +96,12 @@ export default function HowItWorksPage() {
           {/* Content card */}
           <div className="mx-4 mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-5">
-              {/* Badge */}
               <div className="mb-2">
                 <span
                   className="inline-block px-3 py-1 rounded-full text-xs font-bold text-white"
                   style={{ background: step.color }}
                 >
-                  {step.label} / {STEPS.length} — {step.title}
+                  {step.label} / {steps.length} — {step.title}
                 </span>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed mb-4">
@@ -156,11 +112,7 @@ export default function HowItWorksPage() {
                   <div key={pt} className="flex items-start gap-3">
                     <CheckCircle2
                       size={18}
-                      style={{
-                        color: step.accent,
-                        flexShrink: 0,
-                        marginTop: 1,
-                      }}
+                      style={{ color: step.accent, flexShrink: 0, marginTop: 1 }}
                       strokeWidth={2}
                     />
                     <span className="text-sm font-semibold text-gray-700 leading-snug">
@@ -180,17 +132,15 @@ export default function HowItWorksPage() {
               className="flex-1 flex items-center justify-center gap-1.5 py-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-400 disabled:opacity-30 bg-white"
             >
               <ChevronLeft size={16} />
-              Əvvəlki
+              {t(lang, 'previous')}
             </button>
             <button
-              onClick={() =>
-                setActive((a) => Math.min(STEPS.length - 1, a + 1))
-              }
-              disabled={active === STEPS.length - 1}
+              onClick={() => setActive((a) => Math.min(steps.length - 1, a + 1))}
+              disabled={active === steps.length - 1}
               className="flex-1 flex items-center justify-center gap-1.5 py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
               style={{ background: step.color }}
             >
-              Növbəti
+              {t(lang, 'next')}
               <ChevronRight size={16} />
             </button>
           </div>
@@ -208,23 +158,21 @@ export default function HowItWorksPage() {
           >
             <div className="flex-1 px-8 py-6">
               <h1 className="text-2xl font-extrabold text-white m-0 mb-1">
-                Necə İşləyirik?
+                {t(lang, 'howItWorksHero')}
               </h1>
               <p className="text-sm text-white/70 m-0 leading-relaxed max-w-md">
-                QurbanEt-də sifariş prosesi — seçimdən çatdırılmaya qədər
-                şəffaf, etibarlı və sürətli.
+                {t(lang, 'howItWorksHeroDesc')}
               </p>
             </div>
           </div>
 
           {/* 4 cards grid */}
           <div className="grid grid-cols-2 gap-5">
-            {STEPS.map((s, i) => (
+            {steps.map((s, i) => (
               <div
                 key={i}
                 className="rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-sm flex flex-col"
               >
-                {/* Image zone — pure white, colored bottom border */}
                 <div
                   className="relative flex items-center justify-center"
                   style={{
@@ -233,7 +181,6 @@ export default function HowItWorksPage() {
                     borderBottom: `3px solid ${s.color}`,
                   }}
                 >
-                  {/* Big image */}
                   <div className="relative w-full h-full px-8 py-4">
                     <Image
                       src={s.image}
@@ -245,9 +192,7 @@ export default function HowItWorksPage() {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-5 flex flex-col flex-1">
-                  {/* Badge above title */}
                   <div className="mb-2">
                     <span
                       className="inline-block px-3 py-1 rounded-full text-[10px] font-bold text-white"

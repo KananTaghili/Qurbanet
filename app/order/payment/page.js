@@ -5,16 +5,18 @@ import { CreditCard, Banknote, Lock, Smartphone } from 'lucide-react';
 import BackHeader from '../../../components/BackHeader';
 import StepHeader from '../../../components/StepHeader';
 import { useOrder } from '../../../context/OrderContext';
+import { useLanguage } from '../../../context/LanguageContext';
+import { t } from '../../../lib/i18n';
 import api from '../../../lib/api';
 
 const POLL_INTERVAL = 3000;
 const POLL_TIMEOUT  = 10 * 60 * 1000;
 
-function Spinner() {
+function Spinner({ label }) {
   return (
     <span className="inline-flex items-center gap-2">
       <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-      İşlənir...
+      {label}
     </span>
   );
 }
@@ -52,7 +54,7 @@ function GooglePayIcon() {
   );
 }
 
-function EPointFrame({ url, onClose }) {
+function EPointFrame({ url, onClose, lang }) {
   const [frameLoading, setFrameLoading] = useState(true);
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col bg-black/60">
@@ -60,8 +62,8 @@ function EPointFrame({ url, onClose }) {
         <div className="flex items-center gap-2.5">
           <CreditCard size={18} className="text-white/80" />
           <div>
-            <div className="text-sm font-bold text-white">Bank Kartı Ödənişi</div>
-            <div className="text-xs text-white/65">Təhlükəsiz ödəniş · epoint.az</div>
+            <div className="text-sm font-bold text-white">{t(lang, 'cardPaymentTitle')}</div>
+            <div className="text-xs text-white/65">{t(lang, 'securePayment')}</div>
           </div>
         </div>
         <button onClick={onClose}
@@ -74,14 +76,14 @@ function EPointFrame({ url, onClose }) {
         {frameLoading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white">
             <div className="w-8 h-8 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-text-secondary font-medium">EPoint yüklənir...</p>
+            <p className="text-sm text-text-secondary font-medium">{t(lang, 'ePointLoading')}</p>
           </div>
         )}
-        <iframe src={url} className="w-full h-full border-0" onLoad={() => setFrameLoading(false)} title="Bank Kartı Ödənişi" allow="payment" />
+        <iframe src={url} className="w-full h-full border-0" onLoad={() => setFrameLoading(false)} title={t(lang, 'cardPaymentTitle')} allow="payment" />
       </div>
       <div className="px-4 py-2 bg-white border-t border-border text-center">
         <p className="text-xs text-text-secondary flex items-center justify-center gap-1.5">
-          <Lock size={11} /> SSL şifrələməsi ilə qorunur · epoint.az
+          <Lock size={11} /> {t(lang, 'sslProtected')}
         </p>
       </div>
     </div>
@@ -91,6 +93,7 @@ function EPointFrame({ url, onClose }) {
 export default function PaymentPage() {
   const router = useRouter();
   const { order, updateOrder, isLoaded } = useOrder();
+  const { lang } = useLanguage();
 
   const [method,      setMethod]      = useState('epoint');
   const [cashEnabled, setCashEnabled] = useState(true);
@@ -137,11 +140,11 @@ export default function PaymentPage() {
       : Number(createdOrder.quantity || 1);
     rows.push({ label: `${createdOrder.animalNameAz} (${qty} ədəd × ${basePrice} AZN)`, value: Number((basePrice * qty).toFixed(2)) });
     const cutExtra = Number(createdOrder.cutStyle?.extraFee || 0);
-    if (cutExtra > 0) rows.push({ label: 'Doğranma', value: cutExtra });
+    if (cutExtra > 0) rows.push({ label: t(lang, 'cutExtra'), value: cutExtra });
     const partsExtra = Number(((createdOrder.qurbanParts?.headFee || 0) + (createdOrder.qurbanParts?.feetFee || 0)).toFixed(2));
-    if (partsExtra > 0) rows.push({ label: 'Baş/Ayaq emalı', value: partsExtra });
+    if (partsExtra > 0) rows.push({ label: t(lang, 'headFeetExtra'), value: partsExtra });
     const delFee = Number(createdOrder.deliveryFee || 0);
-    rows.push(delFee > 0 ? { label: 'Çatdırılma', value: delFee } : { label: 'Çatdırılma', free: true });
+    rows.push(delFee > 0 ? { label: t(lang, 'deliveryRow'), value: delFee } : { label: t(lang, 'deliveryRow'), free: true });
     return rows;
   })();
 
@@ -153,7 +156,7 @@ export default function PaymentPage() {
       if (Date.now() - startTimeRef.current > POLL_TIMEOUT) {
         clearInterval(pollRef.current);
         setFrameUrl('');
-        setError('Ödəniş statusu təsdiqlənmədi. Sifarişlərim bölməsini yoxlayın.');
+        setError(t(lang, 'pollFailed'));
         return;
       }
       try {
@@ -169,7 +172,7 @@ export default function PaymentPage() {
           paidRef.current = true;
           clearInterval(pollRef.current);
           setFrameUrl('');
-          setError(d.userMessage || 'Ödəniş rədd edildi. Yenidən cəhd edin.');
+          setError(d.userMessage || t(lang, 'paymentDeclined'));
         }
       } catch (_) {}
     }, POLL_INTERVAL);
@@ -199,7 +202,7 @@ export default function PaymentPage() {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Ödəniş uğursuz oldu. Yenidən cəhd edin.');
+      setError(err.response?.data?.message || t(lang, 'paymentFailed'));
     } finally {
       setLoading(false);
     }
@@ -221,7 +224,7 @@ export default function PaymentPage() {
   };
 
   if (frameUrl) {
-    return <EPointFrame url={frameUrl} onClose={handleFrameClose} />;
+    return <EPointFrame url={frameUrl} onClose={handleFrameClose} lang={lang} />;
   }
 
   const PayButton = (
@@ -230,13 +233,19 @@ export default function PaymentPage() {
       onClick={handlePay}
       disabled={loading}
     >
-      {loading ? <Spinner /> : method === 'epoint' ? `${amount} AZN · Bank Kartı ilə ödə` : method === 'googlepay' ? `${amount} AZN · Google Pay` : 'Seçimi təsdiqlə'}
+      {loading
+        ? <Spinner label={t(lang, 'processing')} />
+        : method === 'epoint'
+          ? `${amount} AZN · ${t(lang, 'payWithCard')}`
+          : method === 'googlepay'
+            ? `${amount} AZN · ${t(lang, 'payWithGPay')}`
+            : t(lang, 'confirmSelection')}
     </button>
   );
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Ödəniş" />
+      <BackHeader title={t(lang, 'payment')} />
       <StepHeader currentStep={3} />
 
       <div className="flex-1 overflow-y-auto pb-28 md:pb-6 pt-[124px] md:pt-0">
@@ -246,7 +255,7 @@ export default function PaymentPage() {
           <div className="flex flex-col gap-4">
             {/* Amount card */}
             <div className="bg-primary rounded-2xl px-6 py-8 text-white text-center">
-              <div className="text-sm font-semibold opacity-80 mb-2">Ödənilməli məbləğ</div>
+              <div className="text-sm font-semibold opacity-80 mb-2">{t(lang, 'amountToPay')}</div>
               <div className="text-5xl font-extrabold tracking-tight">{amount} AZN</div>
             </div>
 
@@ -254,20 +263,20 @@ export default function PaymentPage() {
             {breakdownRows.length > 0 && (
               <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-card">
                 <div className="px-4 py-3 border-b border-border text-xs font-bold text-text-secondary tracking-wide uppercase bg-surface-alt/40">
-                  Qiymət tərkibi
+                  {t(lang, 'priceBreakdown')}
                 </div>
                 <div className="divide-y divide-border/60">
                   {breakdownRows.map((row, i) => (
                     <div key={i} className="flex justify-between items-center px-4 py-3">
                       <span className="text-sm text-text-secondary flex-1 mr-3">{row.label}</span>
                       {row.free
-                        ? <span className="text-sm font-bold text-emerald-600">Pulsuz</span>
+                        ? <span className="text-sm font-bold text-emerald-600">{t(lang, 'free')}</span>
                         : <span className="text-sm font-bold text-text-primary">{row.value?.toFixed(2)} AZN</span>
                       }
                     </div>
                   ))}
                   <div className="flex justify-between items-center px-4 py-3.5 bg-primary-surface/20">
-                    <span className="text-sm font-bold text-text-primary">Cəmi</span>
+                    <span className="text-sm font-bold text-text-primary">{t(lang, 'totalRow')}</span>
                     <span className="text-lg font-extrabold text-primary">{amount} AZN</span>
                   </div>
                 </div>
@@ -280,15 +289,15 @@ export default function PaymentPage() {
             {/* Payment methods */}
             <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-card">
               <div className="px-4 py-3 border-b border-border text-xs font-bold text-text-secondary tracking-wide uppercase bg-surface-alt/40">
-                Ödəniş üsulu
+                {t(lang, 'paymentMethodCard')}
               </div>
               <div className="p-3 flex flex-col gap-2">
                 <PayMethodOption
                   selected={method === 'epoint'}
                   onClick={() => setMethod('epoint')}
                   Icon={CreditCard}
-                  label="Bank Kartı ilə ödə"
-                  sub="Visa / Mastercard · EPoint · Təhlükəsiz"
+                  label={t(lang, 'payWithCard')}
+                  sub={t(lang, 'payWithCardSub')}
                 />
                 {/* Google Pay — temporarily disabled */}
                 {cashEnabled && (
@@ -296,8 +305,8 @@ export default function PaymentPage() {
                     selected={method === 'cash'}
                     onClick={() => setMethod('cash')}
                     Icon={Banknote}
-                    label="Yerində ödəniş"
-                    sub="Kəsim ödənişdən sonra olacaq"
+                    label={t(lang, 'payOnSite')}
+                    sub={t(lang, 'payOnSiteSub')}
                   />
                 )}
               </div>
@@ -308,9 +317,7 @@ export default function PaymentPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-start gap-2.5">
                 <Lock size={14} className="text-blue-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-blue-700">
-                  {method === 'googlepay'
-                    ? 'Google Pay pəncərəsi açılacaq. EPoint vasitəsilə sürətli ödəniş tamamlanacaq.'
-                    : 'Ödəniş tətbiqin içərisindəki təhlükəsiz ödəniş səhifəsində tamamlanacaq.'}
+                  {method === 'googlepay' ? t(lang, 'gpayInfo') : t(lang, 'epointInfo')}
                 </p>
               </div>
             )}
@@ -318,7 +325,7 @@ export default function PaymentPage() {
               <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-2.5">
                 <Banknote size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-amber-700">
-                  Sifarişiniz qəbul ediləcək, ödəniş kəsim günündə yerində həyata keçiriləcək.
+                  {t(lang, 'cashInfo')}
                 </p>
               </div>
             )}

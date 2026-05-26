@@ -4,20 +4,23 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HelpCircle, HandHeart, BookOpen, ClipboardList, Beef } from 'lucide-react';
 import api from '../lib/api';
+import { useLanguage } from '../context/LanguageContext';
+import { t } from '../lib/i18n';
 
 const BRAND = '#1c5e20';
 const MUTED = '#94a3b8';
 
 const ALL_TABS = [
-  { href: '/how-it-works', label: 'Necə İşləyirik', Icon: HelpCircle,    key: 'how' },
-  { href: '/need-support',  label: 'Xeyriyyə',       Icon: HandHeart,     key: 'charity' },
-  { href: '/',              label: 'Heyvan Seçimi',  Icon: Beef,          key: 'home' },
-  { href: '/qurban-rules',  label: 'Əhkamlar',       Icon: BookOpen,      key: 'rules' },
-  { href: '/my-orders',     label: 'Sifarişlərim',   Icon: ClipboardList, key: 'orders' },
+  { href: '/how-it-works', labelKey: 'howItWorks',      Icon: HelpCircle,    key: 'how' },
+  { href: '/need-support',  labelKey: 'charity',          Icon: HandHeart,     key: 'charity' },
+  { href: '/',              labelKey: 'animalSelection',  Icon: Beef,          key: 'home' },
+  { href: '/qurban-rules',  labelKey: 'rules',            Icon: BookOpen,      key: 'rules' },
+  { href: '/my-orders',     labelKey: 'myOrders',         Icon: ClipboardList, key: 'orders' },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { lang } = useLanguage();
   const [charityEnabled, setCharityEnabled] = useState(null);
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export default function BottomNav() {
   return (
     <nav className="bottom-nav-wrap mobile-only">
       <div style={{ display: 'flex', width: '100%' }}>
-        {ALL_TABS.map(({ href, label, Icon, key }) => {
+        {ALL_TABS.map(({ href, labelKey, Icon, key }) => {
           const disabled = key === 'charity' && charityEnabled !== true;
           const active = !disabled && (pathname === href || (href !== '/' && pathname.startsWith(href + '/')));
           const color = disabled ? '#d1d5db' : active ? BRAND : MUTED;
@@ -62,7 +65,7 @@ export default function BottomNav() {
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: 'vertical',
               }}>
-                {label}
+                {t(lang, labelKey)}
               </span>
             </>
           );

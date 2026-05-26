@@ -4,50 +4,26 @@ import { useRouter } from "next/navigation";
 import BackHeader from "../../../components/BackHeader";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
+import { useLanguage } from "../../../context/LanguageContext";
+import { t } from "../../../lib/i18n";
 import api from "../../../lib/api";
 
-const AZ_MONTHS = [
-  "Yanvar",
-  "Fevral",
-  "Mart",
-  "Aprel",
-  "May",
-  "İyun",
-  "İyul",
-  "Avqust",
-  "Sentyabr",
-  "Oktyabr",
-  "Noyabr",
-  "Dekabr",
-];
-const DIST_LABELS = {
-  catdirilsin:       "Sizə çatdırılsın",
-  ozum:              "Özüm götürəcəm",
-  usaqlar_evi:       "Uşaqlar evinə",
-  qocalar_evi:       "Qocalar evinə",
-  ehtiyac_sahibleri: "Ehtiyac sahiblərinə",
-};
-
 const C = ({ children, className = "" }) => (
-  <div
-    className={`bg-surface rounded-2xl border border-border shadow-card overflow-hidden ${className}`}
-  >
+  <div className={`bg-surface rounded-2xl border border-border shadow-card overflow-hidden ${className}`}>
     {children}
   </div>
 );
 const CHead = ({ label, colored }) => (
-  <div
-    className={`px-4 py-3 border-b border-border text-xs font-bold tracking-wide uppercase ${colored ? "text-primary bg-primary-surface" : "text-text-secondary bg-surface-alt/40"}`}
-  >
+  <div className={`px-4 py-3 border-b border-border text-xs font-bold tracking-wide uppercase ${colored ? "text-primary bg-primary-surface" : "text-text-secondary bg-surface-alt/40"}`}>
     {label}
   </div>
 );
 
-function Spinner() {
+function Spinner({ label }) {
   return (
     <span className="inline-flex items-center gap-2">
       <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-      Sifariş yaradılır...
+      {label}
     </span>
   );
 }
@@ -63,7 +39,7 @@ function SectionHead({ label, badge, top }) {
   );
 }
 
-function PriceItem({ label, sub, value, isFree, sep }) {
+function PriceItem({ label, sub, value, isFree, sep, freeLabel }) {
   return (
     <div className={`flex items-center justify-between px-3 py-2 gap-2 ${sep ? "border-b border-border/40" : ""}`}>
       <div className="flex-1 min-w-0">
@@ -71,7 +47,7 @@ function PriceItem({ label, sub, value, isFree, sep }) {
         {sub && <p className="text-[10px] text-text-secondary mt-0.5">{sub}</p>}
       </div>
       {isFree
-        ? <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-md shrink-0">Pulsuz</span>
+        ? <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-md shrink-0">{freeLabel}</span>
         : <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-1.5 py-0.5 rounded-md border border-border/40 shrink-0">{value}</span>
       }
     </div>
@@ -81,6 +57,7 @@ function PriceItem({ label, sub, value, isFree, sep }) {
 export default function SummaryPage() {
   const router = useRouter();
   const { order, updateOrder, isLoaded } = useOrder();
+  const { lang } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -93,120 +70,80 @@ export default function SummaryPage() {
   if (!isLoaded || !order) return null;
 
   const {
-    animal,
-    mode,
-    qty,
-    selectedDate,
-    timeSlot,
-    contactInfo,
-    deliveryType,
-    address,
-    dist = {},
-    distFees = {},
-    deliveryFee = 0,
-    totalPrice = 0,
-    cutStyles = {},
-    headBuckets = {},
-    feetBuckets = {},
+    animal, mode, qty, selectedDate, timeSlot,
+    contactInfo, deliveryType, address,
+    dist = {}, distFees = {}, deliveryFee = 0,
+    totalPrice = 0, cutStyles = {},
+    headBuckets = {}, feetBuckets = {},
     selectedWeight,
   } = order;
 
+  const months = t(lang, 'months_long');
   const dateStr = selectedDate
     ? (() => {
         const d = new Date(selectedDate);
-        return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
       })()
     : "-";
 
-  // ── Fees ─────────────────────────────────────────────────────────────────
-  const activeHeadOptions = (animal?.headOptions || []).filter(
-    (o) => o.isActive !== false,
-  );
-  const activeFeetOptions = (animal?.feetOptions || []).filter(
-    (o) => o.isActive !== false,
-  );
+  const getDistLabel = (key) => {
+    const iKey = `distLabel_${key}`;
+    const val = t(lang, iKey);
+    return val !== iKey ? val : key;
+  };
+
+  const activeHeadOptions = (animal?.headOptions || []).filter((o) => o.isActive !== false);
+  const activeFeetOptions = (animal?.feetOptions || []).filter((o) => o.isActive !== false);
   const effectiveCutStyles = animal?.cutStyleOptions || [];
 
-  const headFee = activeHeadOptions.reduce(
-    (s, o) => s + (headBuckets[o.key] || 0) * (o.fee || 0),
-    0,
-  );
-  const feetFee = activeFeetOptions.reduce(
-    (s, o) => s + (feetBuckets[o.key] || 0) * (o.fee || 0),
-    0,
-  );
-  const cutFee = effectiveCutStyles.reduce(
-    (s, cs) => s + (cutStyles[cs.key] || 0) * (cs.fee || 0),
-    0,
-  );
+  const headFee = activeHeadOptions.reduce((s, o) => s + (headBuckets[o.key] || 0) * (o.fee || 0), 0);
+  const feetFee = activeFeetOptions.reduce((s, o) => s + (feetBuckets[o.key] || 0) * (o.fee || 0), 0);
+  const cutFee  = effectiveCutStyles.reduce((s, cs) => s + (cutStyles[cs.key] || 0) * (cs.fee || 0), 0);
   const animalBasePrice = Math.max(0, totalPrice - headFee - feetFee - cutFee);
 
-  // Distribution fee rows (new dist-based system)
   const distRows = Object.entries(dist)
     .filter(([, count]) => (count || 0) > 0)
     .map(([key, count]) => ({
-      key,
-      label: DIST_LABELS[key] || key,
-      count,
-      fee: distFees[key] ?? 0,
+      key, label: getDistLabel(key), count, fee: distFees[key] ?? 0,
     }));
   const distFeeTotal = distRows.reduce((s, r) => s + r.fee, 0);
 
-  // Fallback for serikli / old orders without dist
   const finalDeliveryFee = distRows.length === 0 && deliveryType === "delivery" ? deliveryFee : 0;
   const grandTotal = totalPrice + (distRows.length > 0 ? distFeeTotal : finalDeliveryFee);
 
-  const activeCutRows = effectiveCutStyles.filter(
-    (cs) => (cutStyles[cs.key] || 0) > 0,
-  );
-  const activeHeadRows = activeHeadOptions.filter(
-    (o) => (headBuckets[o.key] || 0) > 0,
-  );
-  const activeFeetRows = activeFeetOptions.filter(
-    (o) => (feetBuckets[o.key] || 0) > 0,
-  );
+  const activeCutRows  = effectiveCutStyles.filter((cs) => (cutStyles[cs.key] || 0) > 0);
+  const activeHeadRows = activeHeadOptions.filter((o) => (headBuckets[o.key] || 0) > 0);
+  const activeFeetRows = activeFeetOptions.filter((o) => (feetBuckets[o.key] || 0) > 0);
 
-  // ── Info rows ─────────────────────────────────────────────────────────────
   const infoRows = [
-    { label: "Heyvan", value: animal?.nameAz || "-" },
-    {
-      label: "Sifariş növü",
-      value: mode === "serikli" ? "Şərikli" : "Tam heyvan",
-    },
-    { label: "Miqdar", value: `${qty} ədəd` },
-    { label: "Kəsim tarixi", value: dateStr },
-    { label: "Çatdırılma vaxtı", value: timeSlot || "-" },
+    { label: t(lang, 'animalRow2'), value: animal?.nameAz || "-" },
+    { label: t(lang, 'orderTypeRow'), value: mode === "serikli" ? t(lang, 'sharedTypeLabel') : t(lang, 'fullAnimal') },
+    { label: t(lang, 'quantityRow'), value: `${qty} ${t(lang, 'pcsLabel')}` },
+    { label: t(lang, 'slaughterDateRow'), value: dateStr },
+    { label: t(lang, 'deliveryTimeRow'), value: timeSlot || "-" },
     ...(mode !== "serikli"
       ? [
           ...(distRows.length > 0
             ? [
                 {
-                  label: "Ət paylanması",
-                  value: distRows
-                    .map((r) => `${r.label}: ${r.count} pay`)
-                    .join("\n"),
+                  label: t(lang, 'meatDistRow'),
+                  value: distRows.map((r) => `${r.label}: ${r.count} ${t(lang, 'shares')}`).join("\n"),
                 },
-                ...(address ? [{ label: "Çatdırılma ünvanı", value: address }] : []),
+                ...(address ? [{ label: t(lang, 'deliveryAddrRow'), value: address }] : []),
               ]
             : [
-                { label: "Çatdırılma növü", value: deliveryType === "delivery" ? "Evə çatdırılma" : "Özüm götürəcəm" },
-                ...(deliveryType === "delivery" && address ? [{ label: "Ünvan", value: address }] : []),
+                { label: t(lang, 'deliveryTypeRow'), value: deliveryType === "delivery" ? t(lang, 'homeDelivery') : t(lang, 'pickupSelf') },
+                ...(deliveryType === "delivery" && address ? [{ label: t(lang, 'addressRow'), value: address }] : []),
               ]),
         ]
       : []),
-    {
-      label: "Əlaqə",
-      value: contactInfo
-        ? `${contactInfo.firstName} ${contactInfo.lastName}`
-        : "-",
-    },
-    { label: "Telefon", value: contactInfo?.phone || "-" },
+    { label: t(lang, 'contactRow'), value: contactInfo ? `${contactInfo.firstName} ${contactInfo.lastName}` : "-" },
+    { label: t(lang, 'phoneRow'), value: contactInfo?.phone || "-" },
   ];
 
   const handleCreateOrder = async () => {
     setLoading(true);
     try {
-      // Build distribution object expected by backend from the dist pool
       let distributionObj;
       if ((dist.catdirilsin || 0) > 0) {
         const loc = order.pickedLocation;
@@ -226,12 +163,10 @@ export default function SummaryPage() {
         distributionObj = { type: charityEntry?.[0] || "ozum" };
       }
 
-      // Cut style allocations
       const cutStyleAllocations = Object.entries(cutStyles)
         .filter(([, count]) => (count || 0) > 0)
         .map(([key, count]) => ({ key, count }));
 
-      // Head / feet counts from buckets
       const headTotalCount = Object.values(headBuckets).reduce((s, v) => s + (v || 0), 0);
       const feetTotalCount = Object.values(feetBuckets).reduce((s, v) => s + (v || 0), 0);
 
@@ -242,12 +177,8 @@ export default function SummaryPage() {
         slaughterDate: selectedDate ? new Date(selectedDate).toISOString() : null,
         deliveryWindow: timeSlot,
         distribution: distributionObj,
-        lambSelection: selectedWeight
-          ? { weightCategoryKey: selectedWeight.key }
-          : undefined,
-        cutStyle: cutStyleAllocations.length > 0
-          ? { allocations: cutStyleAllocations }
-          : undefined,
+        lambSelection: selectedWeight ? { weightCategoryKey: selectedWeight.key } : undefined,
+        cutStyle: cutStyleAllocations.length > 0 ? { allocations: cutStyleAllocations } : undefined,
         qurbanParts: (headTotalCount > 0 || feetTotalCount > 0)
           ? {
               headTotalCount,
@@ -276,40 +207,35 @@ export default function SummaryPage() {
       const res = await api.post("/orders", payload);
       if (res.data.success) {
         const createdOrder = res.data.data.order;
-        updateOrder({
-          createdOrderId: createdOrder.id || createdOrder._id,
-          createdOrder,
-          grandTotal,
-        });
+        updateOrder({ createdOrderId: createdOrder.id || createdOrder._id, createdOrder, grandTotal });
         router.push("/order/payment");
       }
     } catch (err) {
       if (err.response?.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        alert("Sessiya başa çatıb. Zəhmət olmasa yenidən daxil olun.");
+        alert(t(lang, 'sessionExpired'));
         router.push("/order/contact");
         return;
       }
-      alert(
-        err.response?.data?.message ||
-          "Sifariş yaradıla bilmədi. Yenidən cəhd edin.",
-      );
+      alert(err.response?.data?.message || t(lang, 'orderCreatedFail'));
     } finally {
       setLoading(false);
     }
   };
 
+  const freeLabel = t(lang, 'free');
+
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Sifariş xülasəsi" />
+      <BackHeader title={t(lang, 'orderSummary')} />
       <StepHeader currentStep={3} />
 
       <div className="flex-1 page-scroll">
         <div className="p-4 md:p-6 md:grid md:grid-cols-[300px_1fr] md:gap-5 md:items-start max-w-6xl mx-auto w-full">
-          {/* ── LEFT: Sifariş məlumatları (1 column) ──────────────────── */}
+          {/* ── LEFT: Order info ─────────────────────────────────────── */}
           <C>
-            <CHead label="Sifariş məlumatları" colored />
+            <CHead label={t(lang, 'orderInfoCard')} colored />
             <div className="divide-y divide-border/40">
               {infoRows.map((row) => (
                 <div key={row.label} className="flex justify-between items-start px-4 py-2.5 gap-3">
@@ -320,19 +246,19 @@ export default function SummaryPage() {
             </div>
           </C>
 
-          {/* ── RIGHT (QIYMƏT HESABLAMASI) ────────────────────────────────── */}
+          {/* ── RIGHT: Price breakdown ───────────────────────────────── */}
           <div className="mt-4 md:mt-0 flex flex-col gap-4">
             <C className="border-primary/20 shadow-lg">
-              <CHead label="Qiymət hesablaması" colored />
+              <CHead label={t(lang, 'priceCalcCard')} colored />
 
-              {/* Heyvan əsas qiymət - tam eni */}
+              {/* Animal base price */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-surface-alt/20">
                 <div>
-                  <p className="text-xs font-bold text-text-primary">{animal?.nameAz || "Heyvan"}</p>
+                  <p className="text-xs font-bold text-text-primary">{animal?.nameAz || t(lang, 'animalRow2')}</p>
                   <p className="text-[11px] text-text-secondary mt-0.5">
                     {mode === "serikli"
-                      ? `${qty}/${animal?.totalShares || "?"} pay`
-                      : `${qty} ədəd × ${Math.round(animalBasePrice / qty)} AZN`}
+                      ? `${qty}/${animal?.totalShares || "?"} ${t(lang, 'shares')}`
+                      : `${qty} ${t(lang, 'pcsLabel')} × ${Math.round(animalBasePrice / qty)} AZN`}
                   </p>
                 </div>
                 <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-1 rounded-lg border border-border/40">
@@ -340,22 +266,21 @@ export default function SummaryPage() {
                 </span>
               </div>
 
-              {/* 2-column grid: sol=Doğrama, sağ=Baş+Ayaq (alt-alta) */}
+              {/* Cut / head / feet grid */}
               {(activeCutRows.length > 0 || activeHeadRows.length > 0 || activeFeetRows.length > 0) && (
                 <div className="grid grid-cols-2 border-b border-border/50">
-
-                  {/* SOL SÜTUN — Doğrama üsulu */}
                   <div className="border-r border-border/50">
                     {activeCutRows.length > 0 ? (
                       <>
-                        <SectionHead label="Doğrama üsulu" />
+                        <SectionHead label={t(lang, 'cutMethodSection')} />
                         {activeCutRows.map((cs, i) => (
                           <PriceItem
                             key={cs.key}
                             label={cs.labelAz}
-                            sub={`${cutStyles[cs.key]} heyvan`}
+                            sub={`${cutStyles[cs.key]} ${t(lang, 'animalUnit')}`}
                             value={`+${cs.fee * cutStyles[cs.key]} AZN`}
                             isFree={cs.fee === 0}
+                            freeLabel={freeLabel}
                             sep={i < activeCutRows.length - 1}
                           />
                         ))}
@@ -363,18 +288,18 @@ export default function SummaryPage() {
                     ) : <div className="h-full" />}
                   </div>
 
-                  {/* SAĞ SÜTUN — Baş emalı üstdə, Ayaq emalı altda */}
                   <div>
                     {activeHeadRows.length > 0 && (
                       <>
-                        <SectionHead label="Baş emalı" badge={`${qty} baş`} />
+                        <SectionHead label={t(lang, 'headProcessing')} badge={`${qty} ${t(lang, 'headsLabel')}`} />
                         {activeHeadRows.map((o, i) => (
                           <PriceItem
                             key={o.key}
                             label={o.labelAz}
-                            sub={`${headBuckets[o.key]} baş`}
+                            sub={`${headBuckets[o.key]} ${t(lang, 'headsLabel')}`}
                             value={`+${o.fee * headBuckets[o.key]} AZN`}
                             isFree={o.fee === 0}
+                            freeLabel={freeLabel}
                             sep={i < activeHeadRows.length - 1}
                           />
                         ))}
@@ -382,14 +307,15 @@ export default function SummaryPage() {
                     )}
                     {activeFeetRows.length > 0 && (
                       <>
-                        <SectionHead label="Ayaq emalı" badge={`${qty * 4} ayaq`} top={activeHeadRows.length > 0} />
+                        <SectionHead label={t(lang, 'feetProcessing')} badge={`${qty * 4} ${t(lang, 'feetLabel')}`} top={activeHeadRows.length > 0} />
                         {activeFeetRows.map((o, i) => (
                           <PriceItem
                             key={o.key}
                             label={o.labelAz}
-                            sub={`${feetBuckets[o.key]} ayaq`}
+                            sub={`${feetBuckets[o.key]} ${t(lang, 'feetLabel')}`}
                             value={`+${o.fee * feetBuckets[o.key]} AZN`}
                             isFree={o.fee === 0}
+                            freeLabel={freeLabel}
                             sep={i < activeFeetRows.length - 1}
                           />
                         ))}
@@ -399,10 +325,10 @@ export default function SummaryPage() {
                 </div>
               )}
 
-              {/* Ət paylanması — tam eni */}
+              {/* Dist rows */}
               {distRows.length > 0 && (
                 <div className="border-b border-border/50">
-                  <SectionHead label="Ət paylanması" badge={`${Object.values(dist).reduce((s, v) => s + (v || 0), 0)} pay`} />
+                  <SectionHead label={t(lang, 'meatDistSection')} badge={`${Object.values(dist).reduce((s, v) => s + (v || 0), 0)} ${t(lang, 'shares')}`} />
                   <div className="grid grid-cols-2">
                     {distRows.map((row, i) => (
                       <div
@@ -411,10 +337,10 @@ export default function SummaryPage() {
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-[11px] font-bold text-text-primary leading-tight">{row.label}</p>
-                          <p className="text-[10px] text-text-secondary">{row.count} pay</p>
+                          <p className="text-[10px] text-text-secondary">{row.count} {t(lang, 'shares')}</p>
                         </div>
                         {row.fee === 0
-                          ? <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-md shrink-0">Pulsuz</span>
+                          ? <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-md shrink-0">{freeLabel}</span>
                           : <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-1.5 py-0.5 rounded-md border border-border/40 shrink-0">+{row.fee} AZN</span>
                         }
                       </div>
@@ -423,22 +349,22 @@ export default function SummaryPage() {
                 </div>
               )}
 
-              {/* Çatdırılma */}
+              {/* Delivery */}
               {finalDeliveryFee > 0 && (
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/50">
-                  <span className="text-xs font-medium text-text-secondary">Çatdırılma</span>
+                  <span className="text-xs font-medium text-text-secondary">{t(lang, 'deliveryRow')}</span>
                   <span className="text-xs font-extrabold text-text-primary">+{finalDeliveryFee} AZN</span>
                 </div>
               )}
 
-              {/* Cəmi */}
+              {/* Total */}
               <div className="flex justify-between items-center px-4 py-4 bg-primary-surface/20">
                 <div className="flex flex-col">
                   <span className="font-black text-text-primary text-xs uppercase tracking-wider">
-                    Yekun Məbləğ
+                    {t(lang, 'totalAmountHeader')}
                   </span>
                   <span className="text-[10px] text-text-muted font-medium mt-0.5">
-                    Bütün xidmətlər daxil
+                    {t(lang, 'allServicesIncl')}
                   </span>
                 </div>
                 <span className="text-2xl font-black text-primary bg-white px-3 py-1 rounded-xl border border-primary/10 shadow-sm">
@@ -446,18 +372,17 @@ export default function SummaryPage() {
                 </span>
               </div>
             </C>
-
           </div>
         </div>
 
-        {/* ── MOBILE action bar ─────────────────────────────────────────── */}
+        {/* ── Mobile action bar ─────────────────────────────────────── */}
         <div className="mobile-action-bar">
           <button
             className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
             onClick={handleCreateOrder}
             disabled={loading}
           >
-            {loading ? <Spinner /> : "Sifarişi təsdiqlə →"}
+            {loading ? <Spinner label={t(lang, 'orderCreating')} /> : t(lang, 'confirmOrder')}
           </button>
         </div>
       </div>

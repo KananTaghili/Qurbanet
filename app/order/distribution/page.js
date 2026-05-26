@@ -12,6 +12,8 @@ import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
+import { useLanguage } from "../../../context/LanguageContext";
+import { t } from "../../../lib/i18n";
 
 const AZ_OPERATORS = ["10","20","40","41","44","50","51","55","60","70","77","99"];
 const DIST_STATE_KEY = "qurbanet_dist_state";
@@ -60,7 +62,7 @@ const Card = ({ children, className = "" }) => (
   </div>
 );
 
-function DistRow({ optKey, meta, label, fee, min, count, canInc, onDec, onInc, dimmed, last, disabled }) {
+function DistRow({ optKey, meta, label, fee, min, count, canInc, onDec, onInc, dimmed, last, disabled, lang }) {
   const { Icon, color, light } = meta;
   return (
     <div className={`flex items-center gap-3 px-3 py-3 transition-opacity ${disabled ? "opacity-80" : dimmed ? "opacity-40" : ""} ${!last ? "border-b border-border" : ""}`}>
@@ -70,14 +72,14 @@ function DistRow({ optKey, meta, label, fee, min, count, canInc, onDec, onInc, d
       <div className="flex-1 min-w-0">
         <div className="text-xs font-bold text-text-primary">{label}</div>
         <div className="text-[10px] font-semibold flex items-center gap-1.5" style={{ color: disabled ? "#9CA3AF" : color }}>
-          {fee > 0 ? `+${fee} AZN` : "Pulsuz"}
+          {fee > 0 ? `+${fee} AZN` : t(lang, 'free')}
           {!disabled && min > 0 && (
-            <span className="text-amber-600 font-bold">• ən azı {min}</span>
+            <span className="text-amber-600 font-bold">• {t(lang, 'minShares')} {min}</span>
           )}
         </div>
       </div>
       {disabled ? (
-        <span className="bg-red-100 text-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0">Deaktiv</span>
+        <span className="bg-red-100 text-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0">{t(lang, 'deactivated')}</span>
       ) : (
         <div className="flex items-center gap-2 flex-shrink-0">
           <button onClick={onDec} disabled={count <= 0}
@@ -99,6 +101,13 @@ export default function DistributionPage() {
   const router = useRouter();
   const { order, updateOrder, isLoaded } = useOrder();
   const { user } = useAuth();
+  const { lang } = useLanguage();
+
+  const distLabel = (key, data) => {
+    const iKey = `distLabel_${key}`;
+    const val = t(lang, iKey);
+    return val !== iKey ? val : (data?.labelAz || key);
+  };
 
   // Single distribution pool
   const [dist, setDist]       = useState({ catdirilsin: 0, ozum: 0 });
@@ -300,19 +309,6 @@ export default function DistributionPage() {
       return;
     }
 
-    // Guest: check if saved contact info exists
-    try {
-      const raw = localStorage.getItem('contact_info');
-      if (raw) {
-        const ci = JSON.parse(raw);
-        if (ci?.firstName && (ci?.phone || ci?.email)) {
-          updateOrder({ ...distPatch, contactInfo: ci });
-          router.push('/order/summary');
-          return;
-        }
-      }
-    } catch (_) {}
-
     updateOrder(distPatch);
     router.push("/order/contact");
   };
@@ -329,7 +325,7 @@ export default function DistributionPage() {
         />
       )}
     <div className="flex flex-col h-screen bg-bg overflow-hidden">
-      <BackHeader title="Ət paylanması" />
+      <BackHeader title={t(lang, 'distribution')} />
       <StepHeader currentStep={2} />
 
       <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
@@ -345,7 +341,7 @@ export default function DistributionPage() {
               {/* Header */}
               <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center justify-between">
                 <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-                  {isSimpleMode ? "Çatdırılma üsulu" : "Ət paylanması"}
+                  {isSimpleMode ? t(lang, 'distMethod') : t(lang, 'distribution')}
                 </span>
                 {!isSimpleMode && (
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -357,7 +353,7 @@ export default function DistributionPage() {
               {submitAttempted && !assignedOk && (
                 <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
                   <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                  {isSimpleMode ? "Çatdırılma üsulunu seçin" : `${remaining} pay bölüşdürülməyib`}
+                  {isSimpleMode ? t(lang, 'selectDelivery') : `${remaining} ${t(lang, 'shares')} bölüşdürülməyib`}
                 </div>
               )}
 
@@ -379,9 +375,9 @@ export default function DistributionPage() {
                             <meta.Icon className="w-5 h-5" style={{ color: meta.color }} />
                           </div>
                           <div className="flex-1">
-                            <div className="text-sm font-bold text-text-primary">{data.labelAz || meta.staticLabel}</div>
+                            <div className="text-sm font-bold text-text-primary">{distLabel(key, data)}</div>
                             <div className="text-xs font-semibold mt-0.5" style={{ color: meta.color }}>
-                              {(data.fee || 0) > 0 ? `+${data.fee} AZN` : "Pulsuz"}
+                              {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, 'free')}
                             </div>
                           </div>
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -398,7 +394,7 @@ export default function DistributionPage() {
                     <>
                       <div className="flex items-center gap-2 mx-3 my-1">
                         <div className="flex-1 h-px bg-border" />
-                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Xeyriyyə olaraq</span>
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">{t(lang, 'charityAs')}</span>
                         <div className="flex-1 h-px bg-border" />
                       </div>
                       {charityKeys.map((key, idx) => {
@@ -409,7 +405,7 @@ export default function DistributionPage() {
                             key={key}
                             optKey={key}
                             meta={meta}
-                            label={data.labelAz || key}
+                            label={distLabel(key, data)}
                             fee={data.fee ?? 0}
                             min={0}
                             count={0}
@@ -419,6 +415,7 @@ export default function DistributionPage() {
                             dimmed={false}
                             disabled={true}
                             last={idx === charityKeys.length - 1}
+                            lang={lang}
                           />
                         );
                       })}
@@ -440,7 +437,7 @@ export default function DistributionPage() {
                         key={key}
                         optKey={key}
                         meta={meta}
-                        label={data.labelAz || meta.staticLabel}
+                        label={distLabel(key, data)}
                         fee={data.fee ?? 0}
                         min={0}
                         count={count}
@@ -449,6 +446,7 @@ export default function DistributionPage() {
                         onInc={() => handleChange(key, 1)}
                         dimmed={blocked && count === 0}
                         last={isLast}
+                        lang={lang}
                       />
                     );
                   })}
@@ -457,7 +455,7 @@ export default function DistributionPage() {
                   {charityKeys.length > 0 && (
                     <div className="flex items-center gap-2 mx-3 my-1">
                       <div className="flex-1 h-px bg-border" />
-                      <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Xeyriyyə olaraq</span>
+                      <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">{t(lang, 'charityAs')}</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
                   )}
@@ -475,7 +473,7 @@ export default function DistributionPage() {
                         key={key}
                         optKey={key}
                         meta={meta}
-                        label={data.labelAz || key}
+                        label={distLabel(key, data)}
                         fee={data.fee ?? 0}
                         min={minVal}
                         count={count}
@@ -485,6 +483,7 @@ export default function DistributionPage() {
                         dimmed={false}
                         disabled={isDisabled}
                         last={idx === charityKeys.length - 1}
+                        lang={lang}
                       />
                     );
                   })}
@@ -493,7 +492,7 @@ export default function DistributionPage() {
                   {remaining > 0 && (
                     <div className="mx-3 mb-3 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
                       <Info className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                      <p className="text-[11px] text-amber-700 font-medium">{remaining} pay hələ bölüşdürülməyib</p>
+                      <p className="text-[11px] text-amber-700 font-medium">{remaining} {t(lang, 'shares')} hələ bölüşdürülməyib</p>
                     </div>
                   )}
 
@@ -501,7 +500,7 @@ export default function DistributionPage() {
                   {bothDelivBlocked && (
                     <div className="mx-3 mb-3 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2">
                       <Info className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                      <p className="text-[11px] text-blue-700 font-medium">Çatdırılma və özüm götürəcəm eyni anda seçilə bilməz</p>
+                      <p className="text-[11px] text-blue-700 font-medium">{t(lang, 'mutualExclusionNote')}</p>
                     </div>
                   )}
                 </>
@@ -512,13 +511,13 @@ export default function DistributionPage() {
             {(dist.ozum || 0) > 0 && meatPickupLocation && (
               <Card className="lg:hidden">
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">Götürmə məkanı</span>
+                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">{t(lang, 'pickupLocation')}</span>
                 </div>
                 <div className="p-3 flex flex-col gap-2">
                   <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
                     <Store className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-emerald-700 mb-0.5">Əti götürəcəyiniz yer</p>
+                      <p className="text-xs font-bold text-emerald-700 mb-0.5">{t(lang, 'pickupHere')}</p>
                       <p className="text-xs text-emerald-600 leading-snug">{meatPickupLocation.address}</p>
                     </div>
                   </div>
@@ -526,7 +525,7 @@ export default function DistributionPage() {
                     <a href={`https://www.google.com/maps?q=${meatPickupLocation.lat},${meatPickupLocation.lng}`}
                       target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full border border-primary/30 text-primary font-bold text-xs rounded-xl py-2 bg-primary-surface hover:bg-primary-surface/80 transition-all">
-                      <MapPin className="w-3.5 h-3.5" /> Google Maps-də aç
+                      <MapPin className="w-3.5 h-3.5" /> {t(lang, 'openGoogleMaps')}
                     </a>
                   )}
                 </div>
@@ -537,28 +536,28 @@ export default function DistributionPage() {
             {needsLocation && (
               <Card className={`lg:hidden ${submitAttempted && !addrOk ? "ring-2 ring-red-400 border-transparent" : ""}`}>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">Çatdırılma ünvanı</span>
+                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">{t(lang, 'deliveryAddress')}</span>
                 </div>
                 <div className="p-3 flex flex-col gap-2">
                   <button type="button" onClick={() => setShowMap(true)}
                     className="flex items-center justify-center gap-2 w-full bg-primary-surface border border-primary/30 text-primary font-bold text-xs rounded-xl py-2.5 cursor-pointer hover:bg-primary-surface/80 transition-all">
-                    <MapPin className="w-3.5 h-3.5" /> Xəritədə konum seç
+                    <MapPin className="w-3.5 h-3.5" /> {t(lang, 'selectOnMap')}
                   </button>
 
                   {pickedLocation ? (
                     <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-bold text-emerald-700 mb-0.5">Konum seçildi</p>
+                        <p className="text-[11px] font-bold text-emerald-700 mb-0.5">{t(lang, 'locationSelected')}</p>
                         <p className="text-[11px] text-emerald-600 leading-snug">{pickedLocation.address}</p>
                       </div>
                     </div>
                   ) : submitAttempted && !pickedLocation ? (
                     <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
-                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" /> Xəritədən konum seçin.
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" /> {t(lang, 'selectLocationError')}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-text-muted italic text-center">Hələ konum seçilməyib</p>
+                    <p className="text-[11px] text-text-muted italic text-center">{t(lang, 'noLocation')}</p>
                   )}
 
                   {/* ── Phone numbers ── */}
@@ -567,7 +566,7 @@ export default function DistributionPage() {
                       <div className="flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-text-secondary" />
                         <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wide">
-                          Əlaqə nömrəsi <span className="text-red-500">*</span>
+                          {t(lang, 'contactPhone')} <span className="text-red-500">*</span>
                         </span>
                       </div>
                       <button
@@ -580,7 +579,7 @@ export default function DistributionPage() {
                             : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
                         }`}
                       >
-                        <Plus className="w-3 h-3" /> Nömrə əlavə et
+                        <Plus className="w-3 h-3" /> {t(lang, 'addPhone')}
                       </button>
                     </div>
 
@@ -623,10 +622,10 @@ export default function DistributionPage() {
                             )}
                           </div>
                           {isEmpty && (
-                            <p className="text-[10px] text-red-500 font-semibold px-1">Nömrə daxil edin</p>
+                            <p className="text-[10px] text-red-500 font-semibold px-1">{t(lang, 'enterPhone')}</p>
                           )}
                           {isInvalid && (
-                            <p className="text-[10px] text-red-500 font-semibold px-1">Düzgün AZ nömrəsi: 50 XXX XX XX</p>
+                            <p className="text-[10px] text-red-500 font-semibold px-1">{t(lang, 'validAZPhone')}</p>
                           )}
                         </div>
                       );
@@ -637,7 +636,7 @@ export default function DistributionPage() {
                   <textarea
                     value={addressNote}
                     onChange={(e) => setAddressNote(e.target.value)}
-                    placeholder="Əlavə qeyd (mənzil, giriş, mərtəbə...)"
+                    placeholder={t(lang, 'addressNotePlaceholder')}
                     rows={2}
                     className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2.5 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
                   />
@@ -654,13 +653,13 @@ export default function DistributionPage() {
             {(dist.ozum || 0) > 0 && meatPickupLocation && (
               <Card>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                  <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">Götürmə məkanı</span>
+                  <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">{t(lang, 'pickupLocation')}</span>
                 </div>
                 <div className="p-3 flex flex-col gap-2">
                   <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
                     <Store className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-emerald-700 mb-0.5">Əti götürəcəyiniz yer</p>
+                      <p className="text-xs font-bold text-emerald-700 mb-0.5">{t(lang, 'pickupHere')}</p>
                       <p className="text-xs text-emerald-600 leading-snug">{meatPickupLocation.address}</p>
                     </div>
                   </div>
@@ -668,7 +667,7 @@ export default function DistributionPage() {
                     <a href={`https://www.google.com/maps?q=${meatPickupLocation.lat},${meatPickupLocation.lng}`}
                       target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full border border-primary/30 text-primary font-bold text-xs rounded-xl py-2 bg-primary-surface hover:bg-primary-surface/80 transition-all">
-                      <MapPin className="w-3.5 h-3.5" /> Google Maps-də aç
+                      <MapPin className="w-3.5 h-3.5" /> {t(lang, 'openGoogleMaps')}
                     </a>
                   )}
                 </div>
@@ -679,28 +678,28 @@ export default function DistributionPage() {
             {needsLocation && (
               <Card className={submitAttempted && !addrOk ? "ring-2 ring-red-400 border-transparent" : ""}>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                  <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">Çatdırılma ünvanı</span>
+                  <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">{t(lang, 'deliveryAddress')}</span>
                 </div>
                 <div className="p-3 flex flex-col gap-2">
                   <button type="button" onClick={() => setShowMap(true)}
                     className="flex items-center justify-center gap-2 w-full bg-primary-surface border border-primary/30 text-primary font-bold text-xs rounded-xl py-2.5 cursor-pointer hover:bg-primary-surface/80 transition-all">
-                    <MapPin className="w-3.5 h-3.5" /> Xəritədə konum seç
+                    <MapPin className="w-3.5 h-3.5" /> {t(lang, 'selectOnMap')}
                   </button>
 
                   {pickedLocation ? (
                     <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-bold text-emerald-700 mb-0.5">Konum seçildi</p>
+                        <p className="text-[11px] font-bold text-emerald-700 mb-0.5">{t(lang, 'locationSelected')}</p>
                         <p className="text-[11px] text-emerald-600 leading-snug">{pickedLocation.address}</p>
                       </div>
                     </div>
                   ) : submitAttempted && !pickedLocation ? (
                     <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
-                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" /> Xəritədən konum seçin.
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" /> {t(lang, 'selectLocationError')}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-text-muted italic text-center">Hələ konum seçilməyib</p>
+                    <p className="text-[11px] text-text-muted italic text-center">{t(lang, 'noLocation')}</p>
                   )}
 
                   {/* Phone numbers */}
@@ -709,7 +708,7 @@ export default function DistributionPage() {
                       <div className="flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-text-secondary" />
                         <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wide">
-                          Əlaqə nömrəsi <span className="text-red-500">*</span>
+                          {t(lang, 'contactPhone')} <span className="text-red-500">*</span>
                         </span>
                       </div>
                       <button type="button" disabled={phones.length >= 4}
@@ -719,7 +718,7 @@ export default function DistributionPage() {
                             ? "bg-border text-text-muted cursor-default"
                             : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
                         }`}>
-                        <Plus className="w-3 h-3" /> Nömrə əlavə et
+                        <Plus className="w-3 h-3" /> {t(lang, 'addPhone')}
                       </button>
                     </div>
                     {phones.map((phone, idx) => {
@@ -757,7 +756,7 @@ export default function DistributionPage() {
 
                   {/* Address note */}
                   <textarea value={addressNote} onChange={(e) => setAddressNote(e.target.value)}
-                    placeholder="Əlavə qeyd (mənzil, giriş, mərtəbə...)" rows={2}
+                    placeholder={t(lang, 'addressNotePlaceholder')} rows={2}
                     className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2.5 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none" />
                 </div>
               </Card>
@@ -765,13 +764,13 @@ export default function DistributionPage() {
 
             <Card>
               <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">Sifariş xülasəsi</span>
+                <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">{t(lang, 'orderSummaryCard')}</span>
               </div>
               <div className="divide-y divide-border">
                 {[
-                  { label: "Seçilən heyvan", value: order.animal?.nameAz },
-                  { label: "Sifariş miqdarı", value: `${qty} ədəd` },
-                  ...(needsLocation && deliveryFee > 0 ? [{ label: "Çatdırılma haqqı", value: `${deliveryFee} AZN` }] : []),
+                  { label: t(lang, 'animalRow'), value: order.animal?.nameAz },
+                  { label: t(lang, 'orderQty'), value: `${qty} ${t(lang, 'pcsLabel')}` },
+                  ...(needsLocation && deliveryFee > 0 ? [{ label: t(lang, 'deliveryFeeRow'), value: `${deliveryFee} AZN` }] : []),
                 ].map((row) => (
                   <div key={row.label} className="flex justify-between items-center px-3 py-2.5">
                     <span className="text-[11px] text-text-secondary font-medium">{row.label}</span>
@@ -781,13 +780,13 @@ export default function DistributionPage() {
               </div>
               <div className="p-3 border-t border-border bg-surface-alt/30">
                 <div className="flex justify-between items-baseline mb-3">
-                  <span className="text-[10px] font-bold text-text-secondary uppercase">Yekun Məbləğ:</span>
+                  <span className="text-[10px] font-bold text-text-secondary uppercase">{t(lang, 'totalAmountLabel')}:</span>
                   <span className="text-xl font-extrabold text-primary">{totalAmount.toFixed(0)} AZN</span>
                 </div>
                 <button type="button" onClick={handleContinue}
                   disabled={!assignedOk || !addrOk}
                   className="w-full bg-primary hover:bg-primary/95 text-white font-extrabold text-xs py-3 rounded-xl flex items-center justify-center gap-1 shadow-md transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                  Davam et <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
+                  {t(lang, 'continue')} <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
                 </button>
               </div>
             </Card>
@@ -799,7 +798,7 @@ export default function DistributionPage() {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-4 py-2.5 z-[999]">
         <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
           <div className="flex flex-col">
-            <span className="text-[9px] text-text-secondary font-bold uppercase tracking-wide">Ümumi Məbləğ</span>
+            <span className="text-[9px] text-text-secondary font-bold uppercase tracking-wide">{t(lang, 'totalAmountLabel')}</span>
             <span className="text-xl font-black text-primary leading-tight">{totalAmount.toFixed(0)} AZN</span>
           </div>
           <button type="button" onClick={handleContinue}

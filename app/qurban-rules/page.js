@@ -7,99 +7,17 @@ import {
 } from 'lucide-react';
 import BackHeader from '../../components/BackHeader';
 import BottomNav from '../../components/BottomNav';
+import { useLanguage } from '../../context/LanguageContext';
+import { t, QURBAN_SECTIONS_TEXT } from '../../lib/i18n';
 
-const SECTIONS = [
-  {
-    Icon: BookOpen,
-    title: 'Məqsədinə görə qurban növləri',
-    accent: '#1B5E20',
-    light: '#E8F5E9',
-    items: [
-      'Vacib qurban — Qurban bayramı münasibətilə kəsilən qurban',
-      'Nəzr qurbanı — Allah yolunda nəzir edilmiş qurban',
-      'Əqiqə qurbanı — Uşağın doğulması münasibətilə kəsilən qurban',
-      'Kəffarə qurbanı — Günahları yumaq üçün kəsilən qurban',
-      'Şükr qurbanı — Nemətə şükür olaraq kəsilən qurban',
-      'Xeyir-dua qurbanı — Müxtəlif xeyirxah mərasimlər üçün kəsilən qurban',
-    ],
-  },
-  {
-    Icon: CheckCircle2,
-    title: 'Qurbanlığın Şərtləri',
-    accent: '#2E7D32',
-    light: '#F1F8E9',
-    items: [
-      'Heyvan sağlam olmalı, görünür qüsurdan azad olmalıdır',
-      'Heyvan müəyyən yaşa çatmış olmalıdır (qoyun 1, inək 2, dəvə 5 yaş)',
-      'Heyvanın bədəninin əksər hissəsi salamat olmalıdır',
-      'Kəsim Qurban bayramının müəyyən vaxtında edilməlidir',
-      'Qurban sahibi müsəlman olmalıdır',
-    ],
-  },
-  {
-    Icon: User,
-    title: 'Kimlər qurban kəsməlidir?',
-    accent: '#1565C0',
-    light: '#E3F2FD',
-    items: [
-      'Ağlı başında olan, azad, müsəlman hər bir yetkin şəxs',
-      'Nisab miqdarı var-dövlətə malik olan şəxslər',
-      'Müsafir olmayan (daimi yaşayış yerindəki) şəxslər',
-    ],
-  },
-  {
-    Icon: Beef,
-    title: 'Qurbanlıq ət necə bölünür?',
-    accent: '#E65100',
-    light: '#FBE9E7',
-    items: [
-      '1/3 hissəsi özü üçün saxlanılmalıdır',
-      '1/3 hissəsi qohum-əqrabaya paylanmalıdır',
-      '1/3 hissəsi kasıb-yoxsullara paylanmalıdır',
-    ],
-  },
-  {
-    Icon: Sword,
-    title: 'Heyvan kəsməyin şərtləri',
-    accent: '#6A1B9A',
-    light: '#F3E5F5',
-    items: [
-      'Kəsən şəxs müsəlman olmalıdır',
-      'Bıçaq kəskin olmalıdır',
-      'Bismillah deyilməlidir',
-      'Kəsim dörd damarı kəsməklə olmalıdır',
-      'Heyvan qibləyə tərəf döndərilməlidir',
-      'Heyvan əziyyət çəkməməlidir',
-      'Kəsim günü müəyyən edilmiş vaxtda edilməlidir',
-    ],
-  },
-  {
-    Icon: Flower2,
-    title: 'Heyvan kəsməyin ədəbləri',
-    accent: '#00897B',
-    light: '#E0F2F1',
-    items: [
-      'Heyvanı yemləndirmək',
-      'Bıçağı heyvanın gözündən gizlətmək',
-      'Heyvanı naziklik ilə uzatmaq',
-      'Salavat gətirmək',
-      'Dua oxumaq',
-      'Heyvanı sürüdən ayrı aparmaq',
-      'Əməliyyatdan sonra şükür etmək',
-    ],
-  },
-  {
-    Icon: XCircle,
-    title: 'Çəkinilməli əməllər',
-    accent: '#B71C1C',
-    light: '#FFEBEE',
-    items: [
-      'Qurban kəsmədən dırnaq və saçları kəsməmək',
-      'Heyvanı digər heyvanların yanında kəsməmək',
-      'Kəsimə düzgün hazırlaşmamaq',
-      'Qurban əti satmaq',
-    ],
-  },
+const SECTION_META = [
+  { Icon: BookOpen,    accent: '#1B5E20', light: '#E8F5E9' },
+  { Icon: CheckCircle2, accent: '#2E7D32', light: '#F1F8E9' },
+  { Icon: User,        accent: '#1565C0', light: '#E3F2FD' },
+  { Icon: Beef,        accent: '#E65100', light: '#FBE9E7' },
+  { Icon: Sword,       accent: '#6A1B9A', light: '#F3E5F5' },
+  { Icon: Flower2,     accent: '#00897B', light: '#E0F2F1' },
+  { Icon: XCircle,     accent: '#B71C1C', light: '#FFEBEE' },
 ];
 
 function Accordion({ section, open, onToggle }) {
@@ -146,13 +64,20 @@ function Accordion({ section, open, onToggle }) {
 
 export default function QurbanRulesPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
   const [openIndex, setOpenIndex] = useState(0);
+
+  const textSections = QURBAN_SECTIONS_TEXT[lang] || QURBAN_SECTIONS_TEXT.az;
+  const sections = textSections.map((s, i) => ({
+    ...s,
+    ...(SECTION_META[i] || SECTION_META[0]),
+  }));
 
   const handleToggle = (i) => setOpenIndex(prev => prev === i ? null : i);
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Qurbanın Əhkamları" onBack={() => router.push('/')} />
+      <BackHeader title={t(lang, 'qurbanRulesTitle')} onBack={() => router.push('/')} />
 
       <div className="flex-1 page-scroll">
 
@@ -167,9 +92,9 @@ export default function QurbanRulesPage() {
               <BookOpen className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-extrabold text-white leading-tight">Qurbanın Əhkamları</h1>
+              <h1 className="text-lg font-extrabold text-white leading-tight">{t(lang, 'qurbanRulesTitle')}</h1>
               <p className="text-sm text-white/70 mt-1 leading-snug max-w-sm">
-                İslam dininə görə qurban kəsmənin qaydaları, şərtləri və ədəbləri.
+                {t(lang, 'qurbanRulesDesc')}
               </p>
             </div>
           </div>
@@ -178,11 +103,11 @@ export default function QurbanRulesPage() {
         {/* Accordion — desktop: two independent flex columns, mobile: single column */}
         <div className="hidden md:flex gap-3">
           <div className="flex flex-col gap-3 flex-1">
-            {SECTIONS.filter((_, i) => i % 2 === 0).map((section, idx) => {
+            {sections.filter((_, i) => i % 2 === 0).map((section, idx) => {
               const realIdx = idx * 2;
               return (
                 <Accordion
-                  key={section.title}
+                  key={realIdx}
                   section={section}
                   open={openIndex === realIdx}
                   onToggle={() => handleToggle(realIdx)}
@@ -191,11 +116,11 @@ export default function QurbanRulesPage() {
             })}
           </div>
           <div className="flex flex-col gap-3 flex-1">
-            {SECTIONS.filter((_, i) => i % 2 !== 0).map((section, idx) => {
+            {sections.filter((_, i) => i % 2 !== 0).map((section, idx) => {
               const realIdx = idx * 2 + 1;
               return (
                 <Accordion
-                  key={section.title}
+                  key={realIdx}
                   section={section}
                   open={openIndex === realIdx}
                   onToggle={() => handleToggle(realIdx)}
@@ -205,9 +130,9 @@ export default function QurbanRulesPage() {
           </div>
         </div>
         <div className="md:hidden flex flex-col gap-3">
-          {SECTIONS.map((section, i) => (
+          {sections.map((section, i) => (
             <Accordion
-              key={section.title}
+              key={i}
               section={section}
               open={openIndex === i}
               onToggle={() => handleToggle(i)}
@@ -221,7 +146,7 @@ export default function QurbanRulesPage() {
             <HandHeart className="w-5 h-5 text-primary" />
           </div>
           <p className="text-sm text-primary font-semibold leading-snug">
-            "Qurbanlarınız Allah qatında qəbul olsun. Allah sizdən razı olsun."
+            {t(lang, 'qurbanFooterText')}
           </p>
         </div>
       </div>

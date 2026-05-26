@@ -8,42 +8,33 @@ import {
 import BackHeader from "../../components/BackHeader";
 import BottomNav from "../../components/BottomNav";
 import api from "../../lib/api";
+import { useLanguage } from "../../context/LanguageContext";
+import { t } from "../../lib/i18n";
 
 const ICON_CONFIG = {
-  usaqlar_evi: {
-    Icon: Home,
-    accent: "#1B5E20",
-    light: "#E8F5E9",
-    label: "Uşaqlar evi",
-  },
-  qocalar_evi: {
-    Icon: Heart,
-    accent: "#6A1B9A",
-    light: "#F3E5F5",
-    label: "Qocalar evi",
-  },
-  ehtiyac_sahibleri: {
-    Icon: Users,
-    accent: "#1565C0",
-    light: "#E3F2FD",
-    label: "Ehtiyac sahibləri",
-  },
+  usaqlar_evi:       { Icon: Home,  accent: "#1B5E20", light: "#E8F5E9" },
+  qocalar_evi:       { Icon: Heart, accent: "#6A1B9A", light: "#F3E5F5" },
+  ehtiyac_sahibleri: { Icon: Users, accent: "#1565C0", light: "#E3F2FD" },
 };
 
 const FALLBACK_TARGETS = [
-  { key: "usaqlar_evi",       nameAz: "Uşaqlar evi",        description: "Uşaq evlərindəki körpələrə ət paylanır.", isActive: true },
+  { key: "usaqlar_evi",       nameAz: "Uşaqlar evi",        description: "Uşaq evlərindəki körpələrə ət paylanır.",  isActive: true },
   { key: "qocalar_evi",       nameAz: "Qocalar evi",         description: "Yaşlı evlərindəki sakinlərə ət paylanır.", isActive: true },
   { key: "ehtiyac_sahibleri", nameAz: "Ehtiyac sahibləri",   description: "Birbaşa ehtiyaclı ailələrə ət paylanır.", isActive: true },
 ];
 
-const INFO_ITEMS = [
-  { Icon: Utensils, text: "Kəsilmiş ət seçdiyiniz istiqamətə paylanır" },
-  { Icon: Truck,    text: "Çatdırılma xərci qiymətə daxildir" },
-  { Icon: Camera,   text: "Paylanma prosesi foto ilə təsdiqlənir" },
-];
+const INFO_ICON_LIST = [Utensils, Truck, Camera];
+const INFO_KEYS      = ['charityInfo1', 'charityInfo2', 'charityInfo3'];
+
+const DIST_LABEL_KEYS = {
+  usaqlar_evi:       'distLabel_usaqlar_evi',
+  qocalar_evi:       'distLabel_qocalar_evi',
+  ehtiyac_sahibleri: 'distLabel_ehtiyac_sahibleri',
+};
 
 export default function NeedSupportPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
   const [options, setOptions]   = useState(FALLBACK_TARGETS);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading]   = useState(true);
@@ -80,10 +71,14 @@ export default function NeedSupportPage() {
   };
 
   const selectedItem = options.find(o => o.key === selected);
+  const getItemName = (item) => {
+    const key = DIST_LABEL_KEYS[item.key];
+    return key ? t(lang, key) : (item.nameAz || item.key);
+  };
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Xeyriyyə" onBack={() => router.push("/")} />
+      <BackHeader title={t(lang, 'charity')} onBack={() => router.push("/")} />
 
       <div className="flex-1 page-scroll">
         <div className="p-4 md:p-0 flex flex-col md:grid md:grid-cols-[1fr_320px] md:gap-6 md:items-start gap-4">
@@ -99,9 +94,9 @@ export default function NeedSupportPage() {
                   <HeartHandshake className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold text-white leading-tight">Xeyriyyə yönünü seçin</h2>
+                  <h2 className="text-lg font-extrabold text-white leading-tight">{t(lang, 'charitySelectTitle')}</h2>
                   <p className="text-sm text-white/70 mt-1 leading-snug">
-                    Qurban ətinin kimin üçün paylanacağını seçin.
+                    {t(lang, 'charitySelectDesc')}
                   </p>
                 </div>
               </div>
@@ -132,7 +127,6 @@ export default function NeedSupportPage() {
                       }}
                     >
                       <div className="flex items-center gap-4 p-4">
-                        {/* Icon */}
                         <div
                           className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
                           style={{ background: isActive ? accent : light }}
@@ -140,22 +134,20 @@ export default function NeedSupportPage() {
                           <CardIcon className="w-5 h-5" style={{ color: isActive ? "#fff" : accent }} />
                         </div>
 
-                        {/* Text */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span className="text-sm font-bold" style={{ color: isActive ? accent : "var(--text-primary)" }}>
-                              {item.nameAz}
+                              {getItemName(item)}
                             </span>
                             {isDisabled && (
                               <span className="text-[10px] font-semibold text-text-muted bg-surface-alt border border-border px-2 py-0.5 rounded-full">
-                                Müvəqqəti yoxdur
+                                {t(lang, 'temporarilyUnavailable')}
                               </span>
                             )}
                           </div>
                           <p className="text-xs text-text-secondary leading-snug">{item.description}</p>
                         </div>
 
-                        {/* Radio */}
                         {!isDisabled && (
                           <div
                             className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-colors"
@@ -177,17 +169,20 @@ export default function NeedSupportPage() {
             {/* Info card */}
             <div className="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
               <div className="px-4 py-3 border-b border-border bg-surface-alt/40">
-                <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">Xeyriyyə haqqında</span>
+                <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">{t(lang, 'charityAbout')}</span>
               </div>
               <div className="divide-y divide-border">
-                {INFO_ITEMS.map(({ Icon: InfoIcon, text }) => (
-                  <div key={text} className="flex items-start gap-3 px-4 py-3">
-                    <div className="w-8 h-8 rounded-lg bg-primary-surface flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <InfoIcon className="w-4 h-4 text-primary" />
+                {INFO_KEYS.map((infoKey, idx) => {
+                  const InfoIcon = INFO_ICON_LIST[idx];
+                  return (
+                    <div key={infoKey} className="flex items-start gap-3 px-4 py-3">
+                      <div className="w-8 h-8 rounded-lg bg-primary-surface flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <InfoIcon className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-xs text-text-secondary leading-relaxed flex-1">{t(lang, infoKey)}</p>
                     </div>
-                    <p className="text-xs text-text-secondary leading-relaxed flex-1">{text}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -198,7 +193,7 @@ export default function NeedSupportPage() {
                 disabled={!selected}
                 className="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-xl py-3 text-sm font-extrabold shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-primary/90"
               >
-                {selectedItem ? `${selectedItem.nameAz} — Davam et` : "Seçim edin"}
+                {selectedItem ? `${getItemName(selectedItem)} — ${t(lang, 'continue')}` : t(lang, 'selectOption')}
                 <ChevronRight className="w-4 h-4 stroke-[3]" />
               </button>
             </div>
@@ -213,7 +208,7 @@ export default function NeedSupportPage() {
           disabled={!selected}
           className="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-xl py-3 text-sm font-extrabold disabled:opacity-40"
         >
-          {selectedItem ? `${selectedItem.nameAz} — Davam et` : "Seçim edin"}
+          {selectedItem ? `${getItemName(selectedItem)} — ${t(lang, 'continue')}` : t(lang, 'selectOption')}
           <ChevronRight className="w-4 h-4 stroke-[3]" />
         </button>
       </div>

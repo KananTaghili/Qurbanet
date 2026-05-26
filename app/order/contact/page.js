@@ -6,6 +6,8 @@ import BackHeader from "../../../components/BackHeader";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import { useAuth } from "../../../context/AuthContext";
+import { useLanguage } from "../../../context/LanguageContext";
+import { t } from "../../../lib/i18n";
 import api from "../../../lib/api";
 
 const OTP_LENGTH = 4;
@@ -39,6 +41,7 @@ export default function ContactPage() {
   const router = useRouter();
   const { order, updateOrder, isLoaded } = useOrder();
   const { user, login } = useAuth();
+  const { lang } = useLanguage();
 
   const isRegistered = !!user?.name;
 
@@ -108,10 +111,10 @@ export default function ContactPage() {
 
   if (!isLoaded || !order) return null;
 
-  // ── Registered user: confirm and proceed ──────────────────────────────────
+  // ── Registered user ───────────────────────────────────────────────────────
   const handleRegisteredSubmit = () => {
     setError("");
-    if (firstName.trim().length < 2) { setError("Ad ən az 2 simvol olmalıdır."); return; }
+    if (firstName.trim().length < 2) { setError(t(lang, 'nameTooShort')); return; }
 
     const contactInfo = {
       firstName: firstName.trim(),
@@ -123,7 +126,7 @@ export default function ContactPage() {
     router.push("/order/summary");
   };
 
-  // ── Guest OTP flow ─────────────────────────────────────────────────────────
+  // ── Guest OTP flow ────────────────────────────────────────────────────────
   const startTimer = () => {
     clearInterval(timerRef.current);
     setResendTimer(60);
@@ -138,15 +141,15 @@ export default function ContactPage() {
   const handleSendOtp = async () => {
     setError("");
     setPhoneError("");
-    if (firstName.trim().length < 2) { setError("Ad ən az 2 simvol olmalıdır."); return; }
-    if (lastName.trim().length < 2) { setError("Soyad ən az 2 simvol olmalıdır."); return; }
-    if (password.length < 6) { setError("Şifrə ən az 6 simvol olmalıdır."); return; }
+    if (firstName.trim().length < 2) { setError(t(lang, 'nameTooShort')); return; }
+    if (lastName.trim().length < 2) { setError(t(lang, 'surnameTooShort')); return; }
+    if (password.length < 6) { setError(t(lang, 'passTooShort')); return; }
 
     setSending(true);
     try {
       if (verifyMethod === "sms") {
         if (!isValidAzPhone(phone)) {
-          setPhoneError("Düzgün AZ nömrəsi daxil edin: 050 XXX XX XX");
+          setPhoneError(t(lang, 'invalidAZPhoneContact'));
           setSending(false);
           return;
         }
@@ -156,7 +159,7 @@ export default function ContactPage() {
         setNormalizedPhone(norm);
       } else {
         const em = email.trim().toLowerCase();
-        if (!isValidEmail(em)) { setError("Düzgün Gmail ünvanı daxil edin."); setSending(false); return; }
+        if (!isValidEmail(em)) { setError(t(lang, 'invalidGmail')); setSending(false); return; }
         await api.post("/auth/send-otp", { email: em });
       }
       setOtpCode("");
@@ -164,7 +167,7 @@ export default function ContactPage() {
       startTimer();
       setTimeout(() => otpInputRef.current?.focus(), 350);
     } catch (err) {
-      setError(err.response?.data?.message || "OTP göndərilmədi. Yenidən cəhd edin.");
+      setError(err.response?.data?.message || t(lang, 'otpSendFailed'));
     } finally {
       setSending(false);
     }
@@ -197,7 +200,7 @@ export default function ContactPage() {
       updateOrder({ contactInfo });
       router.push("/order/summary");
     } catch (err) {
-      setError(err.response?.data?.message || "Yanlış kod. Yenidən cəhd edin.");
+      setError(err.response?.data?.message || t(lang, 'wrongCode'));
       setOtpCode("");
       setTimeout(() => otpInputRef.current?.focus(), 0);
     } finally {
@@ -223,7 +226,7 @@ export default function ContactPage() {
       startTimer();
       setTimeout(() => otpInputRef.current?.focus(), 0);
     } catch {
-      setError("OTP göndərilmədi. Yenidən cəhd edin.");
+      setError(t(lang, 'otpSendFailed'));
     }
   };
 
@@ -252,40 +255,40 @@ export default function ContactPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Əlaqə məlumatları" />
+      <BackHeader title={t(lang, 'contactInfoBack')} />
       <StepHeader currentStep={2} />
 
       <div className="flex-1 page-scroll">
         <div className="p-4 w-full max-w-3xl mx-auto flex flex-col gap-4">
 
-          {/* ── Registered user view ─────────────────────────────────────── */}
+          {/* ── Registered user ───────────────────────────────────────── */}
           {isRegistered ? (
             <>
               <div>
-                <h1 className="text-xl font-bold text-text-primary">Əlaqə Məlumatları</h1>
-                <p className="text-sm text-text-secondary mt-1">Məlumatlarınız profildən götürüldü.</p>
+                <h1 className="text-xl font-bold text-text-primary">{t(lang, 'contactInfoTitle')}</h1>
+                <p className="text-sm text-text-secondary mt-1">{t(lang, 'contactFromProfile')}</p>
               </div>
 
               <div className="bg-surface rounded-2xl border border-border p-4 flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-text-secondary mb-1.5">Ad</label>
+                    <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'nameLabel')}</label>
                     <input
                       type="text"
                       value={firstName}
                       onChange={(e) => { setFirstName(e.target.value); setError(""); }}
-                      placeholder="Ad"
+                      placeholder={t(lang, 'nameLabel')}
                       className={inputCls}
                       autoCapitalize="words"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-text-secondary mb-1.5">Soyad</label>
+                    <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'surnameLabel')}</label>
                     <input
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Soyad"
+                      placeholder={t(lang, 'surnameLabel')}
                       className={inputCls}
                       autoCapitalize="words"
                     />
@@ -294,7 +297,7 @@ export default function ContactPage() {
 
                 {user?.phone && (
                   <div>
-                    <label className="block text-sm text-text-secondary mb-1.5">Mobil nömrə</label>
+                    <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'mobileLabel')}</label>
                     <div className="flex items-center bg-surface-alt border border-border rounded-xl opacity-60">
                       <div className="flex items-center gap-1.5 px-3 border-r border-border shrink-0">
                         <span className="text-lg leading-none">🇦🇿</span>
@@ -309,7 +312,7 @@ export default function ContactPage() {
 
                 {user?.email && !user?.phone && (
                   <div>
-                    <label className="block text-sm text-text-secondary mb-1.5">Email</label>
+                    <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'emailLabel')}</label>
                     <input type="email" value={user.email} disabled className={inputCls} />
                   </div>
                 )}
@@ -322,18 +325,18 @@ export default function ContactPage() {
               )}
 
               <button className="btn-primary" onClick={handleRegisteredSubmit}>
-                Ödəniş mərhələsinə keç
+                {t(lang, 'proceedPayment')}
               </button>
             </>
           ) : (
-            /* ── Guest OTP flow ───────────────────────────────────────────── */
+            /* ── Guest OTP flow ──────────────────────────────────────── */
             <>
               <div>
-                <h1 className="text-xl font-bold text-text-primary">Əlaqə Məlumatları</h1>
+                <h1 className="text-xl font-bold text-text-primary">{t(lang, 'contactInfoTitle')}</h1>
                 <p className="text-sm text-text-secondary mt-1">
                   {verifyMethod === "email"
-                    ? "Ad, Soyad, Gmail və Şifrə tələb olunur."
-                    : "Ad, Soyad, Nömrə və Şifrə tələb olunur."}
+                    ? t(lang, 'emailOtpInfo')
+                    : t(lang, 'smsOtpInfo')}
                 </p>
               </div>
 
@@ -342,24 +345,24 @@ export default function ContactPage() {
                 <div className="p-4 flex flex-col gap-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-text-secondary mb-1.5">Ad</label>
+                      <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'nameLabel')}</label>
                       <input
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Ad"
+                        placeholder={t(lang, 'nameLabel')}
                         className={inputCls}
                         autoCapitalize="words"
                         disabled={step === "otp"}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-text-secondary mb-1.5">Soyad</label>
+                      <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'surnameLabel')}</label>
                       <input
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Soyad"
+                        placeholder={t(lang, 'surnameLabel')}
                         className={inputCls}
                         autoCapitalize="words"
                         disabled={step === "otp"}
@@ -384,7 +387,7 @@ export default function ContactPage() {
                         </>
                       ) : (
                         <>
-                          <label className="block text-sm text-text-secondary mb-1.5">Mobil nömrə</label>
+                          <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'mobileLabel')}</label>
                           <div
                             className={`flex items-center bg-surface-alt border rounded-xl focus-within:bg-white transition-colors ${
                               phoneError ? "border-red-400 focus-within:border-red-400" : "border-border focus-within:border-primary"
@@ -413,7 +416,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <label className="block text-sm text-text-secondary mb-1.5">
-                        Şifrə <span className="text-red-500">*</span>
+                        {t(lang, 'passwordLabel')} <span className="text-red-500">*</span>
                       </label>
                       <div
                         className={`flex items-center bg-surface-alt border border-border rounded-xl focus-within:border-primary focus-within:bg-white transition-colors ${step === "otp" ? "opacity-60" : ""}`}
@@ -422,7 +425,7 @@ export default function ContactPage() {
                           type={showPassword ? "text" : "password"}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Ən az 6 simvol"
+                          placeholder={t(lang, 'minPassChars')}
                           className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-4 py-3 font-medium border-none"
                           disabled={step === "otp"}
                         />
@@ -442,7 +445,7 @@ export default function ContactPage() {
               {/* Channel selector */}
               {step === "info" && (
                 <div className="bg-surface rounded-2xl border border-border p-4">
-                  <p className="text-sm text-text-secondary mb-3">Kodu necə almaq istərsiniz?</p>
+                  <p className="text-sm text-text-secondary mb-3">{t(lang, 'howToReceiveCode')}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { k: "sms", label: "SMS", Icon: MessageSquare },
@@ -477,18 +480,18 @@ export default function ContactPage() {
                   onClick={handleSendOtp}
                   disabled={sending}
                 >
-                  {sending ? "Göndərilir..." : "Ödəniş mərhələsinə keç"}
+                  {sending ? t(lang, 'sendingOtp') : t(lang, 'proceedPayment')}
                 </button>
               )}
 
               {step === "otp" && (
                 <div className="bg-surface rounded-2xl border-2 border-primary/30 p-6 flex flex-col gap-4">
                   <div className="text-center">
-                    <h2 className="text-base font-bold text-text-primary mb-1">Doğrulama kodu</h2>
+                    <h2 className="text-base font-bold text-text-primary mb-1">{t(lang, 'verifyCode')}</h2>
                     <p className="text-sm text-text-secondary">
                       {verifyMethod === "email"
-                        ? `Kod ${email.trim()} ünvanına göndərildi`
-                        : `Kod ${normalizedPhone} nömrəsinə SMS ilə göndərildi`}
+                        ? `${t(lang, 'verifyCode')} ${email.trim()}`
+                        : `${t(lang, 'verifyCode')} ${normalizedPhone}`}
                     </p>
                   </div>
 
@@ -515,7 +518,7 @@ export default function ContactPage() {
                     onClick={() => handleVerify()}
                     disabled={verifying || otpCode.length < OTP_LENGTH}
                   >
-                    {verifying ? "Yoxlanılır..." : "Təsdiqləyin"}
+                    {verifying ? t(lang, 'verifying') : t(lang, 'confirmOtp')}
                   </button>
 
                   <button
@@ -523,14 +526,14 @@ export default function ContactPage() {
                     disabled={resendTimer > 0}
                     className={`text-sm font-semibold text-center py-1 ${resendTimer > 0 ? "text-text-muted cursor-default" : "text-primary cursor-pointer"}`}
                   >
-                    {resendTimer > 0 ? `Yenidən göndər (${resendTimer}s)` : "Yenidən göndər"}
+                    {resendTimer > 0 ? `${t(lang, 'resend')} (${resendTimer}s)` : t(lang, 'resend')}
                   </button>
 
                   <button
                     onClick={() => { setStep("info"); clearInterval(timerRef.current); setError(""); }}
                     className="text-sm text-text-secondary text-center py-1 cursor-pointer hover:text-text-primary transition-colors"
                   >
-                    Məlumatları dəyişdir
+                    {t(lang, 'changeInfo')}
                   </button>
                 </div>
               )}

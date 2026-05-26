@@ -8,20 +8,14 @@ import StatusBadge from '../../components/StatusBadge';
 import BottomNav from '../../components/BottomNav';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
+import { useLanguage } from '../../context/LanguageContext';
+import { t } from '../../lib/i18n';
 
-const AZ_MONTHS = ['Yan','Fev','Mar','Apr','May','İyun','İyul','Avq','Sen','Okt','Noy','Dek'];
-
-function fmtDate(ds) {
+function fmtDate(ds, months) {
   if (!ds) return '—';
   const d = new Date(ds);
-  return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
-
-const CHARITY_LABELS = {
-  usaqlar_evi:       'Uşaqlar evi',
-  qocalar_evi:       'Qocalar evi',
-  ehtiyac_sahibleri: 'Ehtiyac sahibləri',
-};
 
 const ANIMAL_IMAGES = {
   quzu:  '/qoyun.jpg',
@@ -44,14 +38,23 @@ const STATUS_COLOR = {
   cancelled:       '#9CA3AF',
 };
 
-function OrderCard({ item }) {
+const CHARITY_DIST_KEYS = {
+  usaqlar_evi:       'distLabel_usaqlar_evi',
+  qocalar_evi:       'distLabel_qocalar_evi',
+  ehtiyac_sahibleri: 'distLabel_ehtiyac_sahibleri',
+};
+
+function OrderCard({ item, lang }) {
+  const months = t(lang, 'months_short');
   const itemId     = item.id || item._id;
   const isCharity  = item._type === 'charity';
   const href       = isCharity ? `/charity-order/${itemId}` : `/my-orders/${itemId}`;
   const status     = item.status || 'placed';
   const accentColor = STATUS_COLOR[status] || '#9CA3AF';
+
+  const charityKey = CHARITY_DIST_KEYS[item.charityTarget];
   const title      = isCharity
-    ? (CHARITY_LABELS[item.charityTarget] || 'Xeyriyyə')
+    ? (charityKey ? t(lang, charityKey) : t(lang, 'charityLabel'))
     : (item.animal?.nameAz || item.animalNameAz || 'Heyvan');
   const orderNum  = item.orderNumber || String(itemId).slice(-6).toUpperCase();
   const qty       = item.quantity || item.sharedPortion || 1;
@@ -86,7 +89,7 @@ function OrderCard({ item }) {
           <div className="flex-shrink-0">
             {isCharity
               ? <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary-surface text-primary border border-primary/20">
-                  <Heart size={10} /> Xeyriyyə
+                  <Heart size={10} /> {t(lang, 'charityLabel')}
                 </span>
               : <StatusBadge status={status} />
             }
@@ -99,16 +102,16 @@ function OrderCard({ item }) {
         {/* Stats row */}
         <div className="grid grid-cols-3 divide-x divide-border/60 px-0 py-3">
           <div className="flex flex-col items-center gap-0.5 px-3">
-            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">Miqdar</span>
-            <span className="text-sm font-extrabold text-text-primary">{qty} ədəd</span>
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">{t(lang, 'qtyLabel')}</span>
+            <span className="text-sm font-extrabold text-text-primary">{qty} {t(lang, 'animalUnit')}</span>
           </div>
           <div className="flex flex-col items-center gap-0.5 px-3">
-            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">Məbləğ</span>
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">{t(lang, 'amountLabel')}</span>
             <span className="text-sm font-extrabold text-primary">{item.totalPrice ?? item.totalAmount ?? '—'} AZN</span>
           </div>
           <div className="flex flex-col items-center gap-0.5 px-3">
-            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">Tarix</span>
-            <span className="text-[11px] font-bold text-text-primary text-center leading-tight">{fmtDate(item.createdAt)}</span>
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">{t(lang, 'dateLabel')}</span>
+            <span className="text-[11px] font-bold text-text-primary text-center leading-tight">{fmtDate(item.createdAt, months)}</span>
           </div>
         </div>
 
@@ -116,11 +119,11 @@ function OrderCard({ item }) {
         <div className="flex items-center justify-between px-4 pb-3">
           {item.mediaFiles?.length > 0 ? (
             <span className="inline-flex items-center gap-1 text-xs text-blue-500 font-semibold">
-              <Video size={12} /> Video mövcuddur
+              <Video size={12} /> {t(lang, 'videoAvailable')}
             </span>
           ) : <span />}
           <span className="inline-flex items-center gap-1 text-xs font-bold text-primary">
-            Ətraflı bax <ArrowRight size={13} />
+            {t(lang, 'viewDetail')} <ArrowRight size={13} />
           </span>
         </div>
       </div>
@@ -130,6 +133,7 @@ function OrderCard({ item }) {
 
 export default function MyOrdersPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
   const [orders,        setOrders]        = useState([]);
   const [charityOrders, setCharityOrders] = useState([]);
   const [loading,       setLoading]       = useState(true);
@@ -159,7 +163,7 @@ export default function MyOrdersPage() {
 
   return (
     <div className="flex flex-col flex-1">
-      <BackHeader title="Sifarişlərim" onBack={() => router.push('/')} />
+      <BackHeader title={t(lang, 'ordersTitle')} onBack={() => router.push('/')} />
 
       <div className="flex-1 page-scroll">
         {loading ? (
@@ -172,18 +176,18 @@ export default function MyOrdersPage() {
               <ClipboardList size={36} className="text-primary" />
             </div>
             <div>
-              <p className="text-xl font-extrabold text-text-primary">Sifariş yoxdur</p>
-              <p className="text-sm text-text-secondary mt-1">Hələ heç bir sifarişiniz yoxdur.</p>
+              <p className="text-xl font-extrabold text-text-primary">{t(lang, 'noOrders')}</p>
+              <p className="text-sm text-text-secondary mt-1">{t(lang, 'noOrdersDesc')}</p>
             </div>
             <Link href="/" className="btn-primary mt-1 px-8 no-underline text-center">
-              Sifariş ver
+              {t(lang, 'placeOrder')}
             </Link>
           </div>
         ) : (
           <div className="p-4 md:p-6 max-w-6xl mx-auto w-full">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {allItems.map((item) => (
-                <OrderCard key={item.id || item._id} item={item} />
+                <OrderCard key={item.id || item._id} item={item} lang={lang} />
               ))}
             </div>
           </div>
