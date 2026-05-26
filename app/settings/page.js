@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
+import BackHeader from "../../components/BackHeader";
+import BottomNav from "../../components/BottomNav";
 
 function PasswordInput({ value, onChange, placeholder, show, onToggle, autoFocus }) {
   return (
@@ -45,42 +47,131 @@ function InfoRow({ icon: Icon, label, value }) {
   );
 }
 
-export default function SettingsPage() {
-  const router = useRouter();
-  const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState("password");
+function PasswordCard({ onSuccess }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword]         = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent, setShowCurrent]         = useState(false);
+  const [showNew, setShowNew]                 = useState(false);
+  const [showConfirm, setShowConfirm]         = useState(false);
+  const [loading, setLoading]                 = useState(false);
+  const [error, setError]                     = useState("");
+  const [success, setSuccess]                 = useState("");
 
-  const [currentPassword, setCurrentPassword]   = useState("");
-  const [newPassword, setNewPassword]           = useState("");
-  const [confirmPassword, setConfirmPassword]   = useState("");
-  const [showCurrent, setShowCurrent]           = useState(false);
-  const [showNew, setShowNew]                   = useState(false);
-  const [showConfirm, setShowConfirm]           = useState(false);
-  const [loading, setLoading]                   = useState(false);
-  const [error, setError]                       = useState("");
-  const [success, setSuccess]                   = useState("");
-
-  const handlePasswordChange = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); setSuccess("");
-
     if (!currentPassword)                        { setError("Cari şifrənizi daxil edin."); return; }
     if (!newPassword || newPassword.length < 6)  { setError("Yeni şifrə ən az 6 simvol olmalıdır."); return; }
     if (newPassword !== confirmPassword)          { setError("Yeni şifrələr uyğun gəlmir."); return; }
     if (currentPassword === newPassword)          { setError("Yeni şifrə cari şifrə ilə eyni ola bilməz."); return; }
-
     setLoading(true);
     try {
       await api.put("/auth/profile", { currentPassword, password: newPassword });
       setSuccess("Şifrə uğurla yeniləndi!");
       setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
       setTimeout(() => setSuccess(""), 3000);
+      onSuccess?.();
     } catch (err) {
       setError(err.response?.data?.message || "Şifrə dəyişdirilə bilmədi. Yenidən cəhd edin.");
     } finally {
       setLoading(false);
     }
   };
+
+  return (
+    <div className="bg-surface rounded-2xl shadow-card border border-border overflow-hidden h-fit">
+      <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
+          <Lock size={15} className="text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-extrabold text-text-primary">Şifrəni Dəyiş</p>
+          <p className="text-[11px] text-text-secondary">Güclü şifrə istifadə edin</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
+        <div>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
+            Cari Şifrə *
+          </label>
+          <PasswordInput
+            value={currentPassword}
+            onChange={(e) => { setCurrentPassword(e.target.value); setError(""); }}
+            placeholder="Cari şifrənizi daxil edin"
+            show={showCurrent}
+            onToggle={() => setShowCurrent((v) => !v)}
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
+            Yeni Şifrə *
+          </label>
+          <PasswordInput
+            value={newPassword}
+            onChange={(e) => { setNewPassword(e.target.value); setError(""); }}
+            placeholder="Ən az 6 simvol"
+            show={showNew}
+            onToggle={() => setShowNew((v) => !v)}
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
+            Şifrəni Təsdiqlə *
+          </label>
+          <PasswordInput
+            value={confirmPassword}
+            onChange={(e) => { setConfirmPassword(e.target.value); setError(""); }}
+            placeholder="Yeni şifrənizi yenidən daxil edin"
+            show={showConfirm}
+            onToggle={() => setShowConfirm((v) => !v)}
+          />
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
+            <AlertCircle size={16} className="flex-shrink-0" />
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-semibold px-4 py-3 rounded-xl">
+            <CheckCircle size={16} className="flex-shrink-0" />
+            {success}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-primary text-white font-extrabold text-sm py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+          style={{ boxShadow: "0 4px 14px rgba(27,94,32,0.25)" }}
+        >
+          {loading ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Yadda saxlanır...
+            </>
+          ) : (
+            <>
+              <Lock size={15} />
+              Şifrəni Yenilə
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default function SettingsPage() {
+  const router = useRouter();
+  const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState("password");
 
   const handleLogout = () => { logout(); router.push("/auth/login"); };
 
@@ -91,168 +182,113 @@ export default function SettingsPage() {
     { key: "account",  label: "Hesab",          Icon: User },
   ];
 
+  const AccountCard = (
+    <div className="bg-surface rounded-2xl shadow-card border border-border overflow-hidden h-fit">
+      <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
+          <IdCard size={15} className="text-primary" />
+        </div>
+        <p className="text-sm font-extrabold text-text-primary">Hesab Məlumatları</p>
+      </div>
+      <InfoRow icon={User}  label="Ad"      value={user.name} />
+      <InfoRow icon={User}  label="Soyad"   value={user.lastName} />
+      <InfoRow icon={Phone} label="Telefon" value={user.phone} />
+      {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
+    </div>
+  );
+
+  const LogoutButton = (
+    <button
+      onClick={handleLogout}
+      className="w-full flex items-center justify-between gap-3 bg-surface border border-border rounded-2xl px-5 py-4 shadow-card hover:bg-red-50 hover:border-red-200 transition-all group"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
+          <LogOut size={16} className="text-red-500" />
+        </div>
+        <div className="text-left">
+          <p className="text-sm font-bold text-red-600">Çıxış et</p>
+          <p className="text-[11px] text-text-secondary">Hesabdan çıx</p>
+        </div>
+      </div>
+      <ChevronRight size={16} className="text-red-400" />
+    </button>
+  );
+
   return (
-    <div className="min-h-screen bg-bg pb-24">
+    <div className="flex flex-col flex-1 bg-bg">
+      <BackHeader title="Parametrlər" onBack={() => router.push("/")} />
 
-      {/* ── Hero header ── */}
-      <div className="bg-primary px-6 pt-8 pb-12">
-        <div className="max-w-xl mx-auto">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
-              <Shield size={20} color="white" />
-            </div>
-            <h1 className="text-2xl font-extrabold text-white">Parametrlər</h1>
-          </div>
-          <p className="text-white/65 text-sm ml-[52px]">Hesabınızı idarə edin</p>
-        </div>
-      </div>
+      <div className="flex-1 page-scroll">
 
-      {/* ── Floating card ── */}
-      <div className="max-w-xl mx-auto px-4 -mt-6">
-
-        {/* Tab selector */}
-        <div className="bg-white rounded-2xl shadow-card border border-border p-1.5 flex gap-1.5 mb-4">
-          {tabs.map(({ key, label, Icon }) => (
-            <button
-              key={key}
-              onClick={() => { setActiveTab(key); setError(""); setSuccess(""); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                activeTab === key
-                  ? "bg-primary text-white shadow-sm"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
+        {/* Hero */}
+        <div
+          className="relative rounded-2xl overflow-hidden mb-5"
+          style={{ background: "linear-gradient(135deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)" }}
+        >
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%)" }}
+          />
+          <div className="relative flex items-center gap-4 px-5 py-6">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(255,255,255,0.15)" }}
             >
-              <Icon size={15} />
-              {label}
-            </button>
-          ))}
+              <Shield className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-extrabold text-white leading-tight">Parametrlər</h1>
+              <p className="text-sm text-white/70 mt-1 leading-snug">
+                {[user.name, user.lastName].filter(Boolean).join(" ")} · {user.phone}
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* ── Password tab ── */}
-        {activeTab === "password" && (
-          <div className="bg-white rounded-2xl shadow-card border border-border overflow-hidden">
-            <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
-                <Lock size={15} className="text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-extrabold text-text-primary">Şifrəni Dəyiş</p>
-                <p className="text-[11px] text-text-secondary">Güclü şifrə istifadə edin</p>
-              </div>
-            </div>
+        {/* ── Desktop: 2 columns ── */}
+        <div className="hidden md:grid md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
+            {AccountCard}
+            {LogoutButton}
+          </div>
+          <div>
+            <PasswordCard />
+          </div>
+        </div>
 
-            <form onSubmit={handlePasswordChange} className="p-5 flex flex-col gap-4">
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
-                  Cari Şifrə *
-                </label>
-                <PasswordInput
-                  value={currentPassword}
-                  onChange={(e) => { setCurrentPassword(e.target.value); setError(""); }}
-                  placeholder="Cari şifrənizi daxil edin"
-                  show={showCurrent}
-                  onToggle={() => setShowCurrent((v) => !v)}
-                  autoFocus
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
-                  Yeni Şifrə *
-                </label>
-                <PasswordInput
-                  value={newPassword}
-                  onChange={(e) => { setNewPassword(e.target.value); setError(""); }}
-                  placeholder="Ən az 6 simvol"
-                  show={showNew}
-                  onToggle={() => setShowNew((v) => !v)}
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
-                  Şifrəni Təsdiqlə *
-                </label>
-                <PasswordInput
-                  value={confirmPassword}
-                  onChange={(e) => { setConfirmPassword(e.target.value); setError(""); }}
-                  placeholder="Yeni şifrənizi yenidən daxil edin"
-                  show={showConfirm}
-                  onToggle={() => setShowConfirm((v) => !v)}
-                />
-              </div>
-
-              {error && (
-                <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
-                  <AlertCircle size={16} className="flex-shrink-0" />
-                  {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-semibold px-4 py-3 rounded-xl">
-                  <CheckCircle size={16} className="flex-shrink-0" />
-                  {success}
-                </div>
-              )}
-
+        {/* ── Mobile: tabs ── */}
+        <div className="md:hidden">
+          <div className="bg-surface rounded-2xl shadow-card border border-border p-1.5 flex gap-1.5 mb-4">
+            {tabs.map(({ key, label, Icon }) => (
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-primary text-white font-extrabold text-sm py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
-                style={{ boxShadow: "0 4px 14px rgba(27,94,32,0.25)" }}
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  activeTab === key
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-text-secondary hover:text-text-primary"
+                }`}
               >
-                {loading ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Yadda saxlanır...
-                  </>
-                ) : (
-                  <>
-                    <Lock size={15} />
-                    Şifrəni Yenilə
-                  </>
-                )}
+                <Icon size={15} />
+                {label}
               </button>
-            </form>
+            ))}
           </div>
-        )}
 
-        {/* ── Account tab ── */}
-        {activeTab === "account" && (
-          <div className="flex flex-col gap-3">
-            <div className="bg-white rounded-2xl shadow-card border border-border overflow-hidden">
-              <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
-                  <IdCard size={15} className="text-primary" />
-                </div>
-                <p className="text-sm font-extrabold text-text-primary">Hesab Məlumatları</p>
-              </div>
+          {activeTab === "password" && <PasswordCard />}
 
-              <InfoRow icon={User}  label="Ad"              value={user.name} />
-              <InfoRow icon={User}  label="Soyad"           value={user.lastName} />
-              <InfoRow icon={Phone} label="Telefon"         value={user.phone} />
-              {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
+          {activeTab === "account" && (
+            <div className="flex flex-col gap-3">
+              {AccountCard}
+              {LogoutButton}
             </div>
+          )}
+        </div>
 
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-between gap-3 bg-white border border-border rounded-2xl px-5 py-4 shadow-card hover:bg-red-50 hover:border-red-200 transition-all group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
-                  <LogOut size={16} className="text-red-500" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-bold text-red-600">Çıxış et</p>
-                  <p className="text-[11px] text-text-secondary">Hesabdan çıx</p>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-red-400" />
-            </button>
-          </div>
-        )}
       </div>
+
+      <BottomNav />
     </div>
   );
 }
