@@ -612,12 +612,17 @@ const deleteMedia = async (req, res) => {
 // ─── Statistika ──────────────────────────────────────────────────────────────
 const getStats = async (req, res) => {
   try {
+    const statsFilter = { status: { $ne: ORDER_STATUS.AWAITING_PAYMENT } };
     const [totalOrders, totalUsers, statusStats, animalStatsRaw, categories] =
       await Promise.all([
-        Order.countDocuments(),
+        Order.countDocuments(statsFilter),
         User.countDocuments(),
-        Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
         Order.aggregate([
+          { $match: statsFilter },
+          { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]),
+        Order.aggregate([
+          { $match: statsFilter },
           {
             $group: {
               _id: "$animalType",
