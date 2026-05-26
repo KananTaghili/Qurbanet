@@ -541,7 +541,7 @@ const createOrder = async (req, res) => {
 
     const userMobile = String(
       contactInfo?.mobile || contactInfo?.phone || req.phone || "",
-    ).trim();
+    ).trim() || undefined;
     const firstName = String(contactInfo?.firstName || "").trim();
     const lastName = String(contactInfo?.lastName || "").trim();
 
@@ -948,7 +948,7 @@ const createOrder = async (req, res) => {
       contactInfo: {
         firstName,
         lastName,
-        mobile: userMobile,
+        mobile: userMobile || undefined,
       },
       orphanDelight: finalOrphanDelight,
       userNote: userNote ? String(userNote).trim().slice(0, 300) : undefined,
