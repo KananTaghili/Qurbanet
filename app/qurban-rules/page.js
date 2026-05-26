@@ -6,7 +6,7 @@ import {
   CheckCircle2,
   User,
   Beef,
-  Knife,
+  Scissors,
   Flower2,
   XCircle,
   ChevronDown,
@@ -23,7 +23,7 @@ const SECTION_META = [
   { Icon: CheckCircle2, accent: "#2E7D32", light: "#F1F8E9" },
   { Icon: User, accent: "#1565C0", light: "#E3F2FD" },
   { Icon: Beef, accent: "#E65100", light: "#FBE9E7" },
-  { Icon: Knife, accent: "#6A1B9A", light: "#F3E5F5" },
+  { Icon: Scissors, accent: "#6A1B9A", light: "#F3E5F5" },
   { Icon: Flower2, accent: "#00897B", light: "#E0F2F1" },
   { Icon: XCircle, accent: "#B71C1C", light: "#FFEBEE" },
 ];
