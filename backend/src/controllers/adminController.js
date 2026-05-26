@@ -783,12 +783,23 @@ const formatAdminOrder = (order, category = null) => {
   const animalInfo = ANIMALS[order.animalType] || {};
 
   // Çəki seçimi məlumatı əlavə et
-  let enhancedLambSelection = order.lambSelection || {};
+  let enhancedLambSelection = {
+    ...(order.lambSelection || {}),
+    weightCategoryLabel:
+      order.lambSelection?.weightCategoryLabel ||
+      order.lambSelection?.labelAz ||
+      null,
+  };
   if (category && order.lambSelection?.weightCategoryKey) {
     const weightOption = category.weightOptions?.find(
       (w) => w.key === order.lambSelection.weightCategoryKey,
     );
     if (weightOption) {
+      // Use category's label as fallback for orders saved before the label was persisted
+      if (!enhancedLambSelection.weightCategoryLabel) {
+        enhancedLambSelection.weightCategoryLabel =
+          weightOption.labelAz || weightOption.label || null;
+      }
       enhancedLambSelection = {
         ...enhancedLambSelection,
         weightRange: category.weightRange,
@@ -1187,6 +1198,74 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+// ─── Kəsim gününə görə sifarişlər (PDF üçün) ─────────────────────────────────
+const DIST_GROUP = {
+  catdirilsin: 0,
+  mekan: 0,
+  ozun_gotur: 1,
+  ozum: 1,
+  usaqlar_evi: 2,
+  qocalar_evi: 2,
+  ehtiyac_sahibleri: 2,
+};
+
+const parseWindowMinutes = (w) => {
+  if (!w) return 9999;
+  const m = w.match(/^(\d{1,2}):(\d{2})/);
+  return m ? parseInt(m[1]) * 60 + parseInt(m[2]) : 9999;
+};
+
+const parseWeightMin = (label) => {
+  if (!label) return 9999;
+  const m = label.match(/(\d+)/);
+  return m ? parseInt(m[1]) : 9999;
+};
+
+const getOrdersBySlaughterDay = async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date) return error(res, "Tarix tələb olunur.", 400);
+
+    const d = new Date(date);
+    if (isNaN(d)) return error(res, "Düzgün tarix daxil edin.", 400);
+
+    const start = new Date(`${date}T00:00:00.000Z`);
+    const end = new Date(`${date}T23:59:59.999Z`);
+
+    const [orders, categories] = await Promise.all([
+      Order.find({
+        slaughterDate: { $gte: start, $lte: end },
+        status: { $nin: [ORDER_STATUS.AWAITING_PAYMENT, ORDER_STATUS.CANCELLED] },
+      })
+        .populate("user", "phone name")
+        .select("-__v"),
+      Category.find().select("type weightRange weightOptions"),
+    ]);
+
+    const categoryMap = {};
+    categories.forEach((c) => { categoryMap[c.type] = c; });
+
+    const formatted = orders.map((o) => formatAdminOrder(o, categoryMap[o.animalType]));
+
+    formatted.sort((a, b) => {
+      const gA = DIST_GROUP[a.distribution?.type] ?? 3;
+      const gB = DIST_GROUP[b.distribution?.type] ?? 3;
+      if (gA !== gB) return gA - gB;
+
+      const wA = parseWindowMinutes(a.deliveryWindow);
+      const wB = parseWindowMinutes(b.deliveryWindow);
+      if (wA !== wB) return wA - wB;
+
+      return parseWeightMin(a.lambSelection?.weightCategoryLabel) - parseWeightMin(b.lambSelection?.weightCategoryLabel);
+    });
+
+    return success(res, { orders: formatted, date, total: formatted.length });
+  } catch (err) {
+    console.error("getOrdersBySlaughterDay xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
 module.exports = {
   adminLogin,
   adminSendOTP,
@@ -1210,4 +1289,5 @@ module.exports = {
   removeOrderFromGroup,
   confirmSharedGroup,
   deleteSharedGroup,
+  getOrdersBySlaughterDay,
 };

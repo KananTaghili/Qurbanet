@@ -82,6 +82,9 @@ router.post("/shared-groups/:groupId/confirm", adminController.confirmSharedGrou
 // DELETE /api/admin/shared-groups/:groupId
 router.delete("/shared-groups/:groupId", adminController.deleteSharedGroup);
 
+// GET /api/admin/orders/slaughter-day?date=YYYY-MM-DD  (PDF export üçün)
+router.get("/orders/slaughter-day", adminController.getOrdersBySlaughterDay);
+
 // GET /api/admin/orders/:orderId
 router.get("/orders/:orderId", adminController.getOrderById);
 
