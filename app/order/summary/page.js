@@ -276,7 +276,7 @@ export default function SummaryPage() {
         contactInfo: {
           firstName: contactInfo?.firstName || "",
           lastName: contactInfo?.lastName || "",
-          mobile: contactInfo?.mobile || contactInfo?.phone || "",
+          mobile: contactInfo?.mobile || contactInfo?.phone || undefined,
         },
         selfPickup: (dist.ozum || 0) > 0,
         distSnapshot: Object.keys(dist).length ? dist : undefined,
