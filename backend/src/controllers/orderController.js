@@ -311,7 +311,7 @@ const getAnimals = async (req, res) => {
 
     const [animals, deliveryOptions, charityOptions, appSettings] =
       await Promise.all([
-        Category.find({ isActive: true, pricePerShare: { $gt: 0 } })
+        Category.find({ pricePerShare: { $gt: 0 } })
           .sort({ sortOrder: 1, createdAt: 1 })
           .select("-__v"),
         DeliveryOption.find({ isActive: true })
@@ -387,6 +387,7 @@ const getAnimals = async (req, res) => {
       deliveryOptions,
       charityOptions: fixedCharityOptions,
       deliveryWindows,
+      singleAnimalMode: appSettings.singleAnimalMode === true,
     });
   } catch (err) {
     console.error("getAnimals xətası:", err);

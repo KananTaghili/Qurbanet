@@ -59,6 +59,15 @@ const appSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    singleAnimalMode: {
+      type: Boolean,
+      default: false,
+    },
+    maxSlaughterDays: {
+      type: Number,
+      default: 14,
+      min: 1,
+    },
     allowedAdminEmails: {
       type: [String],
       default: ["nbiyevmuhammd1@gmail.com"],
