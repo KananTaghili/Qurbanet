@@ -56,6 +56,17 @@ function GooglePayIcon() {
 
 function EPointFrame({ url, onClose, lang }) {
   const [frameLoading, setFrameLoading] = useState(true);
+  const iframeRef = useRef(null);
+  const loadCountRef = useRef(0);
+
+  const handleLoad = () => {
+    loadCountRef.current += 1;
+    if (loadCountRef.current === 1) {
+      setFrameLoading(false);
+    }
+    // Subsequent loads are legit payment redirects (3DS etc.) — do not interfere
+  };
+
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col bg-black/60">
       <div className="flex items-center justify-between px-4 py-3.5" style={{ background: '#1B5E20' }}>
@@ -79,7 +90,15 @@ function EPointFrame({ url, onClose, lang }) {
             <p className="text-sm text-text-secondary font-medium">{t(lang, 'ePointLoading')}</p>
           </div>
         )}
-        <iframe src={url} className="w-full h-full border-0" onLoad={() => setFrameLoading(false)} title={t(lang, 'cardPaymentTitle')} allow="payment" />
+        <iframe
+          ref={iframeRef}
+          src={url}
+          sandbox="allow-scripts allow-forms allow-same-origin allow-modals"
+          className="w-full h-full border-0"
+          onLoad={handleLoad}
+          title={t(lang, 'cardPaymentTitle')}
+          allow="payment"
+        />
       </div>
       <div className="px-4 py-2 bg-white border-t border-border text-center">
         <p className="text-xs text-text-secondary flex items-center justify-center gap-1.5">
