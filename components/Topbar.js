@@ -1,5 +1,6 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
+import { Settings } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const PAGE_TITLES = {
@@ -100,10 +101,10 @@ export default function Topbar() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push("/settings")}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-lg transition-colors hover:bg-white/20"
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/20"
               title="Parametrlər"
             >
-              ⚙️
+              <Settings size={18} color="white" strokeWidth={2} />
             </button>
             <div
               className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center text-sm font-extrabold text-white"
