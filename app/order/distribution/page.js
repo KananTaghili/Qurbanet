@@ -221,7 +221,8 @@ export default function DistributionPage() {
     router.push("/order/contact");
   };
 
-  const totalAmount = parseFloat(order.totalPrice || 0) + (needsLocation ? deliveryFee : 0);
+  const selectedFee = selectedKey ? (optionData[selectedKey]?.fee ?? 0) : 0;
+  const totalAmount = parseFloat(order.totalPrice || 0) + selectedFee;
 
   // Renders the radio option list (used in both mobile and desktop)
   const OptionList = () => (
@@ -425,7 +426,7 @@ export default function DistributionPage() {
                   {[
                     { label: t(lang, 'animalRow'), value: order.animal?.nameAz },
                     { label: t(lang, 'orderQty'), value: `${qty} ${t(lang, 'pcsLabel')}` },
-                    ...(needsLocation && deliveryFee > 0 ? [{ label: t(lang, 'deliveryFeeRow'), value: `${deliveryFee} AZN` }] : []),
+                    ...(selectedFee > 0 ? [{ label: t(lang, 'deliveryFeeRow'), value: `+${selectedFee} AZN` }] : []),
                   ].map((row) => (
                     <div key={row.label} className="flex justify-between items-center px-3 py-2.5">
                       <span className="text-[11px] text-text-secondary font-medium">{row.label}</span>
