@@ -5,7 +5,6 @@ const LANG_KEY = 'qurbanet_lang';
 
 export const LANGUAGES = [
   { code: 'az', label: 'AZ', name: 'Azərbaycan', dir: 'ltr' },
-  { code: 'ar', label: 'ع',  name: 'العربية',    dir: 'rtl' },
   { code: 'ru', label: 'RU', name: 'Русский',     dir: 'ltr' },
   { code: 'en', label: 'EN', name: 'English',      dir: 'ltr' },
 ];

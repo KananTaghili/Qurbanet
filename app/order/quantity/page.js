@@ -5,6 +5,7 @@ import { CalendarDays, Clock, AlertTriangle, Beef } from "lucide-react";
 import BackHeader from "../../../components/BackHeader";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
+import api from "../../../lib/api";
 
 const TIME_SLOTS = ["12:00-15:00", "15:00-18:00", "18:00-21:00"];
 const AZ_MONTHS = [
@@ -88,6 +89,7 @@ export default function QuantityPage() {
   const [headBuckets, setHeadBuckets] = useState({});
   const [feetBuckets, setFeetBuckets] = useState({});
   const [singleAnimalMode, setSingleAnimalMode] = useState(false);
+  const [maxSlaughterDays, setMaxSlaughterDays] = useState(14);
 
   useEffect(() => {
     try {
@@ -115,87 +117,108 @@ export default function QuantityPage() {
       } else {
         setTimeSlot(TIME_SLOTS[0]);
       }
-    const init = {};
-    (parsed.cutStyleOptions || []).forEach((c) => {
-      init[c.key] = 0;
-    });
-    setCutStyles(init);
-    const initHead = {};
-    (parsed.headOptions || [])
-      .filter((o) => o.isActive !== false)
-      .forEach((o) => {
-        initHead[o.key] = 0;
+      const init = {};
+      (parsed.cutStyleOptions || []).forEach((c) => {
+        init[c.key] = 0;
       });
-    setHeadBuckets(initHead);
-    const initFeet = {};
-    (parsed.feetOptions || [])
-      .filter((o) => o.isActive !== false)
-      .forEach((o) => {
-        initFeet[o.key] = 0;
-      });
-    setFeetBuckets(initFeet);
+      setCutStyles(init);
+      const initHead = {};
+      (parsed.headOptions || [])
+        .filter((o) => o.isActive !== false)
+        .forEach((o) => {
+          initHead[o.key] = 0;
+        });
+      setHeadBuckets(initHead);
+      const initFeet = {};
+      (parsed.feetOptions || [])
+        .filter((o) => o.isActive !== false)
+        .forEach((o) => {
+          initFeet[o.key] = 0;
+        });
+      setFeetBuckets(initFeet);
 
-    const ws = parsed.weights || parsed.weightOptions || [];
+      const ws = parsed.weights || parsed.weightOptions || [];
 
-    // Restore previously saved form state if available for same animal
-    const savedRaw = sessionStorage.getItem("qurbanet_qty_state");
-    if (savedRaw) {
-      try {
-        const saved = JSON.parse(savedRaw);
-        if (saved.animalId === parsed._id) {
-          if (saved.qty) setQty(saved.qty);
-          if (saved.mode) setMode(saved.mode);
-          if (saved.cutStyles) setCutStyles(saved.cutStyles);
-          if (saved.headBuckets) setHeadBuckets(saved.headBuckets);
-          if (saved.feetBuckets) setFeetBuckets(saved.feetBuckets);
-          if (saved.timeSlot) setTimeSlot(saved.timeSlot);
-          if (saved.notes) setNotes(saved.notes);
-          if (saved.selectedDate) setSelectedDate(new Date(saved.selectedDate));
-          if (saved.selectedWeightKey && ws.length > 0) {
-            const w = ws.find(w => w.key === saved.selectedWeightKey);
-            if (w) { setSelectedWeight(w); return; }
+      // Restore previously saved form state if available for same animal
+      const savedRaw = sessionStorage.getItem("qurbanet_qty_state");
+      if (savedRaw) {
+        try {
+          const saved = JSON.parse(savedRaw);
+          if (saved.animalId === parsed._id) {
+            if (saved.qty) setQty(saved.qty);
+            if (saved.mode) setMode(saved.mode);
+            if (saved.cutStyles) setCutStyles(saved.cutStyles);
+            if (saved.headBuckets) setHeadBuckets(saved.headBuckets);
+            if (saved.feetBuckets) setFeetBuckets(saved.feetBuckets);
+            if (saved.timeSlot) setTimeSlot(saved.timeSlot);
+            if (saved.notes) setNotes(saved.notes);
+            if (saved.selectedDate)
+              setSelectedDate(new Date(saved.selectedDate));
+            if (saved.selectedWeightKey && ws.length > 0) {
+              const w = ws.find((w) => w.key === saved.selectedWeightKey);
+              if (w) {
+                setSelectedWeight(w);
+                return;
+              }
+            }
           }
+        } catch {
+          /* ignore */
         }
-      } catch { /* ignore */ }
-    }
+      }
 
-    if (ws.length > 0) {
-      setSelectedWeight(ws[0]);
+      if (ws.length > 0) {
+        setSelectedWeight(ws[0]);
+      }
+    } catch {
+      router.replace("/");
     }
-    } catch { router.replace("/"); }
   }, [router]);
 
+  // Fetch max slaughter days from settings
   useEffect(() => {
-    if (!animal) return;
-    const initHead = {};
-    (animal.headOptions || [])
-      .filter((o) => o.isActive !== false)
-      .forEach((o) => {
-        initHead[o.key] = 0;
-      });
-    setHeadBuckets(initHead);
-    const initFeet = {};
-    (animal.feetOptions || [])
-      .filter((o) => o.isActive !== false)
-      .forEach((o) => {
-        initFeet[o.key] = 0;
-      });
-    setFeetBuckets(initFeet);
-  }, [qty, animal]);
+    api.get("/app-config/settings")
+      .then(res => {
+        const days = res.data?.data?.maxSlaughterDays;
+        if (days && days > 0) setMaxSlaughterDays(days);
+      })
+      .catch(() => {});
+  }, []);
 
   // Autosave form state to sessionStorage on every change
   useEffect(() => {
     if (!animal) return;
     try {
-      sessionStorage.setItem("qurbanet_qty_state", JSON.stringify({
-        animalId: animal._id,
-        qty, mode, cutStyles, headBuckets, feetBuckets,
-        selectedWeightKey: selectedWeight?.key || null,
-        selectedDate: selectedDate ? selectedDate.toISOString() : null,
-        timeSlot, notes,
-      }));
-    } catch { /* ignore */ }
-  }, [qty, mode, cutStyles, headBuckets, feetBuckets, selectedWeight, selectedDate, timeSlot, notes, animal]);
+      sessionStorage.setItem(
+        "qurbanet_qty_state",
+        JSON.stringify({
+          animalId: animal._id,
+          qty,
+          mode,
+          cutStyles,
+          headBuckets,
+          feetBuckets,
+          selectedWeightKey: selectedWeight?.key || null,
+          selectedDate: selectedDate ? selectedDate.toISOString() : null,
+          timeSlot,
+          notes,
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [
+    qty,
+    mode,
+    cutStyles,
+    headBuckets,
+    feetBuckets,
+    selectedWeight,
+    selectedDate,
+    timeSlot,
+    notes,
+    animal,
+  ]);
 
   if (!animal) return null;
 
@@ -259,9 +282,7 @@ export default function QuantityPage() {
   const feetUnassigned = feetTotal - feetAssigned;
 
   const cutStyleError =
-    submitAttempted &&
-    effectiveCutStyles.length > 0 &&
-    totalCutCount === 0;
+    submitAttempted && effectiveCutStyles.length > 0 && totalCutCount === 0;
   const partsError = submitAttempted && headUnassigned + feetUnassigned > 0;
 
   const handleContinue = () => {
@@ -382,7 +403,8 @@ export default function QuantityPage() {
           </div>
           <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
             {calDays.map((d, i) => {
-              const disabled = !d || new Date(calYear, calMonth, d) < today;
+              const maxDate = new Date(today); maxDate.setDate(maxDate.getDate() + maxSlaughterDays);
+              const disabled = !d || new Date(calYear, calMonth, d) < today || new Date(calYear, calMonth, d) > maxDate;
               const sel =
                 d &&
                 selectedDate &&
@@ -680,12 +702,13 @@ export default function QuantityPage() {
                             )}
                           </div>
                           <div
-                            className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
+                            className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 transition-all ${
                               isSelected ? "border-primary" : "border-slate-300"
                             }`}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
                             {isSelected && (
-                              <div className="w-2 h-2 rounded-full bg-primary" />
+                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', flexShrink: 0 }} />
                             )}
                           </div>
                         </button>

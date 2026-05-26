@@ -1,10 +1,12 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage, LANGUAGES } from "../context/LanguageContext";
 import { t } from "../lib/i18n";
+import api from "../lib/api";
 import {
   Home,
   ClipboardList,
@@ -21,6 +23,13 @@ export default function Sidebar() {
   const router = useRouter();
   const { user, isGuest, logout } = useAuth();
   const { lang, setLang } = useLanguage();
+  const [charityEnabled, setCharityEnabled] = useState(true);
+
+  useEffect(() => {
+    api.get("/app-config/settings")
+      .then(res => { setCharityEnabled(res.data?.data?.charityPageEnabled !== false); })
+      .catch(() => {});
+  }, []);
 
   const NAV = [
     { href: "/", Icon: Home, label: t(lang, 'home') },
@@ -103,8 +112,24 @@ export default function Sidebar() {
           MENYU
         </div>
         {NAV.map(({ href, Icon, label }) => {
-          const active =
-            href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const isCharity = href === "/need-support";
+          const disabled = isCharity && !charityEnabled;
+          const active = !disabled && (href === "/" ? pathname === "/" : pathname.startsWith(href));
+
+          if (disabled) {
+            return (
+              <div
+                key={href}
+                className="sidebar-item text-sm lg:text-[15px] cursor-not-allowed opacity-40 pointer-events-none"
+              >
+                <span className="sidebar-item-icon">
+                  <Icon size={17} strokeWidth={1.8} />
+                </span>
+                <span className="flex-1 truncate">{label}</span>
+              </div>
+            );
+          }
+
           return (
             <Link
               key={href}

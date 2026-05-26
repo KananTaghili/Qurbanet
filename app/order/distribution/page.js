@@ -14,6 +14,7 @@ import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
 const AZ_OPERATORS = ["10","20","40","41","44","50","51","55","60","70","77","99"];
+const DIST_STATE_KEY = "qurbanet_dist_state";
 
 const formatPhone = (input) => {
   const d = input.replace(/\D/g, "").slice(0, 10);
@@ -119,6 +120,17 @@ export default function DistributionPage() {
       if (order.mode === "serikli") { router.replace("/order/contact"); return; }
     } catch { router.replace("/"); return; }
 
+    try {
+      const saved = sessionStorage.getItem(DIST_STATE_KEY);
+      if (saved) {
+        const s = JSON.parse(saved);
+        if (s.dist && typeof s.dist === "object") setDist(s.dist);
+        if (s.pickedLocation) { setPickedLocation(s.pickedLocation); setAddress(s.pickedLocation.address || ""); }
+        if (Array.isArray(s.phones) && s.phones.length > 0) setPhones(s.phones);
+        if (typeof s.addressNote === "string") setAddressNote(s.addressNote);
+      }
+    } catch (_) {}
+
     api.get("/app-config/settings")
       .then((res) => {
         const loc = res.data?.data?.meatPickupLocation;
@@ -173,6 +185,12 @@ export default function DistributionPage() {
       })
       .catch(() => {});
   }, [isLoaded, order, router]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(DIST_STATE_KEY, JSON.stringify({ dist, pickedLocation, phones, addressNote }));
+    } catch (_) {}
+  }, [dist, pickedLocation, phones, addressNote]);
 
   if (!isLoaded || !order) return null;
 

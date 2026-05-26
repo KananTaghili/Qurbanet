@@ -412,18 +412,21 @@ function EmptyState() {
    ─────────────────────────────────────────────── */
 function MobileAnimalCard({ animal, onSelect, lang }) {
   const isQoyun = animal.type === "qoyun";
+  const inactive = !animal.isActive;
 
   return (
     <button
-      onClick={() => onSelect(animal)}
-      className="
+      onClick={() => { if (!inactive) onSelect(animal); }}
+      disabled={inactive}
+      className={`
         flex items-stretch overflow-hidden w-full text-left
         bg-white rounded-2xl xs:rounded-3xl
         border border-black/[0.08]
         shadow-card-md
         transition-all active:scale-[0.98]
         min-h-[100px] xs:min-h-[110px] sm:min-h-[120px]
-      "
+        ${inactive ? "opacity-50 grayscale cursor-not-allowed" : ""}
+      `}
     >
       {/* Image */}
       <div
@@ -468,9 +471,15 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
           </div>
         </div>
         <div className="flex justify-end mt-1">
-          <span className="bg-primary text-white text-[11px] xs:text-xs font-bold px-3 xs:px-3.5 py-1 xs:py-1.5 rounded-full flex items-center gap-1 whitespace-nowrap">
-            Seç <ChevronRight size={12} strokeWidth={2.5} />
-          </span>
+          {inactive ? (
+            <span className="bg-gray-400 text-white text-[11px] xs:text-xs font-bold px-3 xs:px-3.5 py-1 xs:py-1.5 rounded-full whitespace-nowrap">
+              Deaktiv
+            </span>
+          ) : (
+            <span className="bg-primary text-white text-[11px] xs:text-xs font-bold px-3 xs:px-3.5 py-1 xs:py-1.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+              Seç <ChevronRight size={12} strokeWidth={2.5} />
+            </span>
+          )}
         </div>
       </div>
     </button>
@@ -482,20 +491,21 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
    ─────────────────────────────────────────────── */
 function DesktopAnimalCard({ animal, onSelect, lang }) {
   const isQoyun = animal.type === "qoyun";
+  const inactive = !animal.isActive;
 
   return (
     <button
-      onClick={() => onSelect(animal)}
-      className="
+      onClick={() => { if (!inactive) onSelect(animal); }}
+      disabled={inactive}
+      className={`
         flex flex-col overflow-hidden text-left
         bg-white rounded-2xl lg:rounded-3xl
         border border-black/[0.08]
         shadow-card-md
         transition-all duration-200
-        hover:-translate-y-1 hover:shadow-card-lg
-        cursor-pointer
         w-full
-      "
+        ${inactive ? "opacity-50 grayscale cursor-not-allowed" : "hover:-translate-y-1 hover:shadow-card-lg cursor-pointer"}
+      `}
     >
       {/* Image */}
       <div
@@ -538,9 +548,15 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
             </span>
           </div>
         )}
-        <div className="w-full bg-primary text-white rounded-xl py-2 lg:py-2.5 text-[13px] lg:text-sm font-bold text-center shadow-[0_2px_8px_rgba(27,94,32,0.25)] flex items-center justify-center gap-1 lg:gap-1.5">
-          Sifariş ver <ChevronRight size={14} strokeWidth={2.5} />
-        </div>
+        {inactive ? (
+          <div className="w-full bg-gray-400 text-white rounded-xl py-2 lg:py-2.5 text-[13px] lg:text-sm font-bold text-center">
+            Deaktiv
+          </div>
+        ) : (
+          <div className="w-full bg-primary text-white rounded-xl py-2 lg:py-2.5 text-[13px] lg:text-sm font-bold text-center shadow-[0_2px_8px_rgba(27,94,32,0.25)] flex items-center justify-center gap-1 lg:gap-1.5">
+            Sifariş ver <ChevronRight size={14} strokeWidth={2.5} />
+          </div>
+        )}
       </div>
     </button>
   );
