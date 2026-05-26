@@ -49,13 +49,21 @@ export default function RegisterPage() {
         body.email = identifier;
       }
 
-      await api.post("/auth/send-otp", body);
+      await api.post("/auth/send-otp", { ...body, isRegister: true });
 
       sessionStorage.setItem("otp_identifier", identifier);
       sessionStorage.setItem("otp_identifier_type", mode === "email" ? "email" : "phone");
       router.push("/auth/otp");
     } catch (err) {
-      setError(err.response?.data?.message || "Xəta baş verdi. Yenidən cəhd edin.");
+      const status = err.response?.status;
+      const msg = err.response?.data?.message;
+      if (status === 409) {
+        setError(msg || (mode === "phone"
+          ? "Bu telefon nömrəsi artıq sistemdə qeydiyyatdan keçib."
+          : "Bu email artıq sistemdə qeydiyyatdan keçib."));
+      } else {
+        setError(msg || "Xəta baş verdi. Yenidən cəhd edin.");
+      }
     } finally {
       setLoading(false);
     }
@@ -186,8 +194,17 @@ export default function RegisterPage() {
               )}
 
               {error && (
-                <div className="bg-red-50 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
-                  {error}
+                <div className="bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl flex flex-col gap-2">
+                  <span>{error}</span>
+                  {error.includes("artıq") && (
+                    <button
+                      type="button"
+                      onClick={() => router.push("/auth/login")}
+                      className="text-left text-sm font-bold text-primary underline underline-offset-2"
+                    >
+                      Daxil ol səhifəsinə keç →
+                    </button>
+                  )}
                 </div>
               )}
 
