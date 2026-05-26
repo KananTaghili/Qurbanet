@@ -4,10 +4,30 @@ import { OrderProvider } from "../context/OrderContext";
 import { LanguageProvider } from "../context/LanguageContext";
 import ClientShell from "../components/ClientShell";
 
+const BASE_URL = "https://qurbanet.az";
+
 export const metadata = {
-  title: "QurbanEt",
-  description: "Etibarli · Halal · Sürətli",
-  icons: { icon: "/logo.png" },
+  metadataBase: new URL(BASE_URL),
+  title: "QurbanEt — Etibarli · Halal · Sürətli",
+  description:
+    "QurbanEt ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət. Azərbaycanda qurban kəsim platforması.",
+  keywords: ["qurban", "qurbanet", "qurban kes", "halal", "azerbaycan"],
+  icons: { icon: "/logo.png", apple: "/logo.png" },
+  openGraph: {
+    type: "website",
+    url: BASE_URL,
+    siteName: "QurbanEt",
+    title: "QurbanEt — Etibarli · Halal · Sürətli",
+    description:
+      "QurbanEt ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət. Azərbaycanda qurban kəsim platforması.",
+    locale: "az_AZ",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "QurbanEt — Etibarli · Halal · Sürətli",
+    description:
+      "QurbanEt ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət.",
+  },
 };
 
 export const viewport = {

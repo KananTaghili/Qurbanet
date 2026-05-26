@@ -392,7 +392,7 @@ export default function ContactPage() {
                     className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
                       contactMode === k
                         ? "bg-primary text-white shadow-sm"
-                        : "text-text-secondary hover:text-text-primary"
+                        : "bg-white text-text-secondary shadow-sm"
                     }`}
                   >
                     {label}
