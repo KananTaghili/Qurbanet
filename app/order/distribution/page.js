@@ -329,7 +329,13 @@ export default function DistributionPage() {
       })}
 
       {charityKeys.length > 0 && (
-        <div className="border-t border-border my-1" />
+        <div className="flex items-center gap-2 my-2">
+          <div className="flex-1 border-t border-border" />
+          <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase px-2 whitespace-nowrap">
+            {t(lang, "charityAs")}
+          </span>
+          <div className="flex-1 border-t border-border" />
+        </div>
       )}
       {charityKeys.map((key) => {
         const meta = OPTION_META[key];
