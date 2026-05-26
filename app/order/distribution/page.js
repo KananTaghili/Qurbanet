@@ -325,7 +325,7 @@ export default function DistributionPage() {
         />
       )}
     <div className="flex flex-col h-screen bg-bg overflow-hidden">
-      <BackHeader title={t(lang, 'distribution')} />
+      <BackHeader title={t(lang, 'distribution')} onBack={() => router.push("/order/quantity")} />
       <StepHeader currentStep={2} />
 
       <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">

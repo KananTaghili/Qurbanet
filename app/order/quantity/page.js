@@ -485,7 +485,7 @@ export default function QuantityPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Miqdar seçin" />
+      <BackHeader title="Miqdar seçin" onBack={() => router.replace("/")} />
       <StepHeader currentStep={1} />
 
       <div className="flex-1 overflow-y-auto pb-24 xl:pb-6 pt-[124px] xl:pt-0">
