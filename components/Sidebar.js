@@ -206,7 +206,7 @@ export default function Sidebar() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[13px] lg:text-sm font-bold text-white truncate">
-                  {user?.name}
+                  {[user?.name, user?.lastName].filter(Boolean).join(" ")}
                 </div>
                 <div
                   className="text-[11px] lg:text-xs truncate"

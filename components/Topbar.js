@@ -113,7 +113,7 @@ export default function Topbar() {
               {user?.name?.[0]?.toUpperCase() || "?"}
             </div>
             <span className="text-sm font-semibold text-white/80">
-              {user?.name?.split(" ")[0]}
+              {[user?.name, user?.lastName].filter(Boolean).join(" ")}
             </span>
           </div>
         )}
