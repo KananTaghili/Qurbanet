@@ -651,17 +651,6 @@ export default function QuantityPage() {
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide">
                     DOĞRAMA ÜSULU
                   </span>
-                  {!isSingle && (
-                    <span
-                      className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
-                        totalCutCount >= qty && qty > 0
-                          ? "bg-primary text-white"
-                          : "bg-surface-alt text-text-muted"
-                      }`}
-                    >
-                      {totalCutCount}/{qty}
-                    </span>
-                  )}
                 </div>
 
                 {cutStyleError && (
@@ -673,70 +662,26 @@ export default function QuantityPage() {
                   </div>
                 )}
 
-                {isSingle ? (
-                  <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {effectiveCutStyles.map((cs) => {
-                      const isSelected = (cutStyles[cs.key] || 0) > 0;
-                      return (
-                        <button
-                          key={cs.key}
-                          type="button"
-                          onClick={() =>
-                            setCutStyles(() => {
-                              const allZero = Object.fromEntries(
-                                effectiveCutStyles.map((c) => [c.key, 0]),
-                              );
-                              return { ...allZero, [cs.key]: 1 };
-                            })
-                          }
-                          className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
-                            isSelected
-                              ? "border-primary bg-primary-surface"
-                              : "border-border bg-surface-alt"
-                          }`}
-                        >
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
-                              {cs.labelAz}
-                            </span>
-                            {cs.fee > 0 && (
-                              <span className="text-[10px] text-primary font-bold">
-                                +{cs.fee} AZN
-                              </span>
-                            )}
-                          </div>
-                          <div
-                            className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 transition-all ${
-                              isSelected ? "border-primary" : "border-slate-300"
-                            }`}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            {isSelected && (
-                              <div
-                                style={{
-                                  width: 8,
-                                  height: 8,
-                                  borderRadius: "50%",
-                                  background: "var(--primary)",
-                                  flexShrink: 0,
-                                }}
-                              />
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {effectiveCutStyles.map((cs) => (
-                      <div
+                <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {effectiveCutStyles.map((cs) => {
+                    const isSelected = (cutStyles[cs.key] || 0) > 0;
+                    return (
+                      <button
                         key={cs.key}
-                        className="flex items-center justify-between bg-surface-alt rounded-xl px-3 py-2 gap-2"
+                        type="button"
+                        onClick={() =>
+                          setCutStyles(() => {
+                            const allZero = Object.fromEntries(
+                              effectiveCutStyles.map((c) => [c.key, 0]),
+                            );
+                            return { ...allZero, [cs.key]: qty };
+                          })
+                        }
+                        className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
+                          isSelected
+                            ? "border-primary bg-primary-surface"
+                            : "border-border bg-surface-alt"
+                        }`}
                       >
                         <div className="flex flex-col min-w-0 flex-1">
                           <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
@@ -744,51 +689,23 @@ export default function QuantityPage() {
                           </span>
                           {cs.fee > 0 && (
                             <span className="text-[10px] text-primary font-bold">
-                              +{cs.fee} AZN
+                              +{cs.fee * qty} AZN
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <button
-                            onClick={() =>
-                              setCutStyles((p) => ({
-                                ...p,
-                                [cs.key]: Math.max(0, (p[cs.key] || 0) - 1),
-                              }))
-                            }
-                            disabled={!cutStyles[cs.key]}
-                            className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
-                              !cutStyles[cs.key]
-                                ? "bg-border text-text-secondary cursor-default opacity-85"
-                                : "bg-primary text-white cursor-pointer hover:opacity-90"
-                            }`}
-                          >
-                            −
-                          </button>
-                          <span className="w-5 text-center text-sm font-extrabold text-primary">
-                            {cutStyles[cs.key] || 0}
-                          </span>
-                          <button
-                            onClick={() =>
-                              setCutStyles((p) => ({
-                                ...p,
-                                [cs.key]: (p[cs.key] || 0) + 1,
-                              }))
-                            }
-                            disabled={totalCutCount >= qty}
-                            className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
-                              totalCutCount >= qty
-                                ? "bg-border text-text-secondary cursor-default opacity-85"
-                                : "bg-primary text-white cursor-pointer hover:opacity-90"
-                            }`}
-                          >
-                            +
-                          </button>
+                        <div
+                          className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
+                            isSelected ? "border-primary" : "border-slate-300"
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="w-2 h-2 rounded-full bg-primary" />
+                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      </button>
+                    );
+                  })}
+                </div>
               </Card>
             )}
 
@@ -798,17 +715,6 @@ export default function QuantityPage() {
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
                     Qurbanın əlavə hissələri
                   </span>
-                  {!isSingle && (
-                    <span
-                      className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
-                        headUnassigned + feetUnassigned === 0
-                          ? "bg-primary text-white"
-                          : "bg-surface-alt text-text-muted"
-                      }`}
-                    >
-                      {headAssigned + feetAssigned}/{headTotal + feetTotal}
-                    </span>
-                  )}
                 </div>
                 <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {needsHead && (
@@ -832,7 +738,7 @@ export default function QuantityPage() {
                           return { ...prev, [key]: current + delta };
                         });
                       }}
-                      radioMode={isSingle}
+                      radioMode={true}
                       onRadioSelect={(key) => {
                         setHeadBuckets((prev) => {
                           const allZero = Object.fromEntries(
@@ -840,7 +746,7 @@ export default function QuantityPage() {
                           );
                           return prev[key] > 0
                             ? allZero
-                            : { ...allZero, [key]: 1 };
+                            : { ...allZero, [key]: headTotal };
                         });
                       }}
                       required={needsHead}
@@ -868,7 +774,7 @@ export default function QuantityPage() {
                           return { ...prev, [key]: current + delta };
                         });
                       }}
-                      radioMode={isSingle}
+                      radioMode={true}
                       onRadioSelect={(key) => {
                         setFeetBuckets((prev) => {
                           const allZero = Object.fromEntries(
@@ -876,7 +782,7 @@ export default function QuantityPage() {
                           );
                           return prev[key] > 0
                             ? allZero
-                            : { ...allZero, [key]: 4 };
+                            : { ...allZero, [key]: feetTotal };
                         });
                       }}
                       required={needsFeet}
@@ -1060,7 +966,7 @@ function PartBucketSection({
                     {opt.labelAz}
                   </span>
                   <span className="text-[10px] text-primary font-bold">
-                    {opt.fee > 0 ? `+${opt.fee} AZN` : "Pulsuz"}
+                    {opt.fee > 0 ? `+${opt.fee * total} AZN` : "Pulsuz"}
                   </span>
                 </div>
                 <div
