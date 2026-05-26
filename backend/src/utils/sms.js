@@ -293,16 +293,46 @@ const sendEmail = async (toEmail, code, lang = "az") => {
         </p>
         <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 16px;">
           <tr>
+            <!-- Instagram -->
             <td style="padding:0 8px;">
-              <a href="https://www.instagram.com/qurbanet.az/" target="_blank"
-                 style="display:inline-block;background:#E1306C;color:#fff;text-decoration:none;font-size:13px;font-weight:700;padding:9px 20px;border-radius:999px;letter-spacing:0.3px;">
-                &#x1F4F7; Instagram
+              <a href="https://www.instagram.com/qurbanet.az/" target="_blank" style="display:inline-block;text-decoration:none;">
+                <table cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td style="background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);border-radius:999px;padding:10px 20px;">
+                      <table cellpadding="0" cellspacing="0" role="presentation">
+                        <tr>
+                          <td style="padding-right:7px;vertical-align:middle;">
+                            <img src="https://qurbanet.az/instagram-icon.svg" alt="Instagram" width="16" height="16" style="display:block;vertical-align:middle;">
+                          </td>
+                          <td style="vertical-align:middle;">
+                            <span style="color:#fff;font-size:13px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;line-height:1;">Instagram</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
               </a>
             </td>
+            <!-- Facebook -->
             <td style="padding:0 8px;">
-              <a href="https://www.facebook.com/profile.php?id=61589737567463" target="_blank"
-                 style="display:inline-block;background:#1877F2;color:#fff;text-decoration:none;font-size:13px;font-weight:700;padding:9px 20px;border-radius:999px;letter-spacing:0.3px;">
-                &#x1F4C4; Facebook
+              <a href="https://www.facebook.com/profile.php?id=61589737567463" target="_blank" style="display:inline-block;text-decoration:none;">
+                <table cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td style="background:#1877F2;border-radius:999px;padding:10px 20px;">
+                      <table cellpadding="0" cellspacing="0" role="presentation">
+                        <tr>
+                          <td style="padding-right:7px;vertical-align:middle;">
+                            <img src="https://qurbanet.az/facebook-icon.svg" alt="Facebook" width="16" height="16" style="display:block;vertical-align:middle;">
+                          </td>
+                          <td style="vertical-align:middle;">
+                            <span style="color:#fff;font-size:13px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;line-height:1;">Facebook</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
               </a>
             </td>
           </tr>

@@ -33,7 +33,7 @@ const getSettings = async (req, res) => {
 const updateSettings = async (req, res) => {
   try {
     const settings = await getOrCreateSettings();
-    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays } = req.body;
+    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled } = req.body;
 
     if (Array.isArray(timeWindows)) {
       const valid = timeWindows.filter(
@@ -90,6 +90,10 @@ const updateSettings = async (req, res) => {
       if (!Number.isNaN(days) && days >= 1) settings.maxSlaughterDays = Math.floor(days);
     }
 
+    if (multiLanguageEnabled !== undefined) {
+      settings.multiLanguageEnabled = Boolean(multiLanguageEnabled);
+    }
+
     if (meatPickupLocation !== undefined) {
       const addr = String(meatPickupLocation.address || "").trim().slice(0, 300);
       const lat = Number(meatPickupLocation.lat);
@@ -129,6 +133,7 @@ const getPublicSettings = async (req, res) => {
       charityPageEnabled: settings.charityPageEnabled !== false,
       singleAnimalMode: settings.singleAnimalMode === true,
       maxSlaughterDays: settings.maxSlaughterDays ?? 14,
+      multiLanguageEnabled: settings.multiLanguageEnabled !== false,
       cashPickupLocation: settings.cashPickupLocation || {
         address: "20 Yanvar metro stansiyası yaxınlığı, Bakı",
         lat: 40.3875,

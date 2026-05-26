@@ -127,6 +127,9 @@ const verifyPayment = async (req, res) => {
         stored.verifiedAt = new Date().toISOString();
       }
 
+      const { getIo } = require("../socket");
+      try { getIo().emit("new_order", { order }); } catch (_) {}
+
       console.log(`[EPoint] verifyPayment: ödənildi: ${orderId}`);
     }
 
@@ -289,6 +292,8 @@ const handleResult = async (req, res) => {
             order.statusHistory.push({ status: ORDER_STATUS.PLACED, note: "Ödəniş tamamlandı." });
           }
           await order.save();
+          const { getIo } = require("../socket");
+          try { getIo().emit("new_order", { order }); } catch (_) {}
           console.log(`[EPoint] Sifariş ödənildi (callback): ${realId}`);
         }
       }

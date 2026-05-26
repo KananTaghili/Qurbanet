@@ -85,6 +85,9 @@ router.delete("/shared-groups/:groupId", adminController.deleteSharedGroup);
 // GET /api/admin/orders/:orderId
 router.get("/orders/:orderId", adminController.getOrderById);
 
+// DELETE /api/admin/orders/:orderId  (ALLOW_ORDER_DELETE=true lazımdır)
+router.delete("/orders/:orderId", adminController.deleteOrder);
+
 // PUT /api/admin/orders/:orderId/status
 router.put("/orders/:orderId/status", adminController.updateOrderStatus);
 

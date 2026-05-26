@@ -968,11 +968,6 @@ const createOrder = async (req, res) => {
       ],
     });
 
-    const { getIo } = require("../socket");
-    try {
-      getIo().emit("new_order", { order: formatOrder(order, req) });
-    } catch (_) {}
-
     return success(
       res,
       { order: formatOrder(order, req) },
@@ -1023,7 +1018,7 @@ const processPayment = async (req, res) => {
 
     const { getIo } = require("../socket");
     try {
-      getIo().emit("order_updated", { order: formatOrder(order, req) });
+      getIo().emit("new_order", { order: formatOrder(order, req) });
     } catch (_) {}
 
     return success(

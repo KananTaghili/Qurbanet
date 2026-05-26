@@ -68,6 +68,10 @@ const appSettingsSchema = new mongoose.Schema(
       default: 14,
       min: 1,
     },
+    multiLanguageEnabled: {
+      type: Boolean,
+      default: true,
+    },
     allowedAdminEmails: {
       type: [String],
       default: ["nbiyevmuhammd1@gmail.com"],

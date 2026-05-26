@@ -343,7 +343,11 @@ const getAllOrders = async (req, res) => {
     const { status, page = 1, limit = 20, orderMode } = req.query;
 
     const filter = {};
-    if (status) filter.status = status;
+    if (status) {
+      filter.status = status;
+    } else {
+      filter.status = { $ne: ORDER_STATUS.AWAITING_PAYMENT };
+    }
     if (orderMode) filter.orderMode = orderMode;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -982,6 +986,20 @@ const deleteSharedGroup = async (req, res) => {
   }
 };
 
+const deleteOrder = async (req, res) => {
+  if (process.env.ALLOW_ORDER_DELETE !== "true") {
+    return error(res, "Sifariş silmə funksiyası deaktivdir.", 403);
+  }
+  try {
+    const order = await Order.findByIdAndDelete(req.params.orderId);
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+    return success(res, {}, "Sifariş silindi.");
+  } catch (err) {
+    console.error("deleteOrder xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
 module.exports = {
   adminLogin,
   adminSendOTP,
@@ -997,6 +1015,7 @@ module.exports = {
   updateOrderStatus,
   uploadMedia,
   deleteMedia,
+  deleteOrder,
   getStats,
   getSharedGroups,
   createSharedGroup,
