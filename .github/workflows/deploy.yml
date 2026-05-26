@@ -20,7 +20,7 @@ jobs:
           node-version: "20" # Sizin istifadə etdiyiniz Node versiyası (məsələn: 18, 20 və s.)
           cache: "npm"
 
-      # 3. GitHub serverində paketləri yazırıq və layihəni BUILD edirik
+      # 3. GitHub serverində paketləri yazırıq və layihəni BUILD edirik.
       - name: Install Dependencies and Build Next.js
         run: |
           npm install
