@@ -18,7 +18,6 @@ export default function ConfirmationPage() {
     sessionStorage.removeItem('qurbanet_qty_state');
     localStorage.removeItem('selected_animal');
     localStorage.removeItem('delivery_windows');
-    localStorage.removeItem('single_animal_mode');
   }, []);
 
   if (!order?.createdOrderId) return null;

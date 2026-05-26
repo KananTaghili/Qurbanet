@@ -88,7 +88,6 @@ export default function QuantityPage() {
   const [selectedWeight, setSelectedWeight] = useState(null);
   const [headBuckets, setHeadBuckets] = useState({});
   const [feetBuckets, setFeetBuckets] = useState({});
-  const [singleAnimalMode, setSingleAnimalMode] = useState(false);
   const [maxSlaughterDays, setMaxSlaughterDays] = useState(14);
 
   useEffect(() => {
@@ -102,8 +101,6 @@ export default function QuantityPage() {
       }
       const parsed = JSON.parse(a);
       setAnimal(parsed);
-      const sam = localStorage.getItem("single_animal_mode");
-      setSingleAnimalMode(sam === "true");
       if (parsed.orderMode === "serikli" && parsed.serikliEnabled)
         setMode("serikli");
       if (dw) {
@@ -223,6 +220,8 @@ export default function QuantityPage() {
 
   if (!animal) return null;
 
+  const maxQty = Number(animal.maxQuantity) || 1;
+  const isSingle = maxQty === 1;
   const maxShares = Number(animal.totalShares) || 1;
   const effectiveCutStyles = animal.cutStyleOptions || [];
   const pricePerUnit = animal.pricePerShare || 0;
@@ -514,7 +513,7 @@ export default function QuantityPage() {
                   )}
                 </div>
 
-                {singleAnimalMode ? (
+                {isSingle ? (
                   <div className="flex-1 min-w-0 flex flex-col justify-center gap-2 self-stretch py-1">
                     <div className="text-xl sm:text-2xl font-extrabold text-text-primary leading-tight">
                       {animal.nameAz}
@@ -557,10 +556,10 @@ export default function QuantityPage() {
                             setQty((q) =>
                               mode === "serikli"
                                 ? Math.min(maxShares, q + 1)
-                                : q + 1,
+                                : Math.min(maxQty, q + 1),
                             )
                           }
-                          disabled={mode === "serikli" && qty >= maxShares}
+                          disabled={(mode === "serikli" && qty >= maxShares) || (mode !== "serikli" && qty >= maxQty)}
                         >
                           +
                         </QtyBtn>
@@ -570,7 +569,7 @@ export default function QuantityPage() {
                 )}
               </div>
 
-              {!singleAnimalMode && (
+              {!isSingle && (
                 <div className="px-4 py-2.5 bg-surface-alt border-t border-border flex items-center justify-between gap-2">
                   <span className="text-xs text-text-secondary font-medium">
                     {mode === "serikli"
@@ -652,7 +651,7 @@ export default function QuantityPage() {
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide">
                     DOĞRAMA ÜSULU
                   </span>
-                  {!singleAnimalMode && (
+                  {!isSingle && (
                     <span
                       className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
                         totalCutCount >= qty && qty > 0
@@ -674,7 +673,7 @@ export default function QuantityPage() {
                   </div>
                 )}
 
-                {singleAnimalMode ? (
+                {isSingle ? (
                   <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {effectiveCutStyles.map((cs) => {
                       const isSelected = (cutStyles[cs.key] || 0) > 0;
@@ -799,7 +798,7 @@ export default function QuantityPage() {
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
                     Qurbanın əlavə hissələri
                   </span>
-                  {!singleAnimalMode && (
+                  {!isSingle && (
                     <span
                       className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
                         headUnassigned + feetUnassigned === 0
@@ -833,7 +832,7 @@ export default function QuantityPage() {
                           return { ...prev, [key]: current + delta };
                         });
                       }}
-                      radioMode={singleAnimalMode}
+                      radioMode={isSingle}
                       onRadioSelect={(key) => {
                         setHeadBuckets((prev) => {
                           const allZero = Object.fromEntries(
@@ -869,7 +868,7 @@ export default function QuantityPage() {
                           return { ...prev, [key]: current + delta };
                         });
                       }}
-                      radioMode={singleAnimalMode}
+                      radioMode={isSingle}
                       onRadioSelect={(key) => {
                         setFeetBuckets((prev) => {
                           const allZero = Object.fromEntries(
@@ -984,7 +983,7 @@ export default function QuantityPage() {
             <span className="text-xl sm:text-2xl font-extrabold text-primary leading-tight">
               {totalPrice} AZN
             </span>
-            {!singleAnimalMode &&
+            {!isSingle &&
               (mode === "serikli" ? (
                 <span className="text-[10px] text-text-muted truncate">
                   {qty}/{maxShares} pay

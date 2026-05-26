@@ -45,7 +45,16 @@ export default function ContactPage() {
 
   const isRegistered = !!user?.name;
 
+  const [contactMode, setContactMode] = useState("register"); // "login" | "register"
   const [step, setStep] = useState("info");
+
+  // Login-mode state
+  const [loginIdentifier, setLoginIdentifier] = useState("");
+  const [loginIdentifierMode, setLoginIdentifierMode] = useState("phone"); // "phone" | "email"
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginPhoneError, setLoginPhoneError] = useState("");
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -124,6 +133,41 @@ export default function ContactPage() {
     };
     updateOrder({ contactInfo });
     router.push("/order/summary");
+  };
+
+  // ── Login flow (for returning users who are logged out) ──────────────────
+  const handleLogin = async () => {
+    setError("");
+    setLoginPhoneError("");
+    if (loginPassword.length < 6) { setError(t(lang, 'passTooShort')); return; }
+    const body = { password: loginPassword };
+    if (loginIdentifierMode === "phone") {
+      if (!isValidAzPhone(loginIdentifier)) { setLoginPhoneError(t(lang, 'invalidAZPhoneContact')); return; }
+      const raw = loginIdentifier.replace(/\D/g, "");
+      body.phone = "+994" + (raw.startsWith("0") ? raw.slice(1) : raw);
+    } else {
+      const em = loginIdentifier.trim().toLowerCase();
+      if (!isValidEmail(em)) { setError(t(lang, 'invalidGmail')); return; }
+      body.email = em;
+    }
+    setLoginLoading(true);
+    try {
+      const res = await api.post("/auth/login-password", body);
+      const { token: newToken, user: newUser } = res.data.data;
+      if (newToken) login(newToken, newUser);
+      const contactInfo = {
+        firstName: newUser.name || "",
+        lastName: newUser.lastName || "",
+        ...(newUser.phone ? { phone: newUser.phone } : {}),
+        ...(newUser.email ? { email: newUser.email } : {}),
+      };
+      updateOrder({ contactInfo });
+      router.replace("/order/summary");
+    } catch (err) {
+      setError(err.response?.data?.message || t(lang, 'loginFailed'));
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   // ── Guest OTP flow ────────────────────────────────────────────────────────
@@ -329,16 +373,126 @@ export default function ContactPage() {
               </button>
             </>
           ) : (
-            /* ── Guest OTP flow ──────────────────────────────────────── */
+            /* ── Guest: Login or Register ────────────────────────────── */
             <>
               <div>
                 <h1 className="text-xl font-bold text-text-primary">{t(lang, 'contactInfoTitle')}</h1>
-                <p className="text-sm text-text-secondary mt-1">
-                  {verifyMethod === "email"
-                    ? t(lang, 'emailOtpInfo')
-                    : t(lang, 'smsOtpInfo')}
-                </p>
               </div>
+
+              {/* Mode tab selector */}
+              <div className="bg-surface-alt rounded-2xl p-1 flex gap-1">
+                {[
+                  { k: "login", label: t(lang, 'loginTab') },
+                  { k: "register", label: t(lang, 'registerTab') },
+                ].map(({ k, label }) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => { setContactMode(k); setError(""); setLoginPhoneError(""); setPhoneError(""); }}
+                    className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                      contactMode === k
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-text-secondary hover:text-text-primary"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* ── LOGIN FORM ───────────────────────────────────────── */}
+              {contactMode === "login" && (
+                <>
+                  <div className="bg-surface rounded-2xl border border-border overflow-hidden">
+                    {/* Phone / Email switcher */}
+                    <div className="flex border-b border-border">
+                      {[
+                        { k: "phone", label: t(lang, 'mobileLabel') },
+                        { k: "email", label: "Gmail" },
+                      ].map(({ k, label }) => (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => { setLoginIdentifierMode(k); setLoginIdentifier(""); setLoginPhoneError(""); setError(""); }}
+                          className={`flex-1 py-3 text-sm font-bold transition-all border-b-2 ${
+                            loginIdentifierMode === k
+                              ? "text-primary border-primary"
+                              : "text-text-secondary border-transparent"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="p-4 flex flex-col gap-4">
+                      {loginIdentifierMode === "phone" ? (
+                        <div>
+                          <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'mobileLabel')}</label>
+                          <div className={`flex items-center bg-surface-alt border rounded-xl focus-within:bg-white transition-colors ${loginPhoneError ? "border-red-400" : "border-border focus-within:border-primary"}`}>
+                            <div className="flex items-center gap-1.5 px-3 border-r border-border shrink-0">
+                              <span className="text-lg leading-none">🇦🇿</span>
+                              <span className="text-sm font-semibold text-text-secondary">+994</span>
+                            </div>
+                            <input
+                              type="tel"
+                              value={loginIdentifier}
+                              onChange={(e) => { setLoginPhoneError(""); setLoginIdentifier(formatPhone(e.target.value)); }}
+                              placeholder="50 123 45 67"
+                              className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-3 py-3 font-medium border-none"
+                              inputMode="numeric"
+                              maxLength={12}
+                            />
+                          </div>
+                          {loginPhoneError && <p className="text-xs text-red-500 font-semibold mt-1">{loginPhoneError}</p>}
+                        </div>
+                      ) : (
+                        <div>
+                          <label className="block text-sm text-text-secondary mb-1.5">Gmail</label>
+                          <input
+                            type="email"
+                            value={loginIdentifier}
+                            onChange={(e) => { setError(""); setLoginIdentifier(e.target.value); }}
+                            placeholder="example@gmail.com"
+                            className={inputCls}
+                            autoComplete="email"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-sm text-text-secondary mb-1.5">{t(lang, 'passwordLabel')}</label>
+                        <div className="flex items-center bg-surface-alt border border-border rounded-xl focus-within:border-primary focus-within:bg-white transition-colors">
+                          <input
+                            type={showLoginPassword ? "text" : "password"}
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                            placeholder={t(lang, 'minPassChars')}
+                            className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-4 py-3 font-medium border-none"
+                          />
+                          <button type="button" onClick={() => setShowLoginPassword(v => !v)} className="px-4 py-3 text-text-muted hover:text-text-secondary transition-colors cursor-pointer">
+                            {showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {error && (
+                    <div className="bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">{error}</div>
+                  )}
+                  <button className={`btn-primary ${loginLoading ? "opacity-50 cursor-not-allowed" : ""}`} onClick={handleLogin} disabled={loginLoading}>
+                    {loginLoading ? t(lang, 'verifying') : t(lang, 'loginTab')}
+                  </button>
+                </>
+              )}
+
+              {/* ── REGISTER FORM ────────────────────────────────────── */}
+              {contactMode === "register" && (
+                <>
+                  <div>
+                    <p className="text-sm text-text-secondary">
+                      {verifyMethod === "email" ? t(lang, 'emailOtpInfo') : t(lang, 'smsOtpInfo')}
+                    </p>
+                  </div>
 
               {/* Fields card */}
               <div className="bg-surface rounded-2xl border border-border overflow-hidden">
@@ -536,6 +690,8 @@ export default function ContactPage() {
                     {t(lang, 'changeInfo')}
                   </button>
                 </div>
+              )}
+                </>
               )}
             </>
           )}

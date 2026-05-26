@@ -104,7 +104,6 @@ export default function HomePage() {
   const { lang, setLang } = useLanguage();
   const [animals, setAnimals] = useState([]);
   const [deliveryWindows, setDeliveryWindows] = useState([]);
-  const [singleAnimalMode, setSingleAnimalMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -116,7 +115,6 @@ export default function HomePage() {
       sessionStorage.removeItem("qurbanet_dist_state");
       localStorage.removeItem("selected_animal");
       localStorage.removeItem("delivery_windows");
-      localStorage.removeItem("single_animal_mode");
     } catch {}
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -143,7 +141,6 @@ export default function HomePage() {
       const data = res.data.data;
       setAnimals(data.animals || []);
       if (data.deliveryWindows?.length) setDeliveryWindows(data.deliveryWindows);
-      setSingleAnimalMode(data.singleAnimalMode === true);
     } catch {
       /* ignore */
     } finally {
@@ -154,7 +151,6 @@ export default function HomePage() {
   const handleSelect = (animal) => {
     localStorage.setItem("selected_animal", JSON.stringify(animal));
     localStorage.setItem("delivery_windows", JSON.stringify(deliveryWindows));
-    localStorage.setItem("single_animal_mode", String(singleAnimalMode));
     sessionStorage.setItem("qurbanet_flow", "1");
     sessionStorage.removeItem("qurbanet_qty_state");
     sessionStorage.removeItem("qurbanet_dist_state");
@@ -277,20 +273,20 @@ export default function HomePage() {
 
         {/* Feature strips - mobile bottom */}
         {!loading && animals.length > 0 && (
-          <div className="grid grid-cols-1 xs:grid-cols-3 gap-2 xs:gap-2.5 mt-4 sm:mt-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 sm:mt-5">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
               <div
                 key={labelKey}
-                className="flex xs:flex-col items-center xs:items-start gap-2.5 xs:gap-2 bg-surface rounded-2xl border border-border px-3 py-2.5 xs:p-3 shadow-card"
+                className="flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2 bg-surface rounded-2xl border border-border px-3 py-2.5 sm:p-3 shadow-card"
               >
-                <div className="w-9 h-9 xs:w-8 xs:h-8 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
                   <Icon size={18} color={BRAND} strokeWidth={1.8} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13px] xs:text-xs font-bold text-text-primary truncate">
+                  <div className="text-[13px] sm:text-xs font-bold text-text-primary">
                     {t(lang, labelKey)}
                   </div>
-                  <div className="text-[11px] xs:text-[10px] text-text-muted mt-0.5 truncate">
+                  <div className="text-[11px] sm:text-[10px] text-text-muted mt-0.5">
                     {t(lang, subKey)}
                   </div>
                 </div>
