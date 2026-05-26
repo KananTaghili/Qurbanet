@@ -184,10 +184,11 @@ export default function SummaryPage() {
       ? [
           {
             label: t(lang, "deliveryTypeRow"),
-            value:
-              deliveryType === "delivery"
-                ? t(lang, "homeDelivery")
-                : t(lang, "pickupSelf"),
+            value: isCharityDist
+              ? getDistLabel(selectedDistKey)
+              : deliveryType === "delivery"
+              ? t(lang, "homeDelivery")
+              : t(lang, "pickupSelf"),
           },
           ...(deliveryType === "delivery" && address
             ? [{ label: t(lang, "addressRow"), value: address }]
