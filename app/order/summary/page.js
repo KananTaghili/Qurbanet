@@ -228,7 +228,10 @@ export default function SummaryPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title={t(lang, 'orderSummary')} />
+      <BackHeader
+        title={t(lang, 'orderSummary')}
+        onBack={() => router.push(order?.mode === "serikli" ? "/order/quantity" : "/order/distribution")}
+      />
       <StepHeader currentStep={3} />
 
       <div className="flex-1 page-scroll">
