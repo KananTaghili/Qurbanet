@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { MapPin, Navigation, X, Check } from "lucide-react";
 
 const DEFAULT = { lat: 40.4093, lng: 49.8671 };
@@ -200,8 +201,8 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
     });
   };
 
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", flexDirection: "column", background: "#fff" }}>
+  const content = (
+    <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", flexDirection: "column", background: "#fff" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid #EAECF0", background: "#fff", flexShrink: 0 }}>
         <button onClick={onClose}
@@ -281,4 +282,7 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(content, document.body);
 }
