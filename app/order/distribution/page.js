@@ -195,6 +195,12 @@ export default function DistributionPage() {
     } catch (_) {}
   }, [dist, pickedLocation, phones, addressNote]);
 
+  const handleMapConfirm = useCallback((loc) => {
+    setPickedLocation(loc);
+    setAddress(loc.address);
+    setShowMap(false);
+  }, []);
+
   if (!isLoaded || !order) return null;
 
   const qty             = order.qty || 1;
@@ -248,12 +254,6 @@ export default function DistributionPage() {
       }
     }
   };
-
-  const handleMapConfirm = useCallback((loc) => {
-    setPickedLocation(loc);
-    setAddress(loc.address);
-    setShowMap(false);
-  }, []);
 
   const assignedOk  = remaining === 0;
   const phonesValid = needsLocation

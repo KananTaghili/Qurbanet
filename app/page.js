@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import BottomNav from "../components/BottomNav";
 import { useAuth } from "../context/AuthContext";
+import { useOrder } from "../context/OrderContext";
 import { useLanguage, LANGUAGES } from "../context/LanguageContext";
 import { t, animalName } from "../lib/i18n";
 import api, { BASE_URL } from "../lib/api";
@@ -25,12 +26,25 @@ const BRAND = "#1c5e20";
 export default function HomePage() {
   const router = useRouter();
   const { isGuest, logout, isLoading } = useAuth();
+  const { clearOrder } = useOrder();
   const { lang, setLang } = useLanguage();
   const [animals, setAnimals] = useState([]);
   const [deliveryWindows, setDeliveryWindows] = useState([]);
   const [singleAnimalMode, setSingleAnimalMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    clearOrder();
+    try {
+      sessionStorage.removeItem("qurbanet_flow");
+      sessionStorage.removeItem("qurbanet_qty_state");
+      sessionStorage.removeItem("qurbanet_dist_state");
+      localStorage.removeItem("selected_animal");
+      localStorage.removeItem("delivery_windows");
+      localStorage.removeItem("single_animal_mode");
+    } catch {}
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchAnimals();
@@ -73,7 +87,8 @@ export default function HomePage() {
     localStorage.setItem("delivery_windows", JSON.stringify(deliveryWindows));
     localStorage.setItem("single_animal_mode", String(singleAnimalMode));
     sessionStorage.setItem("qurbanet_flow", "1");
-    sessionStorage.removeItem("qurbanet_qty_state"); // fresh state for new animal
+    sessionStorage.removeItem("qurbanet_qty_state");
+    sessionStorage.removeItem("qurbanet_dist_state");
     router.push("/order/quantity");
   };
 
