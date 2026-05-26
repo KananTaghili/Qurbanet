@@ -623,17 +623,17 @@ export default function DistributionPage() {
 
               {/* Pickup info — mobile */}
               {selectedKey === "ozum" && meatPickupLocation && (
-                <PickupCard className="lg:hidden" />
+                PickupCard({ className: "lg:hidden" })
               )}
 
               {/* Address — mobile */}
-              {needsLocation && <AddressSection className="lg:hidden" />}
+              {needsLocation && AddressSection({ className: "lg:hidden" })}
             </div>
 
             {/* ════ RIGHT — desktop ════ */}
             <div className="hidden lg:flex flex-col gap-3">
-              {selectedKey === "ozum" && meatPickupLocation && <PickupCard />}
-              {needsLocation && <AddressSection />}
+              {selectedKey === "ozum" && meatPickupLocation && PickupCard({})}
+              {needsLocation && AddressSection({})}
 
               <Card>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
