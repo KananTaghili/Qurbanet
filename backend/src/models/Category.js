@@ -10,15 +10,21 @@ const weightOptionSchema = new mongoose.Schema({
 });
 
 const cutStyleOptionSchema = new mongoose.Schema({
-  key: { type: String, trim: true, required: true },
+  key:     { type: String, trim: true, required: true },
   labelAz: { type: String, trim: true, required: true },
-  fee: { type: Number, default: 0, min: 0 },
+  labelEn: { type: String, trim: true, default: "" },
+  labelRu: { type: String, trim: true, default: "" },
+  labelAr: { type: String, trim: true, default: "" },
+  fee:     { type: Number, default: 0, min: 0 },
 });
 
 const partOptionSchema = new mongoose.Schema({
-  key: { type: String, trim: true, required: true },
+  key:     { type: String, trim: true, required: true },
   labelAz: { type: String, trim: true, required: true },
-  fee: { type: Number, default: 0, min: 0 },
+  labelEn: { type: String, trim: true, default: "" },
+  labelRu: { type: String, trim: true, default: "" },
+  labelAr: { type: String, trim: true, default: "" },
+  fee:     { type: Number, default: 0, min: 0 },
   isActive: { type: Boolean, default: true },
 });
 
