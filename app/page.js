@@ -20,6 +20,7 @@ import {
   Loader2,
   ChevronRight,
   Globe,
+  Settings,
 } from "lucide-react";
 
 const BRAND = "#1c5e20";
@@ -99,7 +100,7 @@ function LanguageSelect({ lang, setLang, dark }) {
 
 export default function HomePage() {
   const router = useRouter();
-  const { isGuest, logout, isLoading } = useAuth();
+  const { user, isGuest, logout, isLoading } = useAuth();
   const { clearOrder } = useOrder();
   const { lang, setLang } = useLanguage();
   const [animals, setAnimals] = useState([]);
@@ -205,25 +206,81 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Language select (mobile) */}
-          <LanguageSelect lang={lang} setLang={setLang} dark />
+          {/* Right side */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Language select (mobile) */}
+            <LanguageSelect lang={lang} setLang={setLang} dark />
 
-          {/* Menu button */}
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={() => setMenuOpen((p) => !p)}
-              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full active:bg-white/10 transition-colors"
-              aria-label="Menyu"
-            >
-              <MoreVertical size={22} color="white" strokeWidth={2} className="sm:w-6 sm:h-6" />
-            </button>
-
-            {menuOpen && (
+            {!isGuest ? (
+              /* ── Logged-in: avatar + name + settings + logout menu ── */
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-11 sm:top-12 bg-surface rounded-xl shadow-card-lg border border-border z-50 min-w-[160px] py-1 overflow-hidden">
-                  {isGuest ? (
+                <button
+                  onClick={() => router.push("/settings")}
+                  className="w-8 h-8 flex items-center justify-center rounded-xl transition-colors active:bg-white/20"
+                  title="Parametrlər"
+                >
+                  <Settings size={17} color="white" strokeWidth={2} />
+                </button>
+
+                <div className="relative flex-shrink-0">
+                  <button
+                    onClick={() => setMenuOpen((p) => !p)}
+                    className="flex items-center gap-1.5 rounded-2xl px-2 py-1 active:bg-white/10 transition-colors"
+                    aria-label="Hesab"
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full border-2 border-white/40 flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
+                      style={{ background: "rgba(255,255,255,0.18)" }}
+                    >
+                      {user?.name?.[0]?.toUpperCase() || "?"}
+                    </div>
+                    <span className="text-xs font-bold text-white/90 max-w-[72px] truncate">
+                      {user?.name?.split(" ")[0]}
+                    </span>
+                  </button>
+
+                  {menuOpen && (
                     <>
+                      <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                      <div className="absolute right-0 top-11 bg-surface rounded-xl shadow-card-lg border border-border z-50 min-w-[170px] py-1 overflow-hidden">
+                        <div className="px-4 py-2.5 border-b border-border">
+                          <p className="text-sm font-bold text-text-primary truncate">{user?.name}</p>
+                          <p className="text-xs text-text-secondary truncate">{user?.phone || user?.email}</p>
+                        </div>
+                        <button
+                          onClick={() => { setMenuOpen(false); router.push("/settings"); }}
+                          className="w-full text-left px-4 py-3 text-sm font-semibold text-text-primary flex items-center gap-2 active:bg-surface-alt"
+                        >
+                          <Settings size={15} strokeWidth={2} />
+                          Parametrlər
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-left px-4 py-3 text-sm font-semibold text-red-600 flex items-center gap-2 active:bg-red-50 border-t border-border"
+                        >
+                          <LogOut size={15} color="#dc2626" strokeWidth={2} />
+                          {t(lang, 'logout')}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* ── Guest: login/register menu ── */
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={() => setMenuOpen((p) => !p)}
+                  className="w-9 h-9 flex items-center justify-center rounded-full active:bg-white/10 transition-colors"
+                  aria-label="Menyu"
+                >
+                  <MoreVertical size={22} color="white" strokeWidth={2} />
+                </button>
+
+                {menuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                    <div className="absolute right-0 top-11 bg-surface rounded-xl shadow-card-lg border border-border z-50 min-w-[160px] py-1 overflow-hidden">
                       <button
                         onClick={() => { setMenuOpen(false); router.push("/auth/login"); }}
                         className="w-full text-left px-4 py-3 text-sm font-semibold text-primary flex items-center gap-2 active:bg-primary-surface"
@@ -238,18 +295,10 @@ export default function HomePage() {
                         <UserPlus size={15} color={BRAND} strokeWidth={2} />
                         {t(lang, 'register')}
                       </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-3 text-sm font-semibold text-red-600 flex items-center gap-2 active:bg-red-50"
-                    >
-                      <LogOut size={15} color="#dc2626" strokeWidth={2} />
-                      {t(lang, 'logout')}
-                    </button>
-                  )}
-                </div>
-              </>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </div>
