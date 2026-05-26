@@ -177,8 +177,9 @@ export default function QuantityPage() {
 
   // Fetch max slaughter days from settings
   useEffect(() => {
-    api.get("/app-config/settings")
-      .then(res => {
+    api
+      .get("/app-config/settings")
+      .then((res) => {
         const days = res.data?.data?.maxSlaughterDays;
         if (days && days > 0) setMaxSlaughterDays(days);
       })
@@ -403,8 +404,12 @@ export default function QuantityPage() {
           </div>
           <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
             {calDays.map((d, i) => {
-              const maxDate = new Date(today); maxDate.setDate(maxDate.getDate() + maxSlaughterDays);
-              const disabled = !d || new Date(calYear, calMonth, d) < today || new Date(calYear, calMonth, d) > maxDate;
+              const maxDate = new Date(today);
+              maxDate.setDate(maxDate.getDate() + maxSlaughterDays);
+              const disabled =
+                !d ||
+                new Date(calYear, calMonth, d) < today ||
+                new Date(calYear, calMonth, d) > maxDate;
               const sel =
                 d &&
                 selectedDate &&
@@ -705,10 +710,22 @@ export default function QuantityPage() {
                             className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 transition-all ${
                               isSelected ? "border-primary" : "border-slate-300"
                             }`}
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
                           >
                             {isSelected && (
-                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', flexShrink: 0 }} />
+                              <div
+                                style={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  background: "var(--primary)",
+                                  flexShrink: 0,
+                                }}
+                              />
                             )}
                           </div>
                         </button>
