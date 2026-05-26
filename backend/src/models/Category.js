@@ -146,6 +146,12 @@ const categorySchema = new mongoose.Schema(
       type: [cutStyleOptionSchema],
       default: [{ key: "tam_cemdek", labelAz: "Tam cəmdək", fee: 0 }],
     },
+
+    deliveryFee: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,

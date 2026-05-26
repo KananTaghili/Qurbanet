@@ -88,6 +88,7 @@ const parseCategoryPayload = (body) => {
       body.maxPortionSplit !== null
         ? Number(body.maxPortionSplit)
         : null,
+    deliveryFee: Number(body.deliveryFee) >= 0 ? Number(body.deliveryFee) : 0,
   };
 
   if (!payload.nameAz) {
