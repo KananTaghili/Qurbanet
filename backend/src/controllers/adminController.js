@@ -423,7 +423,7 @@ const getSharedOrders = async (req, res) => {
 const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId)
-      .populate("user", "phone name createdAt")
+      .populate("user", "phone name lastName email createdAt")
       .select("-__v");
 
     if (!order) return error(res, "Sifariş tapılmadı.", 404);
@@ -712,6 +712,12 @@ const formatAdminOrder = (order) => {
     contactInfo: order.contactInfo,
     orphanDelight: order.orphanDelight,
     review: order.review,
+    userNote: order.userNote,
+    deliveryFee: order.deliveryFee,
+    qurbanParts: order.qurbanParts,
+    cutStyle: order.cutStyle,
+    grindingMethod: order.grindingMethod,
+    lambSelection: order.lambSelection,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
   };
