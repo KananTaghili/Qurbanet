@@ -357,13 +357,52 @@ export default function HomePage() {
           top: 0, left: 0, right: 0,
           zIndex: 99,
           paddingLeft: "calc(var(--sidebar-w) + 28px)",
-          paddingRight: 28,
+          paddingRight: 20,
         }}
       >
         <h1 className="text-base font-extrabold tracking-tight text-white">
           {t(lang, 'animalSelection')}
         </h1>
-        {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
+
+        {/* Right: lang + user info */}
+        <div className="flex items-center gap-2">
+          {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
+
+          {isGuest ? (
+            <button
+              onClick={() => router.push('/auth/login')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold text-white transition-colors"
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
+            >
+              <LogIn size={14} strokeWidth={2.5} />
+              Daxil ol
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => router.push('/settings')}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/20"
+                title="Parametrlər"
+              >
+                <Settings size={17} color="white" strokeWidth={2} />
+              </button>
+              <button
+                onClick={() => router.push('/settings')}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl transition-colors hover:bg-white/10"
+              >
+                <div
+                  className="w-7 h-7 rounded-full border-2 border-white/30 flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.18)' }}
+                >
+                  {user?.name?.[0]?.toUpperCase() || '?'}
+                </div>
+                <span className="text-sm font-semibold text-white/90 max-w-[110px] truncate">
+                  {user?.name} {user?.lastName ? user.lastName[0] + '.' : ''}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ══════════════════════════════════════════════
