@@ -101,15 +101,8 @@ export default function SummaryPage() {
   const cutFee  = effectiveCutStyles.reduce((s, cs) => s + (cutStyles[cs.key] || 0) * (cs.fee || 0), 0);
   const animalBasePrice = Math.max(0, totalPrice - headFee - feetFee - cutFee);
 
-  const distRows = Object.entries(dist)
-    .filter(([, count]) => (count || 0) > 0)
-    .map(([key, count]) => ({
-      key, label: getDistLabel(key), count, fee: distFees[key] ?? 0,
-    }));
-  const distFeeTotal = distRows.reduce((s, r) => s + r.fee, 0);
-
-  const finalDeliveryFee = distRows.length === 0 && deliveryType === "delivery" ? deliveryFee : 0;
-  const grandTotal = totalPrice + (distRows.length > 0 ? distFeeTotal : finalDeliveryFee);
+  const finalDeliveryFee = deliveryType === "delivery" ? deliveryFee : 0;
+  const grandTotal = totalPrice + finalDeliveryFee;
 
   const activeCutRows  = effectiveCutStyles.filter((cs) => (cutStyles[cs.key] || 0) > 0);
   const activeHeadRows = activeHeadOptions.filter((o) => (headBuckets[o.key] || 0) > 0);
@@ -123,18 +116,8 @@ export default function SummaryPage() {
     { label: t(lang, 'deliveryTimeRow'), value: timeSlot || "-" },
     ...(mode !== "serikli"
       ? [
-          ...(distRows.length > 0
-            ? [
-                {
-                  label: t(lang, 'meatDistRow'),
-                  value: distRows.map((r) => `${r.label}: ${r.count} ${t(lang, 'shares')}`).join("\n"),
-                },
-                ...(address ? [{ label: t(lang, 'deliveryAddrRow'), value: address }] : []),
-              ]
-            : [
-                { label: t(lang, 'deliveryTypeRow'), value: deliveryType === "delivery" ? t(lang, 'homeDelivery') : t(lang, 'pickupSelf') },
-                ...(deliveryType === "delivery" && address ? [{ label: t(lang, 'addressRow'), value: address }] : []),
-              ]),
+          { label: t(lang, 'deliveryTypeRow'), value: deliveryType === "delivery" ? t(lang, 'homeDelivery') : t(lang, 'pickupSelf') },
+          ...(deliveryType === "delivery" && address ? [{ label: t(lang, 'addressRow'), value: address }] : []),
         ]
       : []),
     { label: t(lang, 'contactRow'), value: contactInfo ? `${contactInfo.firstName} ${contactInfo.lastName}` : "-" },
@@ -324,30 +307,6 @@ export default function SummaryPage() {
                         ))}
                       </>
                     )}
-                  </div>
-                </div>
-              )}
-
-              {/* Dist rows */}
-              {distRows.length > 0 && (
-                <div className="border-b border-border/50">
-                  <SectionHead label={t(lang, 'meatDistSection')} badge={`${Object.values(dist).reduce((s, v) => s + (v || 0), 0)} ${t(lang, 'shares')}`} />
-                  <div className="grid grid-cols-2">
-                    {distRows.map((row, i) => (
-                      <div
-                        key={row.key}
-                        className={`flex items-center justify-between px-3 py-2 gap-2 ${i % 2 !== 0 ? "border-l border-border/40" : ""} ${i < distRows.length - 2 ? "border-b border-border/40" : ""}`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-bold text-text-primary leading-tight">{row.label}</p>
-                          <p className="text-[10px] text-text-secondary">{row.count} {t(lang, 'shares')}</p>
-                        </div>
-                        {row.fee === 0
-                          ? <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-md shrink-0">{freeLabel}</span>
-                          : <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-1.5 py-0.5 rounded-md border border-border/40 shrink-0">+{row.fee} AZN</span>
-                        }
-                      </div>
-                    ))}
                   </div>
                 </div>
               )}

@@ -254,53 +254,6 @@ export default function DistributionPage() {
         );
       })}
 
-      {charityKeys.length > 0 && (
-        <>
-          <div className="flex items-center gap-2 my-1">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">{t(lang, 'charityAs')}</span>
-            <div className="flex-1 h-px bg-border" />
-          </div>
-          {charityKeys.map((key) => {
-            const meta = OPTION_META[key];
-            const data = optionData[key] || {};
-            const isDisabled = !!data.disabled;
-            const isSelected = selectedKey === key;
-            return (
-              <button key={key} type="button"
-                onClick={() => !isDisabled && setSelectedKey(key)}
-                disabled={isDisabled}
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 w-full text-left transition-all ${
-                  isDisabled
-                    ? "border-border bg-surface-alt/50 opacity-60 cursor-not-allowed"
-                    : isSelected
-                      ? "border-primary bg-primary/5 cursor-pointer"
-                      : "border-border bg-white hover:border-primary/30 cursor-pointer"
-                }`}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                     style={{ background: isDisabled ? "#F3F4F6" : meta.light }}>
-                  <meta.Icon className="w-5 h-5" style={{ color: isDisabled ? "#9CA3AF" : meta.color }} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold text-text-primary">{distLabel(key, data)}</div>
-                  <div className="text-xs font-semibold mt-0.5" style={{ color: isDisabled ? "#9CA3AF" : meta.color }}>
-                    {isDisabled
-                      ? t(lang, 'deactivated')
-                      : (data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, 'free')}
-                  </div>
-                </div>
-                {!isDisabled && (
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? "border-primary bg-primary" : "border-border"
-                  }`}>
-                    {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </>
-      )}
     </div>
   );
 
