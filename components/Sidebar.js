@@ -22,7 +22,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isGuest, logout } = useAuth();
-  const { lang, setLang } = useLanguage();
+  const { lang, setLang, multiLanguageEnabled } = useLanguage();
   const [charityEnabled, setCharityEnabled] = useState(true);
 
   useEffect(() => {
@@ -85,22 +85,24 @@ export default function Sidebar() {
         </Link>
 
         {/* Language switcher */}
-        <div className="flex gap-1 mt-2 flex-wrap">
-          {LANGUAGES.map((l) => (
-            <button
-              key={l.code}
-              onClick={() => setLang(l.code)}
-              className="text-[11px] font-bold px-2 py-0.5 rounded-lg transition-all cursor-pointer border-none"
-              style={{
-                background: lang === l.code ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
-                color: lang === l.code ? '#fff' : 'rgba(255,255,255,0.5)',
-              }}
-              title={l.name}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
+        {multiLanguageEnabled && (
+          <div className="flex gap-1 mt-2 flex-wrap">
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                className="text-[11px] font-bold px-2 py-0.5 rounded-lg transition-all cursor-pointer border-none"
+                style={{
+                  background: lang === l.code ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
+                  color: lang === l.code ? '#fff' : 'rgba(255,255,255,0.5)',
+                }}
+                title={l.name}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Nav ── */}

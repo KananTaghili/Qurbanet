@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../lib/api';
 
 const LANG_KEY = 'qurbanet_lang';
 
@@ -9,16 +10,37 @@ export const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English',      dir: 'ltr' },
 ];
 
-const LanguageContext = createContext({ lang: 'az', setLang: () => {}, dir: 'ltr' });
+const LanguageContext = createContext({
+  lang: 'az',
+  setLang: () => {},
+  dir: 'ltr',
+  multiLanguageEnabled: true,
+});
 
 export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState('az');
+  const [multiLanguageEnabled, setMultiLanguageEnabled] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem(LANG_KEY);
-    if (saved && LANGUAGES.find(l => l.code === saved)) {
-      setLangState(saved);
-    }
+    api.get('/app-config/settings')
+      .then((res) => {
+        const enabled = res.data?.data?.multiLanguageEnabled !== false;
+        setMultiLanguageEnabled(enabled);
+        if (!enabled) {
+          setLangState('az');
+          return;
+        }
+        const saved = localStorage.getItem(LANG_KEY);
+        if (saved && LANGUAGES.find(l => l.code === saved)) {
+          setLangState(saved);
+        }
+      })
+      .catch(() => {
+        const saved = localStorage.getItem(LANG_KEY);
+        if (saved && LANGUAGES.find(l => l.code === saved)) {
+          setLangState(saved);
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -28,6 +50,7 @@ export function LanguageProvider({ children }) {
   }, [lang]);
 
   const setLang = (code) => {
+    if (!multiLanguageEnabled) return;
     if (!LANGUAGES.find(l => l.code === code)) return;
     localStorage.setItem(LANG_KEY, code);
     setLangState(code);
@@ -36,7 +59,7 @@ export function LanguageProvider({ children }) {
   const dir = LANGUAGES.find(l => l.code === lang)?.dir || 'ltr';
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, dir }}>
+    <LanguageContext.Provider value={{ lang, setLang, dir, multiLanguageEnabled }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -102,7 +102,7 @@ export default function HomePage() {
   const router = useRouter();
   const { user, isGuest, logout, isLoading } = useAuth();
   const { clearOrder } = useOrder();
-  const { lang, setLang } = useLanguage();
+  const { lang, setLang, multiLanguageEnabled } = useLanguage();
   const [animals, setAnimals] = useState([]);
   const [deliveryWindows, setDeliveryWindows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -209,7 +209,7 @@ export default function HomePage() {
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Language select (mobile) */}
-            <LanguageSelect lang={lang} setLang={setLang} dark />
+            {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
 
             {!isGuest ? (
               /* ── Logged-in: avatar + name + settings + logout menu ── */
@@ -363,7 +363,7 @@ export default function HomePage() {
         <h1 className="text-base font-extrabold tracking-tight text-white">
           {t(lang, 'animalSelection')}
         </h1>
-        <LanguageSelect lang={lang} setLang={setLang} dark />
+        {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
       </div>
 
       {/* ══════════════════════════════════════════════
