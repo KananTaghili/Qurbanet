@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
@@ -111,6 +111,7 @@ export default function DistributionPage() {
   const [meatPickupLocation, setMeatPickupLocation] = useState(null);
   const [phones, setPhones] = useState([""]);
   const [addressNote, setAddressNote] = useState("");
+  const hasRestoredRef = useRef(false);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -130,6 +131,7 @@ export default function DistributionPage() {
         if (typeof s.addressNote === "string") setAddressNote(s.addressNote);
       }
     } catch (_) {}
+    hasRestoredRef.current = true;
 
     api.get("/app-config/settings")
       .then((res) => {
@@ -187,6 +189,7 @@ export default function DistributionPage() {
   }, [isLoaded, order, router]);
 
   useEffect(() => {
+    if (!hasRestoredRef.current) return;
     try {
       sessionStorage.setItem(DIST_STATE_KEY, JSON.stringify({ dist, pickedLocation, phones, addressNote }));
     } catch (_) {}

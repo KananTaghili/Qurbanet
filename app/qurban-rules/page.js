@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  BookOpen, CheckCircle2, User, Beef, PocketKnife,
+  BookOpen, CheckCircle2, User, Beef, Sword,
   Flower2, XCircle, ChevronDown, ChevronUp, HandHeart,
 } from 'lucide-react';
 import BackHeader from '../../components/BackHeader';
@@ -59,7 +59,7 @@ const SECTIONS = [
     ],
   },
   {
-    Icon: PocketKnife,
+    Icon: Sword,
     title: 'Heyvan kəsməyin şərtləri',
     accent: '#6A1B9A',
     light: '#F3E5F5',
