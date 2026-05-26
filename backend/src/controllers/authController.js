@@ -61,6 +61,9 @@ const sendOTP = async (req, res) => {
       const phone = normalizeAzPhone(rawPhone.trim());
       if (!phone) return error(res, "Düzgün Azərbaycan telefon nömrəsi daxil edin (+994XXXXXXXXX).", 400);
 
+      const existingByPhone = await User.findOne({ phone });
+      const isExisting = !!existingByPhone;
+
       await OTP.deleteMany({ phone });
       const code = generateOTP();
       await OTP.create({ phone, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
@@ -79,7 +82,7 @@ const sendOTP = async (req, res) => {
 
       // Default: SMS
       await sendSMS(phone, code);
-      return success(res, { method: "sms", phone }, `Doğrulama kodu ${phone} nömrəsinə SMS ilə göndərildi.`);
+      return success(res, { method: "sms", phone, isExisting }, `Doğrulama kodu ${phone} nömrəsinə SMS ilə göndərildi.`);
     }
 
     return error(res, "Telefon nömrəsi və ya email ünvanı tələb olunur.", 400);
@@ -159,7 +162,17 @@ const verifyOTP = async (req, res) => {
         isVerified: true,
       };
       if (password) userData.password = await bcrypt.hash(password, 10);
-      user = await User.create(userData);
+      try {
+        user = await User.create(userData);
+      } catch (createErr) {
+        if (createErr.code === 11000) {
+          // Race condition: başqa sorğu eyni anda yaratdı — mövcud istifadəçini tap
+          user = await User.findOne(userQuery).select("+password");
+          if (!user) return error(res, "Bu nömrə/email artıq qeydiyyatdan keçib.", 409);
+        } else {
+          throw createErr;
+        }
+      }
     } else {
       if (password) user.password = await bcrypt.hash(password, 10);
       user.isVerified = true;

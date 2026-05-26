@@ -11,7 +11,11 @@ const {
   ORDER_STATUS_LABELS,
 } = require("../config/constants");
 const { success, error } = require("../utils/response");
-const { getDirSizeBytes, enforceStorageQuota, UPLOADS_DIR } = require("../utils/storage");
+const {
+  getDirSizeBytes,
+  enforceStorageQuota,
+  UPLOADS_DIR,
+} = require("../utils/storage");
 const AppSettings = require("../models/AppSettings");
 const SharedGroup = require("../models/SharedGroup");
 const OTP = require("../models/OTP");
@@ -25,8 +29,12 @@ const generateUniqueDeliveryCode = async () => {
   let code;
   let exists;
   do {
-    code = Array.from({ length: 6 }, () =>
-      DELIVERY_CODE_CHARS[Math.floor(Math.random() * DELIVERY_CODE_CHARS.length)],
+    code = Array.from(
+      { length: 6 },
+      () =>
+        DELIVERY_CODE_CHARS[
+          Math.floor(Math.random() * DELIVERY_CODE_CHARS.length)
+        ],
     ).join("");
     exists = await Order.findOne({ deliveryConfirmCode: code });
   } while (exists);
@@ -88,17 +96,25 @@ const getAllowedEmails = async () => {
 const adminSendOTP = async (req, res) => {
   try {
     const { email: rawEmail, password } = req.body;
-    if (!rawEmail || !password) return error(res, "Email və şifrə tələb olunur.", 400);
+    if (!rawEmail || !password)
+      return error(res, "Email və şifrə tələb olunur.", 400);
     const email = rawEmail.trim().toLowerCase();
-    if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+    if (!isValidEmail(email))
+      return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
-    const settings = await AppSettings.findOne({ singleton: "global" })
-      .select("+adminPasswordHash +adminCredentials.passwordHash");
+    const settings = await AppSettings.findOne({ singleton: "global" }).select(
+      "+adminPasswordHash +adminCredentials.passwordHash",
+    );
     const allowed = settings?.allowedAdminEmails?.length
       ? settings.allowedAdminEmails
       : ["nbiyevmuhammd1@gmail.com"];
 
-    if (!allowed.includes(email)) return error(res, "Bu email ünvanına admin girişi icazəsi verilməyib.", 403);
+    if (!allowed.includes(email))
+      return error(
+        res,
+        "Bu email ünvanına admin girişi icazəsi verilməyib.",
+        403,
+      );
 
     // Email-ə məxsus şifrəni yoxla
     const cred = settings?.adminCredentials?.find((c) => c.email === email);
@@ -106,18 +122,30 @@ const adminSendOTP = async (req, res) => {
     if (cred?.passwordHash) {
       passwordValid = await bcrypt.compare(password, cred.passwordHash);
     } else if (settings?.adminPasswordHash) {
-      passwordValid = await bcrypt.compare(password, settings.adminPasswordHash);
+      passwordValid = await bcrypt.compare(
+        password,
+        settings.adminPasswordHash,
+      );
     } else {
-      passwordValid = password === (process.env.ADMIN_OTP_PASSWORD || "Muhammad_123456");
+      passwordValid =
+        password === (process.env.ADMIN_OTP_PASSWORD || "Muhammad_123456");
     }
     if (!passwordValid) return error(res, "Email və ya şifrə yanlışdır.", 401);
 
     await OTP.deleteMany({ email });
     const code = generateOTP();
-    await OTP.create({ email, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
+    await OTP.create({
+      email,
+      code,
+      expiresAt: new Date(Date.now() + OTP_EXPIRY_MS),
+    });
     await sendEmail(email, code, "az");
 
-    return success(res, { email }, `Doğrulama kodu ${email} ünvanına göndərildi.`);
+    return success(
+      res,
+      { email },
+      `Doğrulama kodu ${email} ünvanına göndərildi.`,
+    );
   } catch (err) {
     console.error("adminSendOTP xətası:", err);
     return error(res, "Server xətası.", 500);
@@ -127,15 +155,23 @@ const adminSendOTP = async (req, res) => {
 const adminVerifyOTP = async (req, res) => {
   try {
     const { email: rawEmail, code } = req.body;
-    if (!rawEmail || !code) return error(res, "Email və OTP kodu tələb olunur.", 400);
-    if (!/^\d{4}$/.test(code)) return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
+    if (!rawEmail || !code)
+      return error(res, "Email və OTP kodu tələb olunur.", 400);
+    if (!/^\d{4}$/.test(code))
+      return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
 
     const email = rawEmail.trim().toLowerCase();
     const allowed = await getAllowedEmails();
-    if (!allowed.includes(email)) return error(res, "Bu email ünvanına admin girişi icazəsi verilməyib.", 403);
+    if (!allowed.includes(email))
+      return error(
+        res,
+        "Bu email ünvanına admin girişi icazəsi verilməyib.",
+        403,
+      );
 
     const otpRecord = await OTP.findOne({ email });
-    if (!otpRecord) return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
+    if (!otpRecord)
+      return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
     if (otpRecord.expiresAt < new Date()) {
       await OTP.deleteMany({ email });
       return error(res, "OTP kodunun vaxtı keçib. Yenidən göndərin.", 400);
@@ -146,7 +182,11 @@ const adminVerifyOTP = async (req, res) => {
     }
     if (otpRecord.code !== code) {
       await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
-      return error(res, `Yanlış kod. ${OTP_MAX_ATTEMPTS - otpRecord.attempts - 1} cəhdiniz qalıb.`, 400);
+      return error(
+        res,
+        `Yanlış kod. ${OTP_MAX_ATTEMPTS - otpRecord.attempts - 1} cəhdiniz qalıb.`,
+        400,
+      );
     }
 
     await OTP.deleteMany({ email });
@@ -170,7 +210,10 @@ const getAdminAllowedEmails = async (req, res) => {
       ? settings.allowedAdminEmails
       : ["nbiyevmuhammd1@gmail.com"];
     const credEmails = (settings?.adminCredentials || []).map((c) => c.email);
-    const admins = emails.map((email) => ({ email, hasPassword: credEmails.includes(email) }));
+    const admins = emails.map((email) => ({
+      email,
+      hasPassword: credEmails.includes(email),
+    }));
     return success(res, { admins });
   } catch (err) {
     return error(res, "Server xətası.", 500);
@@ -183,7 +226,8 @@ const addAdminAllowedEmail = async (req, res) => {
     if (!rawEmail) return error(res, "Email tələb olunur.", 400);
     if (!password) return error(res, "Şifrə tələb olunur.", 400);
     const email = rawEmail.trim().toLowerCase();
-    if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+    if (!isValidEmail(email))
+      return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -202,7 +246,10 @@ const addAdminAllowedEmail = async (req, res) => {
 
     const updated = await AppSettings.findOne({ singleton: "global" });
     const credEmails = (updated?.adminCredentials || []).map((c) => c.email);
-    const admins = (updated?.allowedAdminEmails || []).map((e) => ({ email: e, hasPassword: credEmails.includes(e) }));
+    const admins = (updated?.allowedAdminEmails || []).map((e) => ({
+      email: e,
+      hasPassword: credEmails.includes(e),
+    }));
     return success(res, { admins }, "Admin əlavə edildi.");
   } catch (err) {
     return error(res, "Server xətası.", 500);
@@ -223,7 +270,10 @@ const removeAdminAllowedEmail = async (req, res) => {
       { new: true },
     );
     const credEmails = (settings?.adminCredentials || []).map((c) => c.email);
-    const admins = (settings?.allowedAdminEmails || []).map((e) => ({ email: e, hasPassword: credEmails.includes(e) }));
+    const admins = (settings?.allowedAdminEmails || []).map((e) => ({
+      email: e,
+      hasPassword: credEmails.includes(e),
+    }));
     return success(res, { admins }, "Admin silindi.");
   } catch (err) {
     return error(res, "Server xətası.", 500);
@@ -240,10 +290,15 @@ const adminLogin = async (req, res) => {
     }
 
     // DB-də saxlanmış hash varsa onu yoxla, yoxdursa .env şifrəsinə bax
-    const settings = await AppSettings.findOne({ singleton: "global" }).select("+adminPasswordHash");
+    const settings = await AppSettings.findOne({ singleton: "global" }).select(
+      "+adminPasswordHash",
+    );
     let passwordValid = false;
     if (settings?.adminPasswordHash) {
-      passwordValid = await bcrypt.compare(password, settings.adminPasswordHash);
+      passwordValid = await bcrypt.compare(
+        password,
+        settings.adminPasswordHash,
+      );
     } else {
       passwordValid = password === process.env.ADMIN_PASSWORD;
     }
@@ -271,11 +326,19 @@ const adminForgotPassword = async (req, res) => {
     const adminPhone = process.env.ADMIN_PHONE;
 
     if (!adminPhone) {
-      return error(res, "ADMIN_PHONE mühit dəyişəni konfiqurasiya edilməyib.", 500);
+      return error(
+        res,
+        "ADMIN_PHONE mühit dəyişəni konfiqurasiya edilməyib.",
+        500,
+      );
     }
 
     if (username !== process.env.ADMIN_USERNAME) {
-      return success(res, {}, "Əgər məlumatlar düzgündürsə, telefona kod göndəriləcək.");
+      return success(
+        res,
+        {},
+        "Əgər məlumatlar düzgündürsə, telefona kod göndəriləcək.",
+      );
     }
 
     await OTP.deleteMany({ phone: adminPhone });
@@ -284,8 +347,13 @@ const adminForgotPassword = async (req, res) => {
     await OTP.create({ phone: adminPhone, code, expiresAt });
     await sendSMS(adminPhone, code);
 
-    const masked = adminPhone.slice(0, -4).replace(/\d/g, "*") + adminPhone.slice(-4);
-    return success(res, { maskedPhone: masked }, "OTP kodu telefonunuza göndərildi.");
+    const masked =
+      adminPhone.slice(0, -4).replace(/\d/g, "*") + adminPhone.slice(-4);
+    return success(
+      res,
+      { maskedPhone: masked },
+      "OTP kodu telefonunuza göndərildi.",
+    );
   } catch (err) {
     console.error("adminForgotPassword xətası:", err);
     return error(res, "Server xətası.", 500);
@@ -299,7 +367,11 @@ const adminResetPassword = async (req, res) => {
     const adminPhone = process.env.ADMIN_PHONE;
 
     if (!adminPhone) {
-      return error(res, "ADMIN_PHONE mühit dəyişəni konfiqurasiya edilməyib.", 500);
+      return error(
+        res,
+        "ADMIN_PHONE mühit dəyişəni konfiqurasiya edilməyib.",
+        500,
+      );
     }
     if (!code || !newPassword) {
       return error(res, "OTP kodu və yeni şifrə tələb olunur.", 400);
@@ -352,7 +424,7 @@ const getAllOrders = async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const [orders, total] = await Promise.all([
+    const [orders, total, categories] = await Promise.all([
       Order.find(filter)
         .populate("user", "phone name")
         .sort({ createdAt: -1 })
@@ -360,12 +432,21 @@ const getAllOrders = async (req, res) => {
         .limit(parseInt(limit))
         .select("-__v"),
       Order.countDocuments(filter),
+      Category.find().select("type weightRange weightOptions"),
     ]);
+
+    // Kateqoriyaların map-ini yarat
+    const categoryMap = {};
+    categories.forEach((c) => {
+      categoryMap[c.type] = c;
+    });
 
     await Promise.all(orders.map((order) => maybeAutoConfirm(order)));
 
     return success(res, {
-      orders: orders.map(formatAdminOrder),
+      orders: orders.map((order) =>
+        formatAdminOrder(order, categoryMap[order.animalType]),
+      ),
       pagination: {
         total,
         page: parseInt(page),
@@ -428,9 +509,17 @@ const getOrderById = async (req, res) => {
 
     if (!order) return error(res, "Sifariş tapılmadı.", 404);
 
+    // Heyvanın kateqoriyasını çəkmə (çəki aralığı üçün)
+    let category = null;
+    if (order.animalType) {
+      category = await Category.findOne({ type: order.animalType }).select(
+        "weightRange weightOptions",
+      );
+    }
+
     await maybeAutoConfirm(order);
 
-    return success(res, { order: formatAdminOrder(order) });
+    return success(res, { order: formatAdminOrder(order, category) });
   } catch (err) {
     return error(res, "Server xətası.", 500);
   }
@@ -529,7 +618,9 @@ const updateOrderStatus = async (req, res) => {
 
     try {
       const { getIo } = require("../socket");
-      getIo().to(`user:${order.user}`).emit("order:updated", { orderId: order._id.toString() });
+      getIo()
+        .to(`user:${order.user}`)
+        .emit("order:updated", { orderId: order._id.toString() });
     } catch (_) {}
 
     return success(
@@ -547,18 +638,26 @@ const uploadMedia = async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId);
     if (!order) return error(res, "Sifariş tapılmadı.", 404);
-    if (!req.files || req.files.length === 0) return error(res, "Fayl seçilməyib.", 400);
+    if (!req.files || req.files.length === 0)
+      return error(res, "Fayl seçilməyib.", 400);
 
     const { uploadBuffer: gfsUpload } = require("../utils/gridfs");
-    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
-    const stage = ["slaughter", "delivery"].includes(req.body.stage) ? req.body.stage : "general";
+    const baseUrl =
+      process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    const stage = ["slaughter", "delivery"].includes(req.body.stage)
+      ? req.body.stage
+      : "general";
 
     const newMedia = await Promise.all(
       req.files.map(async (file) => {
         const ext = path.extname(file.originalname).toLowerCase();
         const videoExts = [".mp4", ".mov", ".avi", ".mkv", ".webm"];
         const mediaType = videoExts.includes(ext) ? "video" : "photo";
-        const fileId = await gfsUpload(file.buffer, file.originalname, file.mimetype);
+        const fileId = await gfsUpload(
+          file.buffer,
+          file.originalname,
+          file.mimetype,
+        );
         return {
           type: mediaType,
           stage,
@@ -566,7 +665,7 @@ const uploadMedia = async (req, res) => {
           fileId,
           url: `${baseUrl}/api/files/${fileId}`,
         };
-      })
+      }),
     );
 
     order.media.push(...newMedia);
@@ -574,10 +673,16 @@ const uploadMedia = async (req, res) => {
 
     try {
       const { getIo } = require("../socket");
-      getIo().to(`user:${order.user}`).emit("order:updated", { orderId: order._id.toString() });
+      getIo()
+        .to(`user:${order.user}`)
+        .emit("order:updated", { orderId: order._id.toString() });
     } catch (_) {}
 
-    return success(res, { media: order.media }, `${req.files.length} media faylı yükləndi.`);
+    return success(
+      res,
+      { media: order.media },
+      `${req.files.length} media faylı yükləndi.`,
+    );
   } catch (err) {
     console.error("uploadMedia xətası:", err);
     return error(res, "Media yüklənərkən xəta baş verdi.", 500);
@@ -639,7 +744,8 @@ const getStats = async (req, res) => {
       { $group: { _id: null, total: { $sum: "$totalPrice" } } },
     ]);
 
-    const backendUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    const backendUrl =
+      process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
     const categoryMap = categories.reduce((acc, item) => {
       acc[item.type] = {
         nameAz: item.nameAz,
@@ -673,8 +779,34 @@ const getStats = async (req, res) => {
 };
 
 // ─── Yardımçı ────────────────────────────────────────────────────────────────
-const formatAdminOrder = (order) => {
+const formatAdminOrder = (order, category = null) => {
   const animalInfo = ANIMALS[order.animalType] || {};
+
+  // Çəki seçimi məlumatı əlavə et
+  let enhancedLambSelection = order.lambSelection || {};
+  if (category && order.lambSelection?.weightCategoryKey) {
+    const weightOption = category.weightOptions?.find(
+      (w) => w.key === order.lambSelection.weightCategoryKey,
+    );
+    if (weightOption) {
+      enhancedLambSelection = {
+        ...enhancedLambSelection,
+        weightRange: category.weightRange,
+        weightOption: {
+          key: weightOption.key,
+          labelAz: weightOption.labelAz,
+          labelEn: weightOption.labelEn,
+          labelRu: weightOption.labelRu,
+          labelAr: weightOption.labelAr,
+          price: weightOption.price,
+        },
+      };
+    } else if (category.weightRange) {
+      // Əgər kateqoriya varsa ancaq seçim tapılmasa, çəki aralığını əlavə et
+      enhancedLambSelection.weightRange = category.weightRange;
+    }
+  }
+
   return {
     id: order._id,
     orderNumber: order.orderNumber,
@@ -717,7 +849,7 @@ const formatAdminOrder = (order) => {
     qurbanParts: order.qurbanParts,
     cutStyle: order.cutStyle,
     grindingMethod: order.grindingMethod,
-    lambSelection: order.lambSelection,
+    lambSelection: enhancedLambSelection,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
   };
@@ -729,7 +861,8 @@ const getSharedGroups = async (req, res) => {
   try {
     const { animalType } = req.query;
     const filter = {};
-    if (animalType) filter.animalType = animalType.toString().trim().toLowerCase();
+    if (animalType)
+      filter.animalType = animalType.toString().trim().toLowerCase();
 
     const groups = await SharedGroup.find(filter)
       .populate({
@@ -774,13 +907,21 @@ const createSharedGroup = async (req, res) => {
     });
 
     if (orders.length !== orderIds.length) {
-      return error(res, "Seçilmiş sifarişlər etibarlı deyil (ödənilməmiş, artıq qrupda və ya ləğv edilmiş ola bilər).", 400);
+      return error(
+        res,
+        "Seçilmiş sifarişlər etibarlı deyil (ödənilməmiş, artıq qrupda və ya ləğv edilmiş ola bilər).",
+        400,
+      );
     }
 
     const resolvedType = animalType || orders[0].animalType;
     const allSameType = orders.every((o) => o.animalType === resolvedType);
     if (!allSameType) {
-      return error(res, "Bütün sifarişlər eyni heyvan növündən olmalıdır.", 400);
+      return error(
+        res,
+        "Bütün sifarişlər eyni heyvan növündən olmalıdır.",
+        400,
+      );
     }
 
     const filledCapacity = parseFloat(
@@ -788,7 +929,11 @@ const createSharedGroup = async (req, res) => {
     );
 
     if (filledCapacity > 1.0001) {
-      return error(res, "Seçilmiş hissələrin cəmi 1-dən çox ola bilməz (7/7-dən artıq).", 400);
+      return error(
+        res,
+        "Seçilmiş hissələrin cəmi 1-dən çox ola bilməz (7/7-dən artıq).",
+        400,
+      );
     }
 
     const groupTotalShares = orders[0]?.totalShares || null;
@@ -839,7 +984,8 @@ const addOrderToGroup = async (req, res) => {
 
     const group = await SharedGroup.findById(groupId);
     if (!group) return error(res, "Qrup tapılmadı.", 404);
-    if (group.status === "confirmed") return error(res, "Təsdiqlənmiş qrupa sifariş əlavə edilə bilməz.", 400);
+    if (group.status === "confirmed")
+      return error(res, "Təsdiqlənmiş qrupa sifariş əlavə edilə bilməz.", 400);
 
     const order = await Order.findOne({
       _id: orderId,
@@ -849,11 +995,18 @@ const addOrderToGroup = async (req, res) => {
       status: { $ne: ORDER_STATUS.CANCELLED },
       animalType: group.animalType,
     });
-    if (!order) return error(res, "Sifariş tapılmadı və ya bu qrupa uyğun deyil.", 404);
+    if (!order)
+      return error(res, "Sifariş tapılmadı və ya bu qrupa uyğun deyil.", 404);
 
-    const newCapacity = parseFloat((group.filledCapacity + (order.sharedPortion || 0)).toFixed(6));
+    const newCapacity = parseFloat(
+      (group.filledCapacity + (order.sharedPortion || 0)).toFixed(6),
+    );
     if (newCapacity > 1.0001) {
-      return error(res, "Bu sifarişi əlavə etmək qrup həcmini aşacaq (7/7-dən çox).", 400);
+      return error(
+        res,
+        "Bu sifarişi əlavə etmək qrup həcmini aşacaq (7/7-dən çox).",
+        400,
+      );
     }
 
     group.orders.push(order._id);
@@ -869,17 +1022,21 @@ const addOrderToGroup = async (req, res) => {
       select: "-__v",
     });
 
-    return success(res, {
-      group: {
-        id: populated._id,
-        groupNumber: populated.groupNumber,
-        animalType: populated.animalType,
-        filledCapacity: populated.filledCapacity,
-        status: populated.status,
-        createdAt: populated.createdAt,
-        orders: populated.orders.map(formatAdminOrder),
+    return success(
+      res,
+      {
+        group: {
+          id: populated._id,
+          groupNumber: populated.groupNumber,
+          animalType: populated.animalType,
+          filledCapacity: populated.filledCapacity,
+          status: populated.status,
+          createdAt: populated.createdAt,
+          orders: populated.orders.map(formatAdminOrder),
+        },
       },
-    }, "Sifariş qrupa əlavə edildi.");
+      "Sifariş qrupa əlavə edildi.",
+    );
   } catch (err) {
     console.error("addOrderToGroup xətası:", err);
     return error(res, "Server xətası.", 500);
@@ -892,7 +1049,8 @@ const removeOrderFromGroup = async (req, res) => {
 
     const group = await SharedGroup.findById(groupId);
     if (!group) return error(res, "Qrup tapılmadı.", 404);
-    if (group.status === "confirmed") return error(res, "Təsdiqlənmiş qrupdan sifariş çıxarıla bilməz.", 400);
+    if (group.status === "confirmed")
+      return error(res, "Təsdiqlənmiş qrupdan sifariş çıxarıla bilməz.", 400);
 
     const order = await Order.findOne({ _id: orderId, sharedGroup: groupId });
     if (!order) return error(res, "Sifariş bu qrupda tapılmadı.", 404);
@@ -909,7 +1067,11 @@ const removeOrderFromGroup = async (req, res) => {
 
     if (group.orders.length === 0) {
       await SharedGroup.findByIdAndDelete(groupId);
-      return success(res, { deleted: true }, "Sifariş çıxarıldı, boş qrup silindi.");
+      return success(
+        res,
+        { deleted: true },
+        "Sifariş çıxarıldı, boş qrup silindi.",
+      );
     }
 
     const populated = await SharedGroup.findById(group._id).populate({
@@ -918,17 +1080,21 @@ const removeOrderFromGroup = async (req, res) => {
       select: "-__v",
     });
 
-    return success(res, {
-      group: {
-        id: populated._id,
-        groupNumber: populated.groupNumber,
-        animalType: populated.animalType,
-        filledCapacity: populated.filledCapacity,
-        status: populated.status,
-        createdAt: populated.createdAt,
-        orders: populated.orders.map(formatAdminOrder),
+    return success(
+      res,
+      {
+        group: {
+          id: populated._id,
+          groupNumber: populated.groupNumber,
+          animalType: populated.animalType,
+          filledCapacity: populated.filledCapacity,
+          status: populated.status,
+          createdAt: populated.createdAt,
+          orders: populated.orders.map(formatAdminOrder),
+        },
       },
-    }, "Sifariş qrupdan çıxarıldı.");
+      "Sifariş qrupdan çıxarıldı.",
+    );
   } catch (err) {
     console.error("removeOrderFromGroup xətası:", err);
     return error(res, "Server xətası.", 500);
@@ -941,9 +1107,14 @@ const confirmSharedGroup = async (req, res) => {
 
     const group = await SharedGroup.findById(groupId).populate("orders");
     if (!group) return error(res, "Qrup tapılmadı.", 404);
-    if (group.status === "confirmed") return error(res, "Qrup artıq təsdiqlənib.", 400);
+    if (group.status === "confirmed")
+      return error(res, "Qrup artıq təsdiqlənib.", 400);
     if (group.filledCapacity < 0.9999) {
-      return error(res, `Qrup hələ tam deyil (${Math.round(group.filledCapacity * 10)}/10). Yalnız tam (7/7 = 10/10) qrupllar təsdiqlənə bilər.`, 400);
+      return error(
+        res,
+        `Qrup hələ tam deyil (${Math.round(group.filledCapacity * 10)}/10). Yalnız tam (7/7 = 10/10) qrupllar təsdiqlənə bilər.`,
+        400,
+      );
     }
 
     group.status = "confirmed";
@@ -968,7 +1139,11 @@ const confirmSharedGroup = async (req, res) => {
       },
     );
 
-    return success(res, { groupId, confirmedAt: now }, `Qrup #${group.groupNumber} təsdiqləndi. ${group.orders.length} sifariş təsdiqləndi.`);
+    return success(
+      res,
+      { groupId, confirmedAt: now },
+      `Qrup #${group.groupNumber} təsdiqləndi. ${group.orders.length} sifariş təsdiqləndi.`,
+    );
   } catch (err) {
     console.error("confirmSharedGroup xətası:", err);
     return error(res, "Server xətası.", 500);
@@ -981,7 +1156,8 @@ const deleteSharedGroup = async (req, res) => {
 
     const group = await SharedGroup.findById(groupId);
     if (!group) return error(res, "Qrup tapılmadı.", 404);
-    if (group.status === "confirmed") return error(res, "Təsdiqlənmiş qrup silinə bilməz.", 400);
+    if (group.status === "confirmed")
+      return error(res, "Təsdiqlənmiş qrup silinə bilməz.", 400);
 
     await Order.updateMany(
       { sharedGroup: groupId },
