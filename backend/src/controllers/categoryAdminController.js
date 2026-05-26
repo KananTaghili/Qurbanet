@@ -89,6 +89,9 @@ const parseCategoryPayload = (body) => {
         ? Number(body.maxPortionSplit)
         : null,
     deliveryFee: Number(body.deliveryFee) >= 0 ? Number(body.deliveryFee) : 0,
+    maxQuantity: Number.isFinite(Number(body.maxQuantity)) && Number(body.maxQuantity) >= 1
+      ? Number(body.maxQuantity)
+      : 1,
   };
 
   if (!payload.nameAz) {
