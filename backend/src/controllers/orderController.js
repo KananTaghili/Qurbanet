@@ -959,10 +959,7 @@ const createOrder = async (req, res) => {
       estimatedDate: new Date(
         parsedSlaughterDate.getTime() + selectedTiming * 60 * 60 * 1000,
       ),
-      autoConfirmAt:
-        normalizedMode === "serikli"
-          ? undefined
-          : new Date(Date.now() + 60 * 60 * 1000),
+      autoConfirmAt: undefined,
       processNotes: [
         { stage: "order_day", note: "Sifariş günü qeydi yaradıldı." },
       ],
@@ -1011,9 +1008,6 @@ const processPayment = async (req, res) => {
       });
     }
 
-    if (order.orderMode !== "serikli") {
-      order.autoConfirmAt = new Date(Date.now() + 60 * 60 * 1000);
-    }
     await order.save();
 
     const { getIo } = require("../socket");
