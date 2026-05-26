@@ -252,7 +252,10 @@ export default function SummaryPage() {
         deliveryWindow: timeSlot,
         distribution: distributionObj,
         lambSelection: selectedWeight
-          ? { weightCategoryKey: selectedWeight.key }
+          ? {
+              weightCategoryKey: selectedWeight.key,
+              weightCategoryLabel: selectedWeight.labelAz || selectedWeight.label || selectedWeight.key,
+            }
           : undefined,
         cutStyle:
           cutStyleAllocations.length > 0
