@@ -198,7 +198,7 @@ export default function ContactPage() {
 
       try { localStorage.setItem('contact_info', JSON.stringify(contactInfo)); } catch (_) {}
       updateOrder({ contactInfo });
-      router.push("/order/summary");
+      router.replace("/order/summary");
     } catch (err) {
       setError(err.response?.data?.message || t(lang, 'wrongCode'));
       setOtpCode("");
