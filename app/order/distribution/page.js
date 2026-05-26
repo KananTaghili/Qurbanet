@@ -350,7 +350,7 @@ export default function DistributionPage() {
             disabled={isDisabled}
             className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 w-full text-left transition-all ${
               isDisabled
-                ? "border-border/40 bg-gray-50 cursor-not-allowed opacity-60"
+                ? "border-border/50 bg-gray-50 cursor-not-allowed opacity-75"
                 : isSelected
                   ? "border-primary bg-primary/5 cursor-pointer"
                   : "border-border bg-white hover:border-primary/30 cursor-pointer"
@@ -376,7 +376,7 @@ export default function DistributionPage() {
                 style={{ color: isDisabled ? undefined : meta.color }}
               >
                 {isDisabled
-                  ? t(lang, "inactive")
+                  ? t(lang, "deactivated")
                   : (data.fee || 0) > 0
                     ? `+${data.fee} AZN`
                     : t(lang, "free")}
