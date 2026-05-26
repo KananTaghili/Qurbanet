@@ -147,7 +147,7 @@ export default function ContactPage() {
       body.phone = "+994" + (raw.startsWith("0") ? raw.slice(1) : raw);
     } else {
       const em = loginIdentifier.trim().toLowerCase();
-      if (!isValidEmail(em)) { setError(t(lang, 'invalidGmail')); return; }
+      if (!isValidEmail(em)) { setError(t(lang, 'invalidEmail')); return; }
       body.email = em;
     }
     setLoginLoading(true);
@@ -203,7 +203,7 @@ export default function ContactPage() {
         setNormalizedPhone(norm);
       } else {
         const em = email.trim().toLowerCase();
-        if (!isValidEmail(em)) { setError(t(lang, 'invalidGmail')); setSending(false); return; }
+        if (!isValidEmail(em)) { setError(t(lang, 'invalidEmail')); setSending(false); return; }
         await api.post("/auth/send-otp", { email: em });
       }
       setOtpCode("");
@@ -408,7 +408,7 @@ export default function ContactPage() {
                     <div className="flex border-b border-border">
                       {[
                         { k: "phone", label: t(lang, 'mobileLabel') },
-                        { k: "email", label: "Gmail" },
+                        { k: "email", label: "Email" },
                       ].map(({ k, label }) => (
                         <button
                           key={k}
@@ -447,7 +447,7 @@ export default function ContactPage() {
                         </div>
                       ) : (
                         <div>
-                          <label className="block text-sm text-text-secondary mb-1.5">Gmail</label>
+                          <label className="block text-sm text-text-secondary mb-1.5">Email</label>
                           <input
                             type="email"
                             value={loginIdentifier}
@@ -528,7 +528,7 @@ export default function ContactPage() {
                     <div>
                       {verifyMethod === "email" ? (
                         <>
-                          <label className="block text-sm text-text-secondary mb-1.5">Gmail</label>
+                          <label className="block text-sm text-text-secondary mb-1.5">Email</label>
                           <input
                             type="email"
                             value={email}
@@ -603,7 +603,7 @@ export default function ContactPage() {
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { k: "sms", label: "SMS", Icon: MessageSquare },
-                      { k: "email", label: "Gmail", Icon: Mail },
+                      { k: "email", label: "Email", Icon: Mail },
                     ].map(({ k, label, Icon }) => (
                       <button
                         key={k}

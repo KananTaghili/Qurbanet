@@ -169,7 +169,7 @@ export default function LoginPage() {
               Daxil ol
             </h2>
             <p className="text-sm text-text-secondary mb-6">
-              Telefon nömrəsi və ya Gmail ilə daxil olun.
+              Telefon nömrəsi və ya Email ilə daxil olun.
             </p>
 
             {/* Mode toggle */}
@@ -186,7 +186,7 @@ export default function LoginPage() {
                 onClick={() => switchMode("email")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === "email" ? "bg-surface shadow-sm text-primary" : "text-text-secondary"}`}
               >
-                <Mail size={15} /> Gmail
+                <Mail size={15} /> Email
               </button>
             </div>
 
@@ -223,7 +223,7 @@ export default function LoginPage() {
               ) : (
                 <div>
                   <label className="text-sm font-semibold text-text-primary mb-2 block">
-                    Gmail *
+                    Email *
                   </label>
                   <div className="flex items-center gap-2 bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 focus-within:border-primary focus-within:bg-surface transition-all">
                     <Mail

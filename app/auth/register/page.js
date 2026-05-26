@@ -115,7 +115,7 @@ export default function RegisterPage() {
           <div className="w-full max-w-sm">
             <h2 className="text-2xl font-black text-text-primary mb-1">Qeydiyyat</h2>
             <p className="text-sm text-text-secondary mb-6">
-              SMS və ya Gmail OTP ilə saniyələr içində hesab açın.
+              SMS və ya Email OTP ilə saniyələr içində hesab açın.
             </p>
 
             {/* Mode toggle */}
@@ -138,7 +138,7 @@ export default function RegisterPage() {
                 }`}
               >
                 <Mail size={15} />
-                Gmail
+                Email
               </button>
             </div>
 
@@ -167,7 +167,7 @@ export default function RegisterPage() {
               ) : (
                 <div>
                   <label className="text-sm font-semibold text-text-primary mb-2 block">
-                    Gmail ünvanı *
+                    Email ünvanı *
                   </label>
                   <div className="flex items-center gap-2 bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 focus-within:border-primary focus-within:bg-surface transition-all">
                     <Mail size={18} className="text-text-secondary flex-shrink-0" />
