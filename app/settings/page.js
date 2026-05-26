@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Lock, User, Eye, EyeOff, Phone, Mail, CheckCircle,
-  AlertCircle, LogOut, ChevronRight, Shield, IdCard,
+  AlertCircle, LogOut, ChevronRight, Shield, IdCard, Pencil, X,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
@@ -168,9 +168,137 @@ function PasswordCard({ onSuccess }) {
   );
 }
 
+function AccountCard({ user, updateUser }) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName]         = useState(user.name || "");
+  const [lastName, setLastName] = useState(user.lastName || "");
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
+  const [success, setSuccess]   = useState("");
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!name.trim() || name.trim().length < 2)         { setError("Ad ən az 2 simvol olmalıdır."); return; }
+    if (!lastName.trim() || lastName.trim().length < 2) { setError("Soyad ən az 2 simvol olmalıdır."); return; }
+    setLoading(true);
+    try {
+      await api.put("/auth/profile", { name: name.trim(), lastName: lastName.trim() });
+      updateUser({ name: name.trim(), lastName: lastName.trim() });
+      setSuccess("Məlumatlar yeniləndi!");
+      setEditing(false);
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Xəta baş verdi.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setName(user.name || "");
+    setLastName(user.lastName || "");
+    setError("");
+    setEditing(false);
+  };
+
+  return (
+    <div className="bg-surface rounded-2xl shadow-card border border-border overflow-hidden h-fit">
+      <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
+            <IdCard size={15} className="text-primary" />
+          </div>
+          <p className="text-sm font-extrabold text-text-primary">Hesab Məlumatları</p>
+        </div>
+        {!editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors px-2.5 py-1.5 rounded-xl hover:bg-primary-surface"
+          >
+            <Pencil size={13} />
+            Redaktə et
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <form onSubmit={handleSave} className="p-5 flex flex-col gap-4">
+          <div>
+            <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">Ad *</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => { setName(e.target.value); setError(""); }}
+              placeholder="Adınızı daxil edin"
+              autoFocus
+              className="w-full bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted outline-none font-medium transition-all focus:border-primary focus:bg-white"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">Soyad *</label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => { setLastName(e.target.value); setError(""); }}
+              placeholder="Soyadınızı daxil edin"
+              className="w-full bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted outline-none font-medium transition-all focus:border-primary focus:bg-white"
+            />
+          </div>
+          <InfoRow icon={Phone} label="Telefon" value={user.phone} />
+          {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
+
+          {error && (
+            <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
+              <AlertCircle size={16} className="flex-shrink-0" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="flex-1 py-3 rounded-2xl border-2 border-border bg-surface text-sm font-bold text-text-secondary hover:border-primary/30 transition-all flex items-center justify-center gap-2"
+            >
+              <X size={15} />
+              Ləğv et
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-primary text-white font-extrabold text-sm py-3 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-primary/90 disabled:opacity-60"
+            >
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <CheckCircle size={15} />
+              )}
+              Yadda saxla
+            </button>
+          </div>
+        </form>
+      ) : (
+        <>
+          <InfoRow icon={User}  label="Ad"      value={user.name} />
+          <InfoRow icon={User}  label="Soyad"   value={user.lastName} />
+          <InfoRow icon={Phone} label="Telefon" value={user.phone} />
+          {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
+          {success && (
+            <div className="flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-semibold px-5 py-3">
+              <CheckCircle size={15} className="flex-shrink-0" />
+              {success}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState("password");
 
   const handleLogout = () => { logout(); router.push("/auth/login"); };
@@ -181,21 +309,6 @@ export default function SettingsPage() {
     { key: "password", label: "Şifrəni Dəyiş", Icon: Lock },
     { key: "account",  label: "Hesab",          Icon: User },
   ];
-
-  const AccountCard = (
-    <div className="bg-surface rounded-2xl shadow-card border border-border overflow-hidden h-fit">
-      <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
-          <IdCard size={15} className="text-primary" />
-        </div>
-        <p className="text-sm font-extrabold text-text-primary">Hesab Məlumatları</p>
-      </div>
-      <InfoRow icon={User}  label="Ad"      value={user.name} />
-      <InfoRow icon={User}  label="Soyad"   value={user.lastName} />
-      <InfoRow icon={Phone} label="Telefon" value={user.phone} />
-      {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
-    </div>
-  );
 
   const LogoutButton = (
     <button
@@ -249,7 +362,7 @@ export default function SettingsPage() {
         {/* ── Desktop: 2 columns ── */}
         <div className="hidden md:grid md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4">
-            {AccountCard}
+            <AccountCard user={user} updateUser={updateUser} />
             {LogoutButton}
           </div>
           <div>
@@ -280,7 +393,7 @@ export default function SettingsPage() {
 
           {activeTab === "account" && (
             <div className="flex flex-col gap-3">
-              {AccountCard}
+              <AccountCard user={user} updateUser={updateUser} />
               {LogoutButton}
             </div>
           )}

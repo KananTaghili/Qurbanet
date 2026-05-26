@@ -54,11 +54,17 @@ export function AuthProvider({ children }) {
     await createGuest();
   };
 
+  const updateUser = (updatedFields) => {
+    const updated = { ...user, ...updatedFields };
+    localStorage.setItem('user', JSON.stringify(updated));
+    setUser(updated);
+  };
+
   const isGuest = !user?.name || user?.isGuest;
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, isGuest, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, isGuest, isAuthenticated, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
