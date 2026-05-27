@@ -6,13 +6,11 @@ import {
   ChevronDown,
   ClipboardList,
   CheckCircle,
-  Scissors,
   Package,
   Truck,
   Star,
   MapPin,
   ExternalLink,
-  Video,
   ImageIcon,
   X,
   Banknote,
@@ -164,8 +162,6 @@ function InfoRow({ label, value, last }) {
 
 // ── Media thumbnail grid inside timeline step ──────────────────────────────────
 function StepMedia({ items, onOpen, pending }) {
-  const [filter, setFilter] = useState("all");
-
   if (!items || items.length === 0) {
     if (!pending) return null;
     return (
@@ -178,70 +174,55 @@ function StepMedia({ items, onOpen, pending }) {
     );
   }
 
-  const videos = items.filter((m) => m.type === "video");
-  const photos = items.filter((m) => m.type === "photo");
-  const shown =
-    filter === "video" ? videos : filter === "photo" ? photos : items;
+  let videoCounter = 0;
+  let photoCounter = 0;
 
   return (
     <div className="mt-2 mb-1">
-      {/* Filter tabs */}
-      <div className="flex gap-2 mb-2 flex-wrap">
-        {[
-          { key: "all", label: `Hamısı ${items.length}` },
-          ...(videos.length > 0
-            ? [{ key: "video", label: `Video ${videos.length}` }]
-            : []),
-          ...(photos.length > 0
-            ? [{ key: "photo", label: `Foto ${photos.length}` }]
-            : []),
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key)}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border cursor-pointer transition-colors ${
-              filter === tab.key
-                ? "bg-primary text-white border-primary"
-                : "bg-surface border-border text-text-secondary hover:border-primary/40"
-            }`}
-          >
-            {tab.key === "video" && <Video size={10} />}
-            {tab.key === "photo" && <ImageIcon size={10} />}
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Thumbnail grid */}
+      {/* 2-column grid: 1st upload left, 2nd right, 3rd below-left, ... */}
       <div className="grid grid-cols-2 gap-2">
-        {shown.map((m, i) => {
-          const globalIdx = items.indexOf(m);
+        {items.map((m, i) => {
+          const isVideo = m.type === "video";
+          const label = isVideo
+            ? `Video ${++videoCounter}`
+            : `Foto ${++photoCounter}`;
           return (
             <button
               key={i}
-              onClick={() => onOpen(items, globalIdx)}
+              onClick={() => onOpen(items, i)}
               className="relative rounded-xl overflow-hidden bg-surface-alt border border-border cursor-pointer group"
-              style={{ aspectRatio: "16/10" }}
+              style={{ aspectRatio: "4/3" }}
             >
-              {m.type === "video" ? (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-primary-surface/60">
-                  <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <Play size={16} className="text-primary ml-0.5" />
+              {isVideo ? (
+                <>
+                  {/* Actual video frame as thumbnail */}
+                  <video
+                    src={m.url}
+                    className="w-full h-full object-cover"
+                    preload="metadata"
+                    muted
+                    playsInline
+                  />
+                  {/* Play overlay */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/30 group-hover:bg-black/20 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Play size={18} className="text-primary ml-0.5" />
+                    </div>
+                    <span className="text-[10px] font-bold text-white drop-shadow">
+                      {label}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold text-primary">
-                    Video {videos.indexOf(m) + 1}
-                  </span>
-                </div>
+                </>
               ) : (
                 <>
                   <img
                     src={m.url}
-                    alt={`Foto ${photos.indexOf(m) + 1}`}
+                    alt={label}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                   <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-black/40">
                     <span className="text-[10px] font-bold text-white flex items-center gap-1">
-                      <ImageIcon size={9} /> Foto {photos.indexOf(m) + 1}
+                      <ImageIcon size={9} /> {label}
                     </span>
                   </div>
                 </>
