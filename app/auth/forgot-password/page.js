@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [code, setCode] = useState(["", "", "", ""]);
   const [verifying, setVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const inputs = useRef([]);
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
       await api.post("/auth/forgot-password", { phone: fullPhone });
       sessionStorage.setItem("forgot_phone", fullPhone);
       setStep("otp");
-      setCode(["", "", "", "", "", ""]);
+      setCode(["", "", "", ""]);
       startTimer();
       setTimeout(() => inputs.current[0]?.focus(), 300);
     } catch (err) {
@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
     next[i] = digit;
     setCode(next);
     setError("");
-    if (digit && i < 5) inputs.current[i + 1]?.focus();
+    if (digit && i < 3) inputs.current[i + 1]?.focus();
     if (next.every((d) => d)) submitOtp(next);
   };
 
@@ -109,8 +109,8 @@ export default function ForgotPasswordPage() {
     const pasted = e.clipboardData
       .getData("text")
       .replace(/\D/g, "")
-      .slice(0, 6);
-    if (pasted.length === 6) {
+      .slice(0, 4);
+    if (pasted.length === 4) {
       const arr = pasted.split("");
       setCode(arr);
       submitOtp(arr);
@@ -120,7 +120,7 @@ export default function ForgotPasswordPage() {
   const submitOtp = (digits) => {
     if (verifying) return;
     const full = digits.join("");
-    if (full.length !== 6) return;
+    if (full.length !== 4) return;
     // OTP is verified server-side during reset-password; just proceed to next step
     setStep("reset");
   };
@@ -134,7 +134,7 @@ export default function ForgotPasswordPage() {
     try {
       const forgotPhone = sessionStorage.getItem("forgot_phone");
       await api.post("/auth/forgot-password", { phone: forgotPhone });
-      setCode(["", "", "", "", "", ""]);
+      setCode(["", "", "", ""]);
       startTimer();
       inputs.current[0]?.focus();
     } catch (err) {
@@ -184,7 +184,7 @@ export default function ForgotPasswordPage() {
       // OTP was invalid — go back to OTP step
       if (err.response?.status === 400) {
         setStep("otp");
-        setCode(["", "", "", "", "", ""]);
+        setCode(["", "", "", ""]);
       }
     } finally {
       setResetting(false);
@@ -291,7 +291,7 @@ export default function ForgotPasswordPage() {
                 Kodu daxil edin
               </h2>
               <p className="text-sm text-text-secondary mb-5">
-                Nömrənizə göndərilən 6 rəqəmli kodu daxil edin.
+                Nömrənizə göndərilən 4 rəqəmli kodu daxil edin.
               </p>
 
               <div className="flex flex-col gap-4">
@@ -336,7 +336,7 @@ export default function ForgotPasswordPage() {
                   onClick={() => {
                     setStep("phone");
                     setError("");
-                    setCode(["", "", "", "", "", ""]);
+                    setCode(["", "", "", ""]);
                   }}
                   className="text-sm text-text-secondary hover:text-primary transition-colors"
                 >
