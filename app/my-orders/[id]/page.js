@@ -194,25 +194,17 @@ function StepMedia({ items, onOpen, pending }) {
               style={{ aspectRatio: "4/3" }}
             >
               {isVideo ? (
-                <>
-                  {/* Actual video frame as thumbnail */}
-                  <video
-                    src={m.url}
-                    className="w-full h-full object-cover"
-                    preload="metadata"
-                    muted
-                    playsInline
-                  />
-                  {/* Play overlay */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/30 group-hover:bg-black/20 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play size={18} className="text-primary ml-0.5" />
-                    </div>
-                    <span className="text-[10px] font-bold text-white drop-shadow">
-                      {label}
-                    </span>
+                /* iOS Safari doesn't load <video preload="metadata"> thumbnails
+                   reliably — use a styled placeholder instead */
+                <div className="w-full h-full flex flex-col items-center justify-center gap-1.5"
+                  style={{ background: "linear-gradient(135deg,#1b5e20 0%,#2e7d32 100%)" }}>
+                  <div className="w-11 h-11 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <Play size={20} className="text-primary ml-0.5" />
                   </div>
-                </>
+                  <span className="text-[11px] font-bold text-white/90">
+                    {label}
+                  </span>
+                </div>
               ) : (
                 <>
                   <img
@@ -335,6 +327,8 @@ function GalleryModal({ items, startIdx, onClose }) {
               key={item.url}
               controls
               autoPlay
+              playsInline
+              webkit-playsinline="true"
               className="rounded-2xl shadow-2xl"
               style={{
                 maxWidth: "100%",
@@ -342,6 +336,7 @@ function GalleryModal({ items, startIdx, onClose }) {
                 background: "#000",
               }}
             >
+              <source src={item.url} type="video/mp4" />
               <source src={item.url} />
             </video>
           ) : (
