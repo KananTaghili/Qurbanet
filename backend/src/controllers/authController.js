@@ -41,12 +41,19 @@ const userPayload = (user) => ({
 // ─────────────────────────────────────────────────────────────────────────────
 const sendOTP = async (req, res) => {
   try {
-    const { phone: rawPhone, email: rawEmail, channel = "sms", deliveryEmail } = req.body;
+    const { phone: rawPhone, email: rawEmail, channel = "sms", deliveryEmail, isRegister } = req.body;
 
     // ── Email (xarici istifadəçi) ──
     if (!rawPhone && rawEmail) {
       const email = rawEmail.trim().toLowerCase();
       if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+      if (isRegister) {
+        const existingByEmail = await User.findOne({ email });
+        if (existingByEmail) {
+          return error(res, `Bu email ünvanı (${email}) artıq sistemdə qeydiyyatdan keçib. Daxil ol səhifəsinə keçin.`, 409);
+        }
+      }
 
       await OTP.deleteMany({ email });
       const code = generateOTP();
@@ -63,6 +70,10 @@ const sendOTP = async (req, res) => {
 
       const existingByPhone = await User.findOne({ phone });
       const isExisting = !!existingByPhone;
+
+      if (isRegister && isExisting) {
+        return error(res, `Bu telefon nömrəsi (${phone}) artıq sistemdə qeydiyyatdan keçib. Daxil ol səhifəsinə keçin.`, 409);
+      }
 
       await OTP.deleteMany({ phone });
       const code = generateOTP();

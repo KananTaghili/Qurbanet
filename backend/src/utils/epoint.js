@@ -1,8 +1,9 @@
 const crypto = require("crypto");
 
-const EPOINT_API_BASE  = () => process.env.EPOINT_API_BASE  || "https://epoint.az/api/1";
-const PUBLIC_KEY       = () => process.env.EPOINT_PUBLIC_KEY  || "";
-const PRIVATE_KEY      = () => process.env.EPOINT_PRIVATE_KEY || "";
+const EPOINT_API_BASE = () =>
+  process.env.EPOINT_API_BASE || "https://epoint.az/api/1";
+const PUBLIC_KEY = () => process.env.EPOINT_PUBLIC_KEY || "";
+const PRIVATE_KEY = () => process.env.EPOINT_PRIVATE_KEY || "";
 
 // base64_encode(sha1(private_key + data + private_key, raw=true))
 const buildSignature = (dataStr) => {
@@ -24,8 +25,8 @@ const verifySignature = (dataStr, signature) => {
   const expected = buildSignature(dataStr);
   try {
     return crypto.timingSafeEqual(
-      Buffer.from(expected,   "base64"),
-      Buffer.from(signature,  "base64"),
+      Buffer.from(expected, "base64"),
+      Buffer.from(signature, "base64"),
     );
   } catch {
     return false;
@@ -43,10 +44,10 @@ const buildEpointBody = (payload) => {
 const epointPost = async (endpoint, payload) => {
   const body = buildEpointBody(payload);
   const res = await fetch(`${EPOINT_API_BASE()}${endpoint}`, {
-    method:  "POST",
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify(body),
-    signal:  AbortSignal.timeout(15_000),
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`Epoint HTTP ${res.status}`);
   return res.json();
@@ -54,15 +55,23 @@ const epointPost = async (endpoint, payload) => {
 
 // ─── Payment operations ───────────────────────────────────────────────────────
 
-const createPayment = async ({ orderId, amount, description, successUrl, errorUrl, currency, language }) => {
+const createPayment = async ({
+  orderId,
+  amount,
+  description,
+  successUrl,
+  errorUrl,
+  currency,
+  language,
+}) => {
   const result = await epointPost("/request", {
-    amount:               Number(amount).toFixed(2),
-    currency:             currency  || "AZN",
-    language:             language  || "az",
-    order_id:             String(orderId),
-    description:          String(description || "").slice(0, 1000),
+    amount: Number(amount).toFixed(2),
+    currency: currency || "AZN",
+    language: language || "az",
+    order_id: String(orderId),
+    description: String(description || "").slice(0, 1000),
     success_redirect_url: successUrl,
-    error_redirect_url:   errorUrl,
+    error_redirect_url: errorUrl,
   });
   console.log("[EPoint] createPayment ←", JSON.stringify(result));
   if (result.status !== "success") {
@@ -71,15 +80,22 @@ const createPayment = async ({ orderId, amount, description, successUrl, errorUr
   return result;
 };
 
-const createPreAuth = async ({ orderId, amount, description, successUrl, errorUrl, currency }) => {
+const createPreAuth = async ({
+  orderId,
+  amount,
+  description,
+  successUrl,
+  errorUrl,
+  currency,
+}) => {
   return epointPost("/pre-auth-request", {
-    amount:               Number(amount).toFixed(2),
-    currency:             currency || "AZN",
-    language:             "az",
-    order_id:             String(orderId),
-    description:          String(description || "").slice(0, 1000),
+    amount: Number(amount).toFixed(2),
+    currency: currency || "AZN",
+    language: "az",
+    order_id: String(orderId),
+    description: String(description || "").slice(0, 1000),
     ...(successUrl && { success_redirect_url: successUrl }),
-    ...(errorUrl   && { error_redirect_url:   errorUrl   }),
+    ...(errorUrl && { error_redirect_url: errorUrl }),
   });
 };
 
@@ -100,41 +116,53 @@ const reverseTransaction = async (transaction, currency = "AZN", amount) =>
     ...(amount !== undefined && amount !== null && { amount: String(amount) }),
   });
 
-const registerCard = async ({ description, successUrl, errorUrl, language } = {}) =>
+const registerCard = async ({
+  description,
+  successUrl,
+  errorUrl,
+  language,
+} = {}) =>
   epointPost("/card-registration", {
-    language:    language || "az",
+    language: language || "az",
     description: description || "",
     ...(successUrl && { success_redirect_url: successUrl }),
-    ...(errorUrl   && { error_redirect_url:   errorUrl   }),
+    ...(errorUrl && { error_redirect_url: errorUrl }),
   });
 
-const executePayWithCard = async ({ cardId, orderId, amount, currency, description, language }) =>
+const executePayWithCard = async ({
+  cardId,
+  orderId,
+  amount,
+  currency,
+  description,
+  language,
+}) =>
   epointPost("/execute-pay", {
-    language:    language    || "az",
-    card_id:     cardId,
-    order_id:    String(orderId),
-    amount:      String(amount),
-    currency:    currency    || "AZN",
+    language: language || "az",
+    card_id: cardId,
+    order_id: String(orderId),
+    amount: String(amount),
+    currency: currency || "AZN",
     description: String(description || "").slice(0, 1000),
   });
 
 // GET widget URL for Apple Pay / Google Pay
 const createWidget = async ({ orderId, amount, description }) => {
   const payload = {
-    public_key:  PUBLIC_KEY(),
-    amount:      Number(amount).toFixed(2),
-    order_id:    String(orderId),
+    public_key: PUBLIC_KEY(),
+    amount: Number(amount).toFixed(2),
+    order_id: String(orderId),
     description: String(description || "ödəniş").slice(0, 1000),
   };
-  const data      = encodeData(payload);
+  const data = encodeData(payload);
   const signature = buildSignature(data);
   console.log("[EPoint] createWidget →", JSON.stringify(payload));
 
   const url = new URL(`${EPOINT_API_BASE()}/token/widget`);
-  url.searchParams.set("data",      data);
+  url.searchParams.set("data", data);
   url.searchParams.set("signature", signature);
 
-  const res    = await fetch(url.toString());
+  const res = await fetch(url.toString());
   const result = await res.json();
   console.log("[EPoint] createWidget ←", JSON.stringify(result));
 
@@ -201,7 +229,11 @@ const getAzPaymentErrorMessage = (bankCode, epointMessage) => {
   if (AZ_BANK_MESSAGES[rawMsg]) return AZ_BANK_MESSAGES[rawMsg];
 
   const msg = rawMsg.toLowerCase();
-  if (msg.includes("insufficient") || msg.includes("not enough") || msg.includes("balance"))
+  if (
+    msg.includes("insufficient") ||
+    msg.includes("not enough") ||
+    msg.includes("balance")
+  )
     return "Kartınızda kifayət qədər məbləğ yoxdur.";
   if (msg.includes("expired") || msg.includes("expir"))
     return "Kartınızın istifadə müddəti bitib.";
@@ -215,7 +247,11 @@ const getAzPaymentErrorMessage = (bankCode, epointMessage) => {
   if (msg.includes("pin")) return "Yanlış PIN kod daxil edildi.";
   if (msg.includes("declined") || msg.includes("decline"))
     return "Ödəniş rədd edildi. Bankınızla əlaqə saxlayın.";
-  if (msg.includes("server") || msg.includes("technical") || msg.includes("system"))
+  if (
+    msg.includes("server") ||
+    msg.includes("technical") ||
+    msg.includes("system")
+  )
     return "Texniki xəta baş verdi. Bir az sonra yenidən cəhd edin.";
   return "Ödəniş rədd edildi. Kartınızda kifayət qədər məbləğ yoxdur. Başqa kart ilə cəhd edin.";
 };

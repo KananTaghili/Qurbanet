@@ -364,9 +364,19 @@ const orderSchema = new mongoose.Schema(
 // Sifariş nömrəsi avtomatik yarat
 orderSchema.pre("save", async function (next) {
   if (this.isNew) {
-    const count = await mongoose.model("Order").countDocuments();
     const year = new Date().getFullYear();
-    this.orderNumber = `QRB-${year}-${String(count + 1).padStart(5, "0")}`;
+    const prefix = `QRB-${year}-`;
+    const last = await mongoose.model("Order")
+      .findOne({ orderNumber: { $regex: `^${prefix}` } })
+      .sort({ orderNumber: -1 })
+      .select("orderNumber")
+      .lean();
+    let nextNum = 1;
+    if (last?.orderNumber) {
+      const parsed = parseInt(last.orderNumber.slice(prefix.length), 10);
+      if (!isNaN(parsed)) nextNum = parsed + 1;
+    }
+    this.orderNumber = `${prefix}${String(nextNum).padStart(5, "0")}`;
   }
   next();
 });

@@ -800,8 +800,7 @@ const createOrder = async (req, res) => {
     if (selectedWeight) {
       normalizedLambSelection = {
         weightCategoryKey: selectedWeight.key,
-        price: selectedWeight.price,
-        labelAz: selectedWeight.labelAz,
+        weightCategoryLabel: selectedWeight.labelAz || selectedWeight.label || selectedWeight.key,
       };
       if (normalizedMode === "serikli") {
         finalPricePerUnit = Number(
