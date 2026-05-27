@@ -26,6 +26,7 @@ import BackHeader from "../../../components/BackHeader";
 import StatusBadge from "../../../components/StatusBadge";
 import api from "../../../lib/api";
 import { useSocket } from "../../../hooks/useSocket";
+import { useAuth } from "../../../context/AuthContext";
 
 const AZ_MONTHS = [
   "Yan",
@@ -161,7 +162,7 @@ function InfoRow({ label, value, last }) {
 }
 
 // ── Media thumbnail grid inside timeline step ──────────────────────────────────
-function StepMedia({ items, onOpen, pending }) {
+function StepMedia({ items, onOpen, pending, token }) {
   if (!items || items.length === 0) {
     if (!pending) return null;
     return (
@@ -208,7 +209,7 @@ function StepMedia({ items, onOpen, pending }) {
               ) : (
                 <>
                   <img
-                    src={m.url}
+                    src={token ? `${m.url}?token=${token}` : m.url}
                     alt={label}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -228,7 +229,7 @@ function StepMedia({ items, onOpen, pending }) {
 }
 
 // ── Gallery viewer ─────────────────────────────────────────────────────────────
-function GalleryModal({ items, startIdx, onClose }) {
+function GalleryModal({ items, startIdx, onClose, token }) {
   const [idx, setIdx] = useState(startIdx);
 
   useEffect(() => {
@@ -249,7 +250,7 @@ function GalleryModal({ items, startIdx, onClose }) {
 
   const handleDownload = () => {
     const a = document.createElement("a");
-    a.href = item.url;
+    a.href = token ? `${item.url}?token=${token}` : item.url;
     a.download = item.filename || `media-${idx + 1}`;
     a.target = "_blank";
     a.click();
@@ -324,7 +325,7 @@ function GalleryModal({ items, startIdx, onClose }) {
         <div className="w-full h-full flex items-center justify-center px-16 py-2">
           {item.type === "video" ? (
             <video
-              key={item.url}
+              key={token ? `${item.url}?token=${token}` : item.url}
               controls
               autoPlay
               playsInline
@@ -336,12 +337,12 @@ function GalleryModal({ items, startIdx, onClose }) {
                 background: "#000",
               }}
             >
-              <source src={item.url} type="video/mp4" />
-              <source src={item.url} />
+              <source src={token ? `${item.url}?token=${token}` : item.url} type="video/mp4" />
+              <source src={token ? `${item.url}?token=${token}` : item.url} />
             </video>
           ) : (
             <img
-              src={item.url}
+              src={token ? `${item.url}?token=${token}` : item.url}
               alt="Media"
               className="rounded-2xl shadow-2xl object-contain"
               style={{ maxWidth: "100%", maxHeight: "calc(100vh - 140px)" }}
@@ -395,6 +396,7 @@ function GalleryModal({ items, startIdx, onClose }) {
 export default function OrderDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { token } = useAuth();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -684,6 +686,7 @@ export default function OrderDetailPage() {
                                 onOpen={(items, idx) =>
                                   setGallery({ items, idx })
                                 }
+                                token={token}
                               />
                             </div>
                           </div>
@@ -889,6 +892,7 @@ export default function OrderDetailPage() {
           items={gallery.items}
           startIdx={gallery.idx}
           onClose={() => setGallery(null)}
+          token={token}
         />
       )}
     </div>
