@@ -25,7 +25,7 @@ export default function Sidebar() {
   const router = useRouter();
   const { user, isGuest, logout } = useAuth();
   const { lang, setLang, multiLanguageEnabled } = useLanguage();
-  const [charityEnabled, setCharityEnabled] = useState(true);
+  const [charityEnabled, setCharityEnabled] = useState(false);
 
   useEffect(() => {
     api.get("/app-config/settings")

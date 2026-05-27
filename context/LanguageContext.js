@@ -20,6 +20,7 @@ const LanguageContext = createContext({
 export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState('az');
   const [multiLanguageEnabled, setMultiLanguageEnabled] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     api.get('/app-config/settings')
@@ -40,7 +41,8 @@ export function LanguageProvider({ children }) {
         if (saved && LANGUAGES.find(l => l.code === saved)) {
           setLangState(saved);
         }
-      });
+      })
+      .finally(() => setIsReady(true));
   }, []);
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export function LanguageProvider({ children }) {
   const dir = LANGUAGES.find(l => l.code === lang)?.dir || 'ltr';
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, dir, multiLanguageEnabled }}>
+    <LanguageContext.Provider value={{ lang, setLang, dir, multiLanguageEnabled, isReady }}>
       {children}
     </LanguageContext.Provider>
   );
