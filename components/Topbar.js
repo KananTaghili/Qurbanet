@@ -98,22 +98,22 @@ export default function Topbar() {
             Daxil ol
           </button>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <button
               onClick={() => router.push("/settings")}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/20"
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/20 flex-shrink-0"
               title="Parametrlər"
             >
               <Settings size={18} color="white" strokeWidth={2} />
             </button>
             <div
-              className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center text-sm font-extrabold text-white"
+              className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0"
               style={{ background: "rgba(255,255,255,0.15)" }}
             >
               {user?.name?.[0]?.toUpperCase() || "?"}
             </div>
-            <span className="text-sm font-semibold text-white/80">
-              {[user?.name, user?.lastName].filter(Boolean).join(" ")}
+            <span className="text-sm font-semibold text-white/80 truncate max-w-[90px]">
+              {user?.name || ""}
             </span>
           </div>
         )}
