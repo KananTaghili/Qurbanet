@@ -379,15 +379,17 @@ const updateProfile = async (req, res) => {
     }
 
     if (!name || name.trim().length < 2) return error(res, "Ad ən az 2 simvol olmalıdır.", 400);
-    if (!lastName || lastName.trim().length < 2) return error(res, "Soyad ən az 2 simvol olmalıdır.", 400);
+    if (lastName !== undefined && lastName !== null && lastName.trim().length > 0 && lastName.trim().length < 2)
+      return error(res, "Soyad ən az 2 simvol olmalıdır.", 400);
     if (password && password.length < 6) return error(res, "Şifrə ən az 6 simvol olmalıdır.", 400);
 
-    const updateData = { name: name.trim(), lastName: lastName.trim() };
+    const updateData = { name: name.trim() };
+    if (lastName && lastName.trim()) updateData.lastName = lastName.trim();
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
     const user = await User.findByIdAndUpdate(req.userId, updateData, { new: true, select: "-__v -password" });
     const token = makeToken(user);
-    return success(res, { token, user }, "Profil yeniləndi.");
+    return success(res, { token, user: userPayload(user) }, "Profil yeniləndi.");
   } catch (err) {
     return error(res, "Server xətası.", 500);
   }
