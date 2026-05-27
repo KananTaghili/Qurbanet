@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isGuest: {
+      type: Boolean,
+      default: false,
+    },
     isBlocked: {
       type: Boolean,
       default: false,

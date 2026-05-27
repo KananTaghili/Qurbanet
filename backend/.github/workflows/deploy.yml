@@ -47,3 +47,12 @@ jobs:
             PORT=4000 pm2 restart qurbanetbackendpm --update-env \
               || PORT=4000 pm2 start server.js --name "qurbanetbackendpm"
             pm2 save
+
+            # Nginx: video/media yükləmə üçün 100MB limitini təmin et
+            NGINX_CONF="/etc/nginx/nginx.conf"
+            if grep -q "client_max_body_size" "$NGINX_CONF"; then
+              sudo sed -i 's/client_max_body_size[^;]*/client_max_body_size 100M/g' "$NGINX_CONF"
+            else
+              sudo sed -i '/http {/a \    client_max_body_size 100M;' "$NGINX_CONF"
+            fi
+            sudo nginx -t && sudo nginx -s reload

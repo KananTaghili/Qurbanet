@@ -27,6 +27,7 @@ const userPayload = (user) => ({
   name: user.name,
   lastName: user.lastName,
   isVerified: user.isVerified,
+  isGuest: user.isGuest || false,
 });
 
 // ─── OTP Göndər ─────────────────────────────────────────────────────────────
@@ -355,7 +356,7 @@ const guestLogin = async (req, res) => {
     const phone = normalizedPhone || generateGuestPhone();
 
     let user = await User.findOne({ phone });
-    if (!user) user = await User.create({ phone, name: "", isVerified: true });
+    if (!user) user = await User.create({ phone, name: "", isVerified: true, isGuest: true });
     if (user.isBlocked) return error(res, "Hesabınız bloklanıb.", 403);
 
     const token = makeToken(user);
