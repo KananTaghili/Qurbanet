@@ -3,6 +3,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { OrderProvider } from "../context/OrderContext";
 import { LanguageProvider } from "../context/LanguageContext";
 import ClientShell from "../components/ClientShell";
+import VersionChecker from "../components/VersionChecker";
 
 const BASE_URL = "https://qurbanet.az";
 
@@ -56,6 +57,7 @@ export default function RootLayout({ children }) {
           <OrderProvider>
             <LanguageProvider>
               <ClientShell>{children}</ClientShell>
+              <VersionChecker />
             </LanguageProvider>
           </OrderProvider>
         </AuthProvider>
