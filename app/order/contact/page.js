@@ -43,7 +43,10 @@ export default function ContactPage() {
   const { user, login } = useAuth();
   const { lang } = useLanguage();
 
-  const isRegistered = !!user?.name;
+  const isRegistered = !!user?.name && !user?.isGuest;
+
+  // Fake guest nömrəni contactInfo-ya əlavə etmə (+99499... = mobile guest prefix)
+  const safePhone = (p) => p && !/^\+99499/.test(p) && !user?.isGuest ? p : undefined;
 
   const [contactMode, setContactMode] = useState("register"); // "login" | "register"
   const [step, setStep] = useState("info");
@@ -83,10 +86,11 @@ export default function ContactPage() {
     if (!order || !flowActive) { router.replace("/"); return; }
 
     if (isRegistered) {
+      const ph = safePhone(user.phone);
       const contactInfo = {
         firstName: user.name || "",
         lastName: user.lastName || "",
-        ...(user.phone ? { phone: user.phone } : {}),
+        ...(ph ? { phone: ph } : {}),
         ...(user.email ? { email: user.email } : {}),
       };
       updateOrder({ contactInfo });
@@ -125,10 +129,11 @@ export default function ContactPage() {
     setError("");
     if (firstName.trim().length < 2) { setError(t(lang, 'nameTooShort')); return; }
 
+    const ph = safePhone(user.phone);
     const contactInfo = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      ...(user.phone ? { phone: user.phone } : {}),
+      ...(ph ? { phone: ph } : {}),
       ...(user.email ? { email: user.email } : {}),
     };
     updateOrder({ contactInfo });
@@ -155,10 +160,11 @@ export default function ContactPage() {
       const res = await api.post("/auth/login-password", body);
       const { token: newToken, user: newUser } = res.data.data;
       if (newToken) login(newToken, newUser);
+      const loginPh = newUser.phone && !newUser.isGuest && !/^\+99499/.test(newUser.phone) ? newUser.phone : undefined;
       const contactInfo = {
         firstName: newUser.name || "",
         lastName: newUser.lastName || "",
-        ...(newUser.phone ? { phone: newUser.phone } : {}),
+        ...(loginPh ? { phone: loginPh } : {}),
         ...(newUser.email ? { email: newUser.email } : {}),
       };
       updateOrder({ contactInfo });

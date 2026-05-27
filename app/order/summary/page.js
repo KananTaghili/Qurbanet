@@ -201,7 +201,9 @@ export default function SummaryPage() {
         ? `${contactInfo.firstName} ${contactInfo.lastName}`
         : "-",
     },
-    { label: t(lang, "phoneRow"), value: contactInfo?.phone || "-" },
+    ...(contactInfo?.phone && !/^\+99499/.test(contactInfo.phone)
+      ? [{ label: t(lang, "phoneRow"), value: contactInfo.phone }]
+      : []),
   ];
 
   const handleCreateOrder = async () => {
