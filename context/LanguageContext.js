@@ -19,7 +19,7 @@ const LanguageContext = createContext({
 
 export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState('az');
-  const [multiLanguageEnabled, setMultiLanguageEnabled] = useState(true);
+  const [multiLanguageEnabled, setMultiLanguageEnabled] = useState(false);
 
   useEffect(() => {
     api.get('/app-config/settings')
