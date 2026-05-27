@@ -23,8 +23,7 @@ export function AuthProvider({ children }) {
 
   const createGuest = async () => {
     try {
-      const phone = '+994' + Math.floor(500000000 + Math.random() * 499999999);
-      const res = await api.post('/auth/guest', { phone });
+      const res = await api.post('/auth/guest');
       if (res.data.success) {
         const { token: t, user: u } = res.data.data;
         localStorage.setItem('token', t);

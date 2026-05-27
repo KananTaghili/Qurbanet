@@ -45,8 +45,7 @@ export default function ContactPage() {
 
   const isRegistered = !!user?.name && !user?.isGuest;
 
-  // Fake guest nömrəni contactInfo-ya əlavə etmə (+99499... = mobile guest prefix)
-  const safePhone = (p) => p && !/^\+99499/.test(p) && !user?.isGuest ? p : undefined;
+  const safePhone = (p) => p && !user?.isGuest ? p : undefined;
 
   const [contactMode, setContactMode] = useState("register"); // "login" | "register"
   const [step, setStep] = useState("info");
@@ -160,7 +159,7 @@ export default function ContactPage() {
       const res = await api.post("/auth/login-password", body);
       const { token: newToken, user: newUser } = res.data.data;
       if (newToken) login(newToken, newUser);
-      const loginPh = newUser.phone && !newUser.isGuest && !/^\+99499/.test(newUser.phone) ? newUser.phone : undefined;
+      const loginPh = newUser.phone && !newUser.isGuest ? newUser.phone : undefined;
       const contactInfo = {
         firstName: newUser.name || "",
         lastName: newUser.lastName || "",
