@@ -16,6 +16,8 @@ import {
   LogIn,
   LogOut,
   UserPlus,
+  Phone,
+  Mail,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -83,6 +85,34 @@ export default function Sidebar() {
             </div>
           </div>
         </Link>
+
+        {/* Contact info */}
+        <div className="mt-2.5 flex flex-col gap-1">
+          <a
+            href="tel:+994103990222"
+            className="flex items-center gap-1.5 no-underline group"
+          >
+            <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
+            <span
+              className="text-[10px] lg:text-[11px] font-medium transition-colors group-hover:text-white truncate"
+              style={{ color: "rgba(255,255,255,0.6)" }}
+            >
+              +994 10 399 0222
+            </span>
+          </a>
+          <a
+            href="mailto:info@qurbanet.az"
+            className="flex items-center gap-1.5 no-underline group"
+          >
+            <Mail size={11} style={{ color: "#86efac", flexShrink: 0 }} />
+            <span
+              className="text-[10px] lg:text-[11px] font-medium transition-colors group-hover:text-white truncate"
+              style={{ color: "rgba(255,255,255,0.6)" }}
+            >
+              info@qurbanet.az
+            </span>
+          </a>
+        </div>
 
         {/* Language switcher */}
         {multiLanguageEnabled && (
