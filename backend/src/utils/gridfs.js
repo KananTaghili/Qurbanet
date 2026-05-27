@@ -23,21 +23,66 @@ const uploadBuffer = (buffer, filename, contentType) =>
     uploadStream.on("error", reject);
   });
 
-const streamToResponse = (fileId, res) => {
+// Supports HTTP Range requests (required by Safari/iOS for video playback)
+const streamToResponse = async (fileId, res, req) => {
   const bucket = getBucket();
   const objId = new mongoose.Types.ObjectId(fileId);
-  const downloadStream = bucket.openDownloadStream(objId);
 
-  downloadStream.on("file", (file) => {
-    if (file.contentType) res.set("Content-Type", file.contentType);
-    res.set("Cache-Control", "public, max-age=31536000, immutable");
-  });
+  const files = await bucket.find({ _id: objId }).toArray();
+  if (!files.length) {
+    if (!res.headersSent)
+      res.status(404).json({ success: false, message: "Fayl tapılmadı." });
+    return;
+  }
 
-  downloadStream.on("error", () => {
-    if (!res.headersSent) res.status(404).json({ success: false, message: "Fayl tapılmadı." });
-  });
+  const file = files[0];
+  const totalSize = file.length;
+  const contentType = file.contentType || "application/octet-stream";
+  const rangeHeader = req?.headers?.range;
 
-  downloadStream.pipe(res);
+  res.set("Accept-Ranges", "bytes");
+
+  if (rangeHeader) {
+    const match = rangeHeader.match(/bytes=(\d*)-(\d*)/);
+    if (!match) {
+      res.set("Content-Range", `bytes */${totalSize}`);
+      return res.status(416).end();
+    }
+    const start = match[1] ? parseInt(match[1], 10) : 0;
+    const end = match[2] ? parseInt(match[2], 10) : totalSize - 1;
+
+    if (start > end || end >= totalSize) {
+      res.set("Content-Range", `bytes */${totalSize}`);
+      return res.status(416).end();
+    }
+
+    const chunkSize = end - start + 1;
+    res.status(206).set({
+      "Content-Range": `bytes ${start}-${end}/${totalSize}`,
+      "Content-Length": chunkSize,
+      "Content-Type": contentType,
+      "Cache-Control": "private, max-age=3600",
+    });
+
+    const downloadStream = bucket.openDownloadStream(objId, { start, end: end + 1 });
+    downloadStream.on("error", () => {
+      if (!res.headersSent) res.status(500).end();
+    });
+    downloadStream.pipe(res);
+  } else {
+    res.set({
+      "Content-Type": contentType,
+      "Content-Length": totalSize,
+      "Cache-Control": "private, max-age=3600",
+    });
+
+    const downloadStream = bucket.openDownloadStream(objId);
+    downloadStream.on("error", () => {
+      if (!res.headersSent)
+        res.status(404).json({ success: false, message: "Fayl tapılmadı." });
+    });
+    downloadStream.pipe(res);
+  }
 };
 
 const deleteFile = (fileId) => {
