@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 const Order = require("../models/Order");
 const Category = require("../models/Category");
 const User = require("../models/User");
@@ -503,6 +504,10 @@ const getSharedOrders = async (req, res) => {
 // ─── Sifariş detayı ──────────────────────────────────────────────────────────
 const getOrderById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.orderId)) {
+      return error(res, "Sifariş tapılmadı.", 404);
+    }
+
     const order = await Order.findById(req.params.orderId)
       .populate("user", "phone name lastName email createdAt")
       .select("-__v");
