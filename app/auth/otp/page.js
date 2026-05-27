@@ -89,20 +89,23 @@ export default function OtpPage() {
       if (res.data.success) {
         const { token, user } = res.data.data;
 
+        // Login with the new token FIRST so the Axios interceptor uses it
+        // for the subsequent /auth/profile call (not the old guest token)
+        login(token, user);
+
         if (!isLogin && name.trim()) {
           try {
-            const profileRes = await api.put('/auth/profile', {
-              name: name.trim(),
-              lastName: lastName.trim() || undefined,
-            }, { headers: { Authorization: `Bearer ${token}` } });
+            const body = { name: name.trim() };
+            if (lastName.trim()) body.lastName = lastName.trim();
+            const profileRes = await api.put('/auth/profile', body);
             const freshToken = profileRes.data.data?.token || token;
             const updatedUser = profileRes.data.data?.user || { ...user, name: name.trim() };
             login(freshToken, updatedUser);
-          } catch {
-            login(token, user);
+          } catch (profileErr) {
+            setError(profileErr.response?.data?.message || 'Ad yenilənə bilmədi.');
+            setLoading(false);
+            return;
           }
-        } else {
-          login(token, user);
         }
 
         sessionStorage.removeItem('otp_identifier');

@@ -18,14 +18,12 @@ export default function NamePage() {
     const trimmedName = name.trim();
     const trimmedLastName = lastName.trim();
     if (trimmedName.length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
-    if (trimmedLastName.length < 2) { setError('Soyad ən az 2 simvol olmalıdır.'); return; }
 
     setLoading(true);
     try {
-      const res = await api.put('/auth/profile', {
-        name: trimmedName,
-        lastName: trimmedLastName,
-      });
+      const body = { name: trimmedName };
+      if (trimmedLastName) body.lastName = trimmedLastName;
+      const res = await api.put('/auth/profile', body);
       const freshToken = res.data.data?.token || token;
       const updatedUser = res.data.data?.user || { ...user, name: trimmedName };
       login(freshToken, updatedUser);
@@ -101,7 +99,7 @@ export default function NamePage() {
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-text-primary mb-2 block">Soyad *</label>
+                <label className="text-sm font-semibold text-text-primary mb-2 block">Soyad</label>
                 <input
                   type="text"
                   value={lastName}
