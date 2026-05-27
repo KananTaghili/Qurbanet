@@ -104,32 +104,26 @@ export default function Topbar() {
       {/* Right: contact info (desktop) + user area */}
       <div className="flex items-center gap-3 flex-shrink-0">
 
-        {/* Contact info — desktop only */}
+        {/* Contact info — desktop only, display only (not clickable) */}
         <div className="hidden md:flex items-center gap-5 mr-1">
-          <a
-            href="tel:+994103990222"
-            className="flex items-center gap-1.5 no-underline group"
-          >
+          <div className="flex items-center gap-1.5">
             <Phone size={12} style={{ color: "#86efac", flexShrink: 0 }} />
             <span
-              className="text-[11px] font-medium transition-colors group-hover:text-white"
+              className="text-[11px] font-medium"
               style={{ color: "rgba(255,255,255,0.6)" }}
             >
               +994 10 399 0222
             </span>
-          </a>
-          <a
-            href="mailto:info@qurbanet.az"
-            className="flex items-center gap-1.5 no-underline group"
-          >
+          </div>
+          <div className="flex items-center gap-1.5">
             <Mail size={12} style={{ color: "#86efac", flexShrink: 0 }} />
             <span
-              className="text-[11px] font-medium transition-colors group-hover:text-white"
+              className="text-[11px] font-medium"
               style={{ color: "rgba(255,255,255,0.6)" }}
             >
               info@qurbanet.az
             </span>
-          </a>
+          </div>
         </div>
 
         {/* Auth area */}
@@ -221,12 +215,7 @@ export default function Topbar() {
                 <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
 
                 {/* Phone */}
-                <a
-                  href="tel:+994103990222"
-                  className="flex items-center gap-3 px-4 py-3 no-underline transition-colors"
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                >
+                <div className="flex items-center gap-3 px-4 py-3">
                   <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: "#e8f5e9" }}
@@ -234,15 +223,10 @@ export default function Topbar() {
                     <Phone size={15} style={{ color: "#1b5e20" }} />
                   </div>
                   <span className="text-sm font-semibold text-slate-800">+994 10 399 0222</span>
-                </a>
+                </div>
 
                 {/* Email */}
-                <a
-                  href="mailto:info@qurbanet.az"
-                  className="flex items-center gap-3 px-4 py-3 no-underline transition-colors"
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                >
+                <div className="flex items-center gap-3 px-4 py-3">
                   <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: "#e8f5e9" }}
@@ -250,7 +234,7 @@ export default function Topbar() {
                     <Mail size={15} style={{ color: "#1b5e20" }} />
                   </div>
                   <span className="text-sm font-semibold text-slate-800">info@qurbanet.az</span>
-                </a>
+                </div>
 
                 <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
 
