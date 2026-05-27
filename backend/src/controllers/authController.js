@@ -344,21 +344,9 @@ const resetPassword = async (req, res) => {
 };
 
 // ─── Qonaq giriş ─────────────────────────────────────────────────────────────
-const generateGuestPhone = () => {
-  const suffix = String(Math.floor(Math.random() * 10000000)).padStart(7, "0");
-  return `+99499${suffix}`;
-};
-
 const guestLogin = async (req, res) => {
   try {
-    const requestedPhone = typeof req.body?.phone === "string" ? req.body.phone.trim() : "";
-    const normalizedPhone = requestedPhone ? normalizeAzPhone(requestedPhone) : null;
-    const phone = normalizedPhone || generateGuestPhone();
-
-    let user = await User.findOne({ phone });
-    if (!user) user = await User.create({ phone, name: "", isVerified: true, isGuest: true });
-    if (user.isBlocked) return error(res, "Hesabınız bloklanıb.", 403);
-
+    const user = await User.create({ isGuest: true, isVerified: true });
     const token = makeToken(user);
     return success(res, { token, user: userPayload(user) }, "Qonaq olaraq daxil oldunuz.");
   } catch (err) {
