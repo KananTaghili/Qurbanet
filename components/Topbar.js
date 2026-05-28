@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Settings, Phone, Mail, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useOrder } from "../context/OrderContext";
 
 const PAGE_TITLES = {
   "/": "Əsas Səhifə",
@@ -40,7 +41,6 @@ const BACK_ROUTES = {
   "/order/quantity": "/",
   "/order/distribution": "/order/quantity",
   "/order/contact": "/order/distribution",
-  "/order/summary": "/order/contact",
   "/order/payment": "/order/summary",
   "/need-support": "/",
   "/how-it-works": "/",
@@ -57,6 +57,7 @@ export default function Topbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isGuest, logout } = useAuth();
+  const { order } = useOrder();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -69,9 +70,12 @@ export default function Topbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpen]);
 
-  const backEntry = Object.entries(BACK_ROUTES).find(
-    ([k]) => pathname === k || pathname.startsWith(k + "/"),
-  );
+  // Summary back depends on order mode: serikli has no distribution step
+  const summaryBack = order?.mode === "serikli" ? "/order/quantity" : "/order/distribution";
+
+  const backEntry = pathname === "/order/summary"
+    ? ["/order/summary", summaryBack]
+    : Object.entries(BACK_ROUTES).find(([k]) => pathname === k || pathname.startsWith(k + "/"));
   const backTo = backEntry?.[1];
   const showBack = !!backTo && pathname !== "/";
 
