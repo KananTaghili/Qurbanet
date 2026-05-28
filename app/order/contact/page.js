@@ -234,7 +234,24 @@ export default function ContactPage() {
 
       const res = await api.post("/auth/verify-otp", body);
       const { token: newToken, user: newUser } = res.data.data;
-      if (newToken) login(newToken, newUser);
+
+      // Login first so the profile PUT uses the new token via localStorage interceptor
+      login(newToken, newUser);
+
+      // Set name/lastName on the account so isGuest becomes false in sidebar
+      if (firstName.trim()) {
+        try {
+          const profileBody = { name: firstName.trim() };
+          if (lastName.trim()) profileBody.lastName = lastName.trim();
+          const profileRes = await api.put("/auth/profile", profileBody);
+          const freshToken = profileRes.data.data?.token || newToken;
+          const updatedUser = profileRes.data.data?.user || { ...newUser, name: firstName.trim(), lastName: lastName.trim() };
+          login(freshToken, updatedUser);
+        } catch (_) {
+          // Profile update failed — at least set name locally so sidebar reflects login
+          login(newToken, { ...newUser, name: firstName.trim(), lastName: lastName.trim() });
+        }
+      }
 
       const contactInfo = {
         firstName: firstName.trim(),
