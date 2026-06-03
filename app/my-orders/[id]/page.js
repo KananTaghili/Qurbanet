@@ -396,7 +396,7 @@ function GalleryModal({ items, startIdx, onClose, token }) {
 export default function OrderDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, isGuest, isLoading: authLoading } = useAuth();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -410,8 +410,12 @@ export default function OrderDetailPage() {
   const [cashPickupLocation, setCashPickupLocation] = useState(null);
 
   useEffect(() => {
-    if (id) fetchOrder();
-  }, [id]);
+    if (!authLoading && isGuest) {
+      router.replace('/auth/login');
+      return;
+    }
+    if (!authLoading && !isGuest && id) fetchOrder();
+  }, [authLoading, isGuest, id]);
   useSocket({
     "order:updated": (d) => {
       if (d?.orderId === id) fetchOrder();

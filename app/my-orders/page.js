@@ -9,6 +9,7 @@ import BottomNav from '../../components/BottomNav';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { t } from '../../lib/i18n';
 
 function fmtDate(ds, months) {
@@ -134,18 +135,32 @@ function OrderCard({ item, lang }) {
 export default function MyOrdersPage() {
   const router = useRouter();
   const { lang } = useLanguage();
+  const { isGuest, isLoading: authLoading } = useAuth();
   const [orders,        setOrders]        = useState([]);
   const [charityOrders, setCharityOrders] = useState([]);
   const [loading,       setLoading]       = useState(true);
 
-  useEffect(() => { fetchAll(); }, []);
+  // Redirect guests to login
+  useEffect(() => {
+    if (!authLoading && isGuest) {
+      router.replace('/auth/login');
+    }
+  }, [authLoading, isGuest]);
+
+  // Fetch orders only after auth is ready and user is logged in
+  useEffect(() => {
+    if (!authLoading && !isGuest) {
+      fetchAll();
+    }
+  }, [authLoading, isGuest]);
 
   useSocket({
-    'order:updated':         () => fetchAll(),
-    'charity_order:updated': () => fetchAll(),
+    'order:updated':         () => { if (!isGuest) fetchAll(); },
+    'charity_order:updated': () => { if (!isGuest) fetchAll(); },
   });
 
   const fetchAll = async () => {
+    setLoading(true);
     try {
       const [ordRes, charRes] = await Promise.allSettled([
         api.get('/orders/my'),
