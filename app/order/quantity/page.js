@@ -369,13 +369,13 @@ export default function QuantityPage() {
           <button
             key={label}
             onClick={() => { setSelectedDate(new Date(date)); setShowCalendar(false); }}
-            className={`flex flex-col items-center justify-center gap-0.5 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
+            className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
               ${active
                 ? "border-primary bg-primary-surface text-primary"
                 : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"}`}
           >
-            {label}
-            <span className="text-[10px] font-medium opacity-60">
+            <span>{label}</span>
+            <span className="text-[11px] font-semibold opacity-60">
               {date.getDate()} {AZ_MONTHS[date.getMonth()]}
             </span>
           </button>
