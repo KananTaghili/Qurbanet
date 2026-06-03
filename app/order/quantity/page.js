@@ -89,6 +89,8 @@ export default function QuantityPage() {
   const [headBuckets, setHeadBuckets] = useState({});
   const [feetBuckets, setFeetBuckets] = useState({});
   const [maxSlaughterDays, setMaxSlaughterDays] = useState(14);
+  const [quickDateTodayEnabled, setQuickDateTodayEnabled]       = useState(true);
+  const [quickDateTomorrowEnabled, setQuickDateTomorrowEnabled] = useState(true);
 
   useEffect(() => {
     try {
@@ -177,8 +179,10 @@ export default function QuantityPage() {
     api
       .get("/app-config/settings")
       .then((res) => {
-        const days = res.data?.data?.maxSlaughterDays;
-        if (days && days > 0) setMaxSlaughterDays(days);
+        const d = res.data?.data;
+        if (d?.maxSlaughterDays > 0) setMaxSlaughterDays(d.maxSlaughterDays);
+        if (d?.quickDateTodayEnabled !== undefined) setQuickDateTodayEnabled(d.quickDateTodayEnabled);
+        if (d?.quickDateTomorrowEnabled !== undefined) setQuickDateTomorrowEnabled(d.quickDateTomorrowEnabled);
       })
       .catch(() => {});
   }, []);
@@ -361,26 +365,28 @@ export default function QuantityPage() {
   const CalendarBlock = () => (
     <div className="p-3 flex flex-col gap-2">
       {/* Quick picks */}
-      <div className="grid grid-cols-2 gap-2">
-        {[
-          { label: "Bu gün",  date: todayMidnight,    active: isToday },
-          { label: "Sabah",   date: tomorrowMidnight, active: isTomorrow },
-        ].map(({ label, date, active }) => (
-          <button
-            key={label}
-            onClick={() => { setSelectedDate(new Date(date)); setShowCalendar(false); }}
-            className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
-              ${active
-                ? "border-primary bg-primary-surface text-primary"
-                : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"}`}
-          >
-            <span>{label}</span>
-            <span className="text-[11px] font-semibold opacity-60">
-              {date.getDate()} {AZ_MONTHS[date.getMonth()]}
-            </span>
-          </button>
-        ))}
-      </div>
+      {(quickDateTodayEnabled || quickDateTomorrowEnabled) && (
+        <div className={`grid gap-2 ${quickDateTodayEnabled && quickDateTomorrowEnabled ? "grid-cols-2" : "grid-cols-1"}`}>
+          {[
+            { label: "Bu gün", date: todayMidnight,    active: isToday,    enabled: quickDateTodayEnabled },
+            { label: "Sabah",  date: tomorrowMidnight, active: isTomorrow, enabled: quickDateTomorrowEnabled },
+          ].filter(o => o.enabled).map(({ label, date, active }) => (
+            <button
+              key={label}
+              onClick={() => { setSelectedDate(new Date(date)); setShowCalendar(false); }}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
+                ${active
+                  ? "border-primary bg-primary-surface text-primary"
+                  : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"}`}
+            >
+              <span>{label}</span>
+              <span className="text-[11px] font-semibold opacity-60">
+                {date.getDate()} {AZ_MONTHS[date.getMonth()]}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Custom date toggle */}
       <button
