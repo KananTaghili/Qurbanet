@@ -117,7 +117,7 @@ export default function CashPaymentPage() {
       </div>
 
       {/* Mobile fixed bottom */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg border-t border-border safe-area-bottom flex flex-col gap-2.5">
+      <div className="fixed-action-bar md:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg border-t border-border safe-area-bottom flex flex-col gap-2.5">
         <button className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm" onClick={handleGoOrders}>
           Sifarişlərimi gör
         </button>

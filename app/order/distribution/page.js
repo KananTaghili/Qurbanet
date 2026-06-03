@@ -698,7 +698,7 @@ export default function DistributionPage() {
         </div>
 
         {/* MOBILE action bar */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-4 py-2.5 z-[999]">
+        <div className="fixed-action-bar lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-4 py-2.5 z-[999]">
           <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
             <div className="flex flex-col">
               <span className="text-[9px] text-text-secondary font-bold uppercase tracking-wide">

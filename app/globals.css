@@ -208,6 +208,9 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
   .mobile-back-header   { display: none !important; }
   .mobile-step-header   { position: static; top: auto; z-index: auto; background: transparent; border-bottom: none; }
 
+  /* Fixed action bars must start after the sidebar, not at viewport edge */
+  .fixed-action-bar     { left: var(--sidebar-w) !important; }
+
   .page-scroll { padding-bottom: 0; padding-top: 0; overflow-y: visible; }
 
   .animal-grid {

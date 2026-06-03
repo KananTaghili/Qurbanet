@@ -364,7 +364,7 @@ export default function PaymentPage() {
       </div>
 
       {/* Mobile fixed bottom button */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg border-t border-border safe-area-bottom">
+      <div className="fixed-action-bar md:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg border-t border-border safe-area-bottom">
         {PayButton}
       </div>
     </div>

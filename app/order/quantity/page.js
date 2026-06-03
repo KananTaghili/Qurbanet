@@ -866,7 +866,7 @@ export default function QuantityPage() {
       </div>
 
       {/* ════ MOBILE action bar ════ */}
-      <div className="xl:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 z-[9999]">
+      <div className="fixed-action-bar xl:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 z-[9999]">
         <div className="flex items-center gap-3">
           <div className="flex flex-col flex-1 min-w-0">
             <span className="text-[10px] sm:text-xs text-text-secondary font-medium">
