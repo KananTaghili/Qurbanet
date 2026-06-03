@@ -135,28 +135,26 @@ function OrderCard({ item, lang }) {
 export default function MyOrdersPage() {
   const router = useRouter();
   const { lang } = useLanguage();
-  const { isGuest, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const [orders,        setOrders]        = useState([]);
   const [charityOrders, setCharityOrders] = useState([]);
   const [loading,       setLoading]       = useState(true);
 
-  // Redirect guests to login
-  useEffect(() => {
-    if (!authLoading && isGuest) {
-      router.replace('/auth/login');
-    }
-  }, [authLoading, isGuest]);
+  // true only for explicit guests (isGuest flag), NOT for real users without a name
+  const isActualGuest = !authLoading && (!token || user?.isGuest === true);
 
-  // Fetch orders only after auth is ready and user is logged in
   useEffect(() => {
-    if (!authLoading && !isGuest) {
-      fetchAll();
+    if (authLoading) return;
+    if (isActualGuest) {
+      router.replace('/auth/login');
+      return;
     }
-  }, [authLoading, isGuest]);
+    fetchAll();
+  }, [authLoading, token, user?.isGuest]);
 
   useSocket({
-    'order:updated':         () => { if (!isGuest) fetchAll(); },
-    'charity_order:updated': () => { if (!isGuest) fetchAll(); },
+    'order:updated':         () => { if (!isActualGuest) fetchAll(); },
+    'charity_order:updated': () => { if (!isActualGuest) fetchAll(); },
   });
 
   const fetchAll = async () => {
@@ -166,6 +164,11 @@ export default function MyOrdersPage() {
         api.get('/orders/my'),
         api.get('/charity-orders'),
       ]);
+      // If auth failed (expired token), redirect to login
+      if (ordRes.status === 'rejected' && ordRes.reason?.response?.status === 401) {
+        router.replace('/auth/login');
+        return;
+      }
       if (ordRes.status  === 'fulfilled') setOrders(ordRes.value.data.data?.orders || []);
       if (charRes.status === 'fulfilled') setCharityOrders(charRes.value.data.data?.orders || []);
     } catch { /* ignore */ } finally { setLoading(false); }
