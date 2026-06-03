@@ -346,91 +346,97 @@ export default function QuantityPage() {
       })()
     : null;
 
+  const todayMidnight = new Date();
+  todayMidnight.setHours(0, 0, 0, 0);
+  const tomorrowMidnight = new Date(todayMidnight);
+  tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
+
+  const isToday    = selectedDate && new Date(selectedDate).toDateString() === todayMidnight.toDateString();
+  const isTomorrow = selectedDate && new Date(selectedDate).toDateString() === tomorrowMidnight.toDateString();
+  const isCustom   = selectedDate && !isToday && !isTomorrow;
+  const customLabel = isCustom
+    ? `${new Date(selectedDate).getDate()} ${AZ_MONTHS[new Date(selectedDate).getMonth()]} ${new Date(selectedDate).getFullYear()}`
+    : null;
+
   const CalendarBlock = () => (
-    <div className="p-3">
+    <div className="p-3 flex flex-col gap-2">
+      {/* Quick picks */}
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { label: "Bu gün",  date: todayMidnight,    active: isToday },
+          { label: "Sabah",   date: tomorrowMidnight, active: isTomorrow },
+        ].map(({ label, date, active }) => (
+          <button
+            key={label}
+            onClick={() => { setSelectedDate(new Date(date)); setShowCalendar(false); }}
+            className={`flex flex-col items-center justify-center gap-0.5 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
+              ${active
+                ? "border-primary bg-primary-surface text-primary"
+                : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"}`}
+          >
+            {label}
+            <span className="text-[10px] font-medium opacity-60">
+              {date.getDate()} {AZ_MONTHS[date.getMonth()]}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Custom date toggle */}
       <button
-        onClick={() => setShowCalendar(!showCalendar)}
-        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold border-2 cursor-pointer transition-all ${
-          dateStr
+        onClick={() => setShowCalendar((v) => !v)}
+        className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-semibold cursor-pointer transition-all
+          ${isCustom
             ? "border-primary bg-primary-surface text-primary"
-            : "border-border bg-surface-alt text-text-muted"
-        }`}
+            : showCalendar
+              ? "border-primary/50 bg-surface text-text-secondary"
+              : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"}`}
       >
-        {dateStr || "Tarix seçin..."}
+        <span className="flex items-center gap-2">
+          <CalendarDays className="w-4 h-4 flex-shrink-0" />
+          {isCustom ? customLabel : "Başqa tarix seç"}
+        </span>
+        <span className="text-xs opacity-50">{showCalendar ? "▲" : "▼"}</span>
       </button>
+
+      {/* Inline calendar */}
       {showCalendar && (
-        <div className="mt-2.5 border border-border rounded-xl p-3 bg-surface">
+        <div className="border border-border rounded-xl p-3 bg-surface">
           <div className="flex items-center justify-between mb-2.5">
             <button
-              onClick={() => {
-                if (calMonth === 0) {
-                  setCalMonth(11);
-                  setCalYear((y) => y - 1);
-                } else setCalMonth((m) => m - 1);
-              }}
+              onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear((y) => y - 1); } else setCalMonth((m) => m - 1); }}
               className="w-8 h-8 flex items-center justify-center bg-surface-alt rounded-lg text-base font-bold text-text-secondary border-none cursor-pointer"
-            >
-              ‹
-            </button>
+            >‹</button>
             <span className="text-xs sm:text-[13px] font-bold text-text-primary">
               {AZ_MONTHS[calMonth]} {calYear}
             </span>
             <button
-              onClick={() => {
-                if (calMonth === 11) {
-                  setCalMonth(0);
-                  setCalYear((y) => y + 1);
-                } else setCalMonth((m) => m + 1);
-              }}
+              onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear((y) => y + 1); } else setCalMonth((m) => m + 1); }}
               className="w-8 h-8 flex items-center justify-center bg-surface-alt rounded-lg text-base font-bold text-text-secondary border-none cursor-pointer"
-            >
-              ›
-            </button>
+            >›</button>
           </div>
           <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1.5">
             {["BE", "ÇA", "Ç", "CA", "C", "Ş", "B"].map((d, i) => (
-              <div
-                key={i}
-                className="text-center text-[9px] font-bold text-text-muted py-1"
-              >
-                {d}
-              </div>
+              <div key={i} className="text-center text-[9px] font-bold text-text-muted py-1">{d}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
             {calDays.map((d, i) => {
-              const maxDate = new Date(today);
+              const maxDate = new Date(todayMidnight);
               maxDate.setDate(maxDate.getDate() + maxSlaughterDays);
-              const disabled =
-                !d ||
-                new Date(calYear, calMonth, d) < today ||
-                new Date(calYear, calMonth, d) > maxDate;
-              const sel =
-                d &&
-                selectedDate &&
-                new Date(calYear, calMonth, d).toDateString() ===
-                  new Date(selectedDate).toDateString();
+              const cellDate = d ? new Date(calYear, calMonth, d) : null;
+              const disabled = !d || cellDate < todayMidnight || cellDate > maxDate;
+              const sel = d && selectedDate && cellDate.toDateString() === new Date(selectedDate).toDateString();
               return (
                 <button
                   key={i}
                   disabled={!d || disabled}
-                  onClick={() => {
-                    if (d && !disabled) {
-                      setSelectedDate(new Date(calYear, calMonth, d));
-                      setShowCalendar(false);
-                    }
-                  }}
+                  onClick={() => { if (d && !disabled) { setSelectedDate(cellDate); setShowCalendar(false); } }}
                   className={`h-7 sm:h-8 rounded-lg border-none text-[11px] sm:text-xs font-medium transition-colors
-                    ${
-                      sel
-                        ? "bg-primary text-white font-extrabold"
-                        : disabled
-                          ? "text-border bg-transparent cursor-default"
-                          : "text-text-primary bg-transparent cursor-pointer hover:bg-surface-alt"
-                    }`}
-                >
-                  {d || ""}
-                </button>
+                    ${sel      ? "bg-primary text-white font-extrabold"
+                    : disabled  ? "text-border bg-transparent cursor-default"
+                                : "text-text-primary bg-transparent cursor-pointer hover:bg-surface-alt"}`}
+                >{d || ""}</button>
               );
             })}
           </div>
