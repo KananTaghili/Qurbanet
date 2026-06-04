@@ -592,20 +592,28 @@ function EmptyState({ lang }) {
 function MobileAnimalCard({ animal, onSelect, lang }) {
   const isQoyun = animal.type === "qoyun";
   const inactive = !animal.isActive;
+  const [pressed, setPressed] = useState(false);
 
   return (
     <button
       onClick={() => { if (!inactive) onSelect(animal); }}
       disabled={inactive}
+      onMouseEnter={() => !inactive && setPressed(true)}
+      onMouseLeave={() => setPressed(false)}
+      onTouchStart={() => !inactive && setPressed(true)}
+      onTouchEnd={() => setTimeout(() => setPressed(false), 180)}
+      onTouchCancel={() => setPressed(false)}
       className={`
         flex items-stretch overflow-hidden w-full text-left
         bg-white rounded-2xl xs:rounded-3xl
-        border border-black/[0.08]
-        shadow-card-md
+        border
         transition-all duration-150
-        active:scale-[0.97] active:shadow-sm
         min-h-[120px] xs:min-h-[130px] sm:min-h-[140px]
-        ${inactive ? "opacity-50 grayscale cursor-not-allowed" : "hover:shadow-lg hover:border-primary/25 hover:scale-[1.01]"}
+        ${inactive
+          ? "opacity-50 grayscale cursor-not-allowed border-black/[0.08] shadow-card-md"
+          : pressed
+            ? "border-primary/30 shadow-lg scale-[1.01]"
+            : "border-black/[0.08] shadow-card-md"}
       `}
     >
       {/* Image */}
