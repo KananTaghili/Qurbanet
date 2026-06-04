@@ -379,7 +379,7 @@ export default function SummaryPage() {
                   {activeCutRows.length > 0 && (
                     <div className="border-b border-border/50">
                       <SectionHead label={t(lang, "cutMethodSection")} />
-                      <div className="grid grid-cols-2 border-b border-border/50">
+                      <div className="flex flex-col">
                         {activeCutRows.map((cs, i) => (
                           <PriceItem
                             key={cs.key}
