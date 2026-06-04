@@ -135,6 +135,7 @@ export default function DistributionPage() {
 
     try {
       const saved = sessionStorage.getItem(DIST_STATE_KEY);
+      let hasSavedPhones = false;
       if (saved) {
         const s = JSON.parse(saved);
         if (s.selectedKey) setSelectedKey(s.selectedKey);
@@ -142,8 +143,15 @@ export default function DistributionPage() {
           setPickedLocation(s.pickedLocation);
           setAddress(s.pickedLocation.address || "");
         }
-        if (Array.isArray(s.phones) && s.phones.length > 0) setPhones(s.phones);
+        if (Array.isArray(s.phones) && s.phones.length > 0) {
+          setPhones(s.phones);
+          hasSavedPhones = true;
+        }
         if (typeof s.addressNote === "string") setAddressNote(s.addressNote);
+      }
+      if (!hasSavedPhones && user?.phone) {
+        const stripped = user.phone.replace(/^\+994/, "").replace(/\D/g, "");
+        if (stripped) setPhones([formatPhone(stripped)]);
       }
     } catch (_) {}
     hasRestoredRef.current = true;
