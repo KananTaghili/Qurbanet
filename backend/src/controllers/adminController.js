@@ -1291,8 +1291,20 @@ const getUsers = async (req, res) => {
       User.countDocuments(filter),
     ]);
 
+    const userIds = users.map((u) => u._id);
+    const orderCounts = await Order.aggregate([
+      { $match: { user: { $in: userIds } } },
+      { $group: { _id: "$user", count: { $sum: 1 } } },
+    ]);
+    const countMap = {};
+    for (const { _id, count } of orderCounts) countMap[String(_id)] = count;
+    const usersWithCount = users.map((u) => ({
+      ...u.toObject(),
+      orderCount: countMap[String(u._id)] || 0,
+    }));
+
     return success(res, {
-      users,
+      users: usersWithCount,
       pagination: {
         total,
         page: parseInt(page),

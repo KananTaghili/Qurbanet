@@ -274,14 +274,15 @@ const forgotPassword = async (req, res) => {
     }
 
     const user = await User.findOne(userQuery);
-    if (user && !user.isBlocked) {
-      await OTP.deleteMany(otpQuery);
-      const code = generateOTP();
-      await OTP.create({ ...otpQuery, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
-      await sendFn(code);
-    }
+    if (!user) return error(res, "Bu ünvanla qeydiyyatdan keçmiş hesab tapılmadı.", 404);
+    if (user.isBlocked) return error(res, "Hesabınız bloklanıb.", 403);
 
-    return success(res, {}, "Əgər bu ünvan qeydiyyatdadırsa, doğrulama kodu göndəriləcək.");
+    await OTP.deleteMany(otpQuery);
+    const code = generateOTP();
+    await OTP.create({ ...otpQuery, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
+    await sendFn(code);
+
+    return success(res, {}, "Doğrulama kodu göndərildi.");
   } catch (err) {
     console.error("forgotPassword xətası:", err);
     return error(res, "Server xətası.", 500);
@@ -378,13 +379,15 @@ const updateProfile = async (req, res) => {
       if (!isMatch) return error(res, "Cari şifrə yanlışdır.", 401);
     }
 
-    if (!name || name.trim().length < 2) return error(res, "Ad ən az 2 simvol olmalıdır.", 400);
+    if (name !== undefined && (!name || name.trim().length < 2))
+      return error(res, "Ad ən az 2 simvol olmalıdır.", 400);
     if (lastName !== undefined && lastName !== null && lastName.trim().length > 0 && lastName.trim().length < 2)
       return error(res, "Soyad ən az 2 simvol olmalıdır.", 400);
     if (password && password.length < 6) return error(res, "Şifrə ən az 6 simvol olmalıdır.", 400);
 
-    const updateData = { name: name.trim() };
-    if (lastName && lastName.trim()) updateData.lastName = lastName.trim();
+    const updateData = {};
+    if (name !== undefined) updateData.name = name.trim();
+    if (lastName !== undefined && lastName.trim()) updateData.lastName = lastName.trim();
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
     const user = await User.findByIdAndUpdate(req.userId, updateData, { new: true, select: "-__v -password" });
