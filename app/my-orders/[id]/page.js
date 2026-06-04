@@ -617,7 +617,11 @@ export default function OrderDetailPage() {
                     const stepMedia = step.stage
                       ? mediaByStage(step.stage)
                       : [];
-                    const hasMedia = done && step.stage;
+                    const hasMedia = done && step.stage && stepMedia.length > 0;
+                    const stepLabel =
+                      isSelfPickup && step.key === "delivering"
+                        ? "Sifariş götürüldü"
+                        : step.label;
                     return (
                       <div key={step.key}>
                         {/* Step row */}
@@ -654,7 +658,7 @@ export default function OrderDetailPage() {
                             <p
                               className={`text-sm font-bold ${done ? "text-text-primary" : "text-text-muted"}`}
                             >
-                              {step.label}
+                              {stepLabel}
                             </p>
                             {tItem.date ? (
                               <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-primary-surface border border-primary/20">
