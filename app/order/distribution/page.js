@@ -153,9 +153,15 @@ export default function DistributionPage() {
             o.key === "delivery" ||
             o.type === "home",
         );
-        const baseFee = delivOpt?.basePrice ?? delivOpt?.fee ?? 0;
-        const animalDeliveryFee = Number(order?.animal?.deliveryFee);
-        const fee = animalDeliveryFee > 0 ? animalDeliveryFee : baseFee;
+        // Helper: get effective fee for an option+animal from categorySpecificPrices
+        const effectiveFee = (opt) => {
+          const specific = (opt?.categorySpecificPrices || []).find(
+            (sp) => (sp.categoryId?._id || sp.categoryId) === animalId
+          );
+          return specific != null ? specific.price : (opt?.basePrice ?? 0);
+        };
+
+        const fee = effectiveFee(delivOpt);
         setDeliveryFee(fee);
 
         const data = {
@@ -175,7 +181,7 @@ export default function DistributionPage() {
         charityOpts.forEach((o) => {
           data[o.key] = {
             labelAz: o.labelAz,
-            fee: o.basePrice ?? 0,
+            fee: effectiveFee(o),
             disabled: !o.isActive,
           };
         });
