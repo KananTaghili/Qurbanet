@@ -710,10 +710,19 @@ export default function DistributionPage() {
                 })()}
 
                 {/* Delivery fee */}
-                {selectedFee > 0 && (
+                {selectedKey && (
                   <div className="flex justify-between items-center px-3 py-2.5 border-b border-border">
-                    <span className="text-[11px] text-text-secondary font-medium">{t(lang, "deliveryFeeRow")}</span>
-                    <span className="text-[11px] font-bold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">+{selectedFee} AZN</span>
+                    <div>
+                      <p className="text-[11px] font-semibold text-text-primary">
+                        {optionData[selectedKey]?.labelAz || selectedKey}
+                      </p>
+                      <p className="text-[10px] text-text-secondary mt-0.5">
+                        {t(lang, "deliveryFeeRow")}
+                      </p>
+                    </div>
+                    <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-md border shrink-0 ${selectedFee === 0 ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-surface-alt text-text-primary border-border/40"}`}>
+                      {selectedFee === 0 ? t(lang, "free") : `+${selectedFee} AZN`}
+                    </span>
                   </div>
                 )}
 
