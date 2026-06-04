@@ -444,8 +444,8 @@ export default function HomePage() {
                 >
                   {user?.name?.[0]?.toUpperCase() || '?'}
                 </div>
-                <span className="text-sm font-semibold text-white/80 truncate max-w-[90px]">
-                  {user?.name} {user?.lastName ? user.lastName[0] + '.' : ''}
+                <span className="text-sm font-semibold text-white/80">
+                  {[user?.name, user?.lastName].filter(Boolean).join(' ')}
                 </span>
               </button>
 
