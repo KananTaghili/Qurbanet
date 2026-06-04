@@ -19,7 +19,7 @@ const PAGE_TITLES = {
   "/auth/forgot-password": "Şifrəni Sıfırla",
   "/order/quantity": "Miqdar seçin",
   "/order/distribution": "Çatdırılma seçin",
-  "/order/contact": "Əlaqə məlumatları",
+  "/order/contact": "Qeydiyyat məlumatları",
   "/order/summary": "Sifariş xülasəsi",
   "/order/payment": "Ödəniş",
   "/order/confirmation": "Sifariş Tamamlandı ✓",
