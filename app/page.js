@@ -403,8 +403,23 @@ export default function HomePage() {
           {t(lang, 'animalSelection')}
         </h1>
 
-        {/* Right: lang + user info */}
-        <div className="flex items-center gap-2">
+        {/* Right: contact info + lang + user info */}
+        <div className="flex items-center gap-4">
+          {/* Contact info */}
+          <div className="flex items-center gap-5 mr-1">
+            <div className="flex items-center gap-1.5">
+              <Phone size={12} style={{ color: "#86efac", flexShrink: 0 }} />
+              <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
+                +994 10 399 0222
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Mail size={12} style={{ color: "#86efac", flexShrink: 0 }} />
+              <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
+                info@qurbanet.az
+              </span>
+            </div>
+          </div>
           {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
 
           {isGuest ? (
