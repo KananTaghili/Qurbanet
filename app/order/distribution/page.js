@@ -393,10 +393,11 @@ export default function DistributionPage() {
     <Card
       className={`${className} ${submitAttempted && !addrOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
     >
-      <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+      <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center gap-1">
         <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
           {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
         </span>
+        <span className="text-sm font-black text-red-500 leading-none">*</span>
       </div>
       <div className="p-3 flex flex-col gap-2">
         {!phoneOnly && (
@@ -440,7 +441,7 @@ export default function DistributionPage() {
               <Phone className="w-3.5 h-3.5 text-text-secondary" />
               <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wide">
                 {t(lang, "contactPhone")}{" "}
-                <span className="text-red-500">*</span>
+                <span className="text-sm font-black text-red-500 leading-none">*</span>
               </span>
             </div>
             <button
