@@ -160,7 +160,14 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
     box-shadow: none;
   }
 
-  .app-body { margin-left: var(--sidebar-w); }
+  .app-body {
+    margin-left: var(--sidebar-w);
+    height: 100dvh;
+    overflow: hidden;
+    padding-top: var(--topbar-h);
+    display: flex;
+    flex-direction: column;
+  }
 
   .topbar-component {
     display: flex;
@@ -181,8 +188,9 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
   }
 
   .app-main {
+    flex: 1;
     padding: 24px 28px;
-    padding-top: calc(var(--topbar-h) + 20px);
+    padding-top: 20px;
     align-items: stretch;
     overflow-y: auto;
   }
@@ -222,12 +230,12 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
 
 @media (min-width: 1024px) {
   :root { --sidebar-w: 272px; }
-  .app-main { padding: 28px 36px; padding-top: calc(var(--topbar-h) + 20px); }
+  .app-main { padding: 28px 36px; padding-top: 20px; }
   .animal-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (min-width: 1280px) {
-  .app-main { padding: 32px 44px; padding-top: calc(var(--topbar-h) + 20px); }
+  .app-main { padding: 32px 44px; padding-top: 20px; }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -411,7 +419,7 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
 }
 .carousel-dot.active { width: 24px; background: var(--primary); }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
