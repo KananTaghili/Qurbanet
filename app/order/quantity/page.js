@@ -222,6 +222,27 @@ export default function QuantityPage() {
     animal,
   ]);
 
+  // Bu gün seçilidisə və etibarlı slot yoxdursa → sabaha keç
+  // (useEffect conditional return-dən ƏVVƏL olmalıdır — React Hooks qaydası)
+  useEffect(() => {
+    if (!selectedDate) return;
+    const todayStr = new Date(new Date().setHours(0,0,0,0)).toDateString();
+    const isTodayCheck = new Date(selectedDate).toDateString() === todayStr;
+    if (!isTodayCheck) return;
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    const validSlots = deliveryWindows.filter((slot) => {
+      const startH = parseInt(slot.split(":")[0], 10);
+      return startH * 60 > nowMins + 240;
+    });
+    if (validSlots.length === 0) {
+      const tomorrow = new Date(new Date().setHours(0,0,0,0));
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setSelectedDate(new Date(tomorrow));
+      if (deliveryWindows[0]) setTimeSlot(deliveryWindows[0]);
+    }
+  }, [selectedDate, deliveryWindows]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!animal) return null;
 
   const maxQty = Number(animal.maxQuantity) || 1;
@@ -358,33 +379,22 @@ export default function QuantityPage() {
   const isToday    = selectedDate && new Date(selectedDate).toDateString() === todayMidnight.toDateString();
   const isTomorrow = selectedDate && new Date(selectedDate).toDateString() === tomorrowMidnight.toDateString();
 
+  const isCustom   = selectedDate && !isToday && !isTomorrow;
+
   // ── 4-saat interval məntiqi ───────────────────────────────────────────────
-  // Sifariş saatı ilə çatdırılma slot başlanğıcı arasında minimum 4 saat olmalıdır.
-  // "14:00" sonrası sifariş verilərsə "Bu gün" üçün heç bir uyğun slot qalmır.
   const getValidWindowsForToday = (windows) => {
     const now = new Date();
     const nowMins = now.getHours() * 60 + now.getMinutes();
-    const minStartMins = nowMins + 4 * 60; // 4 saat əlavə
+    const minStartMins = nowMins + 4 * 60;
     return windows.filter((slot) => {
       const startH = parseInt(slot.split(":")[0], 10);
-      return startH * 60 > minStartMins; // başlanğıc saatı minimum intervaldan böyük olmalı
+      return startH * 60 > minStartMins;
     });
   };
 
   const validWindowsToday = getValidWindowsForToday(deliveryWindows);
   const noValidSlotsToday = validWindowsToday.length === 0;
-
-  // Əgər "Bu gün" seçilidisə və etibarlı slot yoxdursa → avtomatik "Sabah"-a keç
-  useEffect(() => {
-    if (isToday && noValidSlotsToday) {
-      setSelectedDate(new Date(tomorrowMidnight));
-      setTimeSlot(deliveryWindows[0] || "");
-    }
-  }, [isToday, noValidSlotsToday]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Görünən saat slotları: bu gün seçilibsə yalnız etibarlı slotlar
   const visibleWindows = isToday ? validWindowsToday : deliveryWindows;
-  const isCustom   = selectedDate && !isToday && !isTomorrow;
   const customLabel = isCustom
     ? `${new Date(selectedDate).getDate()} ${AZ_MONTHS[new Date(selectedDate).getMonth()]} ${new Date(selectedDate).getFullYear()}`
     : null;
