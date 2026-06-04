@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Eye, EyeOff } from 'lucide-react';
@@ -22,6 +22,10 @@ export default function OtpPage() {
   const inputs = useRef([]);
   const nameRef = useRef(null);
   const passwordRef = useRef(null);
+  const submittingRef = useRef(false);
+  const abortRef = useRef(null);
+
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
 
   useEffect(() => {
     const id = sessionStorage.getItem('otp_identifier') || sessionStorage.getItem('otp_phone');
@@ -67,6 +71,18 @@ export default function OtpPage() {
     }
   };
 
+  const clearOtpSession = () => {
+    sessionStorage.removeItem('otp_identifier');
+    sessionStorage.removeItem('otp_identifier_type');
+    sessionStorage.removeItem('otp_phone');
+    sessionStorage.removeItem('otp_flow');
+  };
+
+  const handleBack = () => {
+    clearOtpSession();
+    router.push(isLogin ? '/auth/login' : '/auth/register');
+  };
+
   const handleSubmit = async (e, autoCode) => {
     e?.preventDefault();
     const otp = autoCode || code.join('');
@@ -75,8 +91,11 @@ export default function OtpPage() {
       if (name.trim().length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
       if (!password || password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır.'); return; }
     }
-    if (loading) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
     setLoading(true);
     try {
       const payload = identifierType === 'email'
@@ -85,40 +104,40 @@ export default function OtpPage() {
 
       if (!isLogin && password) payload.password = password;
 
-      const res = await api.post('/auth/verify-otp', payload);
+      const res = await api.post('/auth/verify-otp', payload, { signal: abortRef.current.signal });
       if (res.data.success) {
         const { token, user } = res.data.data;
-
-        // Login with the new token FIRST so the Axios interceptor uses it
-        // for the subsequent /auth/profile call (not the old guest token)
         login(token, user);
 
         if (!isLogin && name.trim()) {
           try {
             const body = { name: name.trim() };
             if (lastName.trim()) body.lastName = lastName.trim();
-            const profileRes = await api.put('/auth/profile', body);
+            const profileRes = await api.put('/auth/profile', body, { signal: abortRef.current.signal });
             const freshToken = profileRes.data.data?.token || token;
             const updatedUser = profileRes.data.data?.user || { ...user, name: name.trim() };
             login(freshToken, updatedUser);
           } catch (profileErr) {
+            if (profileErr.name === 'AbortError' || profileErr.code === 'ERR_CANCELED') return;
             setError(profileErr.response?.data?.message || 'Ad yenilənə bilmədi.');
             setLoading(false);
+            submittingRef.current = false;
             return;
           }
         }
 
-        sessionStorage.removeItem('otp_identifier');
-        sessionStorage.removeItem('otp_identifier_type');
-        sessionStorage.removeItem('otp_phone');
-        sessionStorage.removeItem('otp_flow');
+        clearOtpSession();
         router.push('/');
       }
     } catch (err) {
+      if (err.name === 'AbortError' || err.code === 'ERR_CANCELED') return;
       setError(err.response?.data?.message || 'Yanlış kod. Yenidən cəhd edin.');
       setCode(['', '', '', '']);
       inputs.current[0]?.focus();
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+      submittingRef.current = false;
+    }
   };
 
   const subtitle = identifierType === 'email'
@@ -136,7 +155,7 @@ export default function OtpPage() {
         >
           <button
             type="button"
-            onClick={() => router.push(isLogin ? '/auth/login' : '/auth/register')}
+            onClick={handleBack}
             className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
             style={{ background: 'rgba(255,255,255,0.18)', color: '#fff' }}
             aria-label="Geri qayıt"

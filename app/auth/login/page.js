@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Eye, EyeOff, Phone, Mail, KeyRound } from "lucide-react";
@@ -24,6 +24,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const abortRef = useRef(null);
+
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
 
   const switchMode = (m) => {
     setMode(m);
@@ -34,6 +37,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError("");
 
     if (mode === "phone") {
@@ -52,6 +56,8 @@ export default function LoginPage() {
       return;
     }
 
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
     setLoading(true);
     try {
       const body = { password };
@@ -66,7 +72,7 @@ export default function LoginPage() {
         body.email = email.trim().toLowerCase();
       }
 
-      const res = await api.post("/auth/login-password", body);
+      const res = await api.post("/auth/login-password", body, { signal: abortRef.current.signal });
       if (res.data.success) {
         const { token, user, needsName } = res.data.data;
         login(token, user);
@@ -74,9 +80,8 @@ export default function LoginPage() {
         else router.push("/");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Xəta baş verdi. Yenidən cəhd edin.",
-      );
+      if (err.name === "AbortError" || err.code === "ERR_CANCELED") return;
+      setError(err.response?.data?.message || "Xəta baş verdi. Yenidən cəhd edin.");
     } finally {
       setLoading(false);
     }

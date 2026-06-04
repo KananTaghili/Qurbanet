@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Phone, Mail, ArrowRight, MessageSquare } from "lucide-react";
@@ -20,11 +20,15 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const abortRef = useRef(null);
+
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
 
   const switchMode = (m) => { setMode(m); setError(""); setPhone(""); setEmail(""); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError("");
 
     if (mode === "phone") {
@@ -34,6 +38,8 @@ export default function RegisterPage() {
       if (!email.trim() || !email.includes("@")) { setError("Düzgün email ünvanı daxil edin."); return; }
     }
 
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
     setLoading(true);
     try {
       const body = {};
@@ -49,12 +55,13 @@ export default function RegisterPage() {
         body.email = identifier;
       }
 
-      await api.post("/auth/send-otp", { ...body, isRegister: true });
+      await api.post("/auth/send-otp", { ...body, isRegister: true }, { signal: abortRef.current.signal });
 
       sessionStorage.setItem("otp_identifier", identifier);
       sessionStorage.setItem("otp_identifier_type", mode === "email" ? "email" : "phone");
       router.push("/auth/otp");
     } catch (err) {
+      if (err.name === "AbortError" || err.code === "ERR_CANCELED") return;
       const status = err.response?.status;
       const msg = err.response?.data?.message;
       if (status === 409) {
