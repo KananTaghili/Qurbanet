@@ -8,6 +8,7 @@ import { useOrder } from "../context/OrderContext";
 import { useLanguage, LANGUAGES } from "../context/LanguageContext";
 import { t, animalName } from "../lib/i18n";
 import api, { BASE_URL } from "../lib/api";
+import { useRef } from "react";
 import {
   Truck,
   CheckCircle,
@@ -21,6 +22,8 @@ import {
   ChevronRight,
   Globe,
   Settings,
+  Phone,
+  Mail,
 } from "lucide-react";
 
 const BRAND = "#1c5e20";
@@ -107,6 +110,16 @@ export default function HomePage() {
   const [deliveryWindows, setDeliveryWindows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
 
   useEffect(() => {
     clearOrder();
@@ -212,60 +225,86 @@ export default function HomePage() {
             {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
 
             {!isGuest ? (
-              /* ── Logged-in: avatar + name + settings + logout menu ── */
-              <>
+              /* ── Logged-in: avatar + name → dropdown modal ── */
+              <div ref={menuRef} className="relative flex-shrink-0">
                 <button
-                  onClick={() => router.push("/settings")}
-                  className="w-8 h-8 flex items-center justify-center rounded-xl transition-colors active:bg-white/20"
-                  title="Parametrlər"
+                  onClick={() => setMenuOpen((p) => !p)}
+                  className="flex items-center gap-1.5 rounded-2xl px-2 py-1 active:bg-white/10 transition-colors"
+                  aria-label="Hesab"
                 >
-                  <Settings size={17} color="white" strokeWidth={2} />
+                  <Settings size={16} color="white" strokeWidth={2} className="flex-shrink-0" />
+                  <div
+                    className="w-7 h-7 rounded-full border-2 border-white/40 flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
+                    style={{ background: "rgba(255,255,255,0.18)" }}
+                  >
+                    {user?.name?.[0]?.toUpperCase() || "?"}
+                  </div>
+                  <span className="text-xs font-bold text-white/90 max-w-[72px] truncate">
+                    {user?.name?.split(" ")[0]}
+                  </span>
                 </button>
 
-                <div className="relative flex-shrink-0">
-                  <button
-                    onClick={() => setMenuOpen((p) => !p)}
-                    className="flex items-center gap-1.5 rounded-2xl px-2 py-1 active:bg-white/10 transition-colors"
-                    aria-label="Hesab"
-                  >
+                {menuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setMenuOpen(false)} />
                     <div
-                      className="w-7 h-7 rounded-full border-2 border-white/40 flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
-                      style={{ background: "rgba(255,255,255,0.18)" }}
+                      className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 rounded-2xl overflow-hidden w-[calc(100vw-40px)] max-w-[280px]"
+                      style={{ background: "#fff", boxShadow: "0 8px 32px rgba(0,0,0,0.22)", border: "1px solid rgba(0,0,0,0.07)" }}
                     >
-                      {user?.name?.[0]?.toUpperCase() || "?"}
-                    </div>
-                    <span className="text-xs font-bold text-white/90 max-w-[72px] truncate">
-                      {user?.name?.split(" ")[0]}
-                    </span>
-                  </button>
-
-                  {menuOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                      <div className="absolute right-0 top-11 bg-surface rounded-xl shadow-card-lg border border-border z-50 min-w-[170px] py-1 overflow-hidden">
-                        <div className="px-4 py-2.5 border-b border-border">
-                          <p className="text-sm font-bold text-text-primary truncate">{user?.name}</p>
-                          <p className="text-xs text-text-secondary truncate">{user?.phone || user?.email}</p>
+                      {/* User info */}
+                      <div className="px-4 py-3 flex items-center gap-2.5" style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0" style={{ background: "#1b5e20" }}>
+                          {user?.name?.[0]?.toUpperCase() || "?"}
                         </div>
-                        <button
-                          onClick={() => { setMenuOpen(false); router.push("/settings"); }}
-                          className="w-full text-left px-4 py-3 text-sm font-semibold text-text-primary flex items-center gap-2 active:bg-surface-alt"
-                        >
-                          <Settings size={15} strokeWidth={2} />
-                          Parametrlər
-                        </button>
-                        <button
-                          onClick={handleLogout}
-                          className="w-full text-left px-4 py-3 text-sm font-semibold text-red-600 flex items-center gap-2 active:bg-red-50 border-t border-border"
-                        >
-                          <LogOut size={15} color="#dc2626" strokeWidth={2} />
-                          {t(lang, 'logout')}
-                        </button>
+                        <div className="min-w-0">
+                          <div className="text-sm font-bold text-slate-800 truncate">
+                            {[user?.name, user?.lastName].filter(Boolean).join(" ")}
+                          </div>
+                          {(user?.phone || user?.email) && (
+                            <div className="text-xs text-slate-400 truncate">{user.phone || user.email}</div>
+                          )}
+                        </div>
                       </div>
-                    </>
-                  )}
-                </div>
-              </>
+                      {/* Settings */}
+                      <button
+                        onClick={() => { setMenuOpen(false); router.push("/settings"); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent active:bg-slate-50"
+                      >
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
+                          <Settings size={15} style={{ color: "#1b5e20" }} />
+                        </div>
+                        <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
+                      </button>
+                      <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
+                      {/* Phone */}
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
+                          <Phone size={15} style={{ color: "#1b5e20" }} />
+                        </div>
+                        <span className="text-sm font-semibold text-slate-800">+994 10 399 0222</span>
+                      </div>
+                      {/* Email */}
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
+                          <Mail size={15} style={{ color: "#1b5e20" }} />
+                        </div>
+                        <span className="text-sm font-semibold text-slate-800">info@qurbanet.az</span>
+                      </div>
+                      <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
+                      {/* Logout */}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent active:bg-red-50"
+                      >
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#fee2e2" }}>
+                          <LogOut size={15} style={{ color: "#ef4444" }} />
+                        </div>
+                        <span className="text-sm font-semibold" style={{ color: "#ef4444" }}>{t(lang, 'logout')}</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               /* ── Guest: login/register menu ── */
               <div className="relative flex-shrink-0">
@@ -378,28 +417,84 @@ export default function HomePage() {
               Daxil ol
             </button>
           ) : (
-            <div className="flex items-center gap-1.5">
+            <div ref={menuRef} className="relative">
               <button
-                onClick={() => router.push('/settings')}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/20"
-                title="Parametrlər"
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex items-center gap-2 min-w-0 cursor-pointer rounded-xl px-1.5 py-1 transition-colors hover:bg-white/10"
               >
-                <Settings size={17} color="white" strokeWidth={2} />
-              </button>
-              <button
-                onClick={() => router.push('/settings')}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl transition-colors hover:bg-white/10"
-              >
+                <Settings size={18} color="white" strokeWidth={2} className="flex-shrink-0" />
                 <div
-                  className="w-7 h-7 rounded-full border-2 border-white/30 flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
-                  style={{ background: 'rgba(255,255,255,0.18)' }}
+                  className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.15)' }}
                 >
                   {user?.name?.[0]?.toUpperCase() || '?'}
                 </div>
-                <span className="text-sm font-semibold text-white/90 max-w-[110px] truncate">
+                <span className="text-sm font-semibold text-white/80 truncate max-w-[90px]">
                   {user?.name} {user?.lastName ? user.lastName[0] + '.' : ''}
                 </span>
               </button>
+
+              {menuOpen && (
+                <div
+                  className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden z-50"
+                  style={{ background: '#fff', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '1px solid rgba(0,0,0,0.07)', minWidth: 210 }}
+                >
+                  {/* User info */}
+                  <div className="px-4 py-3 flex items-center gap-2.5" style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0" style={{ background: '#1b5e20' }}>
+                      {user?.name?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-slate-800 truncate">
+                        {[user?.name, user?.lastName].filter(Boolean).join(' ')}
+                      </div>
+                      {(user?.phone || user?.email) && (
+                        <div className="text-xs text-slate-400 truncate">{user.phone || user.email}</div>
+                      )}
+                    </div>
+                  </div>
+                  {/* Settings */}
+                  <button
+                    onClick={() => { setMenuOpen(false); router.push('/settings'); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent transition-colors"
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#f8fafc')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#e8f5e9' }}>
+                      <Settings size={15} style={{ color: '#1b5e20' }} />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
+                  </button>
+                  <div style={{ height: 1, background: '#f1f5f9', margin: '0 12px' }} />
+                  {/* Phone */}
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#e8f5e9' }}>
+                      <Phone size={15} style={{ color: '#1b5e20' }} />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-800">+994 10 399 0222</span>
+                  </div>
+                  {/* Email */}
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#e8f5e9' }}>
+                      <Mail size={15} style={{ color: '#1b5e20' }} />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-800">info@qurbanet.az</span>
+                  </div>
+                  <div style={{ height: 1, background: '#f1f5f9', margin: '0 12px' }} />
+                  {/* Logout */}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent transition-colors"
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#fff5f5')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#fee2e2' }}>
+                      <LogOut size={15} style={{ color: '#ef4444' }} />
+                    </div>
+                    <span className="text-sm font-semibold" style={{ color: '#ef4444' }}>{t(lang, 'logout')}</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
