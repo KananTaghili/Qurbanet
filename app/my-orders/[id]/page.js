@@ -611,7 +611,6 @@ export default function OrderDetailPage() {
                     const tItem =
                       timeline.find((t) => t.key === step.key) || {};
                     const done =
-                      tItem.done ||
                       STATUS_ORDER.indexOf(step.key) <= currentIdx;
                     const active = order.status === step.key;
                     const last = i === TIMELINE_STEPS.length - 1;
