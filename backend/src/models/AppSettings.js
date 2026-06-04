@@ -68,6 +68,14 @@ const appSettingsSchema = new mongoose.Schema(
       default: 14,
       min: 1,
     },
+    quickDateTodayEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    quickDateTomorrowEnabled: {
+      type: Boolean,
+      default: true,
+    },
     multiLanguageEnabled: {
       type: Boolean,
       default: true,

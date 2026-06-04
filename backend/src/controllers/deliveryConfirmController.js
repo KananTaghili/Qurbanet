@@ -69,7 +69,7 @@ const confirmDelivery = async (req, res) => {
 
     const { getIo } = require("../socket");
     try {
-      getIo().emit("order_updated", { orderId: order._id, status: order.status });
+      getIo().to(`user:${order.user}`).emit("order:updated", { orderId: order._id.toString() });
     } catch (_) {}
 
     return success(

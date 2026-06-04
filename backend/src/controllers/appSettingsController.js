@@ -33,7 +33,7 @@ const getSettings = async (req, res) => {
 const updateSettings = async (req, res) => {
   try {
     const settings = await getOrCreateSettings();
-    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled } = req.body;
+    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, quickDateTodayEnabled, quickDateTomorrowEnabled } = req.body;
 
     if (Array.isArray(timeWindows)) {
       const valid = timeWindows.filter(
@@ -94,6 +94,14 @@ const updateSettings = async (req, res) => {
       settings.multiLanguageEnabled = Boolean(multiLanguageEnabled);
     }
 
+    if (quickDateTodayEnabled !== undefined) {
+      settings.quickDateTodayEnabled = Boolean(quickDateTodayEnabled);
+    }
+
+    if (quickDateTomorrowEnabled !== undefined) {
+      settings.quickDateTomorrowEnabled = Boolean(quickDateTomorrowEnabled);
+    }
+
     if (meatPickupLocation !== undefined) {
       const addr = String(meatPickupLocation.address || "").trim().slice(0, 300);
       const lat = Number(meatPickupLocation.lat);
@@ -134,6 +142,8 @@ const getPublicSettings = async (req, res) => {
       singleAnimalMode: settings.singleAnimalMode === true,
       maxSlaughterDays: settings.maxSlaughterDays ?? 14,
       multiLanguageEnabled: settings.multiLanguageEnabled !== false,
+      quickDateTodayEnabled: settings.quickDateTodayEnabled !== false,
+      quickDateTomorrowEnabled: settings.quickDateTomorrowEnabled !== false,
       cashPickupLocation: settings.cashPickupLocation || {
         address: "20 Yanvar metro stansiyası yaxınlığı, Bakı",
         lat: 40.3875,

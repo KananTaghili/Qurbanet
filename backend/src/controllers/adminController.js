@@ -589,34 +589,12 @@ const updateOrderStatus = async (req, res) => {
       order.deliveryProof.handoverVideoUrl = deliveryVideoUrl;
     }
 
-    const isSelfDelivery = ["catdirilsin", "mekan"].includes(
-      order.distribution?.type,
-    );
-    if (isSelfDelivery && status === ORDER_STATUS.COMPLETED) {
-      if (!deliveryCode || String(deliveryCode).trim().length < 4) {
-        return error(
-          res,
-          "Şəxsə təhvil üçün minimum 4 simvolluq kod təsdiqi tələb olunur.",
-          400,
-        );
-      }
+    if (deliveryCode && String(deliveryCode).trim().length >= 4) {
       order.deliveryProof.handoverCode = String(deliveryCode).trim();
       order.deliveryProof.handoverCodeVerifiedAt = new Date();
       order.deliveryProof.handoverCodeVerifiedBy = String(
         verifiedBy || "Courier",
       ).trim();
-    }
-
-    if (
-      ["usaqlar_evi", "qocalar_evi"].includes(order.distribution?.type) &&
-      status === ORDER_STATUS.COMPLETED &&
-      !order.deliveryProof?.handoverVideoUrl
-    ) {
-      return error(
-        res,
-        "Uşaqlar evi və qocalar evi təhvili üçün video linki əlavə olunmalıdır.",
-        400,
-      );
     }
 
     await order.save();
@@ -1271,6 +1249,200 @@ const getOrdersBySlaughterDay = async (req, res) => {
   }
 };
 
+// ─── İstifadəçi idarəetməsi ───────────────────────────────────────────────────
+
+const getUsers = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    const { page = 1, limit = 20, search = "", filterPhone = "", filterEmail = "" } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const conditions = [];
+
+    if (search) {
+      conditions.push({
+        $or: [
+          { phone: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { lastName: { $regex: search, $options: "i" } },
+        ],
+      });
+    }
+
+    const emptyPhone = { $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }] };
+    const emptyEmail = { $or: [{ email: { $exists: false } }, { email: null }, { email: "" }] };
+
+    if (filterPhone === "yes") conditions.push({ phone: { $exists: true, $nin: [null, ""] } });
+    if (filterPhone === "no") conditions.push(emptyPhone);
+    if (filterEmail === "yes") conditions.push({ email: { $exists: true, $nin: [null, ""] } });
+    if (filterEmail === "no") conditions.push(emptyEmail);
+
+    const filter = conditions.length > 0 ? { $and: conditions } : {};
+
+    const [users, total] = await Promise.all([
+      User.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .select("-__v"),
+      User.countDocuments(filter),
+    ]);
+
+    return success(res, {
+      users,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / parseInt(limit)),
+      },
+    });
+  } catch (err) {
+    console.error("getUsers xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const deleteEmptyUsers = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    const result = await User.deleteMany({
+      $and: [
+        { $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }] },
+        { $or: [{ email: { $exists: false } }, { email: null }, { email: "" }] },
+      ],
+    });
+    return success(res, { deletedCount: result.deletedCount }, `${result.deletedCount} hesab silindi.`);
+  } catch (err) {
+    console.error("deleteEmptyUsers xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const getUserOrders = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const orders = await Order.find({ user: req.params.userId })
+      .sort({ createdAt: -1 })
+      .select("orderNumber animalNameAz animalEmoji status totalPrice createdAt orderMode quantity")
+      .lean();
+    return success(res, { orders });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const getUserById = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const user = await User.findById(req.params.userId).select("-__v");
+    if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+    return success(res, { user });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const updateUser = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const { name, lastName, phone, email, isBlocked } = req.body;
+    const update = {};
+    if (name !== undefined) update.name = name;
+    if (lastName !== undefined) update.lastName = lastName;
+    if (phone !== undefined) update.phone = phone;
+    if (email !== undefined) update.email = email ? email.trim().toLowerCase() : email;
+    if (isBlocked !== undefined) update.isBlocked = isBlocked;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { $set: update },
+      { new: true, runValidators: true },
+    ).select("-__v");
+
+    if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+    return success(res, { user }, "İstifadəçi yeniləndi.");
+  } catch (err) {
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0];
+      return error(res, `Bu ${field === "phone" ? "telefon nömrəsi" : "email"} artıq istifadə olunur.`, 400);
+    }
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const deleteUser = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const user = await User.findByIdAndDelete(req.params.userId);
+    if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+    return success(res, {}, "İstifadəçi silindi.");
+  } catch (err) {
+    console.error("deleteUser xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Sifariş əlaqə məlumatlarını yenilə ──────────────────────────────────────
+const updateOrderContact = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+
+    const { contactInfo, distributionPhones } = req.body;
+
+    if (contactInfo) {
+      if (!order.contactInfo) order.contactInfo = {};
+      if (contactInfo.firstName !== undefined)
+        order.contactInfo.firstName = String(contactInfo.firstName).trim();
+      if (contactInfo.lastName !== undefined)
+        order.contactInfo.lastName = String(contactInfo.lastName).trim();
+      if (contactInfo.mobile !== undefined)
+        order.contactInfo.mobile = String(contactInfo.mobile).trim();
+      order.markModified("contactInfo");
+    }
+
+    if (Array.isArray(distributionPhones)) {
+      if (!order.distribution) order.distribution = {};
+      order.distribution.phones = distributionPhones
+        .map((p) => String(p).trim())
+        .filter(Boolean);
+      order.markModified("distribution");
+    }
+
+    await order.save();
+    return success(res, { order: { contactInfo: order.contactInfo, distribution: order.distribution } }, "Əlaqə məlumatları yeniləndi.");
+  } catch (err) {
+    console.error("updateOrderContact xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
 module.exports = {
   adminLogin,
   adminSendOTP,
@@ -1295,4 +1467,11 @@ module.exports = {
   confirmSharedGroup,
   deleteSharedGroup,
   getOrdersBySlaughterDay,
+  getUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  deleteEmptyUsers,
+  getUserOrders,
+  updateOrderContact,
 };

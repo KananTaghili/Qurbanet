@@ -94,6 +94,9 @@ router.delete("/orders/:orderId", adminController.deleteOrder);
 // PUT /api/admin/orders/:orderId/status
 router.put("/orders/:orderId/status", adminController.updateOrderStatus);
 
+// PUT /api/admin/orders/:orderId/contact
+router.put("/orders/:orderId/contact", adminController.updateOrderContact);
+
 // POST /api/admin/orders/:orderId/media
 router.post(
   "/orders/:orderId/media",
@@ -227,6 +230,20 @@ router.put("/charity-animals/:animalId", charityAnimalController.updateCharityAn
 
 // DELETE /api/admin/charity-animals/:animalId
 router.delete("/charity-animals/:animalId", charityAnimalController.deleteCharityAnimal);
+
+// ─── İstifadəçi idarəetməsi ───────────────────────────────────────────────────
+// GET /api/admin/users
+router.get("/users", adminController.getUsers);
+// DELETE /api/admin/users/delete-empty  (telefon və email olmayan hesabları sil)
+router.delete("/users/delete-empty", adminController.deleteEmptyUsers);
+// GET /api/admin/users/:userId
+router.get("/users/:userId", adminController.getUserById);
+// GET /api/admin/users/:userId/orders
+router.get("/users/:userId/orders", adminController.getUserOrders);
+// PUT /api/admin/users/:userId
+router.put("/users/:userId", adminController.updateUser);
+// DELETE /api/admin/users/:userId  (ALLOW_USER_MANAGEMENT=true lazımdır)
+router.delete("/users/:userId", adminController.deleteUser);
 
 // ─── Charity Orders ────────────────────────────────────────────────────────────
 router.get("/charity-orders",                              charityOrderController.listAdminCharityOrders);

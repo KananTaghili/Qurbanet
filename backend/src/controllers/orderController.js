@@ -123,46 +123,58 @@ const upsertAutoConfirmForUser = async (userId) => {
 const getHistoryAt = (order, status) =>
   order.statusHistory.find((s) => s.status === status)?.at ?? null;
 
+const TIMELINE_STATUS_ORDER = [
+  ORDER_STATUS.PLACED,
+  ORDER_STATUS.CONFIRMED,
+  ORDER_STATUS.SLAUGHTERING,
+  ORDER_STATUS.PREPARING,
+  ORDER_STATUS.DELIVERING,
+  ORDER_STATUS.COMPLETED,
+];
+
+const isStepDone = (order, statusKey) => {
+  const currentIdx = TIMELINE_STATUS_ORDER.indexOf(order.status);
+  const stepIdx = TIMELINE_STATUS_ORDER.indexOf(statusKey);
+  if (currentIdx >= 0 && stepIdx >= 0 && currentIdx >= stepIdx) return true;
+  return order.statusHistory.some((s) => s.status === statusKey);
+};
+
 const buildTimeline = (order) => [
   {
     key: "placed",
     label: "Sifariş verildi",
-    done:
-      order.statusHistory.some((s) => s.status === ORDER_STATUS.PLACED) ||
-      !!order.createdAt,
+    done: isStepDone(order, ORDER_STATUS.PLACED),
     at: getHistoryAt(order, ORDER_STATUS.PLACED) || order.createdAt,
   },
   {
     key: "confirmed",
     label: "Sifariş təsdiqləndi",
-    done: order.statusHistory.some((s) => s.status === ORDER_STATUS.CONFIRMED),
+    done: isStepDone(order, ORDER_STATUS.CONFIRMED),
     notificationText: "Sifarişinizi insan gördü",
     at: getHistoryAt(order, ORDER_STATUS.CONFIRMED) || order.confirmedAt,
   },
   {
     key: "slaughtering",
     label: "Kəsilir",
-    done: order.statusHistory.some(
-      (s) => s.status === ORDER_STATUS.SLAUGHTERING,
-    ),
+    done: isStepDone(order, ORDER_STATUS.SLAUGHTERING),
     at: getHistoryAt(order, ORDER_STATUS.SLAUGHTERING),
   },
   {
     key: "preparing",
     label: "Hazırlanır",
-    done: order.statusHistory.some((s) => s.status === ORDER_STATUS.PREPARING),
+    done: isStepDone(order, ORDER_STATUS.PREPARING),
     at: getHistoryAt(order, ORDER_STATUS.PREPARING),
   },
   {
     key: "delivering",
     label: "Çatdırılır",
-    done: order.statusHistory.some((s) => s.status === ORDER_STATUS.DELIVERING),
+    done: isStepDone(order, ORDER_STATUS.DELIVERING),
     at: getHistoryAt(order, ORDER_STATUS.DELIVERING),
   },
   {
     key: "completed",
     label: "Tamamlandı",
-    done: order.status === ORDER_STATUS.COMPLETED,
+    done: isStepDone(order, ORDER_STATUS.COMPLETED),
     at: getHistoryAt(order, ORDER_STATUS.COMPLETED),
   },
 ];
@@ -1027,10 +1039,21 @@ const processPayment = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
   try {
-    await upsertAutoConfirmForUser(req.userId);
+    try { await upsertAutoConfirmForUser(req.userId); } catch (_) {}
+
     const orders = await Order.find({
       user: req.userId,
-      status: { $ne: ORDER_STATUS.AWAITING_PAYMENT },
+      status: {
+        $in: [
+          ORDER_STATUS.PLACED,
+          ORDER_STATUS.CONFIRMED,
+          ORDER_STATUS.SLAUGHTERING,
+          ORDER_STATUS.PREPARING,
+          ORDER_STATUS.DELIVERING,
+          ORDER_STATUS.COMPLETED,
+          ORDER_STATUS.CANCELLED,
+        ],
+      },
     })
       .sort({ createdAt: -1 })
       .select("-__v");
