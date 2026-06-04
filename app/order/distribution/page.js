@@ -634,38 +634,89 @@ export default function DistributionPage() {
                     {t(lang, "orderSummaryCard")}
                   </span>
                 </div>
-                <div className="divide-y divide-border">
-                  {[
-                    {
-                      label: t(lang, "animalRow"),
-                      value: order.animal?.nameAz,
-                    },
-                    {
-                      label: t(lang, "orderQty"),
-                      value: `${qty} ${t(lang, "pcsLabel")}`,
-                    },
-                    ...(selectedFee > 0
-                      ? [
-                          {
-                            label: t(lang, "deliveryFeeRow"),
-                            value: `+${selectedFee} AZN`,
-                          },
-                        ]
-                      : []),
-                  ].map((row) => (
-                    <div
-                      key={row.label}
-                      className="flex justify-between items-center px-3 py-2.5"
-                    >
-                      <span className="text-[11px] text-text-secondary font-medium">
-                        {row.label}
-                      </span>
-                      <span className="text-[11px] font-bold text-text-primary">
-                        {row.value}
-                      </span>
-                    </div>
-                  ))}
+
+                {/* Animal base */}
+                <div className="flex justify-between items-center px-3 py-2.5 border-b border-border">
+                  <div>
+                    <p className="text-[11px] font-bold text-text-primary">{order.animal?.nameAz}</p>
+                    <p className="text-[10px] text-text-secondary mt-0.5">{qty} {t(lang, "pcsLabel")} × {Math.round((order.totalPrice || 0) / qty)} AZN</p>
+                  </div>
+                  <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">
+                    {order.totalPrice || 0} AZN
+                  </span>
                 </div>
+
+                {/* Cut styles */}
+                {(() => {
+                  const cutOpts = (order.animal?.cutStyleOptions || []).filter(cs => (order.cutStyles?.[cs.key] || 0) > 0);
+                  if (!cutOpts.length) return null;
+                  return (
+                    <div className="border-b border-border">
+                      <div className="px-3 pt-2 pb-0.5">
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Doğrama üsulu</span>
+                      </div>
+                      {cutOpts.map(cs => {
+                        const cnt = order.cutStyles[cs.key];
+                        const fee = cs.fee * cnt;
+                        return (
+                          <div key={cs.key} className="flex justify-between items-center px-3 py-1.5">
+                            <div>
+                              <p className="text-[11px] font-semibold text-text-primary">{cs.labelAz}</p>
+                              <p className="text-[10px] text-text-secondary">{cnt} {t(lang, "animalUnit")}</p>
+                            </div>
+                            <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-md border shrink-0 ${fee === 0 ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-surface-alt text-text-primary border-border/40"}`}>
+                              {fee === 0 ? t(lang, "free") : `+${fee} AZN`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* Head + Feet */}
+                {(() => {
+                  const headOpts = (order.animal?.headOptions || []).filter(o => o.isActive !== false && (order.headBuckets?.[o.key] || 0) > 0);
+                  const feetOpts = (order.animal?.feetOptions || []).filter(o => o.isActive !== false && (order.feetBuckets?.[o.key] || 0) > 0);
+                  const allKeys = [...new Set([...headOpts.map(o => o.key), ...feetOpts.map(o => o.key)])];
+                  if (!allKeys.length) return null;
+                  return (
+                    <div className="border-b border-border">
+                      <div className="px-3 pt-2 pb-0.5">
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Baş və Ayaqlar</span>
+                      </div>
+                      {allKeys.map(key => {
+                        const opt = headOpts.find(o => o.key === key) || feetOpts.find(o => o.key === key);
+                        const hCnt = order.headBuckets?.[key] || 0;
+                        const fCnt = order.feetBuckets?.[key] || 0;
+                        const parts = [];
+                        if (hCnt > 0) parts.push(`${hCnt} ${t(lang, "headsLabel")}`);
+                        if (fCnt > 0) parts.push(`${fCnt} ${t(lang, "feetLabel")}`);
+                        const fee = opt.fee * (hCnt + fCnt);
+                        return (
+                          <div key={key} className="flex justify-between items-center px-3 py-1.5">
+                            <div>
+                              <p className="text-[11px] font-semibold text-text-primary">{opt.labelAz}</p>
+                              <p className="text-[10px] text-text-secondary">{parts.join(" və ")}</p>
+                            </div>
+                            <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-md border shrink-0 ${fee === 0 ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-surface-alt text-text-primary border-border/40"}`}>
+                              {fee === 0 ? t(lang, "free") : `+${fee} AZN`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* Delivery fee */}
+                {selectedFee > 0 && (
+                  <div className="flex justify-between items-center px-3 py-2.5 border-b border-border">
+                    <span className="text-[11px] text-text-secondary font-medium">{t(lang, "deliveryFeeRow")}</span>
+                    <span className="text-[11px] font-bold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">+{selectedFee} AZN</span>
+                  </div>
+                )}
+
                 <div className="p-3 border-t border-border bg-surface-alt/30">
                   <div className="flex justify-between items-baseline mb-3">
                     <span className="text-[10px] font-bold text-text-secondary uppercase">
