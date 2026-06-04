@@ -602,9 +602,10 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
         bg-white rounded-2xl xs:rounded-3xl
         border border-black/[0.08]
         shadow-card-md
-        transition-all active:scale-[0.98]
-        min-h-[100px] xs:min-h-[110px] sm:min-h-[120px]
-        ${inactive ? "opacity-50 grayscale cursor-not-allowed" : ""}
+        transition-all duration-150
+        active:scale-[0.97] active:shadow-sm
+        min-h-[120px] xs:min-h-[130px] sm:min-h-[140px]
+        ${inactive ? "opacity-50 grayscale cursor-not-allowed" : "hover:shadow-lg hover:border-primary/25 hover:scale-[1.01]"}
       `}
     >
       {/* Image */}
@@ -613,8 +614,8 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
           flex-shrink-0 bg-white overflow-hidden
           flex items-center justify-center
           ${isQoyun
-            ? "w-[130px] xs:w-[150px] sm:w-[170px]"
-            : "w-[120px] xs:w-[135px] sm:w-[155px] px-2 xs:px-2.5"}
+            ? "w-[155px] xs:w-[175px] sm:w-[195px]"
+            : "w-[140px] xs:w-[160px] sm:w-[180px] px-2 xs:px-2.5"}
         `}
       >
         {animal.imageUrl ? (
