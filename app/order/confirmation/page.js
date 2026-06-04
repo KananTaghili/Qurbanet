@@ -1,10 +1,28 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Clock, Video, Package, Check } from 'lucide-react';
+import { Clock, Video, Truck, Store, Home, Heart, HeartHandshake, Check } from 'lucide-react';
 import { useOrder } from '../../../context/OrderContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { t } from '../../../lib/i18n';
+
+const AZ_MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
+
+function fmtSlaughterDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const DIST_META = {
+  catdirilsin:         { Icon: Truck,         color: '#1B5E20', bg: '#F0F7F2', label: 'Qurbanınız sizə çatdırılacaq' },
+  ozum:                { Icon: Store,         color: '#374151', bg: '#F9FAFB', label: 'Qurbanınızı özünüz götürəcəksiniz' },
+  ozun_gotur:          { Icon: Store,         color: '#374151', bg: '#F9FAFB', label: 'Qurbanınızı özünüz götürəcəksiniz' },
+  usaqlar_evi:         { Icon: Home,          color: '#1B5E20', bg: '#E8F5E9', label: 'Qurbanınız uşaqlar evinə paylanacaq' },
+  qocalar_evi:         { Icon: Heart,         color: '#6A1B9A', bg: '#F3E5F5', label: 'Qurbanınız qocalar evinə paylanacaq' },
+  ehtiyac_sahibleri:   { Icon: HeartHandshake,color: '#1565C0', bg: '#E3F2FD', label: 'Qurbanınız ehtiyac sahiblərinə paylanacaq' },
+};
 
 export default function ConfirmationPage() {
   const router = useRouter();
@@ -29,11 +47,17 @@ export default function ConfirmationPage() {
   const handleGoOrders = () => { clearOrder(); router.push('/my-orders'); };
   const handleGoHome   = () => { clearOrder(); router.push('/'); };
 
-  const infoCards = [
-    { Icon: Clock,   color: '#1B5E20', bg: '#F0F7F2', titleKey: 'slaughter48h',   descKey: 'slaughter48hDesc' },
-    { Icon: Video,   color: '#1565C0', bg: '#EEF4FF', titleKey: 'slaughterVideo',  descKey: 'slaughterVideoDesc' },
-    { Icon: Package, color: '#E65100', bg: '#FFF3E0', titleKey: 'meatDistConfirm', descKey: 'meatDistConfirmDesc' },
-  ];
+  // Slaughter date
+  const slaughterDateStr = fmtSlaughterDate(createdOrder?.slaughterDate);
+  const slaughterTitle = slaughterDateStr ? `${slaughterDateStr} tarixdə kəsiləcək` : t(lang, 'slaughter48h');
+
+  // Distribution
+  const distType = createdOrder?.distribution?.type;
+  const distMeta = DIST_META[distType];
+  const DistIcon = distMeta?.Icon || Truck;
+  const distBg    = distMeta?.bg    || '#F0F7F2';
+  const distColor = distMeta?.color || '#1B5E20';
+  const distLabel = distMeta?.label || 'Seçdiyiniz üsula görə paylanacaq';
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
@@ -60,17 +84,38 @@ export default function ConfirmationPage() {
 
           {/* Info cards */}
           <div className="flex flex-col gap-2.5 animate-fade-up">
-            {infoCards.map(({ Icon, color, bg, titleKey, descKey }) => (
-              <div key={titleKey} className="bg-surface rounded-2xl border border-border shadow-card px-4 py-3.5 flex items-start gap-3">
-                <div className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: bg }}>
-                  <Icon size={18} color={color} strokeWidth={2} />
-                </div>
-                <div>
-                  <div className="text-[13px] font-bold text-text-primary mb-0.5">{t(lang, titleKey)}</div>
-                  <div className="text-xs text-text-secondary">{t(lang, descKey)}</div>
-                </div>
+            {/* Slaughter date card */}
+            <div className="bg-surface rounded-2xl border border-border shadow-card px-4 py-3.5 flex items-start gap-3">
+              <div className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#F0F7F2' }}>
+                <Clock size={18} color="#1B5E20" strokeWidth={2} />
               </div>
-            ))}
+              <div>
+                <div className="text-[13px] font-bold text-text-primary mb-0.5">{slaughterTitle}</div>
+                <div className="text-xs text-text-secondary">{t(lang, 'slaughter48hDesc')}</div>
+              </div>
+            </div>
+
+            {/* Video card */}
+            <div className="bg-surface rounded-2xl border border-border shadow-card px-4 py-3.5 flex items-start gap-3">
+              <div className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#EEF4FF' }}>
+                <Video size={18} color="#1565C0" strokeWidth={2} />
+              </div>
+              <div>
+                <div className="text-[13px] font-bold text-text-primary mb-0.5">{t(lang, 'slaughterVideo')}</div>
+                <div className="text-xs text-text-secondary">{t(lang, 'slaughterVideoDesc')}</div>
+              </div>
+            </div>
+
+            {/* Distribution card — dynamic */}
+            <div className="bg-surface rounded-2xl border border-border shadow-card px-4 py-3.5 flex items-start gap-3">
+              <div className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: distBg }}>
+                <DistIcon size={18} color={distColor} strokeWidth={2} />
+              </div>
+              <div>
+                <div className="text-[13px] font-bold text-text-primary mb-0.5">Qurbanlığın çatdırılması</div>
+                <div className="text-xs text-text-secondary">{distLabel}</div>
+              </div>
+            </div>
           </div>
 
           {/* Dua */}
