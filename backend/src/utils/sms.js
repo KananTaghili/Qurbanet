@@ -287,7 +287,7 @@ const sendEmail = async (toEmail, code, lang = "az") => {
       <td class="footer-td">
         <p class="footer-contact">${isAz ? "Hər hansı sualınız üçün bizimlə əlaqə saxlayın:" : "For any questions, contact us:"}</p>
         <p class="footer-info">
-          <b>${isAz ? "Dəstək:" : "Support:"}</b> +994 010 399 02 22
+          <b>${isAz ? "Dəstək:" : "Support:"}</b> +994 10 399 02 22
           &nbsp;|&nbsp;
           <b>E-mail:</b> <a href="mailto:info@qurbanet.az" style="color:${green};text-decoration:none;">info@qurbanet.az</a>
         </p>
@@ -338,7 +338,7 @@ const sendEmail = async (toEmail, code, lang = "az") => {
           </tr>
         </table>
         <p class="footer-copy">
-          &copy; 2026 <b style="color:#6B7280;">QurbanEt MMC</b> &nbsp;&middot;&nbsp;
+          &copy; 2026 <b style="color:#6B7280;">QurbanEt</b> &nbsp;&middot;&nbsp;
           ${isAz ? "Bakı şəhəri, Azərbaycan" : "Baku, Azerbaijan"}
           &nbsp;&middot;&nbsp;
           <a href="https://qurbanet.az">www.qurbanet.az</a>
@@ -352,8 +352,8 @@ const sendEmail = async (toEmail, code, lang = "az") => {
 </html>`;
 
   const text = isAz
-    ? `QurbanEt — Təsdiqləmə Kodu\n\nHörmətli istifadəçi,\n\nHesabınıza giriş üçün kodunuz: ${code}\n\nKod 5 dəqiqə ərzində etibarlıdır.\n\nDiqqət: Bu sorğunu siz göndərməmisinizsə, bu emaili nəzərə almayın.\n\nQurbanEt MMC | qurbanet.az`
-    : `QurbanEt — Verification Code\n\nDear user,\n\nYour verification code: ${code}\n\nThis code is valid for 5 minutes.\n\nNotice: If you did not request this, please ignore this email.\n\nQurbanEt MMC | qurbanet.az`;
+    ? `QurbanEt — Təsdiqləmə Kodu\n\nHörmətli istifadəçi,\n\nHesabınıza giriş üçün kodunuz: ${code}\n\nKod 5 dəqiqə ərzində etibarlıdır.\n\nDiqqət: Bu sorğunu siz göndərməmisinizsə, bu emaili nəzərə almayın.\n\nQurbanEt | qurbanet.az`
+    : `QurbanEt — Verification Code\n\nDear user,\n\nYour verification code: ${code}\n\nThis code is valid for 5 minutes.\n\nNotice: If you did not request this, please ignore this email.\n\nQurbanEt | qurbanet.az`;
 
   const url = `https://api.bird.com/workspaces/${workspaceId}/channels/${channelId}/messages`;
 
