@@ -309,6 +309,11 @@ export default function DistributionPage() {
               >
                 {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, "free")}
               </div>
+              {key === "catdirilsin" && (
+                <div className="text-[10px] text-amber-600 font-medium mt-0.5">
+                  Yalnız Bakı və ətrafı
+                </div>
+              )}
             </div>
             <div
               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -408,6 +413,13 @@ export default function DistributionPage() {
       <div className="p-3 flex flex-col gap-2">
         {!phoneOnly && (
           <>
+            {/* Bakı/ətraf ərazilər xəbərdarlığı */}
+            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+              <span className="text-base shrink-0 mt-0.5">📍</span>
+              <p className="text-[11px] font-semibold text-amber-800 leading-snug">
+                Çatdırılma xidməti yalnız <span className="font-extrabold">Bakı və Bakı ətrafı ərazilər</span> üçün nəzərdə tutulub.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setShowMap(true)}
