@@ -195,7 +195,12 @@ export default function SummaryPage() {
           ? `${contactInfo.firstName} ${contactInfo.lastName}`
           : "-",
       },
-      { label: t(lang, "phoneRow"), value: contactInfo?.phone || "Nömrə yoxdur" },
+      {
+    label: t(lang, "phoneRow"),
+    value: order.deliveryPhones?.length
+      ? order.deliveryPhones.join("\n")
+      : contactInfo?.phone || "Nömrə yoxdur",
+  },
     ] : []),
     ...(order.notes ? [{ label: t(lang, "notes"), value: order.notes }] : []),
     ...(order.addressNote ? [{ label: "Ünvan qeydi", value: order.addressNote }] : []),
