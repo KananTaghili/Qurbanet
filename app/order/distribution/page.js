@@ -210,15 +210,16 @@ export default function DistributionPage() {
   const total = qty * maxPortionSplit;
 
   const needsLocation = selectedKey === "catdirilsin";
+  const needsPhone = selectedKey === "catdirilsin" || selectedKey === "ozum";
   const deliveryKeys = DELIVERY_KEYS.filter((k) => k in optionData);
   const charityKeys = CHARITY_KEYS.filter((k) => k in optionData);
 
   const selectionOk = selectedKey !== null;
-  const phonesValid = needsLocation
+  const phonesValid = needsPhone
     ? phones.some((p) => isValidAzPhone(p)) &&
       phones.every((p) => !p.trim() || isValidAzPhone(p))
     : true;
-  const addrOk = !needsLocation || (!!pickedLocation && phonesValid);
+  const addrOk = (!needsLocation || !!pickedLocation) && phonesValid;
   const canContinue = selectionOk && addrOk;
 
   const handleContinue = () => {
@@ -238,7 +239,7 @@ export default function DistributionPage() {
       address: needsLocation ? address : "",
       pickedLocation: needsLocation ? pickedLocation : null,
       deliveryFee: needsLocation ? deliveryFee : 0,
-      deliveryPhones: needsLocation
+      deliveryPhones: needsPhone
         ? phones
             .filter((p) => p.trim())
             .map((p) => {
@@ -388,48 +389,52 @@ export default function DistributionPage() {
   );
 
   // Address + phone section (reused in mobile and desktop)
-  const AddressSection = ({ className = "" }) => (
+  const AddressSection = ({ className = "", phoneOnly = false }) => (
     <Card
       className={`${className} ${submitAttempted && !addrOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
     >
       <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
         <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-          {t(lang, "deliveryAddress")}
+          {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
         </span>
       </div>
       <div className="p-3 flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={() => setShowMap(true)}
-          className="flex items-center justify-center gap-2 w-full bg-primary-surface border border-primary/30 text-primary font-bold text-xs rounded-xl py-2.5 cursor-pointer hover:bg-primary-surface/80 transition-all"
-        >
-          <MapPin className="w-3.5 h-3.5" /> {t(lang, "selectOnMap")}
-        </button>
+        {!phoneOnly && (
+          <>
+            <button
+              type="button"
+              onClick={() => setShowMap(true)}
+              className="flex items-center justify-center gap-2 w-full bg-primary-surface border border-primary/30 text-primary font-bold text-xs rounded-xl py-2.5 cursor-pointer hover:bg-primary-surface/80 transition-all"
+            >
+              <MapPin className="w-3.5 h-3.5" /> {t(lang, "selectOnMap")}
+            </button>
 
-        {pickedLocation ? (
-          <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-bold text-emerald-700 mb-0.5">
-                {t(lang, "locationSelected")}
+            {pickedLocation ? (
+              <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-emerald-700 mb-0.5">
+                    {t(lang, "locationSelected")}
+                  </p>
+                  <p className="text-[11px] text-emerald-600 leading-snug">
+                    {pickedLocation.address}
+                  </p>
+                </div>
+              </div>
+            ) : submitAttempted && !pickedLocation ? (
+              <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />{" "}
+                {t(lang, "selectLocationError")}
+              </div>
+            ) : (
+              <p className="text-[11px] text-text-muted italic text-center">
+                {t(lang, "noLocation")}
               </p>
-              <p className="text-[11px] text-emerald-600 leading-snug">
-                {pickedLocation.address}
-              </p>
-            </div>
-          </div>
-        ) : submitAttempted && !pickedLocation ? (
-          <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
-            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />{" "}
-            {t(lang, "selectLocationError")}
-          </div>
-        ) : (
-          <p className="text-[11px] text-text-muted italic text-center">
-            {t(lang, "noLocation")}
-          </p>
+            )}
+          </>
         )}
 
-        <div className="border-t border-border pt-2 mt-1 flex flex-col gap-1.5">
+        <div className={`flex flex-col gap-1.5 ${!phoneOnly ? "border-t border-border pt-2 mt-1" : ""}`}>
           <div className="flex items-center justify-between mb-0.5">
             <div className="flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5 text-text-secondary" />
@@ -614,12 +619,14 @@ export default function DistributionPage() {
 
               {/* Address — mobile */}
               {needsLocation && AddressSection({ className: "lg:hidden" })}
+              {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
             </div>
 
             {/* ════ RIGHT — desktop ════ */}
             <div className="hidden lg:flex flex-col gap-3">
               {selectedKey === "ozum" && meatPickupLocation && PickupCard({})}
               {needsLocation && AddressSection({})}
+              {selectedKey === "ozum" && AddressSection({ phoneOnly: true })}
 
               <Card>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">

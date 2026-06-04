@@ -188,13 +188,15 @@ export default function SummaryPage() {
             : []),
         ]
       : []),
-    {
-      label: t(lang, "contactRow"),
-      value: contactInfo
-        ? `${contactInfo.firstName} ${contactInfo.lastName}`
-        : "-",
-    },
-    { label: t(lang, "phoneRow"), value: contactInfo?.phone || "Nömrə yoxdur" },
+    ...(!isCharityDist ? [
+      {
+        label: t(lang, "contactRow"),
+        value: contactInfo
+          ? `${contactInfo.firstName} ${contactInfo.lastName}`
+          : "-",
+      },
+      { label: t(lang, "phoneRow"), value: contactInfo?.phone || "Nömrə yoxdur" },
+    ] : []),
     ...(order.notes ? [{ label: t(lang, "notes"), value: order.notes }] : []),
     ...(order.addressNote ? [{ label: "Ünvan qeydi", value: order.addressNote }] : []),
   ];
