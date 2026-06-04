@@ -58,12 +58,12 @@ function PriceTag({ price, lang }) {
       </>
     );
   }
-  // AZ — suffix with vowel harmony
+  // AZ — always "-dən" because suffix follows "AZN" not the number
   return (
     <>
       {price} AZN
       <span className="text-[11px] xs:text-xs font-semibold text-text-secondary ml-1">
-        -{azPriceSuffix(price)}
+        -dən
       </span>
     </>
   );
