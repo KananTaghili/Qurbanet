@@ -436,12 +436,17 @@ export default function SummaryPage() {
               {/* Delivery / Distribution fee */}
               {finalDeliveryFee > 0 && (
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/50">
-                  <span className="text-xs font-medium text-text-secondary">
-                    {isCharityDist
-                      ? getDistLabel(selectedDistKey)
-                      : t(lang, "deliveryRow")}
-                  </span>
-                  <span className="text-xs font-extrabold text-text-primary">
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">
+                      {isCharityDist
+                        ? getDistLabel(selectedDistKey)
+                        : t(lang, "deliveryRow")}
+                    </p>
+                    <p className="text-[10px] text-text-secondary mt-0.5">
+                      {isCharityDist ? "Çatdırılma haqqı" : t(lang, "deliveryRow")}
+                    </p>
+                  </div>
+                  <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">
                     +{finalDeliveryFee} AZN
                   </span>
                 </div>
