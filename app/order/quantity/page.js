@@ -357,6 +357,33 @@ export default function QuantityPage() {
 
   const isToday    = selectedDate && new Date(selectedDate).toDateString() === todayMidnight.toDateString();
   const isTomorrow = selectedDate && new Date(selectedDate).toDateString() === tomorrowMidnight.toDateString();
+
+  // ── 4-saat interval məntiqi ───────────────────────────────────────────────
+  // Sifariş saatı ilə çatdırılma slot başlanğıcı arasında minimum 4 saat olmalıdır.
+  // "14:00" sonrası sifariş verilərsə "Bu gün" üçün heç bir uyğun slot qalmır.
+  const getValidWindowsForToday = (windows) => {
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    const minStartMins = nowMins + 4 * 60; // 4 saat əlavə
+    return windows.filter((slot) => {
+      const startH = parseInt(slot.split(":")[0], 10);
+      return startH * 60 > minStartMins; // başlanğıc saatı minimum intervaldan böyük olmalı
+    });
+  };
+
+  const validWindowsToday = getValidWindowsForToday(deliveryWindows);
+  const noValidSlotsToday = validWindowsToday.length === 0;
+
+  // Əgər "Bu gün" seçilidisə və etibarlı slot yoxdursa → avtomatik "Sabah"-a keç
+  useEffect(() => {
+    if (isToday && noValidSlotsToday) {
+      setSelectedDate(new Date(tomorrowMidnight));
+      setTimeSlot(deliveryWindows[0] || "");
+    }
+  }, [isToday, noValidSlotsToday]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Görünən saat slotları: bu gün seçilibsə yalnız etibarlı slotlar
+  const visibleWindows = isToday ? validWindowsToday : deliveryWindows;
   const isCustom   = selectedDate && !isToday && !isTomorrow;
   const customLabel = isCustom
     ? `${new Date(selectedDate).getDate()} ${AZ_MONTHS[new Date(selectedDate).getMonth()]} ${new Date(selectedDate).getFullYear()}`
@@ -368,7 +395,8 @@ export default function QuantityPage() {
       {(quickDateTodayEnabled || quickDateTomorrowEnabled) && (
         <div className={`grid gap-2 ${quickDateTodayEnabled && quickDateTomorrowEnabled ? "grid-cols-2" : "grid-cols-1"}`}>
           {[
-            { label: "Bu gün", date: todayMidnight,    active: isToday,    enabled: quickDateTodayEnabled },
+            // "Bu gün" — məntiqi yazılıb amma hələlik deaktiv (imkanımız yoxdur)
+            { label: "Bu gün", date: todayMidnight,    active: isToday,    enabled: false },
             { label: "Sabah",  date: tomorrowMidnight, active: isTomorrow, enabled: quickDateTomorrowEnabled },
           ].filter(o => o.enabled).map(({ label, date, active }) => (
             <button
@@ -453,7 +481,7 @@ export default function QuantityPage() {
 
   const TimeSlotBlock = ({ cols = "grid-cols-3" }) => (
     <div className={`p-3 grid ${cols} gap-2`}>
-      {deliveryWindows.map((slot) => (
+      {visibleWindows.map((slot) => (
         <button
           key={slot}
           onClick={() => setTimeSlot(slot)}
