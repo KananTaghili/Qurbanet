@@ -275,20 +275,25 @@ export default function HomePage() {
                         </div>
                         <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
                       </button>
+                      {/* Contact — mobile modal only */}
                       <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
-                      {/* Phone */}
-                      <div className="flex items-center gap-3 px-4 py-3">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
-                          <Phone size={15} style={{ color: "#1b5e20" }} />
-                        </div>
-                        <span className="text-sm font-semibold text-slate-800">+994 10 399 0222</span>
+                      <div className="px-4 pt-2.5 pb-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bizimlə Əlaqə</p>
                       </div>
-                      {/* Email */}
-                      <div className="flex items-center gap-3 px-4 py-3">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
-                          <Mail size={15} style={{ color: "#1b5e20" }} />
+                      <div className="mx-3 mb-2 border border-slate-100 rounded-xl overflow-hidden">
+                        <div className="flex items-center gap-3 px-3 py-2.5">
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
+                            <Phone size={13} style={{ color: "#1b5e20" }} />
+                          </div>
+                          <span className="text-sm font-semibold text-slate-800">+994 10 399 0222</span>
                         </div>
-                        <span className="text-sm font-semibold text-slate-800">info@qurbanet.az</span>
+                        <div style={{ height: 1, background: "#f1f5f9" }} />
+                        <div className="flex items-center gap-3 px-3 py-2.5">
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
+                            <Mail size={13} style={{ color: "#1b5e20" }} />
+                          </div>
+                          <span className="text-sm font-semibold text-slate-800">info@qurbanet.az</span>
+                        </div>
                       </div>
                       <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
                       {/* Logout */}
@@ -480,21 +485,6 @@ export default function HomePage() {
                     </div>
                     <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
                   </button>
-                  <div style={{ height: 1, background: '#f1f5f9', margin: '0 12px' }} />
-                  {/* Phone */}
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#e8f5e9' }}>
-                      <Phone size={15} style={{ color: '#1b5e20' }} />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-800">+994 10 399 0222</span>
-                  </div>
-                  {/* Email */}
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#e8f5e9' }}>
-                      <Mail size={15} style={{ color: '#1b5e20' }} />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-800">info@qurbanet.az</span>
-                  </div>
                   <div style={{ height: 1, background: '#f1f5f9', margin: '0 12px' }} />
                   {/* Logout */}
                   <button
