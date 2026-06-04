@@ -635,16 +635,33 @@ export default function DistributionPage() {
                   </span>
                 </div>
 
-                {/* Animal base */}
-                <div className="flex justify-between items-center px-3 py-2.5 border-b border-border">
-                  <div>
-                    <p className="text-[11px] font-bold text-text-primary">{order.animal?.nameAz}</p>
-                    <p className="text-[10px] text-text-secondary mt-0.5">{qty} {t(lang, "pcsLabel")} × {Math.round((order.totalPrice || 0) / qty)} AZN</p>
-                  </div>
-                  <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">
-                    {order.totalPrice || 0} AZN
-                  </span>
-                </div>
+                {/* Animal base — subtract cut/head/feet fees from totalPrice */}
+                {(() => {
+                  const cutFee = (order.animal?.cutStyleOptions || []).reduce(
+                    (s, cs) => s + (order.cutStyles?.[cs.key] || 0) * (cs.fee || 0), 0);
+                  const headFee = (order.animal?.headOptions || []).reduce(
+                    (s, o) => s + (order.headBuckets?.[o.key] || 0) * (o.fee || 0), 0);
+                  const feetFee = (order.animal?.feetOptions || []).reduce(
+                    (s, o) => s + (order.feetBuckets?.[o.key] || 0) * (o.fee || 0), 0);
+                  const basePrice = Math.max(0, (order.totalPrice || 0) - cutFee - headFee - feetFee);
+                  const pricePerUnit = qty > 0 ? Math.round(basePrice / qty) : basePrice;
+                  return (
+                    <div className="border-b border-border">
+                      <div className="px-3 pt-2 pb-0.5">
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Heyvan Seçimi</span>
+                      </div>
+                      <div className="flex justify-between items-center px-3 py-1.5">
+                        <div>
+                          <p className="text-[11px] font-semibold text-text-primary">{order.animal?.nameAz}</p>
+                          <p className="text-[10px] text-text-secondary mt-0.5">{qty} {t(lang, "pcsLabel")} × {pricePerUnit} AZN</p>
+                        </div>
+                        <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">
+                          {basePrice} AZN
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Cut styles */}
                 {(() => {
