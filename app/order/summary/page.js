@@ -172,11 +172,6 @@ export default function SummaryPage() {
 
   const infoRows = [
     { label: t(lang, "animalRow2"), value: animal?.nameAz || "-" },
-    {
-      label: t(lang, "orderTypeRow"),
-      value:
-        mode === "serikli" ? t(lang, "sharedTypeLabel") : t(lang, "fullAnimal"),
-    },
     { label: t(lang, "quantityRow"), value: `${qty} ${t(lang, "pcsLabel")}` },
     { label: t(lang, "slaughterDateRow"), value: dateStr },
     { label: t(lang, "deliveryTimeRow"), value: timeSlot || "-" },
@@ -400,34 +395,41 @@ export default function SummaryPage() {
                     </div>
                   )}
 
-                  {/* Head + Feet Processing — merged */}
-                  {(activeHeadRows.length > 0 || activeFeetRows.length > 0) && (
-                    <div className="border-b border-border/50">
-                      <SectionHead label="Baş və Ayaqlar" />
-                      {activeHeadRows.map((o) => (
-                        <PriceItem
-                          key={`head-${o.key}`}
-                          label={o.labelAz}
-                          sub={`${headBuckets[o.key]} ${t(lang, "headsLabel")}`}
-                          value={`+${o.fee * headBuckets[o.key]} AZN`}
-                          isFree={o.fee === 0}
-                          freeLabel={freeLabel}
-                          sep
-                        />
-                      ))}
-                      {activeFeetRows.map((o, i) => (
-                        <PriceItem
-                          key={`feet-${o.key}`}
-                          label={o.labelAz}
-                          sub={`${feetBuckets[o.key]} ${t(lang, "feetLabel")}`}
-                          value={`+${o.fee * feetBuckets[o.key]} AZN`}
-                          isFree={o.fee === 0}
-                          freeLabel={freeLabel}
-                          sep={i < activeFeetRows.length - 1}
-                        />
-                      ))}
-                    </div>
-                  )}
+                  {/* Head + Feet Processing — merged by option key */}
+                  {(activeHeadRows.length > 0 || activeFeetRows.length > 0) && (() => {
+                    const allKeys = [...new Set([
+                      ...activeHeadRows.map(o => o.key),
+                      ...activeFeetRows.map(o => o.key),
+                    ])];
+                    const rows = allKeys.map(key => {
+                      const headOpt = activeHeadRows.find(o => o.key === key);
+                      const feetOpt = activeFeetRows.find(o => o.key === key);
+                      const opt = headOpt || feetOpt;
+                      const hCount = headBuckets[key] || 0;
+                      const fCount = feetBuckets[key] || 0;
+                      const parts = [];
+                      if (hCount > 0) parts.push(`${hCount} ${t(lang, "headsLabel")}`);
+                      if (fCount > 0) parts.push(`${fCount} ${t(lang, "feetLabel")}`);
+                      const totalFee = opt.fee * (hCount + fCount);
+                      return { key, opt, sub: parts.join(" və "), totalFee };
+                    });
+                    return (
+                      <div className="border-b border-border/50">
+                        <SectionHead label="Baş və Ayaqlar" />
+                        {rows.map((r, i) => (
+                          <PriceItem
+                            key={r.key}
+                            label={r.opt.labelAz}
+                            sub={r.sub}
+                            value={`+${r.totalFee} AZN`}
+                            isFree={r.opt.fee === 0}
+                            freeLabel={freeLabel}
+                            sep={i < rows.length - 1}
+                          />
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </>
               )}
 
