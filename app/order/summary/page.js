@@ -202,6 +202,8 @@ export default function SummaryPage() {
         : "-",
     },
     { label: t(lang, "phoneRow"), value: contactInfo?.phone || "Nömrə yoxdur" },
+    ...(order.notes ? [{ label: t(lang, "notes"), value: order.notes }] : []),
+    ...(order.addressNote ? [{ label: "Ünvan qeydi", value: order.addressNote }] : []),
   ];
 
   const handleCreateOrder = async () => {
@@ -398,37 +400,24 @@ export default function SummaryPage() {
                     </div>
                   )}
 
-                  {/* Head Processing */}
-                  {activeHeadRows.length > 0 && (
+                  {/* Head + Feet Processing — merged */}
+                  {(activeHeadRows.length > 0 || activeFeetRows.length > 0) && (
                     <div className="border-b border-border/50">
-                      <SectionHead
-                        label={t(lang, "headProcessing")}
-                        badge={`${qty} ${t(lang, "headsLabel")}`}
-                      />
-                      {activeHeadRows.map((o, i) => (
+                      <SectionHead label="Baş və Ayaqlar" />
+                      {activeHeadRows.map((o) => (
                         <PriceItem
-                          key={o.key}
+                          key={`head-${o.key}`}
                           label={o.labelAz}
                           sub={`${headBuckets[o.key]} ${t(lang, "headsLabel")}`}
                           value={`+${o.fee * headBuckets[o.key]} AZN`}
                           isFree={o.fee === 0}
                           freeLabel={freeLabel}
-                          sep={i < activeHeadRows.length - 1}
+                          sep
                         />
                       ))}
-                    </div>
-                  )}
-
-                  {/* Feet Processing */}
-                  {activeFeetRows.length > 0 && (
-                    <div className="border-b border-border/50">
-                      <SectionHead
-                        label={t(lang, "feetProcessing")}
-                        badge={`${qty * 4} ${t(lang, "feetLabel")}`}
-                      />
                       {activeFeetRows.map((o, i) => (
                         <PriceItem
-                          key={o.key}
+                          key={`feet-${o.key}`}
                           label={o.labelAz}
                           sub={`${feetBuckets[o.key]} ${t(lang, "feetLabel")}`}
                           value={`+${o.fee * feetBuckets[o.key]} AZN`}
