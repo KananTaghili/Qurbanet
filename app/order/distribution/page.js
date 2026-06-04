@@ -689,10 +689,10 @@ export default function DistributionPage() {
                   const pricePerUnit = qty > 0 ? Math.round(basePrice / qty) : basePrice;
                   return (
                     <div className="border-b border-border">
-                      <div className="px-3 pt-1 pb-0">
+                      <div className="px-3 pt-0.5 pb-0">
                         <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Heyvan Seçimi</span>
                       </div>
-                      <div className="flex justify-between items-center px-3 py-0.5">
+                      <div className="flex justify-between items-center px-3 pb-1">
                         <div>
                           <p className="text-[11px] font-semibold text-text-primary">{order.animal?.nameAz}</p>
                           <p className="text-[10px] text-text-secondary mt-0.5">{qty} {t(lang, "pcsLabel")} × {pricePerUnit} AZN</p>
@@ -711,14 +711,14 @@ export default function DistributionPage() {
                   if (!cutOpts.length) return null;
                   return (
                     <div className="border-b border-border">
-                      <div className="px-3 pt-1 pb-0">
+                      <div className="px-3 pt-0.5 pb-0">
                         <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Doğrama üsulu</span>
                       </div>
                       {cutOpts.map(cs => {
                         const cnt = order.cutStyles[cs.key];
                         const fee = cs.fee * cnt;
                         return (
-                          <div key={cs.key} className="flex justify-between items-center px-3 py-0.5">
+                          <div key={cs.key} className="flex justify-between items-center px-3 pb-1">
                             <div>
                               <p className="text-[11px] font-semibold text-text-primary">{cs.labelAz}</p>
                               <p className="text-[10px] text-text-secondary">{cnt} {t(lang, "animalUnit")}</p>
@@ -741,7 +741,7 @@ export default function DistributionPage() {
                   if (!allKeys.length) return null;
                   return (
                     <div className="border-b border-border">
-                      <div className="px-3 pt-1 pb-0">
+                      <div className="px-3 pt-0.5 pb-0">
                         <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Baş və Ayaqlar</span>
                       </div>
                       {allKeys.map(key => {
@@ -753,7 +753,7 @@ export default function DistributionPage() {
                         if (fCnt > 0) parts.push(`${fCnt} ${t(lang, "feetLabel")}`);
                         const fee = opt.fee * (hCnt + fCnt);
                         return (
-                          <div key={key} className="flex justify-between items-center px-3 py-0.5">
+                          <div key={key} className="flex justify-between items-center px-3 pb-1">
                             <div>
                               <p className="text-[11px] font-semibold text-text-primary">{opt.labelAz}</p>
                               <p className="text-[10px] text-text-secondary">{parts.join(" və ")}</p>
@@ -771,10 +771,10 @@ export default function DistributionPage() {
                 {/* Delivery */}
                 {selectedKey && (
                   <div className="border-b border-border">
-                    <div className="px-3 pt-1 pb-0">
+                    <div className="px-3 pt-0.5 pb-0">
                       <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Çatdırılma</span>
                     </div>
-                    <div className="flex justify-between items-center px-3 py-0.5">
+                    <div className="flex justify-between items-center px-3 pb-1">
                       <div>
                         <p className="text-[11px] font-semibold text-text-primary">
                           {optionData[selectedKey]?.labelAz || selectedKey}
