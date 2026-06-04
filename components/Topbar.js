@@ -162,8 +162,8 @@ export default function Topbar() {
               >
                 {user?.name?.[0]?.toUpperCase() || "?"}
               </div>
-              <span className="text-sm font-semibold text-white/80 truncate max-w-[90px]">
-                {user?.name || ""}
+              <span className="text-sm font-semibold text-white/80 truncate max-w-[140px]">
+                {[user?.name, user?.lastName].filter(Boolean).join(" ")}
               </span>
             </button>
 

@@ -197,7 +197,10 @@ export default function MyOrdersPage() {
               <p className="text-xl font-extrabold text-text-primary">{t(lang, 'noOrders')}</p>
               <p className="text-sm text-text-secondary mt-1">{t(lang, 'noOrdersDesc')}</p>
             </div>
-            <Link href="/" className="btn-primary mt-1 px-8 no-underline text-center">
+            <Link
+              href="/"
+              className="no-underline inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-md mt-1"
+            >
               {t(lang, 'placeOrder')}
             </Link>
           </div>
