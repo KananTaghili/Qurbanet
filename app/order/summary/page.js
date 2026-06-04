@@ -60,15 +60,13 @@ function PriceItem({ label, sub, value, isFree, sep, freeLabel }) {
         </p>
         {sub && <p className="text-[10px] text-text-secondary mt-0.5">{sub}</p>}
       </div>
-      {isFree ? (
-        <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-md shrink-0">
-          {freeLabel}
-        </span>
-      ) : (
-        <span className="text-[11px] font-extrabold text-text-primary bg-surface-alt px-1.5 py-0.5 rounded-md border border-border/40 shrink-0">
-          {value}
-        </span>
-      )}
+      <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-md border shrink-0 ${
+        isFree
+          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+          : "bg-surface-alt text-text-primary border-border/40"
+      }`}>
+        {isFree ? freeLabel : value}
+      </span>
     </div>
   );
 }
