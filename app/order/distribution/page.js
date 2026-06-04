@@ -27,6 +27,21 @@ import { t } from "../../../lib/i18n";
 
 const DIST_STATE_KEY = "qurbanet_dist_state";
 
+// Azərbaycan üçün etibarlı operator prefiksləri (+994-dən sonra ilk 2 rəqəm)
+const AZ_OPERATORS = [
+  "10",       // Bakcell
+  "12",       // Bakı şəhər xətti
+  "18",       // Azerfon
+  "20",       // Azercell (köhnə)
+  "40", "41", // Azercell
+  "44",       // Bakcell
+  "50", "51", // Azercell
+  "55",       // Bakcell
+  "60",       // Naxtel
+  "70", "77", // Nar Mobile
+  "99",       // Bakcell
+];
+
 const formatPhone = (input) => {
   const d = input.replace(/\D/g, "").slice(0, 10);
   if (!d) return "";
@@ -44,8 +59,8 @@ const formatPhone = (input) => {
 
 const isValidAzPhone = (formatted) => {
   const d = formatted.replace(/\D/g, "");
-  if (d.length === 9) return true;
-  if (d.length === 10) return d.startsWith("0");
+  if (d.length === 9) return AZ_OPERATORS.includes(d.slice(0, 2));
+  if (d.length === 10 && d.startsWith("0")) return AZ_OPERATORS.includes(d.slice(1, 3));
   return false;
 };
 
