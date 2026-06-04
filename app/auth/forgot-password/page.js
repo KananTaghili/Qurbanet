@@ -98,7 +98,15 @@ export default function ForgotPasswordPage() {
       startTimer();
       setTimeout(() => inputs.current[0]?.focus(), 300);
     } catch (err) {
-      setError(err.response?.data?.message || "Xəta baş verdi. Yenidən cəhd edin.");
+      const status = err.response?.status;
+      const msg = err.response?.data?.message;
+      if (status === 404) {
+        setError(mode === "phone"
+          ? "Bu telefon nömrəsi ilə qeydiyyatdan keçmiş hesab tapılmadı."
+          : "Bu email ilə qeydiyyatdan keçmiş hesab tapılmadı.");
+      } else {
+        setError(msg || "Xəta baş verdi. Yenidən cəhd edin.");
+      }
     } finally {
       setSending(false);
     }
