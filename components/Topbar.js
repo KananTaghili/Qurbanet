@@ -149,21 +149,19 @@ export default function Topbar() {
               onClick={() => setMenuOpen((v) => !v)}
               className="flex items-center gap-2 min-w-0 cursor-pointer rounded-xl px-1.5 py-1 transition-colors hover:bg-white/10"
             >
-              {/* Settings icon — lg+ only */}
               <Settings
-                size={18}
+                size={15}
                 color="white"
                 strokeWidth={2}
-                className="hidden lg:block flex-shrink-0"
+                className="hidden md:block flex-shrink-0"
               />
               <div
-                className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0"
+                className="w-7 h-7 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white/30 flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
                 style={{ background: "rgba(255,255,255,0.15)" }}
               >
                 {user?.name?.[0]?.toUpperCase() || "?"}
               </div>
-              {/* Name — lg+ only */}
-              <span className="hidden lg:inline text-sm font-semibold text-white/80 truncate max-w-[140px]">
+              <span className="text-xs lg:text-sm font-semibold text-white/80 truncate max-w-[80px] lg:max-w-[140px]">
                 {[user?.name, user?.lastName].filter(Boolean).join(" ")}
               </span>
             </button>
