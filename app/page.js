@@ -410,15 +410,15 @@ export default function HomePage() {
 
         {/* Right: contact info + lang + user info */}
         <div className="flex items-center gap-4">
-          {/* Contact info — only lg+ (1024px) */}
-          <div className="hidden lg:flex flex-col gap-0.5 mr-1">
-            <div className="flex items-center gap-1.5">
+          {/* Contact info */}
+          <div className="hidden md:flex items-center gap-3 mr-1">
+            <div className="flex items-center gap-1">
               <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
               <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
                 +994 10 399 0222
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <Mail size={11} style={{ color: "#86efac", flexShrink: 0 }} />
               <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
                 info@qurbanet.az

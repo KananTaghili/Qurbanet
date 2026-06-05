@@ -108,9 +108,9 @@ export default function Topbar() {
       {/* Right: contact info (desktop) + user area */}
       <div className="flex items-center gap-3 flex-shrink-0">
 
-        {/* Contact info — lg+ (1024px) only */}
-        <div className="hidden lg:flex flex-col gap-0.5 mr-1">
-          <div className="flex items-center gap-1.5">
+        {/* Contact info */}
+        <div className="hidden md:flex items-center gap-3 mr-1">
+          <div className="flex items-center gap-1">
             <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
             <span
               className="text-[11px] font-medium"
@@ -119,7 +119,7 @@ export default function Topbar() {
               +994 10 399 0222
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <Mail size={11} style={{ color: "#86efac", flexShrink: 0 }} />
             <span
               className="text-[11px] font-medium"
