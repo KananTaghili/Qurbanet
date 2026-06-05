@@ -267,8 +267,8 @@ export default function PaymentPage() {
       <BackHeader title={t(lang, 'payment')} />
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 overflow-y-auto pb-28 md:pb-6 pt-[124px] md:pt-0">
-        <div className="p-4 md:p-6 max-w-5xl mx-auto w-full md:grid md:grid-cols-[1fr_360px] md:gap-6 md:items-start">
+      <div className="flex-1 overflow-y-auto pb-28 lg:pb-6 pt-[124px] lg:pt-0">
+        <div className="p-4 lg:p-6 max-w-5xl mx-auto w-full lg:grid lg:grid-cols-[1fr_360px] lg:gap-6 lg:items-start">
 
           {/* ── LEFT: Məbləğ + Qiymət tərkibi ──────────────────────────── */}
           <div className="flex flex-col gap-4">
@@ -304,7 +304,7 @@ export default function PaymentPage() {
           </div>
 
           {/* ── RIGHT: Ödəniş üsulu + Düymə ────────────────────────────── */}
-          <div className="mt-4 md:mt-0 flex flex-col gap-4">
+          <div className="mt-4 lg:mt-0 flex flex-col gap-4">
             {/* Payment methods */}
             <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-card">
               <div className="px-4 py-3 border-b border-border text-xs font-bold text-text-secondary tracking-wide uppercase bg-surface-alt/40">
@@ -356,7 +356,7 @@ export default function PaymentPage() {
             )}
 
             {/* Desktop pay button (inside right column) */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               {PayButton}
             </div>
           </div>
@@ -364,7 +364,7 @@ export default function PaymentPage() {
       </div>
 
       {/* Mobile fixed bottom button */}
-      <div className="fixed-action-bar md:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg border-t border-border safe-area-bottom">
+      <div className="fixed-action-bar lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg border-t border-border safe-area-bottom">
         {PayButton}
       </div>
     </div>
