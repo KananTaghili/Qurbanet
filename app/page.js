@@ -366,7 +366,7 @@ export default function HomePage() {
 
         {/* Feature strips - mobile bottom */}
         {!loading && animals.length > 0 && (
-          <div className="flex flex-col gap-2 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
               <div
                 key={labelKey}
