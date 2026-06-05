@@ -332,7 +332,7 @@ export default function SummaryPage() {
       <StepHeader currentStep={3} />
 
       <div className="flex-1 page-scroll">
-        <div className="p-4 md:p-6 md:grid md:grid-cols-[300px_1fr] md:gap-5 md:items-start max-w-6xl mx-auto w-full">
+        <div className="p-4 lg:p-6 lg:grid lg:grid-cols-[300px_1fr] lg:gap-5 lg:items-start max-w-6xl mx-auto w-full">
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
           <C>
             <CHead label={t(lang, "orderInfoCard")} colored />
@@ -354,7 +354,7 @@ export default function SummaryPage() {
           </C>
 
           {/* ── RIGHT: Price breakdown ───────────────────────────────── */}
-          <div className="mt-4 md:mt-0 flex flex-col gap-4">
+          <div className="mt-4 lg:mt-0 flex flex-col gap-4">
             <C className="border-primary/20 shadow-lg">
               <CHead label={t(lang, "priceCalcCard")} colored />
 

@@ -109,7 +109,7 @@ export default function Topbar() {
       <div className="flex items-center gap-3 flex-shrink-0">
 
         {/* Contact info */}
-        <div className="hidden md:flex items-center gap-3 mr-1">
+        <div className="hidden lg:flex items-center gap-3 mr-1">
           <div className="flex items-center gap-1">
             <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
             <span
