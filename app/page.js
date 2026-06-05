@@ -366,20 +366,20 @@ export default function HomePage() {
 
         {/* Feature strips - mobile bottom */}
         {!loading && animals.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 sm:mt-5">
+          <div className="flex flex-col gap-2 mt-4">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
               <div
                 key={labelKey}
-                className="flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2 bg-surface rounded-2xl border border-border px-3 py-2.5 sm:p-3 shadow-card"
+                className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-3 py-2.5 shadow-card"
               >
-                <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
                   <Icon size={18} color={BRAND} strokeWidth={1.8} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13px] sm:text-xs font-bold text-text-primary">
+                  <div className="text-[13px] font-bold text-text-primary">
                     {t(lang, labelKey)}
                   </div>
-                  <div className="text-[11px] sm:text-[10px] text-text-muted mt-0.5">
+                  <div className="text-[11px] text-text-muted mt-0.5">
                     {t(lang, subKey)}
                   </div>
                 </div>
@@ -410,8 +410,8 @@ export default function HomePage() {
 
         {/* Right: contact info + lang + user info */}
         <div className="flex items-center gap-4">
-          {/* Contact info */}
-          <div className="flex flex-col gap-0.5 mr-1">
+          {/* Contact info — only lg+ (1024px) */}
+          <div className="hidden lg:flex flex-col gap-0.5 mr-1">
             <div className="flex items-center gap-1.5">
               <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
               <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>

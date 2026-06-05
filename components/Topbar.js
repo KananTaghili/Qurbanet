@@ -108,10 +108,10 @@ export default function Topbar() {
       {/* Right: contact info (desktop) + user area */}
       <div className="flex items-center gap-3 flex-shrink-0">
 
-        {/* Contact info — desktop only, display only (not clickable) */}
-        <div className="hidden md:flex items-center gap-5 mr-1">
+        {/* Contact info — lg+ (1024px) only */}
+        <div className="hidden lg:flex flex-col gap-0.5 mr-1">
           <div className="flex items-center gap-1.5">
-            <Phone size={12} style={{ color: "#86efac", flexShrink: 0 }} />
+            <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
             <span
               className="text-[11px] font-medium"
               style={{ color: "rgba(255,255,255,0.6)" }}
@@ -120,7 +120,7 @@ export default function Topbar() {
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Mail size={12} style={{ color: "#86efac", flexShrink: 0 }} />
+            <Mail size={11} style={{ color: "#86efac", flexShrink: 0 }} />
             <span
               className="text-[11px] font-medium"
               style={{ color: "rgba(255,255,255,0.6)" }}
