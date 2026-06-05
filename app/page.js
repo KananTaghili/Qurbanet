@@ -411,7 +411,7 @@ export default function HomePage() {
         {/* Right: contact info + lang + user info */}
         <div className="flex items-center gap-4">
           {/* Contact info */}
-          <div className="hidden md:flex items-center gap-3 mr-1">
+          <div className="hidden md:flex flex-col lg:flex-row items-start lg:items-center gap-0.5 lg:gap-3 mr-1">
             <div className="flex items-center gap-1">
               <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
               <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
