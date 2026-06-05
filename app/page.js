@@ -526,7 +526,7 @@ export default function HomePage() {
         )}
 
         {/* Feature strips */}
-        <div className="flex flex-col gap-2 mt-1 lg:mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 lg:mt-2">
           {FEATURES.map(({ Icon, labelKey, subKey }) => (
             <div
               key={labelKey}
