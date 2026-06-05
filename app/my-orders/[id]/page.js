@@ -622,6 +622,18 @@ export default function OrderDetailPage() {
                       isSelfPickup && step.key === "delivering"
                         ? "Sifariş götürüldü"
                         : step.label;
+
+                    const stepHint = (() => {
+                      if (done) return null;
+                      if (step.key === "slaughtering" && order.slaughterDate)
+                        return `Qurbanınız ${fmtDate(order.slaughterDate)} tarixində kəsiləcək`;
+                      if (step.key === "delivering" && order.slaughterDate && order.deliveryWindow)
+                        return isSelfPickup
+                          ? `Sifarişinizi ${fmtDate(order.slaughterDate)} tarixində ${order.deliveryWindow} aralığında götürə bilərsiniz`
+                          : `Sifarişiniz ${fmtDate(order.slaughterDate)} tarixində ${order.deliveryWindow} aralığında çatdırılacaq`;
+                      return null;
+                    })();
+
                     return (
                       <div key={step.key}>
                         {/* Step row */}
@@ -668,9 +680,14 @@ export default function OrderDetailPage() {
                               </div>
                             ) : (
                               !done && (
-                                <p className="text-xs text-text-muted mt-0.5">
-                                  Gözlənilir
-                                </p>
+                                <div className="flex flex-col gap-1 mt-0.5">
+                                  <p className="text-xs text-text-muted">Gözlənilir</p>
+                                  {stepHint && (
+                                    <p className="text-[11px] font-semibold text-primary/80 leading-snug">
+                                      {stepHint}
+                                    </p>
+                                  )}
+                                </div>
                               )
                             )}
                           </div>
