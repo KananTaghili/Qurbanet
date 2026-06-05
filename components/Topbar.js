@@ -161,8 +161,12 @@ export default function Topbar() {
               >
                 {user?.name?.[0]?.toUpperCase() || "?"}
               </div>
-              <span className="text-xs lg:text-sm font-semibold text-white/80 truncate max-w-[80px] lg:max-w-[140px]">
+              <span className="hidden lg:inline text-sm font-semibold text-white/80 truncate max-w-[140px]">
                 {[user?.name, user?.lastName].filter(Boolean).join(" ")}
+              </span>
+              <span className="flex lg:hidden flex-col text-[10px] font-semibold text-white/80 leading-tight max-w-[70px]">
+                <span className="truncate">{user?.name}</span>
+                {user?.lastName && <span className="truncate">{user.lastName}</span>}
               </span>
             </button>
 
