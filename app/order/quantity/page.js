@@ -534,7 +534,7 @@ export default function QuantityPage() {
       <BackHeader title="Miqdar seçin" onBack={() => router.replace("/")} />
       <StepHeader currentStep={1} />
 
-      <div className="flex-1 overflow-y-auto pb-24 xl:pb-6 pt-[124px] xl:pt-0">
+      <div className="flex-1 overflow-y-auto pb-24 xl:pb-6 pt-[124px] md:pt-4 xl:pt-0">
         <div
           className="max-w-full mx-auto px-0 sm:px-4 md:px-5 py-3 sm:py-4 xl:py-6
                      xl:grid xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px]
@@ -658,7 +658,7 @@ export default function QuantityPage() {
             {weights.length > 0 && (
               <Card className="xl:hidden">
                 <CardHead label="DİRİ ÇƏKİ KATEQORİYASI" />
-                <div className="p-3 flex flex-wrap gap-2">
+                <div className="p-3 grid grid-cols-2 gap-2">
                   {weights.map((w) => {
                     const lbl = w.labelAz || w.label || w.key;
                     const isSel =
@@ -730,7 +730,7 @@ export default function QuantityPage() {
                         }`}
                       >
                         <div className="flex flex-col min-w-0 flex-1">
-                          <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
+                          <span className="text-[11px] sm:text-xs font-semibold text-text-primary leading-tight">
                             {cs.labelAz}
                           </span>
                           {cs.fee > 0 && (
@@ -796,7 +796,7 @@ export default function QuantityPage() {
                         }`}
                       >
                         <div className="flex flex-col min-w-0 flex-1">
-                          <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
+                          <span className="text-[11px] sm:text-xs font-semibold text-text-primary leading-tight">
                             {opt.labelAz}
                           </span>
                           <span className={`text-[10px] font-bold ${fee > 0 ? "text-primary" : "text-emerald-600"}`}>
@@ -846,7 +846,7 @@ export default function QuantityPage() {
             {weights.length > 0 && (
               <Card>
                 <CardHead label="DİRİ ÇƏKİ KATEQORİYASI" />
-                <div className="p-3 flex flex-wrap gap-2">
+                <div className="p-3 grid grid-cols-2 gap-2">
                   {weights.map((w) => {
                     const lbl = w.labelAz || w.label || w.key;
                     const isSel =
