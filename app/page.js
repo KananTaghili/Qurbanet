@@ -411,15 +411,15 @@ export default function HomePage() {
         {/* Right: contact info + lang + user info */}
         <div className="flex items-center gap-4">
           {/* Contact info */}
-          <div className="flex items-center gap-5 mr-1">
+          <div className="flex flex-col gap-0.5 mr-1">
             <div className="flex items-center gap-1.5">
-              <Phone size={12} style={{ color: "#86efac", flexShrink: 0 }} />
+              <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
               <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
                 +994 10 399 0222
               </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Mail size={12} style={{ color: "#86efac", flexShrink: 0 }} />
+              <Mail size={11} style={{ color: "#86efac", flexShrink: 0 }} />
               <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
                 info@qurbanet.az
               </span>
@@ -526,20 +526,20 @@ export default function HomePage() {
         )}
 
         {/* Feature strips */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 mt-1 lg:mt-2">
+        <div className="flex flex-col gap-2 mt-1 lg:mt-2">
           {FEATURES.map(({ Icon, labelKey, subKey }) => (
             <div
               key={labelKey}
-              className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-4 py-3 lg:py-3.5 shadow-card"
+              className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-4 py-3 shadow-card"
             >
-              <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
-                <Icon size={20} color={BRAND} strokeWidth={1.8} className="lg:w-[22px] lg:h-[22px]" />
+              <div className="w-10 h-10 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
+                <Icon size={20} color={BRAND} strokeWidth={1.8} />
               </div>
               <div className="min-w-0">
-                <div className="text-sm lg:text-[15px] font-bold text-text-primary truncate">
+                <div className="text-sm font-bold text-text-primary">
                   {t(lang, labelKey)}
                 </div>
-                <div className="text-xs lg:text-[13px] text-text-muted mt-0.5 truncate">
+                <div className="text-xs text-text-muted mt-0.5">
                   {t(lang, subKey)}
                 </div>
               </div>
