@@ -84,6 +84,9 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  // iOS Safari enforces CORS even for <video>/<img> cross-origin requests and
+  // needs these headers exposed to process 206 Partial Content range responses.
+  exposedHeaders: ["Content-Range", "Accept-Ranges", "Content-Length"],
 };
 
 app.options("*", cors(corsOptions));
