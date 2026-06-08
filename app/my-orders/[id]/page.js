@@ -211,6 +211,7 @@ function StepMedia({ items, onOpen, pending, token }) {
                   <img
                     src={token ? `${m.url}?token=${token}` : m.url}
                     alt={label}
+                    crossOrigin="anonymous"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                   <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-black/40">
@@ -327,9 +328,8 @@ function GalleryModal({ items, startIdx, onClose, token }) {
             <video
               key={token ? `${item.url}?token=${token}` : item.url}
               controls
-              autoPlay
               playsInline
-              webkit-playsinline="true"
+              crossOrigin="anonymous"
               className="rounded-2xl shadow-2xl"
               style={{
                 maxWidth: "100%",
@@ -338,12 +338,12 @@ function GalleryModal({ items, startIdx, onClose, token }) {
               }}
             >
               <source src={token ? `${item.url}?token=${token}` : item.url} type="video/mp4" />
-              <source src={token ? `${item.url}?token=${token}` : item.url} />
             </video>
           ) : (
             <img
               src={token ? `${item.url}?token=${token}` : item.url}
               alt="Media"
+              crossOrigin="anonymous"
               className="rounded-2xl shadow-2xl object-contain"
               style={{ maxWidth: "100%", maxHeight: "calc(100vh - 140px)" }}
             />

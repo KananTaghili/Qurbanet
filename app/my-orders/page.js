@@ -139,6 +139,7 @@ export default function MyOrdersPage() {
   const [orders,        setOrders]        = useState([]);
   const [charityOrders, setCharityOrders] = useState([]);
   const [loading,       setLoading]       = useState(true);
+  const [fetchError,    setFetchError]    = useState(false);
 
   // true only for explicit guests (isGuest flag), NOT for real users without a name
   const isActualGuest = !authLoading && (!token || user?.isGuest === true);
@@ -152,6 +153,24 @@ export default function MyOrdersPage() {
     fetchAll();
   }, [authLoading, token, user?.isGuest]);
 
+  // iOS Safari BFCache: pageshow fires with persisted=true when restored from cache.
+  // React effects don't re-run in that case, so orders would stay frozen from the
+  // previous visit. Force a fresh fetch whenever the page is restored this way.
+  useEffect(() => {
+    const handlePageShow = (e) => {
+      if (e.persisted && !isActualGuest) fetchAll();
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !isActualGuest) fetchAll();
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isActualGuest]);
+
   useSocket({
     'order:updated':         () => { if (!isActualGuest) fetchAll(); },
     'charity_order:updated': () => { if (!isActualGuest) fetchAll(); },
@@ -159,6 +178,7 @@ export default function MyOrdersPage() {
 
   const fetchAll = async () => {
     setLoading(true);
+    setFetchError(false);
     try {
       const [ordRes, charRes] = await Promise.allSettled([
         api.get('/orders/my'),
@@ -169,9 +189,18 @@ export default function MyOrdersPage() {
         router.replace('/auth/login');
         return;
       }
+      if (ordRes.status === 'rejected' && !ordRes.reason?.response) {
+        // Network/timeout error — show retry UI instead of false "no orders"
+        setFetchError(true);
+        return;
+      }
       if (ordRes.status  === 'fulfilled') setOrders(ordRes.value.data.data?.orders || []);
-      if (charRes.status === 'fulfilled') setCharityOrders(charRes.value.data.data?.orders || []);
-    } catch { /* ignore */ } finally { setLoading(false); }
+      // Charity orders endpoint returns the array directly in data (not wrapped in {orders:[...]})
+      if (charRes.status === 'fulfilled') {
+        const charData = charRes.value.data.data;
+        setCharityOrders(Array.isArray(charData) ? charData : (charData?.orders || []));
+      }
+    } catch { setFetchError(true); } finally { setLoading(false); }
   };
 
   const allItems = [
@@ -187,6 +216,22 @@ export default function MyOrdersPage() {
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : fetchError ? (
+          <div className="flex flex-col items-center py-24 px-8 text-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
+              <ClipboardList size={36} className="text-red-400" />
+            </div>
+            <div>
+              <p className="text-xl font-extrabold text-text-primary">{t(lang, 'errorLoadingOrders') || 'Sifarişlər yüklənmədi'}</p>
+              <p className="text-sm text-text-secondary mt-1">{t(lang, 'checkConnection') || 'İnternet bağlantınızı yoxlayın və yenidən cəhd edin.'}</p>
+            </div>
+            <button
+              onClick={fetchAll}
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-md mt-1"
+            >
+              {t(lang, 'retry') || 'Yenidən cəhd et'}
+            </button>
           </div>
         ) : allItems.length === 0 ? (
           <div className="flex flex-col items-center py-24 px-8 text-center gap-4">
