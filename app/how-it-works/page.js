@@ -38,7 +38,7 @@ export default function HowItWorksPage() {
 
       <div className="flex-1 page-scroll pb-6">
         {/* ══════════ MOBILE ══════════ */}
-        <div className="md:hidden flex flex-col">
+        <div className="wide:hidden flex flex-col">
           {/* Big image hero */}
           <div
             className="relative w-full flex items-center justify-center"
@@ -147,7 +147,7 @@ export default function HowItWorksPage() {
         </div>
 
         {/* ══════════ DESKTOP ══════════ */}
-        <div className="hidden md:block px-4 lg:px-6 pt-6">
+        <div className="hidden wide:block px-4 lg:px-6 pt-6">
           {/* Hero banner */}
           <div
             className="rounded-2xl lg:rounded-3xl overflow-hidden mb-6 flex items-center"
