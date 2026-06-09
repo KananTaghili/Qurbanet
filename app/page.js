@@ -579,7 +579,7 @@ function EmptyState({ lang }) {
   return (
     <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-4 text-center px-6 md:px-8 w-full col-span-full">
       <div style={{ width: 220, height: 220, opacity: 0.55, filter: 'grayscale(100%)' }}>
-        <Image src="/qoyun_big_p.PNG" alt="heyvan yoxdur" width={220} height={220} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        <Image src="/qoyun_big_p.png" alt="heyvan yoxdur" width={220} height={220} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
       <p className="text-base font-bold text-text-secondary">Heyvan təyin edilməyib</p>
     </div>
