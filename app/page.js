@@ -9,7 +9,7 @@ import { useLanguage, LANGUAGES } from "../context/LanguageContext";
 import { t, animalName } from "../lib/i18n";
 import api, { BASE_URL } from "../lib/api";
 import { useRef } from "react";
-import { GiHoof } from "react-icons/gi";
+import { GiCow } from "react-icons/gi";
 import {
   Truck,
   CheckCircle,
@@ -579,7 +579,7 @@ function LoadingSplash() {
 function EmptyState({ lang }) {
   return (
     <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-3 text-center px-6 md:px-8 w-full col-span-full">
-      <GiHoof size={56} color={BRAND} />
+      <GiCow size={56} color={BRAND} />
       <div className="font-bold text-text-primary text-sm md:text-base">
         {t(lang, 'outOfStock')}
       </div>
@@ -635,7 +635,7 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
           />
         ) : (
-          <GiHoof size={48} color={BRAND} />
+          <GiCow size={48} color={BRAND} />
         )}
       </div>
 
@@ -708,7 +708,7 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
           />
         ) : (
-          <GiHoof size={56} color={BRAND} />
+          <GiCow size={56} color={BRAND} />
         )}
       </div>
 
