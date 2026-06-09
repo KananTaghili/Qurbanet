@@ -1,9 +1,9 @@
-name: Deploy Frontend
+name: Deploy FrontendDEV
 
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
@@ -25,10 +25,10 @@ jobs:
             
             set -e 
             
-            cd /var/www/qurbanetfront
+            cd /var/www/qurbanetfront-dev
             
             # Kodları GitHub-dan çəkirik
-            git pull origin main
+            git pull origin dev
             
             # Paketləri yeniləyirik
             npm install
@@ -37,7 +37,7 @@ jobs:
             npm run build
             
             # PM2 ilə tətbiqi sıfır itki ilə (zero-downtime) restart edirik
-            PORT=3000 pm2 restart qurbanetfrontpm --update-env
+            PORT=3001 pm2 restart qurbanetfrontpm-dev --update-env
             pm2 save
             
-            echo "🚀 Frontend mühiti 100% uğurla yeniləndi!"
+            echo "🚀 Frontend DEV mühiti 100% uğurla yeniləndi!"

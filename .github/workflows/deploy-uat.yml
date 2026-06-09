@@ -1,9 +1,9 @@
-name: Deploy Frontend
+name: Deploy FrontendUAT
 
 on:
   push:
     branches:
-      - main
+      - uat
 
 jobs:
   deploy:
@@ -25,10 +25,10 @@ jobs:
             
             set -e 
             
-            cd /var/www/qurbanetfront
+            cd /var/www/qurbanetfront-uat
             
             # Kodları GitHub-dan çəkirik
-            git pull origin main
+            git pull origin uat
             
             # Paketləri yeniləyirik
             npm install
@@ -37,7 +37,7 @@ jobs:
             npm run build
             
             # PM2 ilə tətbiqi sıfır itki ilə (zero-downtime) restart edirik
-            PORT=3000 pm2 restart qurbanetfrontpm --update-env
+            PORT=3002 pm2 restart qurbanetfrontpm-uat --update-env
             pm2 save
             
-            echo "🚀 Frontend mühiti 100% uğurla yeniləndi!"
+            echo "🚀 Frontend UAT mühiti 100% uğurla yeniləndi!"
