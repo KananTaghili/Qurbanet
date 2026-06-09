@@ -9,6 +9,7 @@ import { useLanguage, LANGUAGES } from "../context/LanguageContext";
 import { t, animalName } from "../lib/i18n";
 import api, { BASE_URL } from "../lib/api";
 import { useRef } from "react";
+import { GiHoofprint } from "react-icons/gi";
 import {
   Truck,
   CheckCircle,
@@ -574,21 +575,11 @@ function LoadingSplash() {
   );
 }
 
-function CowHoofIcon({ size = 56, color = '#166534' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill={color} xmlns="http://www.w3.org/2000/svg">
-      {/* Sol dirnaq */}
-      <ellipse cx="22" cy="32" rx="9" ry="14" rx="9" ry="14" transform="rotate(-8 22 32)" />
-      {/* Sağ dirnaq */}
-      <ellipse cx="42" cy="32" rx="9" ry="14" transform="rotate(8 42 32)" />
-    </svg>
-  );
-}
 
 function EmptyState({ lang }) {
   return (
     <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-3 text-center px-6 md:px-8 w-full col-span-full">
-      <CowHoofIcon size={56} color={BRAND} />
+      <GiHoofprint size={56} color={BRAND} />
       <div className="font-bold text-text-primary text-sm md:text-base">
         {t(lang, 'outOfStock')}
       </div>
@@ -644,7 +635,7 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
           />
         ) : (
-          <CowHoofIcon size={48} color={BRAND} />
+          <GiHoofprint size={48} color={BRAND} />
         )}
       </div>
 
@@ -717,7 +708,7 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
           />
         ) : (
-          <CowHoofIcon size={56} color={BRAND} />
+          <GiHoofprint size={56} color={BRAND} />
         )}
       </div>
 
