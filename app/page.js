@@ -577,11 +577,13 @@ function LoadingSplash() {
 
 function EmptyState({ lang }) {
   return (
-    <div className="flex flex-col items-center py-10 md:py-14 gap-1 text-center px-6 md:px-8 w-full col-span-full">
-      <div style={{ width: 220, height: 220, opacity: 0.55, filter: 'grayscale(100%)', pointerEvents: 'none', userSelect: 'none' }}>
-        <Image src="/qoyun_big_p.png" alt="heyvan yoxdur" width={220} height={220} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', userSelect: 'none' }} />
+    <div className="flex flex-col items-center py-10 md:py-14 text-center px-6 md:px-8 w-full col-span-full">
+      <div style={{ position: 'relative', width: 220, height: 220, pointerEvents: 'none', userSelect: 'none' }}>
+        <div style={{ width: '100%', height: '100%', opacity: 0.55, filter: 'grayscale(100%)' }}>
+          <Image src="/qoyun_big_p.png" alt="heyvan yoxdur" width={220} height={220} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        </div>
+        <p style={{ position: 'absolute', bottom: 0, left: 0, right: 0, margin: 0 }} className="text-sm font-bold text-text-secondary">Heyvan təyin edilməyib</p>
       </div>
-      <p className="text-base font-bold text-text-secondary">Heyvan təyin edilməyib</p>
     </div>
   );
 }
