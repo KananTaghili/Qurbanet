@@ -514,7 +514,7 @@ export default function HomePage() {
         {/* Grid */}
         {loading ? (
           <Spinner />
-        ) : animals.length === 0 ? (
+        ) : true ? (
           <EmptyState lang={lang} />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
