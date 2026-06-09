@@ -353,7 +353,7 @@ export default function HomePage() {
       <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]">
         {loading ? (
           <Spinner />
-        ) : animals.length === 0 || true ? (
+        ) : animals.length === 0 ? (
           <EmptyState lang={lang} />
         ) : (
           <div className="flex flex-col gap-2.5 xs:gap-3 sm:gap-4">
@@ -508,13 +508,13 @@ export default function HomePage() {
           DESKTOP / TABLET LAYOUT  (md+: 768px+)
           ══════════════════════════════════════════════ */}
       <div
-        className="hidden md:flex flex-col w-full gap-4 lg:gap-5 xl:gap-6 pb-5 md:pb-6 lg:pb-8"
+        className={`hidden md:flex flex-col w-full${!loading && animals.length === 0 ? ' flex-1 overflow-hidden' : ' gap-4 lg:gap-5 xl:gap-6 pb-5 md:pb-6 lg:pb-8'}`}
         style={{ paddingTop: "calc(var(--topbar-h) + 12px)", paddingLeft: 28, paddingRight: 28 }}
       >
         {/* Grid */}
         {loading ? (
           <Spinner />
-        ) : animals.length === 0 || true ? (
+        ) : animals.length === 0 ? (
           <EmptyState lang={lang} />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
@@ -577,7 +577,7 @@ function LoadingSplash() {
 
 function EmptyState({ lang }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center w-full col-span-full" style={{ height: 'calc(100vh - var(--topbar-h) - 80px)', overflow: 'hidden' }}>
+    <div className="flex flex-col items-center justify-center text-center w-full col-span-full" style={{ flex: 1, overflow: 'hidden' }}>
       <div style={{ position: 'relative', width: 280, height: 280, pointerEvents: 'none', userSelect: 'none' }}>
         <div style={{ width: '100%', height: '100%', opacity: 0.55, filter: 'grayscale(100%)' }}>
           <Image src="/qoyun_big_p.png" alt="heyvan yoxdur" width={280} height={280} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
