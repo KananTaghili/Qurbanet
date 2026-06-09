@@ -576,22 +576,20 @@ function LoadingSplash() {
 
 
 function CowHoofIcon({ size = 56, color = '#166534' }) {
-  // Walking tracks: sol ayaq (yuxarı-sol), sağ ayaq (aşağı-sağ)
-  // Hər dırnaq: 2 oval (cloven hoof), -40° bucaq
-  const hoof = (cx, cy, angle) => (
-    <g transform={`translate(${cx},${cy}) rotate(${angle})`}>
-      <ellipse cx="-5" cy="0" rx="4" ry="10" />
-      <ellipse cx="5"  cy="0" rx="4" ry="10" />
+  // Real cow walking tracks — 4 prints alternating L/R, diagonal path
+  // Each print: 2 cloven toes, angled -40° (walking direction)
+  const hoof = (cx, cy) => (
+    <g transform={`translate(${cx},${cy}) rotate(-40)`}>
+      <ellipse cx="-4.5" cy="0" rx="3.5" ry="9" />
+      <ellipse cx="4.5"  cy="0" rx="3.5" ry="9" />
     </g>
   );
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill={color} xmlns="http://www.w3.org/2000/svg">
-      {/* Sol ayaq - yuxarı sol */}
-      {hoof(28, 22, -40)}
-      {/* Sağ ayaq - ortada sağ */}
-      {hoof(58, 48, -40)}
-      {/* Sol ayaq - aşağı sol */}
-      {hoof(38, 75, -40)}
+      {hoof(62, 12)}  {/* 1: sağ ayaq — ən yuxarı */}
+      {hoof(34, 30)}  {/* 2: sol ayaq */}
+      {hoof(58, 52)}  {/* 3: sağ ayaq */}
+      {hoof(30, 72)}  {/* 4: sol ayaq — ən aşağı */}
     </svg>
   );
 }
