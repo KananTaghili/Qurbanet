@@ -176,46 +176,44 @@ export default function HowItWorksPage() {
                 <div
                   className="relative flex items-center justify-center"
                   style={{
-                    height: 180,
-                    background: "#ffffff",
+                    height: 240,
+                    background: "#f9fafb",
                     borderBottom: `3px solid ${s.color}`,
                   }}
                 >
-                  <div className="relative w-full h-full px-4 py-3 lg:px-8 lg:py-4">
-                    <Image
-                      src={s.image}
-                      alt={s.imgAlt}
-                      fill
-                      className="object-contain"
-                      style={{ padding: "16px 20px" }}
-                    />
-                  </div>
+                  <Image
+                    src={s.image}
+                    alt={s.imgAlt}
+                    fill
+                    className="object-contain"
+                    style={{ padding: "20px 32px" }}
+                  />
                 </div>
 
-                <div className="p-4 lg:p-5 flex flex-col flex-1">
-                  <div className="mb-2">
-                    <span
-                      className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold text-white"
-                      style={{ background: s.color }}
-                    >
-                      {s.label}
-                    </span>
+                <div className="p-5 flex flex-col gap-3">
+                  <span
+                    className="self-start px-3 py-1 rounded-full text-xs font-bold text-white"
+                    style={{ background: s.color }}
+                  >
+                    {s.label}
+                  </span>
+                  <div>
+                    <h2 className="text-base font-extrabold text-gray-900 m-0 mb-1.5">
+                      {s.title}
+                    </h2>
+                    <p className="text-sm text-gray-500 leading-relaxed m-0">
+                      {s.desc}
+                    </p>
                   </div>
-                  <h2 className="text-base font-extrabold text-gray-900 m-0 mb-2">
-                    {s.title}
-                  </h2>
-                  <p className="text-[13px] text-gray-500 leading-relaxed mb-4 flex-1">
-                    {s.desc}
-                  </p>
-                  <div className="flex flex-col gap-2 pt-3 border-t border-gray-100">
+                  <div className="flex flex-col gap-2.5 pt-3 border-t border-gray-100">
                     {s.points.map((pt) => (
-                      <div key={pt} className="flex items-center gap-2.5">
+                      <div key={pt} className="flex items-start gap-2.5">
                         <CheckCircle2
-                          size={15}
-                          style={{ color: s.accent, flexShrink: 0 }}
+                          size={16}
+                          style={{ color: s.accent, flexShrink: 0, marginTop: 2 }}
                           strokeWidth={2.5}
                         />
-                        <span className="text-[13px] font-semibold text-gray-700">
+                        <span className="text-sm font-semibold text-gray-700 leading-snug">
                           {pt}
                         </span>
                       </div>
