@@ -577,10 +577,10 @@ function LoadingSplash() {
 function CowHoofIcon({ size = 56, color = '#166534' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill={color} xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="20" cy="16" rx="7" ry="10" />
-      <ellipse cx="44" cy="16" rx="7" ry="10" />
-      <ellipse cx="20" cy="48" rx="7" ry="10" />
-      <ellipse cx="44" cy="48" rx="7" ry="10" />
+      {/* Sol dirnaq */}
+      <ellipse cx="22" cy="32" rx="9" ry="14" rx="9" ry="14" transform="rotate(-8 22 32)" />
+      {/* Sağ dirnaq */}
+      <ellipse cx="42" cy="32" rx="9" ry="14" transform="rotate(8 42 32)" />
     </svg>
   );
 }
