@@ -8,7 +8,8 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        xs: '360px',
+        xs:   '360px',
+        wide: '1120px',
       },
       colors: {
         /* ── Brand ── */
