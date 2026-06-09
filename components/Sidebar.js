@@ -113,24 +113,8 @@ export default function Sidebar() {
         >
           MENYU
         </div>
-        {NAV.map(({ href, Icon, label }) => {
-          const isCharity = href === "/need-support";
-          const disabled = isCharity && !charityEnabled;
-          const active = !disabled && (href === "/" ? pathname === "/" : pathname.startsWith(href));
-
-          if (disabled) {
-            return (
-              <div
-                key={href}
-                className="sidebar-item text-sm lg:text-[15px] cursor-not-allowed opacity-40 pointer-events-none"
-              >
-                <span className="sidebar-item-icon">
-                  <Icon size={17} strokeWidth={1.8} />
-                </span>
-                <span className="flex-1 truncate">{label}</span>
-              </div>
-            );
-          }
+        {NAV.filter(({ href }) => href !== "/need-support" || charityEnabled).map(({ href, Icon, label }) => {
+          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
 
           return (
             <Link

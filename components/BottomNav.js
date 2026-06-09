@@ -31,16 +31,23 @@ export default function BottomNav() {
       .catch(() => setCharityEnabled(true));
   }, []);
 
+  const visibleTabs = charityEnabled === null
+    ? ALL_TABS
+    : ALL_TABS.filter(({ key }) => key !== 'charity' || charityEnabled === true);
+
   return (
     <nav className="bottom-nav-wrap mobile-only">
       <div style={{ display: 'flex', width: '100%' }}>
-        {ALL_TABS.map(({ href, labelKey, Icon, key }) => {
-          const disabled = key === 'charity' && charityEnabled !== true;
-          const active = !disabled && (pathname === href || (href !== '/' && pathname.startsWith(href + '/')));
-          const color = disabled ? '#d1d5db' : active ? BRAND : MUTED;
+        {visibleTabs.map(({ href, labelKey, Icon, key }) => {
+          const active = pathname === href || (href !== '/' && pathname.startsWith(href + '/'));
+          const color = active ? BRAND : MUTED;
 
-          const inner = (
-            <>
+          return (
+            <Link
+              key={key}
+              href={href}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '6px 2px 4px', textDecoration: 'none', minWidth: 0 }}
+            >
               <div style={{
                 width: 44,
                 height: 32,
@@ -67,27 +74,6 @@ export default function BottomNav() {
               }}>
                 {t(lang, labelKey)}
               </span>
-            </>
-          );
-
-          if (disabled) {
-            return (
-              <div
-                key={key}
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '6px 2px 4px', minWidth: 0, cursor: 'not-allowed', opacity: 0.45 }}
-              >
-                {inner}
-              </div>
-            );
-          }
-
-          return (
-            <Link
-              key={href}
-              href={href}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '6px 2px 4px', textDecoration: 'none', minWidth: 0 }}
-            >
-              {inner}
             </Link>
           );
         })}
