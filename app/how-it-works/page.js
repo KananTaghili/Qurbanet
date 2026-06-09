@@ -147,27 +147,27 @@ export default function HowItWorksPage() {
         </div>
 
         {/* ══════════ DESKTOP ══════════ */}
-        <div className="hidden md:block px-6 pt-6">
+        <div className="hidden md:block px-4 lg:px-6 pt-6">
           {/* Hero banner */}
           <div
-            className="rounded-3xl overflow-hidden mb-8 flex items-center"
+            className="rounded-2xl lg:rounded-3xl overflow-hidden mb-6 flex items-center"
             style={{
               background: "linear-gradient(135deg, #166534 0%, #14532d 100%)",
-              minHeight: 120,
+              minHeight: 100,
             }}
           >
-            <div className="flex-1 px-8 py-6">
-              <h1 className="text-2xl font-extrabold text-white m-0 mb-1">
+            <div className="flex-1 px-5 lg:px-8 py-5 lg:py-6">
+              <h1 className="text-xl lg:text-2xl font-extrabold text-white m-0 mb-1">
                 {t(lang, 'howItWorksHero')}
               </h1>
-              <p className="text-sm text-white/70 m-0 leading-relaxed max-w-md">
+              <p className="text-xs lg:text-sm text-white/70 m-0 leading-relaxed max-w-md">
                 {t(lang, 'howItWorksHeroDesc')}
               </p>
             </div>
           </div>
 
           {/* 4 cards grid */}
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5">
             {steps.map((s, i) => (
               <div
                 key={i}
@@ -176,26 +176,26 @@ export default function HowItWorksPage() {
                 <div
                   className="relative flex items-center justify-center"
                   style={{
-                    height: 220,
+                    height: 180,
                     background: "#ffffff",
                     borderBottom: `3px solid ${s.color}`,
                   }}
                 >
-                  <div className="relative w-full h-full px-8 py-4">
+                  <div className="relative w-full h-full px-4 py-3 lg:px-8 lg:py-4">
                     <Image
                       src={s.image}
                       alt={s.imgAlt}
                       fill
                       className="object-contain"
-                      style={{ padding: "24px 32px" }}
+                      style={{ padding: "16px 20px" }}
                     />
                   </div>
                 </div>
 
-                <div className="p-5 flex flex-col flex-1">
+                <div className="p-4 lg:p-5 flex flex-col flex-1">
                   <div className="mb-2">
                     <span
-                      className="inline-block px-3 py-1 rounded-full text-[10px] font-bold text-white"
+                      className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold text-white"
                       style={{ background: s.color }}
                     >
                       {s.label}
