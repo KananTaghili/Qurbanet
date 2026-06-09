@@ -23,6 +23,7 @@ import {
   Settings,
   Phone,
   Mail,
+  Beef,
 } from "lucide-react";
 
 const BRAND = "#1c5e20";
@@ -636,7 +637,7 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
           />
         ) : (
-          <CowHoofIcon size={48} color={BRAND} />
+          <Beef size={48} color={BRAND} strokeWidth={1.5} />
         )}
       </div>
 
@@ -709,7 +710,7 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
           />
         ) : (
-          <CowHoofIcon size={56} color={BRAND} />
+          <Beef size={56} color={BRAND} strokeWidth={1.5} />
         )}
       </div>
 
