@@ -524,8 +524,8 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Feature strips */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 lg:mt-2">
+        {/* Feature strips — only show when animals exist */}
+        {animals.length > 0 && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 lg:mt-2">
           {FEATURES.map(({ Icon, labelKey, subKey }) => (
             <div
               key={labelKey}
@@ -544,7 +544,7 @@ export default function HomePage() {
               </div>
             </div>
           ))}
-        </div>
+        </div>}
       </div>
 
       <BottomNav />
