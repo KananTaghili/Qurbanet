@@ -576,19 +576,11 @@ function LoadingSplash() {
 
 function CowHoofIcon({ size = 56, color = '#166534' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Left front hoof */}
-      <ellipse cx="20" cy="18" rx="7" ry="9" fill={color} opacity="0.9" />
-      <line x1="23" y1="18" x2="23" y2="27" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-      {/* Right front hoof */}
-      <ellipse cx="44" cy="18" rx="7" ry="9" fill={color} opacity="0.9" />
-      <line x1="47" y1="18" x2="47" y2="27" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-      {/* Left back hoof */}
-      <ellipse cx="20" cy="46" rx="7" ry="9" fill={color} opacity="0.9" />
-      <line x1="23" y1="46" x2="23" y2="55" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-      {/* Right back hoof */}
-      <ellipse cx="44" cy="46" rx="7" ry="9" fill={color} opacity="0.9" />
-      <line x1="47" y1="46" x2="47" y2="55" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width={size} height={size} viewBox="0 0 64 64" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="20" cy="16" rx="7" ry="10" />
+      <ellipse cx="44" cy="16" rx="7" ry="10" />
+      <ellipse cx="20" cy="48" rx="7" ry="10" />
+      <ellipse cx="44" cy="48" rx="7" ry="10" />
     </svg>
   );
 }
