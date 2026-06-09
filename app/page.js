@@ -9,7 +9,6 @@ import { useLanguage, LANGUAGES } from "../context/LanguageContext";
 import { t, animalName } from "../lib/i18n";
 import api, { BASE_URL } from "../lib/api";
 import { useRef } from "react";
-import { GiCow } from "react-icons/gi";
 import {
   Truck,
   CheckCircle,
@@ -576,10 +575,21 @@ function LoadingSplash() {
 }
 
 
+function CowHoofIcon({ size = 56, color = '#166534' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" fill={color} xmlns="http://www.w3.org/2000/svg">
+      {/* Sol dirnaq — yuxarıda dar, aşağıda geniş */}
+      <path d="M30,10 C20,10 14,20 14,38 C14,56 20,72 30,78 C36,82 40,78 42,72 C44,62 43,44 40,28 C38,16 35,10 30,10 Z" />
+      {/* Sağ dirnaq */}
+      <path d="M70,10 C80,10 86,20 86,38 C86,56 80,72 70,78 C64,82 60,78 58,72 C56,62 57,44 60,28 C62,16 65,10 70,10 Z" />
+    </svg>
+  );
+}
+
 function EmptyState({ lang }) {
   return (
     <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-3 text-center px-6 md:px-8 w-full col-span-full">
-      <GiCow size={56} color={BRAND} />
+      <CowHoofIcon size={56} color={BRAND} />
       <div className="font-bold text-text-primary text-sm md:text-base">
         {t(lang, 'outOfStock')}
       </div>
@@ -635,7 +645,7 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
           />
         ) : (
-          <GiCow size={48} color={BRAND} />
+          <CowHoofIcon size={48} color={BRAND} />
         )}
       </div>
 
@@ -708,7 +718,7 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
           />
         ) : (
-          <GiCow size={56} color={BRAND} />
+          <CowHoofIcon size={56} color={BRAND} />
         )}
       </div>
 
