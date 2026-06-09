@@ -577,7 +577,7 @@ function LoadingSplash() {
 
 function EmptyState({ lang }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center w-full col-span-full" style={{ minHeight: '60vh' }}>
+    <div className="flex flex-col items-center justify-center text-center w-full col-span-full" style={{ height: 'calc(100vh - var(--topbar-h) - 80px)', overflow: 'hidden' }}>
       <div style={{ position: 'relative', width: 280, height: 280, pointerEvents: 'none', userSelect: 'none' }}>
         <div style={{ width: '100%', height: '100%', opacity: 0.55, filter: 'grayscale(100%)' }}>
           <Image src="/qoyun_big_p.png" alt="heyvan yoxdur" width={280} height={280} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
