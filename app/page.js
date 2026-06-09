@@ -13,7 +13,6 @@ import {
   Truck,
   CheckCircle,
   Video,
-  Beef,
   LogIn,
   LogOut,
   UserPlus,
@@ -575,10 +574,29 @@ function LoadingSplash() {
   );
 }
 
+function CowHoofIcon({ size = 56, color = '#166534' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Left front hoof */}
+      <ellipse cx="20" cy="18" rx="7" ry="9" fill={color} opacity="0.9" />
+      <line x1="23" y1="18" x2="23" y2="27" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Right front hoof */}
+      <ellipse cx="44" cy="18" rx="7" ry="9" fill={color} opacity="0.9" />
+      <line x1="47" y1="18" x2="47" y2="27" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Left back hoof */}
+      <ellipse cx="20" cy="46" rx="7" ry="9" fill={color} opacity="0.9" />
+      <line x1="23" y1="46" x2="23" y2="55" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Right back hoof */}
+      <ellipse cx="44" cy="46" rx="7" ry="9" fill={color} opacity="0.9" />
+      <line x1="47" y1="46" x2="47" y2="55" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function EmptyState({ lang }) {
   return (
     <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-3 text-center px-6 md:px-8 w-full col-span-full">
-      <Beef size={56} color={BRAND} strokeWidth={1.4} className="md:w-16 md:h-16" />
+      <CowHoofIcon size={56} color={BRAND} />
       <div className="font-bold text-text-primary text-sm md:text-base">
         {t(lang, 'outOfStock')}
       </div>
@@ -634,7 +652,7 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
           />
         ) : (
-          <Beef size={48} color={BRAND} strokeWidth={1.4} />
+          <CowHoofIcon size={48} color={BRAND} />
         )}
       </div>
 
@@ -707,7 +725,7 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
           />
         ) : (
-          <Beef size={56} color={BRAND} strokeWidth={1.4} className="lg:w-16 lg:h-16" />
+          <CowHoofIcon size={56} color={BRAND} />
         )}
       </div>
 
