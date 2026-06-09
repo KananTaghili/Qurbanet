@@ -575,32 +575,13 @@ function LoadingSplash() {
 }
 
 
-function CowHoofIcon({ size = 56, color = '#166534' }) {
-  // Real cow walking tracks — 4 prints alternating L/R, diagonal path
-  // Each print: 2 cloven toes, angled -40° (walking direction)
-  const hoof = (cx, cy) => (
-    <g transform={`translate(${cx},${cy}) rotate(-40)`}>
-      <ellipse cx="-4.5" cy="0" rx="3.5" ry="9" />
-      <ellipse cx="4.5"  cy="0" rx="3.5" ry="9" />
-    </g>
-  );
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill={color} xmlns="http://www.w3.org/2000/svg">
-      {hoof(62, 12)}  {/* 1: sağ ayaq — ən yuxarı */}
-      {hoof(34, 30)}  {/* 2: sol ayaq */}
-      {hoof(58, 52)}  {/* 3: sağ ayaq */}
-      {hoof(30, 72)}  {/* 4: sol ayaq — ən aşağı */}
-    </svg>
-  );
-}
-
 function EmptyState({ lang }) {
   return (
-    <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-3 text-center px-6 md:px-8 w-full col-span-full">
-      <CowHoofIcon size={56} color={BRAND} />
-      <div className="font-bold text-text-primary text-sm md:text-base">
-        {t(lang, 'outOfStock')}
+    <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-4 text-center px-6 md:px-8 w-full col-span-full">
+      <div style={{ width: 160, height: 160, opacity: 0.35, filter: 'grayscale(100%)' }}>
+        <Image src="/qoyun_big.png" alt="heyvan yoxdur" width={160} height={160} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
+      <p className="text-base font-bold text-text-secondary">Heyvan təyin edilməyib</p>
     </div>
   );
 }
