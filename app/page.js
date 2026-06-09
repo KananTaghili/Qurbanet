@@ -514,7 +514,7 @@ export default function HomePage() {
         {/* Grid */}
         {loading ? (
           <Spinner />
-        ) : true ? (
+        ) : animals.length === 0 ? (
           <EmptyState lang={lang} />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
@@ -576,12 +576,18 @@ function LoadingSplash() {
 
 
 function CowHoofIcon({ size = 56, color = '#166534' }) {
+  // Hər dırnaq: 2 barmaq (oval), bir az açılı
+  // Sol ayaq: yuxarı-sol; Sağ ayaq: aşağı-sağ; hər ikisi 45° sola
+  const hoof = (cx, cy, angle) => (
+    <g transform={`translate(${cx},${cy}) rotate(${angle})`}>
+      <ellipse cx="-7" cy="0" rx="5.5" ry="12" />
+      <ellipse cx="7"  cy="0" rx="5.5" ry="12" />
+    </g>
+  );
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill={color} xmlns="http://www.w3.org/2000/svg">
-      {/* Sol dirnaq — yuxarıda dar, aşağıda geniş */}
-      <path d="M30,10 C20,10 14,20 14,38 C14,56 20,72 30,78 C36,82 40,78 42,72 C44,62 43,44 40,28 C38,16 35,10 30,10 Z" />
-      {/* Sağ dirnaq */}
-      <path d="M70,10 C80,10 86,20 86,38 C86,56 80,72 70,78 C64,82 60,78 58,72 C56,62 57,44 60,28 C62,16 65,10 70,10 Z" />
+      {hoof(32, 28, -45)}
+      {hoof(62, 68, -45)}
     </svg>
   );
 }
