@@ -353,7 +353,7 @@ export default function HomePage() {
       <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]">
         {loading ? (
           <Spinner />
-        ) : animals.length === 0 ? (
+        ) : animals.length === 0 || true ? (
           <EmptyState lang={lang} />
         ) : (
           <div className="flex flex-col gap-2.5 xs:gap-3 sm:gap-4">
@@ -514,7 +514,7 @@ export default function HomePage() {
         {/* Grid */}
         {loading ? (
           <Spinner />
-        ) : animals.length === 0 ? (
+        ) : animals.length === 0 || true ? (
           <EmptyState lang={lang} />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
@@ -576,18 +576,22 @@ function LoadingSplash() {
 
 
 function CowHoofIcon({ size = 56, color = '#166534' }) {
-  // Hər dırnaq: 2 barmaq (oval), bir az açılı
-  // Sol ayaq: yuxarı-sol; Sağ ayaq: aşağı-sağ; hər ikisi 45° sola
+  // Walking tracks: sol ayaq (yuxarı-sol), sağ ayaq (aşağı-sağ)
+  // Hər dırnaq: 2 oval (cloven hoof), -40° bucaq
   const hoof = (cx, cy, angle) => (
     <g transform={`translate(${cx},${cy}) rotate(${angle})`}>
-      <ellipse cx="-7" cy="0" rx="5.5" ry="12" />
-      <ellipse cx="7"  cy="0" rx="5.5" ry="12" />
+      <ellipse cx="-5" cy="0" rx="4" ry="10" />
+      <ellipse cx="5"  cy="0" rx="4" ry="10" />
     </g>
   );
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill={color} xmlns="http://www.w3.org/2000/svg">
-      {hoof(32, 28, -45)}
-      {hoof(62, 68, -45)}
+      {/* Sol ayaq - yuxarı sol */}
+      {hoof(28, 22, -40)}
+      {/* Sağ ayaq - ortada sağ */}
+      {hoof(58, 48, -40)}
+      {/* Sol ayaq - aşağı sol */}
+      {hoof(38, 75, -40)}
     </svg>
   );
 }
