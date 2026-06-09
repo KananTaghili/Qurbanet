@@ -13,7 +13,7 @@ import {
   Truck,
   CheckCircle,
   Video,
-  PawPrint,
+  Beef,
   LogIn,
   LogOut,
   UserPlus,
@@ -578,7 +578,7 @@ function LoadingSplash() {
 function EmptyState({ lang }) {
   return (
     <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-3 text-center px-6 md:px-8 w-full col-span-full">
-      <PawPrint size={56} color={BRAND} strokeWidth={1.4} className="md:w-16 md:h-16" />
+      <Beef size={56} color={BRAND} strokeWidth={1.4} className="md:w-16 md:h-16" />
       <div className="font-bold text-text-primary text-sm md:text-base">
         {t(lang, 'outOfStock')}
       </div>
@@ -634,7 +634,7 @@ function MobileAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
           />
         ) : (
-          <PawPrint size={48} color={BRAND} strokeWidth={1.4} />
+          <Beef size={48} color={BRAND} strokeWidth={1.4} />
         )}
       </div>
 
@@ -707,7 +707,7 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
             style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
           />
         ) : (
-          <PawPrint size={56} color={BRAND} strokeWidth={1.4} className="lg:w-16 lg:h-16" />
+          <Beef size={56} color={BRAND} strokeWidth={1.4} className="lg:w-16 lg:h-16" />
         )}
       </div>
 
