@@ -27,8 +27,9 @@ jobs:
             
             cd /var/www/qurbanetfront-dev
             
-            # Kodları GitHub-dan çəkirik
-            git pull origin dev
+            # Kodları GitHub-dan çəkirik (server-dəki local dəyişiklikləri ləğv edib təmiz çəkirik)
+            git fetch origin dev
+            git reset --hard origin/dev
             
             # Paketləri yeniləyirik
             npm install
