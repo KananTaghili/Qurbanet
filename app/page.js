@@ -1,793 +1,450 @@
 "use client";
-
-/**
- * ════════════════════════════════════════════════════════════
- *  MeatBox.az — Landing Page (tam responsiv, Tailwind CSS)
- *  Faylı app/page.jsx (App Router) içinə yapışdırın.
- *  Şəkillər /public qovluğunda qalmalıdır:
- *  logo.png · qoyun.jpg · qoyun_big.png · qutu.png · dana.jpg
- * ════════════════════════════════════════════════════════════
- */
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  ShoppingCart,
-  Menu,
-  X,
-  ArrowRight,
-  Play,
-  ShieldCheck,
-  Video,
-  Truck,
-  Heart,
-  Phone,
-  Mail,
-  Beef,
-  Users,
-  Scissors,
-  MousePointerClick,
-  CreditCard,
-  PackageCheck,
+  ShoppingCart, Menu, X, ArrowRight, Play,
+  ShieldCheck, Video, Truck, Heart, Phone, Mail, User,
 } from "lucide-react";
-import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaWhatsapp, FaHandshake } from "react-icons/fa";
+import { GiGoat, GiMeat } from "react-icons/gi";
 
-/* ═══════════════════════ MƏLUMATLAR ═══════════════════════ */
-
-const NAV_LINKS = [
-  { label: "Haqqımızda", href: "#haqqimizda" },
-  { label: "Xidmətlər", href: "#xidmetler" },
-  { label: "Necə işləyir?", href: "#nece-isleyir" },
-  { label: "Əlaqə", href: "#elaqe" },
-];
-
-const HERO_BADGES = [
-  { Icon: ShieldCheck, label: "Halal kəsim" },
-  { Icon: Video, label: "Video hesabat" },
-  { Icon: Truck, label: "Sürətli çatdırılma" },
-];
-
-/* Bu rəqəmləri öz real göstəricilərinizlə əvəz edin */
-const STATS = [
-  { value: "100%", label: "Halal kəsim" },
-  { value: "24/7", label: "Onlayn sifariş" },
-  { value: "1000+", label: "Məmnun müştəri" },
-];
+/* ── rənglər ── */
+const G  = "#1B5E20";
+const GM = "#2E7D32";
+const P  = "#6B21A8";
+const PM = "#7C3AED";
+const R  = "#B91C1C";
+const RM = "#DC2626";
 
 const SERVICES = [
   {
     id: "qurban",
     title: "Qurbanlıq Sifarişi",
-    description:
-      "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Evdən çıxmadan etibarlı xidmət.",
+    desc: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Evdəkindən çıxmadan etibarlı xidmət.",
     href: "/qurban",
-    image: "/qoyun.jpg",
-    imageClass: "object-cover",
-    mediaBgClass: "bg-gray-100",
-    btnText: "Sifariş Et",
-    Icon: Scissors,
-    titleClass: "text-[#1B5E20]",
-    iconBgClass: "bg-[#1B5E20]",
-    btnClass:
-      "bg-[#2E7D32] hover:bg-[#1B5E20] shadow-[0_6px_18px_-4px_rgba(27,94,32,0.55)]",
+    img: "/qoyun.jpg",
+    imgFit: "cover",
+    imgBg: "#f3f3f3",
+    color: G,
+    btn: GM,
+    btnShadow: "0 6px 18px -4px rgba(27,94,32,0.5)",
+    btnLabel: "Sifariş Et",
+    ServiceIcon: GiGoat,
     disabled: false,
   },
   {
     id: "xeyriyye",
     title: "Kollektiv Qurban-Xeyriyyə Platforması",
-    description:
-      "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı xeyriyyə platformasına qoşulun.",
+    desc: "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı xeyriyyə platformasına qoşulun.",
     href: "#",
-    image: "/qutu.png",
-    imageClass: "object-contain p-6",
-    mediaBgClass: "bg-gradient-to-br from-violet-50 to-purple-100",
-    btnText: "Qoşul",
-    Icon: Users,
-    titleClass: "text-[#6B21A8]",
-    iconBgClass: "bg-[#6B21A8]",
-    btnClass:
-      "bg-[#7C3AED] hover:bg-[#6B21A8] shadow-[0_6px_18px_-4px_rgba(109,40,217,0.55)]",
+    img: "/qutu.png",
+    imgFit: "contain",
+    imgBg: "linear-gradient(135deg,#f5f3ff,#ede9fe)",
+    color: P,
+    btn: PM,
+    btnShadow: "0 6px 18px -4px rgba(109,40,217,0.5)",
+    btnLabel: "Qoşul",
+    ServiceIcon: FaHandshake,
     disabled: true,
   },
   {
     id: "et",
     title: "Ət Satışı",
-    description:
-      "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdırırıq.",
+    desc: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdırırıq.",
     href: "#",
-    image: "/dana.jpg",
-    imageClass: "object-cover",
-    mediaBgClass: "bg-gray-100",
-    btnText: "Məhsullara Bax",
-    Icon: Beef,
-    titleClass: "text-[#B91C1C]",
-    iconBgClass: "bg-[#B91C1C]",
-    btnClass:
-      "bg-[#DC2626] hover:bg-[#B91C1C] shadow-[0_6px_18px_-4px_rgba(185,28,28,0.55)]",
+    img: "/dana.jpg",
+    imgFit: "cover",
+    imgBg: "#f3f3f3",
+    color: R,
+    btn: RM,
+    btnShadow: "0 6px 18px -4px rgba(185,28,28,0.5)",
+    btnLabel: "Məhsullara Bax",
+    ServiceIcon: GiMeat,
     disabled: true,
   },
 ];
 
-const STEPS = [
-  {
-    Icon: MousePointerClick,
-    num: "01",
-    title: "Seçin",
-    desc: "Qurbanlığınızı və ya ət məhsulunu onlayn kataloqdan seçin.",
-  },
-  {
-    Icon: CreditCard,
-    num: "02",
-    title: "Sifariş edin",
-    desc: "Məlumatlarınızı daxil edin, onlayn və ya qapıda ödəniş edin.",
-  },
-  {
-    Icon: Video,
-    num: "03",
-    title: "Video ilə izləyin",
-    desc: "Kəsim prosesinin video hesabatı birbaşa sizə göndərilir.",
-  },
-  {
-    Icon: PackageCheck,
-    num: "04",
-    title: "Qəbul edin",
-    desc: "Payınız soyuducu qutularda qapınıza çatdırılır.",
-  },
+const WHY = [
+  { Icon: ShieldCheck, label: "Halal Kəsim",    desc: "Dini qaydalara uyğun peşəkar kəsim" },
+  { Icon: Video,       label: "Video Hesabat",   desc: "Kəsim prosesini addım-addım izləyin" },
+  { Icon: Truck,       label: "Çatdırılma",      desc: "Sürətli və etibarlı çatdırılma" },
+  { Icon: Heart,       label: "Şəffaf Xeyriyyə", desc: "Hər qəpiyin hesabatı, şəffaf pay bölgüsü" },
 ];
-
-const WHY_FEATURES = [
-  {
-    Icon: ShieldCheck,
-    label: "Halal Kəsim",
-    desc: "Dini qaydalara tam uyğun, peşəkar kəsim xidməti",
-  },
-  {
-    Icon: Video,
-    label: "Video Hesabat",
-    desc: "Kəsim prosesini addım-addım video ilə izləyin",
-  },
-  {
-    Icon: Truck,
-    label: "Sürətli Çatdırılma",
-    desc: "Soyuducu qutularda etibarlı və vaxtında çatdırılma",
-  },
-  {
-    Icon: Heart,
-    label: "Şəffaf Xeyriyyə",
-    desc: "Hər qəpiyin hesabatı, şəffaf pay bölgüsü",
-  },
-];
-
-const SOCIALS = [
-  { Icon: FaFacebook, href: "#", label: "Facebook" },
-  { Icon: FaInstagram, href: "#", label: "Instagram" },
-  { Icon: FaWhatsapp, href: "https://wa.me/994501234455", label: "WhatsApp" },
-];
-
-const PAYMENTS = ["VISA", "Mastercard", "tam."];
-
-const PHONE = "+994 50 123 44 55";
-const PHONE_HREF = "tel:+994501234455";
-const EMAIL = "info@meatbox.az";
-
-/* ═══════════════════════ SƏHİFƏ ═══════════════════════ */
 
 export default function LandingPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen]       = useState(false);
+  const [shadow, setShadow]   = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setShadow(window.scrollY > 8);
+    window.addEventListener("scroll", fn, { passive: true });
+    fn();
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 antialiased">
-      {/* Anchor keçidləri üçün yumşaq sürüşmə */}
-      <style>{`html { scroll-behavior: smooth; }`}</style>
+    <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "'Inter',sans-serif", color: "#111" }}>
+      <style>{`html{scroll-behavior:smooth}*{box-sizing:border-box}`}</style>
 
-      {/* ══════════════ NAVBAR ══════════════ */}
-      <header
-        className={`sticky top-0 z-50 bg-white/90 backdrop-blur-md transition-shadow duration-300 ${
-          scrolled
-            ? "shadow-[0_2px_20px_rgba(0,0,0,0.08)]"
-            : "border-b border-gray-100"
-        }`}
-      >
-        <nav
-          aria-label="Əsas naviqasiya"
-          className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6"
-        >
-          {/* Loqo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2.5">
-            <span className="relative block h-10 w-10 shrink-0 overflow-hidden rounded-xl ring-1 ring-gray-100">
-              <Image
-                src="/logo.png"
-                alt="MeatBox.az loqosu"
-                fill
-                sizes="40px"
-                className="object-cover"
-                priority
-              />
+      {/* ══════════ NAVBAR ══════════ */}
+      <header style={{
+        position: "sticky", top: 0, zIndex: 50,
+        background: "rgba(255,255,255,0.95)",
+        backdropFilter: "blur(12px)",
+        borderBottom: shadow ? "none" : "1px solid #F0F0F0",
+        boxShadow: shadow ? "0 2px 20px rgba(0,0,0,0.08)" : "none",
+        transition: "box-shadow .25s",
+      }}>
+        <nav style={{ maxWidth: 1152, margin: "0 auto", padding: "0 20px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+          {/* Logo */}
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
+            <span style={{ width: 38, height: 38, borderRadius: 10, overflow: "hidden", display: "block", border: "1px solid #EEE", flexShrink: 0 }}>
+              <Image src="/logo.png" alt="MeatBox" width={38} height={38} style={{ width: "100%", height: "100%", objectFit: "cover" }} priority />
             </span>
-            <span className="leading-none">
-              <span className="block text-lg font-black tracking-tight">
-                MEAT<span className="text-[#1B5E20]">BOX</span>.AZ
+            <span style={{ lineHeight: 1.1 }}>
+              <span style={{ display: "block", fontSize: 19, fontWeight: 900, letterSpacing: "-0.5px", color: "#111" }}>
+                MEAT<span style={{ color: G }}>BOX</span>.AZ
               </span>
-              <span className="mt-1 hidden text-[9px] font-semibold uppercase tracking-[0.18em] text-gray-400 sm:block">
-                Təzə Ət · Qurbanlıq · Xeyriyyə
+              <span style={{ display: "block", fontSize: 8, fontWeight: 600, color: "#9CA3AF", letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 2 }}>
+                Taze Ət · Qurbanlıq · Xeyriyyə
               </span>
             </span>
           </Link>
 
-          {/* Desktop keçidlər */}
-          <div className="hidden items-center gap-7 md:flex">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-sm font-semibold text-gray-600 transition-colors hover:text-[#1B5E20]"
-              >
-                {link.label}
-              </a>
+          {/* Desktop links */}
+          <div className="hidden md:flex" style={{ gap: 28 }}>
+            {["Haqqımızda","Xidmətlər","Necə işləyir?","Əlaqə"].map(l => (
+              <a key={l} href={`#${l.toLowerCase().replace(/\s/g,"")}`}
+                style={{ fontSize: 14, fontWeight: 600, color: "#555", textDecoration: "none" }}
+                onMouseEnter={e=>e.target.style.color=G}
+                onMouseLeave={e=>e.target.style.color="#555"}
+              >{l}</a>
             ))}
           </div>
 
-          {/* Sağ tərəf */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              aria-label="Səbət"
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32]"
+          {/* Right */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Link href="/qurban" className="hidden md:flex"
+              style={{ alignItems: "center", gap: 6, padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, color: "#fff", background: G, textDecoration: "none" }}
             >
-              <ShoppingCart className="h-5 w-5" />
-            </button>
-
-            <Link
-              href="/qurban"
-              className="hidden rounded-xl bg-[#1B5E20] px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_rgba(27,94,32,0.35)] transition-all hover:bg-[#2E7D32] hover:shadow-[0_6px_20px_rgba(27,94,32,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 md:inline-flex"
-            >
+              <User size={14} strokeWidth={2.5} />
               Daxil ol
             </Link>
-
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              aria-label={mobileMenuOpen ? "Menyunu bağla" : "Menyunu aç"}
-              aria-expanded={mobileMenuOpen}
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-700 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] md:hidden"
+            <button style={{ width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", cursor: "pointer" }}
+              onMouseEnter={e=>e.currentTarget.style.background="#F5F5F5"}
+              onMouseLeave={e=>e.currentTarget.style.background="transparent"}
             >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              <ShoppingCart size={19} color="#555" />
+            </button>
+            <button className="md:hidden"
+              onClick={() => setOpen(v => !v)}
+              style={{ width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", cursor: "pointer" }}
+            >
+              {open ? <X size={22} color="#333" /> : <Menu size={22} color="#333" />}
             </button>
           </div>
         </nav>
 
-        {/* Mobil menyu */}
-        <div
-          className={`overflow-hidden transition-[max-height] duration-300 ease-in-out md:hidden ${
-            mobileMenuOpen ? "max-h-96" : "max-h-0"
-          }`}
-        >
-          <div className="border-t border-gray-100 px-4 pb-4 pt-2">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-lg px-3 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-[#1B5E20]"
-              >
-                {link.label}
-              </a>
+        {/* Mobile menu */}
+        {open && (
+          <div className="md:hidden" style={{ borderTop: "1px solid #F0F0F0", background: "#fff", padding: "8px 20px 16px" }}>
+            {["Haqqımızda","Xidmətlər","Necə işləyir?","Əlaqə"].map(l => (
+              <a key={l} href="#" onClick={() => setOpen(false)}
+                style={{ display: "block", padding: "11px 0", fontSize: 14, fontWeight: 600, color: "#374151", borderBottom: "1px solid #F9F9F9", textDecoration: "none" }}
+              >{l}</a>
             ))}
-            <Link
-              href="/qurban"
-              onClick={() => setMobileMenuOpen(false)}
-              className="mt-2 block rounded-xl bg-[#1B5E20] px-3 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-[#2E7D32]"
-            >
-              Daxil ol
-            </Link>
+            <Link href="/qurban" onClick={() => setOpen(false)}
+              style={{ display: "block", marginTop: 10, padding: 12, borderRadius: 10, textAlign: "center", fontSize: 14, fontWeight: 700, color: "#fff", background: G, textDecoration: "none" }}
+            >Daxil ol</Link>
           </div>
-        </div>
+        )}
       </header>
 
-      {/* ══════════════ HERO ══════════════ */}
-      <section className="relative overflow-hidden bg-[#14532d]">
-        {/* Arxa fon şəkli + gradient */}
-        <div className="absolute inset-0">
-          <Image
-            src="/qoyun.jpg"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-25"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1B5E20]/95 via-[#1a6e25]/95 to-[#14532d]/95" />
-        </div>
+      {/* ══════════ HERO ══════════ */}
+      <section style={{ position: "relative", overflow: "hidden", minHeight: 320 }}>
+        {/* farm background */}
+        <Image src="/qoyun.jpg" alt="hero" fill style={{ objectFit: "cover", objectPosition: "center 30%", opacity: 0.25 }} priority />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg,${G} 0%,#1a7028 55%,#14532d 100%)`, opacity: 0.94 }} />
 
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:gap-12 lg:py-20">
-          {/* Mətn */}
-          <div className="w-full max-w-2xl text-center lg:text-left">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold text-emerald-100 backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#86EFAC]" />
-              Qurban bayramına hazırıq — sifarişlər açıqdır
-            </span>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 1152, margin: "0 auto", padding: "52px 20px 56px", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 28, textAlign: "center" }}>
 
-            <h1 className="mt-5 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Qurbanlığınızı onlayn sifariş edin,{" "}
-              <span className="text-[#86EFAC]">kəsimi video ilə izləyin</span>
-            </h1>
-
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-emerald-100/90 sm:text-base lg:mx-0">
-              MeatBox.az — təzə ət, qurbanlıq sifarişi və şəffaf xeyriyyə
-              platforması. Halal kəsim, video hesabat və qapıya çatdırılma —
-              hamısı bir ünvanda.
-            </p>
-
-            {/* CTA düymələri */}
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-              <Link
-                href="/qurban"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-[#1B5E20] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.4)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B5E20] sm:w-auto"
-              >
-                Qurbanlıq Sifariş Et
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="#nece-isleyir"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:w-auto"
-              >
-                <Play className="h-4 w-4 fill-white" />
-                Necə işləyir?
-              </a>
+          {/* Logo + brand */}
+          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "3px solid rgba(255,255,255,0.3)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}>
+              <Image src="/logo.png" alt="MeatBox logo" width={72} height={72} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
-
-            {/* Üstünlük nişanları */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 lg:justify-start">
-              {HERO_BADGES.map(({ Icon, label }) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur-sm"
-                >
-                  <Icon
-                    className="h-3.5 w-3.5 text-[#86EFAC]"
-                    strokeWidth={2.2}
-                  />
-                  {label}
-                </span>
-              ))}
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontSize: 38, fontWeight: 900, color: "#fff", letterSpacing: "-1px", lineHeight: 1, fontStyle: "italic" }}>
+                MEAT<span style={{ color: "#86EFAC" }}>BOX</span>.AZ
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.75)", marginTop: 5 }}>
+                Taze Ət &nbsp;·&nbsp; Qurbanlıq &nbsp;·&nbsp; Xeyriyyə Platforması
+              </div>
             </div>
           </div>
 
-          {/* Qoyun şəkli — yalnız böyük ekranlarda */}
-          <div className="relative hidden shrink-0 lg:block">
-            <div className="absolute -inset-8 rounded-full bg-white/5 blur-2xl" />
-            <Image
-              src="/qoyun_big.png"
-              alt="Qurbanlıq qoyun"
-              width={380}
-              height={320}
-              className="relative drop-shadow-[0_16px_36px_rgba(0,0,0,0.45)]"
-            />
-          </div>
-        </div>
-
-        {/* Statistika zolağı */}
-        <div className="relative border-t border-white/10 bg-black/10 backdrop-blur-sm">
-          <div className="mx-auto grid max-w-6xl grid-cols-3 divide-x divide-white/10 px-4 sm:px-6">
-            {STATS.map(({ value, label }) => (
-              <div key={label} className="py-4 text-center sm:py-5">
-                <div className="text-lg font-black text-white sm:text-2xl">
-                  {value}
-                </div>
-                <div className="mt-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-200/70 sm:text-xs">
-                  {label}
-                </div>
+          {/* Badges */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+            {[
+              { Icon: ShieldCheck, label: "Halal kəsim" },
+              { Icon: Video,       label: "Video hesabat" },
+              { Icon: Truck,       label: "Çatdırılma" },
+            ].map(({ Icon, label }) => (
+              <div key={label} style={{
+                display: "flex", alignItems: "center", gap: 7,
+                padding: "7px 14px", borderRadius: 999,
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.25)",
+                backdropFilter: "blur(6px)",
+              }}>
+                <Icon size={15} color="#86EFAC" strokeWidth={2} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>{label}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════ XİDMƏTLƏR ══════════════ */}
-      <section id="xidmetler" className="scroll-mt-20">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <SectionHeader
-            eyebrow="Xidmətlərimiz"
-            title="Sizin üçün nə edə bilərik?"
-            subtitle="Qurbanlıq sifarişindən təzə ət çatdırılmasına qədər — hər şey bir platformada."
-          />
+      {/* ══════════ SERVICE CARDS ══════════ */}
+      <section style={{ maxWidth: 1152, margin: "0 auto", padding: "52px 20px" }}>
+        {/* Desktop: 3 columns */}
+        <div className="hidden md:grid" style={{ gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+          {SERVICES.map(svc => <DesktopCard key={svc.id} s={svc} />)}
+        </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-          </div>
+        {/* Mobile: vertical stack */}
+        <div className="md:hidden" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {SERVICES.map(svc => <MobileCard key={svc.id} s={svc} />)}
         </div>
       </section>
 
-      {/* ══════════════ NECƏ İŞLƏYİR? ══════════════ */}
-      <section
-        id="nece-isleyir"
-        className="scroll-mt-20 border-y border-gray-100 bg-[#F8FAF8]"
-      >
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <SectionHeader
-            eyebrow="Proses"
-            title="Necə işləyir?"
-            subtitle="4 sadə addımda sifarişdən çatdırılmaya qədər."
-          />
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map(({ Icon, num, title, desc }) => (
-              <div
-                key={num}
-                className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#A5D6A7] hover:shadow-[0_12px_28px_-10px_rgba(27,94,32,0.25)]"
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -right-1 -top-3 text-6xl font-black tracking-tighter text-gray-100 transition-colors duration-300 group-hover:text-[#E8F5E9]"
-                >
-                  {num}
-                </span>
-                <div className="relative">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E8F5E9] transition-colors duration-300 group-hover:bg-[#1B5E20]">
-                    <Icon
-                      className="h-6 w-6 text-[#1B5E20] transition-colors duration-300 group-hover:text-white"
-                      strokeWidth={1.9}
-                    />
-                  </div>
-                  <h3 className="mt-4 text-base font-extrabold text-gray-900">
-                    {title}
-                  </h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-gray-500">
-                    {desc}
-                  </p>
+      {/* ══════════ NIYİ MEATBOX ══════════ */}
+      <section style={{ background: "#F8FAF8", borderTop: "1px solid #EBEBEB", borderBottom: "1px solid #EBEBEB", padding: "48px 20px" }}>
+        <div style={{ maxWidth: 1152, margin: "0 auto" }}>
+          <h2 style={{ textAlign: "center", fontSize: 22, fontWeight: 800, marginBottom: 32, letterSpacing: "-0.3px" }}>
+            Niyə MeatBox?
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }} className="grid-cols-2 md:grid-cols-4">
+            {WHY.map(({ Icon, label, desc }) => (
+              <div key={label} style={{
+                display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
+                background: "#fff", borderRadius: 16, padding: "24px 16px",
+                border: "1px solid #EBEBEB", boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
+              }}>
+                <div style={{ width: 50, height: 50, borderRadius: 14, background: "#E8F5E9", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                  <Icon size={24} strokeWidth={1.8} color={G} />
                 </div>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 5 }}>{label}</div>
+                <div style={{ fontSize: 11, color: "#6B7280", lineHeight: 1.55 }}>{desc}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════ NİYƏ MEATBOX? ══════════════ */}
-      <section id="haqqimizda" className="scroll-mt-20">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <SectionHeader
-            eyebrow="Üstünlüklərimiz"
-            title="Niyə MeatBox?"
-            subtitle="Etibar, şəffaflıq və keyfiyyət — işimizin təməlində dayanan dəyərlər."
-          />
+      {/* ══════════ FOOTER ══════════ */}
+      <footer style={{ background: "#111827", color: "#fff", padding: "44px 20px 24px" }}>
+        <div style={{ maxWidth: 1152, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32, marginBottom: 36 }} className="grid-cols-2 md:grid-cols-4">
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-            {WHY_FEATURES.map(({ Icon, label, desc }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-[0_1px_6px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-[#A5D6A7] hover:shadow-[0_12px_28px_-10px_rgba(27,94,32,0.25)]"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5E9]">
-                  <Icon className="h-7 w-7 text-[#1B5E20]" strokeWidth={1.8} />
-                </div>
-                <h3 className="mt-4 text-sm font-extrabold text-gray-900 sm:text-base">
-                  {label}
-                </h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-gray-500 sm:text-sm">
-                  {desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════ CTA BANNER ══════════════ */}
-      <section className="px-4 pb-14 sm:px-6 sm:pb-20">
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl bg-gradient-to-br from-[#1B5E20] via-[#1a6e25] to-[#14532d] px-6 py-12 text-center sm:px-12 sm:py-16">
-          {/* Dekorativ dairələr */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-white/5 blur-2xl"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-[#86EFAC]/10 blur-3xl"
-          />
-
-          <div className="relative">
-            <h2 className="mx-auto max-w-2xl text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl">
-              Bu Qurban bayramında savabınızı bizimlə bölüşün
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-emerald-100/90 sm:text-base">
-              İndi sifariş edin — kəsimdən çatdırılmaya qədər hər addımı sizin
-              üçün şəffaf şəkildə həyata keçirək.
-            </p>
-
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                href="/qurban"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-[#1B5E20] shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
-              >
-                İndi Sifariş Et
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href={PHONE_HREF}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 px-8 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:w-auto"
-              >
-                <Phone className="h-4 w-4" />
-                {PHONE}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════ FOOTER ══════════════ */}
-      <footer id="elaqe" className="scroll-mt-20 bg-[#111827] text-white">
-        <div className="mx-auto max-w-6xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14">
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Brend */}
-            <div className="sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-2.5">
-                <span className="relative block h-9 w-9 overflow-hidden rounded-lg">
-                  <Image
-                    src="/logo.png"
-                    alt="MeatBox.az loqosu"
-                    fill
-                    sizes="36px"
-                    className="object-cover"
-                  />
-                </span>
-                <span className="text-base font-black tracking-tight">
-                  MEAT<span className="text-[#86EFAC]">BOX</span>.AZ
-                </span>
-              </div>
-              <p className="mt-3 max-w-xs text-sm leading-relaxed text-gray-400">
-                Təzə ət, qurbanlıq və şəffaf xeyriyyə platforması. Halal kəsim,
-                video hesabat, qapıya çatdırılma.
-              </p>
-            </div>
-
-            {/* Keçidlər */}
+            {/* Brand */}
             <div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500">
-                Keçidlər
-              </h3>
-              <ul className="mt-4 space-y-2.5">
-                {NAV_LINKS.map((link) => (
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-gray-300 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <Image src="/logo.png" alt="MeatBox" width={32} height={32} style={{ borderRadius: 8 }} />
+                <span style={{ fontSize: 17, fontWeight: 900 }}>MEAT<span style={{ color: "#86EFAC" }}>BOX</span>.AZ</span>
+              </div>
+              <p style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.6 }}>Taze Ət · Qurbanlıq · Xeyriyyə Platforması</p>
+            </div>
+
+            {/* Links */}
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#6B7280", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>Links</div>
+              {["Haqqımızda","Xidmətlər","Necə işləyir?"].map(l => (
+                <a key={l} href="#" style={{ display: "block", fontSize: 13, color: "#D1D5DB", marginBottom: 8, textDecoration: "none" }}
+                  onMouseEnter={e=>e.target.style.color="#fff"}
+                  onMouseLeave={e=>e.target.style.color="#D1D5DB"}
+                >{l}</a>
+              ))}
             </div>
 
             {/* Əlaqə */}
             <div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500">
-                Əlaqə
-              </h3>
-              <ul className="mt-4 space-y-3">
-                <li>
-                  <a
-                    href={PHONE_HREF}
-                    className="inline-flex items-center gap-2.5 text-sm text-gray-300 transition-colors hover:text-white"
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#6B7280", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>Əlaqə</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <Phone size={13} color="#86EFAC" strokeWidth={2} style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: "#D1D5DB" }}>+994 50 123 44 55</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                <Mail size={13} color="#86EFAC" strokeWidth={2} style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: "#D1D5DB" }}>info@meatbox.az</span>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[FaFacebook, FaInstagram, FaWhatsapp].map((Icon, i) => (
+                  <a key={i} href="#" style={{
+                    width: 32, height: 32, borderRadius: 8,
+                    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)",
+                    display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none",
+                  }}
+                    onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.16)"}
+                    onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}
                   >
-                    <Phone className="h-4 w-4 shrink-0 text-[#86EFAC]" />
-                    {PHONE}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={`mailto:${EMAIL}`}
-                    className="inline-flex items-center gap-2.5 text-sm text-gray-300 transition-colors hover:text-white"
-                  >
-                    <Mail className="h-4 w-4 shrink-0 text-[#86EFAC]" />
-                    {EMAIL}
-                  </a>
-                </li>
-              </ul>
-
-              <div className="mt-5 flex gap-2.5">
-                {SOCIALS.map(({ Icon, href, label }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    aria-label={label}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-gray-300 transition-all hover:-translate-y-0.5 hover:bg-white/15 hover:text-white"
-                  >
-                    <Icon className="h-4 w-4" />
+                    <Icon size={15} color="#D1D5DB" />
                   </a>
                 ))}
               </div>
             </div>
 
-            {/* Ödəniş üsulları */}
+            {/* Ödəniş */}
             <div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500">
-                Ödəniş üsulları
-              </h3>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {PAYMENTS.map((p) => (
-                  <span
-                    key={p}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-gray-200"
-                  >
-                    {p}
-                  </span>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#6B7280", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>Ödəniş üsulları</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {["VISA","Mastercard","tam."].map(p => (
+                  <div key={p} style={{ padding: "5px 12px", borderRadius: 7, fontSize: 11, fontWeight: 700, color: "#E5E7EB", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}>{p}</div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-gray-500">
-            © {new Date().getFullYear()} MeatBox.az — Bütün hüquqlar qorunur.
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 20, textAlign: "center", fontSize: 12, color: "#6B7280" }}>
+            © 2024 MeatBox.az. Bütün hüquqlar qorunur.
           </div>
         </div>
       </footer>
-
-      {/* ══════════════ WHATSAPP DÜYMƏSİ ══════════════ */}
-      <a
-        href="https://wa.me/994501234455"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="WhatsApp ilə yazın"
-        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-[0_8px_24px_-4px_rgba(37,211,102,0.6)] transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
-      >
-        <FaWhatsapp className="h-7 w-7 text-white" />
-      </a>
     </div>
   );
 }
 
-/* ═══════════════════ KÖMƏKÇİ KOMPONENTLƏR ═══════════════════ */
+/* ─── Desktop kart: başlıq → şəkil → mətn → düymə ─── */
+function DesktopCard({ s }) {
+  const { title, desc, href, img, imgFit, imgBg, color, btn, btnShadow, btnLabel, ServiceIcon, disabled } = s;
 
-function SectionHeader({ eyebrow, title, subtitle }) {
-  return (
-    <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-      <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#2E7D32]">
-        {eyebrow}
-      </span>
-      <h2 className="mt-2 text-2xl font-black tracking-tight text-gray-900 sm:text-[32px]">
-        {title}
-      </h2>
-      {subtitle && (
-        <p className="mt-3 text-sm leading-relaxed text-gray-500 sm:text-base">
-          {subtitle}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function ServiceCard({ service }) {
-  const {
-    title,
-    description,
-    href,
-    image,
-    imageClass,
-    mediaBgClass,
-    btnText,
-    Icon,
-    titleClass,
-    iconBgClass,
-    btnClass,
-    disabled,
-  } = service;
-
-  const card = (
-    <article
-      className={`group flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.05)] transition-all duration-300 ${
-        disabled
-          ? ""
-          : "hover:-translate-y-1.5 hover:shadow-[0_18px_44px_-10px_rgba(0,0,0,0.18)]"
-      }`}
+  const inner = (
+    <div
+      style={{
+        background: "#fff", borderRadius: 20, overflow: "hidden",
+        border: "1px solid #E8E8E8", boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+        display: "flex", flexDirection: "column", height: "100%",
+        transition: "transform .22s,box-shadow .22s",
+        cursor: disabled ? "default" : "pointer",
+      }}
+      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = "0 10px 32px rgba(0,0,0,0.13)"; }}}
+      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.06)"; }}
     >
-      {/* Şəkil hissəsi */}
-      <div
-        className={`relative h-48 shrink-0 overflow-hidden sm:h-52 ${mediaBgClass}`}
-      >
-        <Image
-          src={image}
-          alt={title}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className={`${imageClass} transition-transform duration-500 ${
-            disabled ? "opacity-70" : "group-hover:scale-105"
-          }`}
-        />
-        <div className="absolute inset-0 bg-black/15" />
+      {/* 1. Başlıq */}
+      <div style={{ padding: "18px 18px 14px" }}>
+        <h3 style={{ fontSize: 15, fontWeight: 800, color, lineHeight: 1.35, margin: 0, letterSpacing: "-0.2px" }}>
+          {title}
+        </h3>
+      </div>
 
-        {/* Video oynat düyməsi */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span
-            className={`flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-black/50 backdrop-blur-sm transition-transform duration-300 ${
-              disabled ? "" : "group-hover:scale-110"
-            }`}
-          >
-            <Play className="ml-0.5 h-5 w-5 fill-white text-white" />
-          </span>
+      {/* 2. Thumbnail */}
+      <div style={{ position: "relative", height: 190, flexShrink: 0, background: imgBg, overflow: "hidden" }}>
+        <img src={img} alt={title} style={{ width: "100%", height: "100%", objectFit: imgFit, objectPosition: "center", opacity: disabled ? 0.7 : 1 }} />
+        {/* qaranlıq overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.16)" }} />
+
+        {/* play düyməsi */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 46, height: 46, borderRadius: "50%", background: "rgba(0,0,0,0.48)", backdropFilter: "blur(4px)", border: "1.5px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Play size={17} fill="white" color="white" style={{ marginLeft: 2 }} />
+          </div>
         </div>
 
-        {/* Xidmət ikonu — sağ üst */}
-        <span
-          className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/85 shadow-md ${iconBgClass}`}
-        >
-          <Icon className="h-4 w-4 text-white" strokeWidth={2} />
-        </span>
+        {/* xidmət ikonu — sağ üst */}
+        <div style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: color, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 8px rgba(0,0,0,0.22)" }}>
+          <ServiceIcon size={16} color="#fff" />
+        </div>
 
-        {/* Video müddəti */}
-        <span className="absolute bottom-2.5 right-2.5 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white">
+        {/* 0:15 badge */}
+        <div style={{ position: "absolute", bottom: 8, right: 8, padding: "2px 6px", borderRadius: 5, background: "rgba(0,0,0,0.62)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
           0:15
-        </span>
+        </div>
 
-        {/* Tezliklə nişanı */}
         {disabled && (
-          <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
+          <div style={{ position: "absolute", top: 10, left: 10, padding: "3px 10px", borderRadius: 999, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
             Tezliklə
-          </span>
+          </div>
         )}
       </div>
 
-      {/* Məzmun */}
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <h3
-          className={`text-base font-extrabold leading-snug tracking-tight sm:text-lg ${titleClass}`}
-        >
-          {title}
-        </h3>
-        <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-500">
-          {description}
-        </p>
-
-        <span
-          className={`mt-5 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all ${
-            disabled
-              ? "cursor-not-allowed bg-gray-100 text-gray-400"
-              : `text-white ${btnClass}`
-          }`}
-        >
-          {btnText}
-          <ArrowRight
-            className={`h-4 w-4 transition-transform duration-300 ${
-              disabled ? "" : "group-hover:translate-x-1"
-            }`}
-            strokeWidth={2.5}
-          />
-        </span>
+      {/* 3. Mətn + düymə */}
+      <div style={{ padding: "14px 18px 18px", flex: 1, display: "flex", flexDirection: "column" }}>
+        <p style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.65, flex: 1, marginBottom: 16 }}>{desc}</p>
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+          padding: "11px 0", borderRadius: 12, fontSize: 13, fontWeight: 700, color: "#fff",
+          background: btn, boxShadow: disabled ? "none" : btnShadow,
+          opacity: disabled ? 0.45 : 1, letterSpacing: "0.01em",
+        }}>
+          {btnLabel} <ArrowRight size={14} strokeWidth={2.5} />
+        </div>
       </div>
-    </article>
+    </div>
   );
 
-  if (disabled) {
-    return (
-      <div aria-disabled="true" className="h-full">
-        {card}
-      </div>
-    );
-  }
+  if (disabled) return <div style={{ height: "100%" }}>{inner}</div>;
+  return <Link href={href} style={{ textDecoration: "none", display: "block", height: "100%" }}>{inner}</Link>;
+}
 
-  return (
-    <Link
-      href={href}
-      className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4 rounded-3xl"
-    >
-      {card}
-    </Link>
+/* ─── Mobil kart: üfüqi — mətn sol, şəkil sağ ─── */
+function MobileCard({ s }) {
+  const { title, desc, href, img, imgFit, imgBg, color, btn, btnShadow, btnLabel, ServiceIcon, disabled } = s;
+
+  const inner = (
+    <div style={{
+      background: "#fff", borderRadius: 16, overflow: "hidden",
+      border: "1px solid #E8E8E8", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+      display: "flex", minHeight: 130,
+    }}>
+      {/* Sol: mətn */}
+      <div style={{ flex: 1, padding: "14px 14px 14px 16px", display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
+        <div>
+          <h3 style={{ fontSize: 13, fontWeight: 800, color, lineHeight: 1.3, margin: "0 0 6px" }}>{title}</h3>
+          <p style={{ fontSize: 11, color: "#6B7280", lineHeight: 1.55, margin: 0 }}>{desc}</p>
+        </div>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 5,
+          marginTop: 10, padding: "8px 14px", borderRadius: 10, fontSize: 12, fontWeight: 700,
+          color: "#fff", background: btn, boxShadow: disabled ? "none" : btnShadow,
+          opacity: disabled ? 0.45 : 1, alignSelf: "flex-start",
+        }}>
+          {btnLabel} <ArrowRight size={13} strokeWidth={2.5} />
+        </div>
+      </div>
+
+      {/* Sağ: şəkil */}
+      <div style={{ width: 130, flexShrink: 0, position: "relative", background: imgBg, overflow: "hidden" }}>
+        <img src={img} alt={title} style={{ width: "100%", height: "100%", objectFit: imgFit, objectPosition: "center", opacity: disabled ? 0.7 : 1 }} />
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.16)" }} />
+
+        {/* play */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Play size={14} fill="white" color="white" style={{ marginLeft: 2 }} />
+          </div>
+        </div>
+
+        {/* xidmət ikonu */}
+        <div style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: color, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.9)" }}>
+          <ServiceIcon size={13} color="#fff" />
+        </div>
+
+        {/* 0:15 */}
+        <div style={{ position: "absolute", bottom: 6, right: 6, padding: "2px 5px", borderRadius: 4, background: "rgba(0,0,0,0.6)", fontSize: 9, fontWeight: 700, color: "#fff" }}>
+          0:15
+        </div>
+
+        {disabled && (
+          <div style={{ position: "absolute", top: 8, left: 6, padding: "2px 6px", borderRadius: 999, background: "rgba(0,0,0,0.6)", fontSize: 9, fontWeight: 700, color: "#fff" }}>
+            Tezliklə
+          </div>
+        )}
+      </div>
+    </div>
   );
+
+  if (disabled) return inner;
+  return <Link href={href} style={{ textDecoration: "none", display: "block" }}>{inner}</Link>;
 }
