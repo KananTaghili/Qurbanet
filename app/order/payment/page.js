@@ -1,16 +1,13 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CreditCard, Banknote, Lock, Smartphone } from 'lucide-react';
+import { CreditCard, Banknote, Lock } from 'lucide-react';
 import BackHeader from '../../../components/BackHeader';
 import StepHeader from '../../../components/StepHeader';
 import { useOrder } from '../../../context/OrderContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { t } from '../../../lib/i18n';
 import api from '../../../lib/api';
-
-const POLL_INTERVAL = 3000;
-const POLL_TIMEOUT  = 10 * 60 * 1000;
 
 function Spinner({ label }) {
   return (
@@ -41,74 +38,6 @@ function PayMethodOption({ selected, onClick, Icon, label, sub }) {
   );
 }
 
-function GooglePayIcon() {
-  return (
-    <svg viewBox="0 0 48 24" width="52" height="26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <text y="18" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="700" fill="#4285F4">G</text>
-      <text x="10" y="18" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="400" fill="#EA4335">o</text>
-      <text x="18" y="18" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="400" fill="#FBBC05">o</text>
-      <text x="26" y="18" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="400" fill="#4285F4">g</text>
-      <text x="34" y="18" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="400" fill="#34A853">l</text>
-      <text x="38" y="18" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="400" fill="#EA4335">e</text>
-    </svg>
-  );
-}
-
-function EPointFrame({ url, onClose, lang }) {
-  const [frameLoading, setFrameLoading] = useState(true);
-  const iframeRef = useRef(null);
-  const loadCountRef = useRef(0);
-
-  const handleLoad = () => {
-    loadCountRef.current += 1;
-    if (loadCountRef.current === 1) {
-      setFrameLoading(false);
-    }
-    // Subsequent loads are legit payment redirects (3DS etc.) — do not interfere
-  };
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex flex-col bg-black/60">
-      <div className="flex items-center justify-between px-4 py-3.5" style={{ background: '#1B5E20' }}>
-        <div className="flex items-center gap-2.5">
-          <CreditCard size={18} className="text-white/80" />
-          <div>
-            <div className="text-sm font-bold text-white">{t(lang, 'cardPaymentTitle')}</div>
-            <div className="text-xs text-white/65">{t(lang, 'securePayment')}</div>
-          </div>
-        </div>
-        <button onClick={onClose}
-          className="w-8 h-8 flex items-center justify-center rounded-xl font-bold text-sm transition-colors cursor-pointer"
-          style={{ background: 'rgba(255,255,255,0.15)', color: '#fff' }}>
-          ✕
-        </button>
-      </div>
-      <div className="flex-1 relative bg-white">
-        {frameLoading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white">
-            <div className="w-8 h-8 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-text-secondary font-medium">{t(lang, 'ePointLoading')}</p>
-          </div>
-        )}
-        <iframe
-          ref={iframeRef}
-          src={url}
-          sandbox="allow-scripts allow-forms allow-same-origin allow-modals"
-          className="w-full h-full border-0"
-          onLoad={handleLoad}
-          title={t(lang, 'cardPaymentTitle')}
-          allow="payment"
-        />
-      </div>
-      <div className="px-4 py-2 bg-white border-t border-border text-center">
-        <p className="text-xs text-text-secondary flex items-center justify-center gap-1.5">
-          <Lock size={11} /> {t(lang, 'sslProtected')}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function PaymentPage() {
   const router = useRouter();
   const { order, updateOrder, isLoaded } = useOrder();
@@ -117,12 +46,7 @@ export default function PaymentPage() {
   const [method,      setMethod]      = useState('epoint');
   const [cashEnabled, setCashEnabled] = useState(true);
   const [loading,     setLoading]     = useState(false);
-  const [frameUrl,    setFrameUrl]    = useState('');
   const [error,       setError]       = useState('');
-
-  const pollRef      = useRef(null);
-  const startTimeRef = useRef(null);
-  const paidRef      = useRef(false);
 
   useEffect(() => {
     try {
@@ -134,6 +58,15 @@ export default function PaymentPage() {
         return;
       }
     } catch { router.replace('/'); return; }
+
+    // Epoint-dən uğursuz ödənişlə geri qayıdanda backend bura yönləndirir:
+    // /order/payment?payment=fail&message=...
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'fail') {
+      setError(params.get('message') || t(lang, 'paymentFailed'));
+      window.history.replaceState(null, '', '/order/payment');
+    }
+
     api.get('/app-config/settings')
       .then((res) => {
         if (res.data?.data?.cashPaymentEnabled === false) {
@@ -142,7 +75,6 @@ export default function PaymentPage() {
         }
       })
       .catch(() => {});
-    return () => clearInterval(pollRef.current);
   }, []);
 
   if (!isLoaded || !order?.createdOrderId) return null;
@@ -167,36 +99,6 @@ export default function PaymentPage() {
     return rows;
   })();
 
-  const startPolling = (orderId) => {
-    paidRef.current = false;
-    startTimeRef.current = Date.now();
-    pollRef.current = setInterval(async () => {
-      if (paidRef.current) { clearInterval(pollRef.current); return; }
-      if (Date.now() - startTimeRef.current > POLL_TIMEOUT) {
-        clearInterval(pollRef.current);
-        setFrameUrl('');
-        setError(t(lang, 'pollFailed'));
-        return;
-      }
-      try {
-        const res = await api.post(`/orders/${orderId}/epoint/verify`);
-        const d = res.data?.data;
-        if (d?.order?.payment?.status === 'paid' && !paidRef.current) {
-          paidRef.current = true;
-          clearInterval(pollRef.current);
-          setFrameUrl('');
-          updateOrder({ paymentMethod: method });
-          router.push('/order/confirmation');
-        } else if (d?.epointStatus === 'error' || d?.epointStatus === 'returned') {
-          paidRef.current = true;
-          clearInterval(pollRef.current);
-          setFrameUrl('');
-          setError(d.userMessage || t(lang, 'paymentDeclined'));
-        }
-      } catch (_) {}
-    }, POLL_INTERVAL);
-  };
-
   const handlePay = async () => {
     setError('');
     setLoading(true);
@@ -204,47 +106,26 @@ export default function PaymentPage() {
       if (method === 'epoint') {
         const res = await api.post(`/orders/${createdOrderId}/epoint/start`);
         if (res.data.success) {
-          setFrameUrl(res.data.data.redirect_url);
-          startPolling(createdOrderId);
+          updateOrder({ paymentMethod: 'epoint' });
+          // Epoint ödəniş səhifəsinə tam yönləndirmə.
+          // Nəticə backend callback-i (imza yoxlamalı) vasitəsilə qayıdacaq.
+          window.location.href = res.data.data.redirect_url;
+          return; // spinner yönləndirmə bitənə qədər qalsın
         }
-      } else if (method === 'googlepay') {
-        const res = await api.post(`/orders/${createdOrderId}/epoint/widget`);
-        if (res.data.success) {
-          setFrameUrl(res.data.data.widget_url);
-          startPolling(createdOrderId);
-        }
+        setError(res.data.message || t(lang, 'paymentFailed'));
       } else {
         const res = await api.post(`/orders/${createdOrderId}/pay`, { paymentMethod: 'cash_on_delivery' });
         if (res.data.success) {
           updateOrder({ paymentMethod: 'cash_on_delivery' });
           router.push('/order/cash-payment');
+          return;
         }
       }
     } catch (err) {
       setError(err.response?.data?.message || t(lang, 'paymentFailed'));
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
-
-  const handleFrameClose = async () => {
-    clearInterval(pollRef.current);
-    setFrameUrl('');
-    if (paidRef.current) return;
-    try {
-      const res = await api.post(`/orders/${createdOrderId}/epoint/verify`);
-      const o = res.data?.data?.order;
-      if (o?.payment?.status === 'paid') {
-        paidRef.current = true;
-        updateOrder({ paymentMethod: method });
-        router.push('/order/confirmation');
-      }
-    } catch (_) {}
-  };
-
-  if (frameUrl) {
-    return <EPointFrame url={frameUrl} onClose={handleFrameClose} lang={lang} />;
-  }
 
   const PayButton = (
     <button
@@ -256,9 +137,7 @@ export default function PaymentPage() {
         ? <Spinner label={t(lang, 'processing')} />
         : method === 'epoint'
           ? `${amount} AZN · ${t(lang, 'payWithCard')}`
-          : method === 'googlepay'
-            ? `${amount} AZN · ${t(lang, 'payWithGPay')}`
-            : t(lang, 'confirmSelection')}
+          : t(lang, 'confirmSelection')}
     </button>
   );
 
@@ -318,7 +197,6 @@ export default function PaymentPage() {
                   label={t(lang, 'payWithCard')}
                   sub={t(lang, 'payWithCardSub')}
                 />
-                {/* Google Pay — temporarily disabled */}
                 {cashEnabled && (
                   <PayMethodOption
                     selected={method === 'cash'}
@@ -332,11 +210,11 @@ export default function PaymentPage() {
             </div>
 
             {/* Info box */}
-            {(method === 'epoint' || method === 'googlepay') && (
+            {method === 'epoint' && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-start gap-2.5">
                 <Lock size={14} className="text-blue-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-blue-700">
-                  {method === 'googlepay' ? t(lang, 'gpayInfo') : t(lang, 'epointInfo')}
+                  {t(lang, 'epointInfo')}
                 </p>
               </div>
             )}

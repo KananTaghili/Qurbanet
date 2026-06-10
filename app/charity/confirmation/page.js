@@ -17,6 +17,7 @@ export default function CharityConfirmationPage() {
     if (!stored) { router.replace('/need-support'); return; }
     setData(JSON.parse(stored));
     sessionStorage.removeItem('charity_confirmation');
+    sessionStorage.removeItem('charity_payment');
   }, []);
 
   if (!data) return null;
