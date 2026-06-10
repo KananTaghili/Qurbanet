@@ -32,7 +32,7 @@ export default function Sidebar() {
   }, []);
 
   const NAV = [
-    { href: "/", Icon: Home, label: t(lang, 'home') },
+    { href: "/qurban", Icon: Home, label: t(lang, 'home') },
     { href: "/my-orders", Icon: ClipboardList, label: t(lang, 'myOrders') },
     { href: "/need-support", Icon: HandHeart, label: t(lang, 'charity') },
     { href: "/how-it-works", Icon: HelpCircle, label: t(lang, 'howItWorks') },
@@ -42,7 +42,7 @@ export default function Sidebar() {
   const handleLogout = async () => {
     if (confirm("Hesabdan çıxmaq istədiyinizə əminsiniz?")) {
       await logout();
-      router.push("/");
+      router.push("/qurban");
     }
   };
 
@@ -114,7 +114,7 @@ export default function Sidebar() {
           MENYU
         </div>
         {NAV.filter(({ href }) => href !== "/need-support" || charityEnabled).map(({ href, Icon, label }) => {
-          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const active = href === "/qurban" ? pathname === "/qurban" : pathname.startsWith(href);
 
           return (
             <Link

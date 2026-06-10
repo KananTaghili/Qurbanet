@@ -8,7 +8,8 @@ import Topbar from "./Topbar";
 
 export default function ClientShell({ children }) {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const isLanding = pathname === "/";
+  const isHome = pathname === "/qurban";
   const { isLoading: authLoading } = useAuth();
   const { isReady: settingsReady } = useLanguage();
 
@@ -101,22 +102,34 @@ export default function ClientShell({ children }) {
       </div>
 
       {/* App */}
-      <div
-        className={`app-root${isHome ? " home-mode" : ""}`}
-        style={{
-          opacity: appReady ? 1 : 0,
-          WebkitTransition: appReady ? "opacity 0.4s ease" : "none",
-          transition: appReady ? "opacity 0.4s ease" : "none",
-        }}
-      >
-        <Sidebar />
-        <div className="app-body">
-          {!isHome && <Topbar />}
-          <main className="app-main">
-            {children}
-          </main>
+      {isLanding ? (
+        <div
+          style={{
+            opacity: appReady ? 1 : 0,
+            WebkitTransition: appReady ? "opacity 0.4s ease" : "none",
+            transition: appReady ? "opacity 0.4s ease" : "none",
+          }}
+        >
+          {children}
         </div>
-      </div>
+      ) : (
+        <div
+          className={`app-root${isHome ? " home-mode" : ""}`}
+          style={{
+            opacity: appReady ? 1 : 0,
+            WebkitTransition: appReady ? "opacity 0.4s ease" : "none",
+            transition: appReady ? "opacity 0.4s ease" : "none",
+          }}
+        >
+          <Sidebar />
+          <div className="app-body">
+            {!isHome && <Topbar />}
+            <main className="app-main">
+              {children}
+            </main>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @-webkit-keyframes spin { to { -webkit-transform: rotate(360deg); } }

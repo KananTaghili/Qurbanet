@@ -13,7 +13,7 @@ const MUTED = '#94a3b8';
 const ALL_TABS = [
   { href: '/how-it-works', labelKey: 'howItWorks',      Icon: HelpCircle,    key: 'how' },
   { href: '/need-support',  labelKey: 'charity',          Icon: HandHeart,     key: 'charity' },
-  { href: '/',              labelKey: 'animalSelection',  Icon: Beef,          key: 'home' },
+  { href: '/qurban',        labelKey: 'animalSelection',  Icon: Beef,          key: 'home' },
   { href: '/qurban-rules',  labelKey: 'rules',            Icon: BookOpen,      key: 'rules' },
   { href: '/my-orders',     labelKey: 'myOrders',         Icon: ClipboardList, key: 'orders' },
 ];
