@@ -320,7 +320,7 @@ export default function LandingPage() {
         {/* Green overlay — açıq ton */}
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.28) 0%,rgba(26,112,40,0.22) 55%,rgba(20,83,45,0.28) 100%)" }}
+          style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.42) 0%,rgba(26,112,40,0.36) 55%,rgba(20,83,45,0.42) 100%)" }}
         />
         {/* Alt ağ gradient — tam ağ keçid, xətt görünməsin */}
         <div
