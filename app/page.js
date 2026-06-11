@@ -319,7 +319,7 @@ export default function LandingPage() {
         SERVICE CARDS SECTION (4 cards, fully responsive)
         ======================================================
       */}
-      <section className="relative z-10 mx-auto max-w-5xl -mt-[154px] px-5 pb-14 md:pb-20">
+      <section className="relative z-10 mx-auto max-w-5xl -mt-[154px] px-5 pb-6 md:pb-8">
         {/* Desktop Grid (3 columns) */}
         <div className="hidden gap-6 md:grid md:grid-cols-3">
           {SERVICES.map((service) => (
@@ -340,7 +340,7 @@ export default function LandingPage() {
         WHY MEATBOX? (4 feature cards)
         ======================================================
       */}
-      <section className="py-8">
+      <section className="py-4">
         <div className="mx-auto max-w-4xl px-5">
           {/* Floating title ON the border */}
           <div style={{ position: "relative", marginTop: 12 }}>
