@@ -78,7 +78,7 @@ export default function Sidebar() {
               className="text-[8px] lg:text-[9px] font-semibold tracking-widest mt-0.5 truncate"
               style={{ color: "rgba(255,255,255,0.5)" }}
             >
-              ETİBARLI · HALAL · SÜRƏTLİ
+              TAZE ƏT · QURBANLIQ · XEYRİYYƏ
             </div>
           </div>
         </Link>

@@ -115,7 +115,7 @@ export default function RegisterPage() {
               MEAT<span style={{ color: "#86efac" }}>BOX</span>.AZ
             </div>
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 10, lineHeight: 1.6, maxWidth: 220 }}>
-              Taze Ət · Qurbanlıq · Xeyriyyə Platforması
+              TAZE ƏT · QURBANLIQ · XEYRİYYƏ
             </div>
           </div>
 
@@ -140,7 +140,7 @@ export default function RegisterPage() {
           </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+            {["TAZE ƏT", "QURBANLIQ", "XEYRİYYƏ"].map((t, i) => (
               <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{t}</span>
                 {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.25)" }} />}

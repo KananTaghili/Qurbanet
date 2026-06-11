@@ -83,7 +83,7 @@ export default function ClientShell({ children }) {
               letterSpacing: "0.5px",
             }}
           >
-            ETİBARLI · HALAL · SÜRƏTLİ
+            TAZE ƏT · QURBANLIQ · XEYRİYYƏ
           </div>
         </div>
 

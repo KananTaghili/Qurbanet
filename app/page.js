@@ -296,7 +296,7 @@ export default function LandingPage() {
                 MEAT<span className="text-green-300">BOX</span>.AZ
               </h1>
               <p className="mt-1.5 text-sm font-medium text-white/80">
-                Taze Ət · Qurbanlıq · Xeyriyyə Platforması
+                TAZE ƏT · QURBANLIQ · XEYRİYYƏ
               </p>
             </div>
           </div>
@@ -448,7 +448,7 @@ export default function LandingPage() {
                 </span>
               </div>
               <p className="mt-3 text-sm text-gray-400">
-                Taze Ət · Qurbanlıq · Xeyriyyə Platforması
+                TAZE ƏT · QURBANLIQ · XEYRİYYƏ
               </p>
             </div>
 
@@ -550,55 +550,52 @@ function ServiceCard({ service }) {
   } = service;
 
   const cardContent = (
-    <div
-      className="group flex h-full flex-col bg-white transition-all duration-200"
-      style={{
-        borderRadius: 20,
-        border: "1px solid #EAECF0",
-        boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
-        cursor: disabled ? "default" : "pointer",
-        overflow: "visible" /* icon-un taşması üçün */,
-      }}
-      onMouseEnter={(e) => {
-        if (!disabled) {
-          e.currentTarget.style.transform = "translateY(-4px)";
-          e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.13)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)";
-      }}
-    >
-
-      {/* ① Dairəvi icon */}
+    <div style={{ position: "relative", paddingTop: 36, height: "100%" }}>
+      {/* Pop-out icon — kartın üstünə çıxır */}
       <div
         style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 68,
+          height: 68,
+          borderRadius: "50%",
+          background: "#fff",
+          border: `2.5px solid ${color}40`,
+          boxShadow: `0 4px 20px ${color}35, 0 0 0 4px ${color}12`,
           display: "flex",
+          alignItems: "center",
           justifyContent: "center",
-          paddingTop: 16,
-          paddingBottom: 10,
+          zIndex: 10,
         }}
       >
-        <div
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: "50%",
-            background: "#fff",
-            border: `2px solid ${color}30`,
-            boxShadow: `0 4px 16px ${color}25`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <ServiceIcon size={36} color={color} />
-        </div>
+        <ServiceIcon size={34} color={color} />
       </div>
 
-      {/* ② Şəkil — overflow hidden, icon batır içəri */}
+      <div
+        className="group flex h-full flex-col bg-white transition-all duration-200"
+        style={{
+          borderRadius: 20,
+          border: "1px solid #EAECF0",
+          boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
+          cursor: disabled ? "default" : "pointer",
+          overflow: "hidden",
+          paddingTop: 36,
+        }}
+        onMouseEnter={(e) => {
+          if (!disabled) {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.13)";
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)";
+        }}
+      >
+
+      {/* ② Şəkil */}
       <div
         style={{
           position: "relative",
@@ -773,6 +770,7 @@ function ServiceCard({ service }) {
           {btnLabel.toUpperCase()}
           <ArrowRight size={14} strokeWidth={2.5} />
         </div>
+      </div>
       </div>
     </div>
   );

@@ -64,15 +64,8 @@ export default function NamePage() {
               </div>
             </div>
 
-            <div
-              className="flex items-center gap-3 text-[10px] font-bold tracking-widest"
-              style={{ color: 'rgba(255,255,255,0.4)' }}
-            >
-              <span>ETİBARLI</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
-              <span>HALAL</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
-              <span>SÜRƏTLİ</span>
+            <div className="text-[10px] font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              TAZE ƏT · QURBANLIQ · XEYRİYYƏ
             </div>
           </div>
         </div>
