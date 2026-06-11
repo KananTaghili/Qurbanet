@@ -266,7 +266,7 @@ export default function LandingPage() {
         />
 
         {/* Hero Content */}
-        <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-7 px-5 py-12 text-center sm:py-16">
+        <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-7 px-5 pb-8 pt-10 text-center sm:pb-10 sm:pt-14">
           {/* Logo + Title */}
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
             <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white/30 shadow-xl sm:h-24 sm:w-24">
@@ -314,7 +314,7 @@ export default function LandingPage() {
         SERVICE CARDS SECTION (4 cards, fully responsive)
         ======================================================
       */}
-      <section className="mx-auto max-w-5xl px-5 py-14 md:py-20">
+      <section className="mx-auto max-w-5xl px-5 pb-14 pt-6 md:pb-20 md:pt-8">
         {/* Desktop Grid (3 columns) */}
         <div className="hidden gap-6 md:grid md:grid-cols-3">
           {SERVICES.map((service) => (
