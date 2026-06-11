@@ -21,9 +21,9 @@ import {
   FaFacebook,
   FaInstagram,
   FaWhatsapp,
-  FaHandshake,
+  FaHandHoldingHeart,
 } from "react-icons/fa";
-import { GiGoat, GiMeat } from "react-icons/gi";
+import { GiGoat, GiMeat, GiKnife } from "react-icons/gi";
 
 /* 
   ============================================================
@@ -62,7 +62,7 @@ const SERVICES = [
     btn: COLORS.primaryLight,
     btnShadow: "0 6px 18px -4px rgba(27,94,32,0.5)",
     btnLabel: "Sifariş Et",
-    ServiceIcon: GiGoat,
+    ServiceIcon: GiKnife,
     disabled: false,
   },
   {
@@ -77,7 +77,7 @@ const SERVICES = [
     btn: COLORS.purpleLight,
     btnShadow: "0 6px 18px -4px rgba(109,40,217,0.5)",
     btnLabel: "Qoşul",
-    ServiceIcon: FaHandshake,
+    ServiceIcon: FaHandHoldingHeart,
     disabled: true,
   },
   {
