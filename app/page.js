@@ -256,13 +256,13 @@ export default function LandingPage() {
           src="/home_image.jpg"
           alt="MeatBox hero"
           fill
-          className="object-cover object-[center_30%]"
+          className="object-cover object-[center_78%]"
           priority
         />
         {/* Green overlay — şəffaf saxla ki foto görünsün */}
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.78) 0%,rgba(26,112,40,0.72) 55%,rgba(20,83,45,0.78) 100%)" }}
+          style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)" }}
         />
 
         {/* Hero Content */}
