@@ -455,7 +455,7 @@ export default function LandingPage() {
             {/* Links */}
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Links
+                Keçidlər
               </h4>
               <ul className="mt-3 space-y-2">
                 {["Haqqımızda", "Xidmətlər", "Necə işləyir?"].map((item) => (
@@ -479,7 +479,7 @@ export default function LandingPage() {
               <ul className="mt-3 space-y-2">
                 <li className="flex items-center gap-2 text-sm text-gray-300">
                   <Phone size={13} className="text-green-400" />
-                  +994 50 123 44 55
+                  010 399 02 22
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-300">
                   <Mail size={13} className="text-green-400" />
@@ -505,14 +505,20 @@ export default function LandingPage() {
                 Ödəniş üsulları
               </h4>
               <div className="mt-3 flex flex-wrap gap-2">
-                {["VISA", "Mastercard", "tam."].map((method) => (
-                  <span
-                    key={method}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-200"
-                  >
-                    {method}
-                  </span>
-                ))}
+                {/* Visa */}
+                <div style={{ background: "#1a1f71", borderRadius: 8, padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "center", minWidth: 56, height: 34 }}>
+                  <span style={{ color: "#fff", fontFamily: "serif", fontWeight: 900, fontStyle: "italic", fontSize: 16, letterSpacing: "-0.5px" }}>VISA</span>
+                </div>
+                {/* Mastercard */}
+                <div style={{ background: "#252525", borderRadius: 8, padding: "5px 10px", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, height: 34 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#eb001b" }} />
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#f79e1b", marginLeft: -10 }} />
+                </div>
+                {/* Maestro */}
+                <div style={{ background: "#252525", borderRadius: 8, padding: "5px 10px", display: "flex", alignItems: "center", justifyContent: "center", gap: 2, height: 34 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#0099df" }} />
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#cc0000", marginLeft: -8, opacity: 0.85 }} />
+                </div>
               </div>
             </div>
           </div>
