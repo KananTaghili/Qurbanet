@@ -17,11 +17,7 @@ import {
   Mail,
   User,
 } from "lucide-react";
-import {
-  FaFacebook,
-  FaInstagram,
-  FaWhatsapp,
-} from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { PiKnife } from "react-icons/pi";
 import { TbMeat, TbHeartHandshake } from "react-icons/tb";
 
@@ -39,7 +35,7 @@ const COLORS = {
   purpleLight: "#7C3AED",
   red: "#B91C1C",
   redLight: "#DC2626",
-textDark: "#111827",
+  textDark: "#111827",
   textMuted: "#6B7280",
   border: "#EAECF0",
 };
@@ -82,7 +78,7 @@ const SERVICES = [
   },
   {
     id: "et",
-    title: "Ət Satışı",
+    title: "Ət Sifarişi",
     desc: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdırırıq.",
     href: "#",
     img: "/dana.jpg",
@@ -174,9 +170,6 @@ export default function LandingPage() {
               <span className="block text-lg font-black tracking-tight text-gray-900">
                 MEAT<span style={{ color: COLORS.primary }}>BOX</span>.AZ
               </span>
-              <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                Taze Ət · Qurbanlıq · Xeyriyyə
-              </span>
             </div>
           </Link>
 
@@ -205,9 +198,6 @@ export default function LandingPage() {
               Daxil ol
             </Link>
 
-            <button className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors hover:bg-gray-100">
-              <ShoppingCart size={19} className="text-gray-600" />
-            </button>
             <button
               onClick={() => setMobileMenuOpen((prev) => !prev)}
               className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 md:hidden"
@@ -273,12 +263,19 @@ export default function LandingPage() {
         {/* Green overlay — açıq ton */}
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)" }}
+          style={{
+            background:
+              "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)",
+          }}
         />
         {/* Alt ağ gradient — tam ağ keçid, xətt görünməsin */}
         <div
           className="absolute bottom-0 left-0 right-0"
-          style={{ height: 140, background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.6) 50%, #ffffff 100%)" }}
+          style={{
+            height: 140,
+            background:
+              "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.6) 50%, #ffffff 100%)",
+          }}
         />
 
         {/* Hero Content */}
@@ -305,7 +302,7 @@ export default function LandingPage() {
           </div>
 
           {/* Feature Badges */}
-          <div className="flex flex-wrap justify-center gap-2.5">
+          <div className="flex flex-wrap justify-center gap-5">
             {[
               { Icon: ShieldCheck, label: "Halal kəsim" },
               { Icon: Video, label: "Video hesabat" },
@@ -313,10 +310,10 @@ export default function LandingPage() {
             ].map(({ Icon, label }) => (
               <div
                 key={label}
-                className="flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-1.5 backdrop-blur-sm"
+                className="flex items-center gap-2"
               >
-                <Icon size={15} className="text-green-300" strokeWidth={2} />
-                <span className="text-xs font-semibold text-white">
+                <Icon size={17} className="text-white" strokeWidth={2} />
+                <span className="text-sm font-semibold text-white">
                   {label}
                 </span>
               </div>
@@ -366,50 +363,77 @@ export default function LandingPage() {
                 paddingTop: 20,
               }}
             >
-            {/* Title sitting on the top border */}
-            <div style={{
-              position: "absolute",
-              top: -11,
-              left: "50%",
-              transform: "translateX(-50%)",
-              background: "#fff",
-              padding: "0 14px",
-              fontSize: 15,
-              fontWeight: 800,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-              color: "#111827",
-              whiteSpace: "nowrap",
-            }}>
-              Niyə MeatBox?
-            </div>
-            {WHY.map(({ Icon, label, desc }, i) => (
+              {/* Title sitting on the top border */}
               <div
-                key={label}
                 style={{
-                  flex: "1 1 200px",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 12,
-                  padding: "20px 22px",
-                  borderRight: i < WHY.length - 1 ? "1px solid #F3F4F6" : "none",
+                  position: "absolute",
+                  top: -11,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "#fff",
+                  padding: "0 14px",
+                  fontSize: 15,
+                  fontWeight: 800,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  color: "#111827",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {/* Icon — thin outline circle, no fill */}
-                <div style={{
-                  width: 40, height: 40, borderRadius: "50%",
-                  border: `1.5px solid ${COLORS.primary}60`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}>
-                  <Icon size={19} strokeWidth={1.5} color={COLORS.primary} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.35 }}>{label}</div>
-                  <div style={{ fontSize: 11, color: "#6B7280", marginTop: 3, lineHeight: 1.5 }}>{desc}</div>
-                </div>
+                Niyə MeatBox?
               </div>
-            ))}
+              {WHY.map(({ Icon, label, desc }, i) => (
+                <div
+                  key={label}
+                  style={{
+                    flex: "1 1 200px",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 12,
+                    padding: "20px 22px",
+                    borderRight:
+                      i < WHY.length - 1 ? "1px solid #F3F4F6" : "none",
+                  }}
+                >
+                  {/* Icon — thin outline circle, no fill */}
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      border: `1.5px solid ${COLORS.primary}60`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Icon size={19} strokeWidth={1.5} color={COLORS.primary} />
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: "#111827",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "#6B7280",
+                        marginTop: 3,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {desc}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -524,7 +548,20 @@ export default function LandingPage() {
   ============================================================
 */
 function ServiceCard({ service }) {
-  const { title, desc, href, img, imgFit, imgBg, color, btn, btnShadow, btnLabel, ServiceIcon, disabled } = service;
+  const {
+    title,
+    desc,
+    href,
+    img,
+    imgFit,
+    imgBg,
+    color,
+    btn,
+    btnShadow,
+    btnLabel,
+    ServiceIcon,
+    disabled,
+  } = service;
 
   const cardContent = (
     <div
@@ -534,70 +571,168 @@ function ServiceCard({ service }) {
         border: "1px solid #EAECF0",
         boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
         cursor: disabled ? "default" : "pointer",
-        overflow: "visible",   /* icon-un taşması üçün */
+        overflow: "visible" /* icon-un taşması üçün */,
       }}
-      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.13)"; }}}
-      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)"; }}
+      onMouseEnter={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.transform = "translateY(-4px)";
+          e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.13)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)";
+      }}
     >
       {/* ① Icon + başlıq — overflow:visible, icon şəklin üstünə düşür */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 24, paddingBottom: 0, paddingLeft: 16, paddingRight: 16, position: "relative", zIndex: 2 }}>
-
-        {/* Dairəvi icon */}
-        <div style={{
-          width: 72, height: 72,
-          borderRadius: "50%",
-          background: "#fff",
-          border: `2px solid ${color}30`,
-          boxShadow: `0 4px 16px ${color}25`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          marginBottom: -20,   /* şəklin üstünə 20px batır */
-          flexShrink: 0,
-          zIndex: 3,
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          paddingTop: 24,
+          paddingBottom: 0,
+          paddingLeft: 16,
+          paddingRight: 16,
           position: "relative",
-        }}>
-          <ServiceIcon size={32} color={color} />
+          zIndex: 2,
+        }}
+      >
+        {/* Dairəvi icon */}
+        <div
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: "50%",
+            background: "#fff",
+            border: `2px solid ${color}30`,
+            boxShadow: `0 4px 16px ${color}25`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: -20 /* şəklin üstünə 20px batır */,
+            flexShrink: 0,
+            zIndex: 3,
+            position: "relative",
+          }}
+        >
+          <ServiceIcon size={42} color={color} />
         </div>
       </div>
 
       {/* ② Şəkil — overflow hidden, icon batır içəri */}
-      <div style={{
-        position: "relative",
-        marginLeft: 12, marginRight: 12,
-        height: 155,
-        borderRadius: 14,
-        overflow: "hidden",
-        background: imgBg,
-        flexShrink: 0,
-        zIndex: 1,
-      }}>
+      <div
+        style={{
+          position: "relative",
+          marginLeft: 12,
+          marginRight: 12,
+          height: 155,
+          borderRadius: 14,
+          overflow: "hidden",
+          background: imgBg,
+          flexShrink: 0,
+          zIndex: 1,
+        }}
+      >
         <img
           src={img}
           alt={title}
           className="group-hover:scale-105 transition-transform duration-300"
-          style={{ width: "100%", height: "100%", objectFit: imgFit, objectPosition: "center", opacity: disabled ? 0.7 : 1 }}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: imgFit,
+            objectPosition: "center",
+            opacity: disabled ? 0.7 : 1,
+          }}
         />
 
         {/* Qaranlıq overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.15)" }} />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.15)",
+          }}
+        />
 
         {/* Alt ağ gradient fade */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "45%", background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.92) 100%)" }} />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "45%",
+            background:
+              "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.92) 100%)",
+          }}
+        />
 
         {/* Play düyməsi */}
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(0,0,0,0.52)", backdropFilter: "blur(4px)", border: "1.5px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Play size={17} fill="white" color="white" style={{ marginLeft: 2 }} />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              background: "rgba(0,0,0,0.52)",
+              backdropFilter: "blur(4px)",
+              border: "1.5px solid rgba(255,255,255,0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Play
+              size={17}
+              fill="white"
+              color="white"
+              style={{ marginLeft: 2 }}
+            />
           </div>
         </div>
 
         {/* 0:15 badge */}
-        <div style={{ position: "absolute", bottom: 8, right: 8, padding: "2px 7px", borderRadius: 5, background: "rgba(0,0,0,0.65)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 8,
+            right: 8,
+            padding: "2px 7px",
+            borderRadius: 5,
+            background: "rgba(0,0,0,0.65)",
+            fontSize: 10,
+            fontWeight: 700,
+            color: "#fff",
+          }}
+        >
           0:15
         </div>
 
         {/* Tezliklə */}
         {disabled && (
-          <div style={{ position: "absolute", top: 8, left: 8, padding: "3px 10px", borderRadius: 999, background: "rgba(0,0,0,0.65)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              padding: "3px 10px",
+              borderRadius: 999,
+              background: "rgba(0,0,0,0.65)",
+              fontSize: 10,
+              fontWeight: 700,
+              color: "#fff",
+            }}
+          >
             Tezliklə
           </div>
         )}
@@ -605,23 +740,58 @@ function ServiceCard({ service }) {
 
       {/* ③ Başlıq */}
       <div style={{ padding: "12px 16px 4px", textAlign: "center" }}>
-        <h3 style={{ fontSize: 15, fontWeight: 800, color, lineHeight: 1.35, letterSpacing: "-0.2px", margin: 0 }}>
+        <h3
+          style={{
+            fontSize: 15,
+            fontWeight: 800,
+            color,
+            lineHeight: 1.35,
+            letterSpacing: "-0.2px",
+            margin: 0,
+          }}
+        >
           {title}
         </h3>
       </div>
 
       {/* ④ Mətn + düymə */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "8px 16px 18px" }}>
-        <p style={{ flex: 1, fontSize: 12, color: "#6B7280", lineHeight: 1.65, marginBottom: 14 }}>{desc}</p>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: "8px 16px 18px",
+        }}
+      >
+        <p
+          style={{
+            flex: 1,
+            fontSize: 12,
+            color: "#6B7280",
+            lineHeight: 1.65,
+            marginBottom: 14,
+          }}
+        >
+          {desc}
+        </p>
 
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          padding: "11px 0", borderRadius: 12, fontSize: 13, fontWeight: 700,
-          letterSpacing: "0.03em", color: "#fff",
-          background: btn,
-          boxShadow: disabled ? "none" : btnShadow,
-          opacity: disabled ? 0.45 : 1,
-        }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            padding: "11px 0",
+            borderRadius: 12,
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: "0.03em",
+            color: "#fff",
+            background: btn,
+            boxShadow: disabled ? "none" : btnShadow,
+            opacity: disabled ? 0.45 : 1,
+          }}
+        >
           {btnLabel.toUpperCase()}
           <ArrowRight size={14} strokeWidth={2.5} />
         </div>
@@ -630,9 +800,21 @@ function ServiceCard({ service }) {
   );
 
   if (disabled) return <div className="h-full">{cardContent}</div>;
-  return <Link href={href} className="block h-full" style={{ textDecoration: "none" }}>{cardContent}</Link>;
+  return (
+    <Link
+      href={href}
+      className="block h-full"
+      style={{ textDecoration: "none" }}
+    >
+      {cardContent}
+    </Link>
+  );
 }
 
 /* Desktop və mobil eyni ServiceCard istifadə edir */
-function DesktopCard({ service }) { return <ServiceCard service={service} />; }
-function MobileCard({ service })  { return <ServiceCard service={service} />; }
+function DesktopCard({ service }) {
+  return <ServiceCard service={service} />;
+}
+function MobileCard({ service }) {
+  return <ServiceCard service={service} />;
+}
