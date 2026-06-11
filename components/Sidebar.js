@@ -59,7 +59,7 @@ export default function Sidebar() {
       {/* ── Logo ── */}
       <div className="px-3 lg:px-4 pt-4 lg:pt-5 pb-3 lg:pb-4 flex-shrink-0">
         <Link
-          href="/"
+          href="/qurban"
           className="flex items-center gap-2.5 lg:gap-3 no-underline"
         >
           <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl overflow-hidden flex-shrink-0 border border-white/20">
