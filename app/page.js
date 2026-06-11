@@ -395,21 +395,7 @@ export default function LandingPage() {
                       i < WHY.length - 1 ? "1px solid #F3F4F6" : "none",
                   }}
                 >
-                  {/* Icon — thin outline circle, no fill */}
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      border: `1.5px solid ${COLORS.primary}60`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Icon size={19} strokeWidth={1.5} color={COLORS.primary} />
-                  </div>
+                  <Icon size={28} strokeWidth={1.5} color={COLORS.primary} style={{ flexShrink: 0, marginTop: 2 }} />
                   <div>
                     <div
                       style={{
