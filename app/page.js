@@ -570,41 +570,6 @@ function ServiceCard({ service }) {
         e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)";
       }}
     >
-      {/* ① Icon + başlıq — overflow:visible, icon şəklin üstünə düşür */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 24,
-          paddingBottom: 0,
-          paddingLeft: 16,
-          paddingRight: 16,
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        {/* Dairəvi icon */}
-        <div
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: "50%",
-            background: "#fff",
-            border: `2px solid ${color}30`,
-            boxShadow: `0 4px 16px ${color}25`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: -20 /* şəklin üstünə 20px batır */,
-            flexShrink: 0,
-            zIndex: 3,
-            position: "relative",
-          }}
-        >
-          <ServiceIcon size={42} color={color} />
-        </div>
-      </div>
 
       {/* ② Şəkil — overflow hidden, icon batır içəri */}
       <div
