@@ -264,10 +264,10 @@ export default function LandingPage() {
           className="absolute inset-0"
           style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)" }}
         />
-        {/* Alt ağ gradient — cards-la birləşmə üçün */}
+        {/* Alt ağ gradient — tam ağ keçid, xətt görünməsin */}
         <div
           className="absolute bottom-0 left-0 right-0"
-          style={{ height: 90, background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.45) 60%, rgba(255,255,255,0.75) 100%)" }}
+          style={{ height: 140, background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.6) 50%, #ffffff 100%)" }}
         />
 
         {/* Hero Content */}
@@ -345,31 +345,45 @@ export default function LandingPage() {
       */}
       <section className="py-8">
         <div className="mx-auto max-w-4xl px-5">
-          <h2 className="mb-4 text-center text-xl font-extrabold tracking-tight text-gray-900">
-            Niyə MeatBox?
-          </h2>
+          <p className="mb-3 text-center text-[13px] font-semibold uppercase tracking-widest text-gray-400">Niyə MeatBox?</p>
 
-          {/* Strip — referans şəkil kimi */}
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex flex-col divide-y divide-gray-100 md:flex-row md:divide-x md:divide-y-0">
-            {WHY.map(({ Icon, label, desc }) => (
-              <div key={label} className="flex flex-1 items-center gap-3 px-5 py-5">
-                {/* İkon — nazik kontur dairə */}
+          <div
+            style={{
+              background: "#fff",
+              border: "1px solid #E5E7EB",
+              borderRadius: 16,
+              boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+              display: "flex",
+              flexWrap: "wrap",
+            }}
+          >
+            {WHY.map(({ Icon, label, desc }, i) => (
+              <div
+                key={label}
+                style={{
+                  flex: "1 1 200px",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 12,
+                  padding: "20px 22px",
+                  borderRight: i < WHY.length - 1 ? "1px solid #F3F4F6" : "none",
+                }}
+              >
+                {/* Icon — thin outline circle, no fill */}
                 <div style={{
-                  width: 44, height: 44, borderRadius: "50%",
-                  border: `1.5px solid ${COLORS.primary}40`,
+                  width: 40, height: 40, borderRadius: "50%",
+                  border: "1.5px solid #D1D5DB",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0, background: "#f0fdf4",
+                  flexShrink: 0,
                 }}>
-                  <Icon size={20} strokeWidth={1.6} color={COLORS.primary} />
+                  <Icon size={19} strokeWidth={1.5} color="#374151" />
                 </div>
                 <div>
-                  <div className="text-[13px] font-bold text-gray-900 leading-tight">{label}</div>
-                  <div className="mt-0.5 text-[11px] leading-snug text-gray-500">{desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.35 }}>{label}</div>
+                  <div style={{ fontSize: 11, color: "#6B7280", marginTop: 3, lineHeight: 1.5 }}>{desc}</div>
                 </div>
               </div>
             ))}
-            </div>
           </div>
         </div>
       </section>
