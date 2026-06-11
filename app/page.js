@@ -550,12 +550,12 @@ function ServiceCard({ service }) {
   } = service;
 
   const cardContent = (
-    <div style={{ position: "relative", paddingTop: 40, height: "100%" }}>
+    <div style={{ position: "relative", paddingTop: 45, height: "100%" }}>
       {/* Pop-out icon — kartın üstünə çıxır */}
       <div
         style={{
           position: "absolute",
-          top: 6,
+          top: 11,
           left: "50%",
           transform: "translateX(-50%)",
           width: 68,
