@@ -463,180 +463,97 @@ export default function LandingPage() {
 
 /*
   ============================================================
-  DESKTOP CARD COMPONENT (vertical layout: title → image → text → button)
+  SERVICE CARD — həm desktop həm mobil eyni dizayn:
+  dairəvi icon (üst-mərkəz) → başlıq → şəkil → mətn → düymə
   ============================================================
 */
-function DesktopCard({ service }) {
-  const {
-    title,
-    desc,
-    href,
-    img,
-    imgFit,
-    imgBg,
-    color,
-    btn,
-    btnShadow,
-    btnLabel,
-    ServiceIcon,
-    disabled,
-  } = service;
+function ServiceCard({ service }) {
+  const { title, desc, href, img, imgFit, imgBg, color, btn, btnShadow, btnLabel, ServiceIcon, disabled } = service;
+
+  // icon circle bg — rəngin açıq tonu
+  const iconBg = color + "18"; // ~10% opacity
 
   const cardContent = (
     <div
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
-      style={{ cursor: disabled ? "default" : "pointer" }}
+      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200"
+      style={{
+        border: "1px solid #EAECF0",
+        boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
+        cursor: disabled ? "default" : "pointer",
+      }}
+      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.13)"; }}}
+      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)"; }}
     >
-      {/* Title Row */}
-      <div className="px-4 pb-0 pt-4">
-        <h3 className="text-md font-extrabold tracking-tight" style={{ color }}>
+      {/* ① Dairəvi icon — üst mərkəz */}
+      <div className="flex flex-col items-center pt-6 pb-3 px-4">
+        <div
+          className="flex items-center justify-center rounded-full mb-3"
+          style={{ width: 68, height: 68, background: iconBg, border: `2px solid ${color}22` }}
+        >
+          <ServiceIcon size={32} color={color} />
+        </div>
+
+        {/* ② Başlıq */}
+        <h3 className="text-center font-extrabold text-[15px] leading-snug tracking-tight" style={{ color }}>
           {title}
         </h3>
       </div>
 
-      {/* Image Container with Play / Badges */}
-      <div
-        className="relative mt-2 h-44 overflow-hidden"
-        style={{ background: imgBg }}
-      >
+      {/* ③ Şəkil + play + badge-lər */}
+      <div className="relative mx-3 overflow-hidden rounded-xl" style={{ height: 178, background: imgBg, flexShrink: 0 }}>
         <img
           src={img}
           alt={title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          style={{ objectFit: imgFit, opacity: disabled ? 0.7 : 1 }}
+          className="h-full w-full transition-transform duration-300 group-hover:scale-105"
+          style={{ objectFit: imgFit, objectPosition: "center", opacity: disabled ? 0.7 : 1 }}
         />
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/10" />
+        {/* overlay */}
+        <div className="absolute inset-0 bg-black/15 rounded-xl" />
 
-        {/* Play Button Overlay */}
+        {/* Play düyməsi */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
-            <Play size={17} fill="white" color="white" className="ml-0.5" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/30">
+            <Play size={17} fill="white" color="white" style={{ marginLeft: 2 }} />
           </div>
         </div>
 
-        {/* Service Icon (top right) */}
-        <div
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-md"
-          style={{ background: color }}
-        >
-          <ServiceIcon size={15} color="#fff" />
-        </div>
-
-        {/* Timer Badge (0:15) */}
-        <div className="absolute bottom-2 right-2 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
+        {/* 0:15 badge */}
+        <div className="absolute bottom-2 right-2 rounded-md bg-black/65 px-1.5 py-0.5 text-[10px] font-bold text-white">
           0:15
         </div>
 
-        {/* Disabled Badge */}
+        {/* Tezliklə badge */}
         {disabled && (
-          <div className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold uppercase text-white backdrop-blur-sm">
+          <div className="absolute left-2 top-2 rounded-full bg-black/65 px-2.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
             Tezliklə
           </div>
         )}
       </div>
 
-      {/* Description & Button */}
-      <div className="flex flex-1 flex-col p-4">
-        <p className="flex-1 text-xs leading-relaxed text-gray-500">{desc}</p>
+      {/* ④ Mətn + düymə */}
+      <div className="flex flex-1 flex-col p-4 pt-3">
+        <p className="flex-1 text-[12px] leading-relaxed text-gray-500 mb-4">{desc}</p>
+
+        {/* CTA düyməsi — tam genişlik */}
         <div
-          className="mt-3 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-center text-xs font-bold text-white transition-all"
+          className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold tracking-wide text-white"
           style={{
             background: btn,
             boxShadow: disabled ? "none" : btnShadow,
-            opacity: disabled ? 0.5 : 1,
+            opacity: disabled ? 0.45 : 1,
           }}
         >
-          {btnLabel}
-          <ArrowRight size={13} strokeWidth={2.5} />
+          {btnLabel.toUpperCase()}
+          <ArrowRight size={15} strokeWidth={2.5} />
         </div>
       </div>
     </div>
   );
 
-  if (disabled) return cardContent;
-  return <Link href={href}>{cardContent}</Link>;
+  if (disabled) return <div className="h-full">{cardContent}</div>;
+  return <Link href={href} className="block h-full" style={{ textDecoration: "none" }}>{cardContent}</Link>;
 }
 
-/*
-  ============================================================
-  MOBILE CARD COMPONENT (horizontal: text left, image right)
-  ============================================================
-*/
-function MobileCard({ service }) {
-  const {
-    title,
-    desc,
-    href,
-    img,
-    imgFit,
-    imgBg,
-    color,
-    btn,
-    btnShadow,
-    btnLabel,
-    ServiceIcon,
-    disabled,
-  } = service;
-
-  const cardContent = (
-    <div className="flex min-h-[130px] overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-      {/* Text Section */}
-      <div className="flex flex-1 flex-col justify-between p-3">
-        <div>
-          <h3 className="text-sm font-extrabold" style={{ color }}>
-            {title}
-          </h3>
-          <p className="mt-1 text-[11px] leading-tight text-gray-500">{desc}</p>
-        </div>
-        <div
-          className="mt-2 inline-flex items-center gap-1.5 self-start rounded-lg px-3 py-1.5 text-[11px] font-bold text-white"
-          style={{
-            background: btn,
-            boxShadow: disabled ? "none" : btnShadow,
-            opacity: disabled ? 0.5 : 1,
-          }}
-        >
-          {btnLabel}
-          <ArrowRight size={11} strokeWidth={2.5} />
-        </div>
-      </div>
-
-      {/* Image Section */}
-      <div
-        className="relative w-[115px] shrink-0 overflow-hidden"
-        style={{ background: imgBg }}
-      >
-        <img
-          src={img}
-          alt={title}
-          className="h-full w-full object-cover"
-          style={{ objectFit: imgFit, opacity: disabled ? 0.7 : 1 }}
-        />
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50">
-            <Play size={13} fill="white" color="white" className="ml-0.5" />
-          </div>
-        </div>
-        <div
-          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border border-white"
-          style={{ background: color }}
-        >
-          <ServiceIcon size={11} color="#fff" />
-        </div>
-        <div className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1 text-[9px] font-bold text-white">
-          0:15
-        </div>
-        {disabled && (
-          <div className="absolute left-1.5 top-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[8px] font-bold text-white">
-            Tezliklə
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  if (disabled) return cardContent;
-  return <Link href={href}>{cardContent}</Link>;
-}
+/* Desktop və mobil eyni ServiceCard istifadə edir */
+function DesktopCard({ service }) { return <ServiceCard service={service} />; }
+function MobileCard({ service })  { return <ServiceCard service={service} />; }
