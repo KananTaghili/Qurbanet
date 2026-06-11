@@ -345,18 +345,36 @@ export default function LandingPage() {
       */}
       <section className="py-8">
         <div className="mx-auto max-w-4xl px-5">
-          <p className="mb-3 text-center text-[13px] font-semibold uppercase tracking-widest text-gray-400">Niyə MeatBox?</p>
-
-          <div
-            style={{
+          {/* Floating title ON the border */}
+          <div style={{ position: "relative", marginTop: 12 }}>
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid #E5E7EB",
+                borderRadius: 16,
+                boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+                display: "flex",
+                flexWrap: "wrap",
+                paddingTop: 20,
+              }}
+            >
+            {/* Title sitting on the top border */}
+            <div style={{
+              position: "absolute",
+              top: -11,
+              left: "50%",
+              transform: "translateX(-50%)",
               background: "#fff",
-              border: "1px solid #E5E7EB",
-              borderRadius: 16,
-              boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
-              display: "flex",
-              flexWrap: "wrap",
-            }}
-          >
+              padding: "0 14px",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: COLORS.primary,
+              whiteSpace: "nowrap",
+            }}>
+              Niyə MeatBox?
+            </div>
             {WHY.map(({ Icon, label, desc }, i) => (
               <div
                 key={label}
@@ -384,6 +402,7 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </section>
