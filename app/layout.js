@@ -13,7 +13,7 @@ export const metadata = {
   description:
     "QurbanEt ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət. Azərbaycanda qurban kəsim platforması.",
   keywords: ["qurban", "qurbanet", "qurban kes", "halal", "azerbaycan"],
-  icons: { icon: "/logo.png", apple: "/logo.png" },
+  icons: { icon: "/logo_test.png", apple: "/logo_test.png" },
   openGraph: {
     type: "website",
     url: BASE_URL,

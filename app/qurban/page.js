@@ -204,7 +204,7 @@ export default function QurbanPage() {
           {/* Logo */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
             <div className="w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden flex-shrink-0 bg-white/20">
-              <Image src="/logo.png" alt="QurbanEt" width={48} height={48} className="w-full h-full object-cover" />
+              <Image src="/logo_test.png" alt="QurbanEt" width={48} height={48} className="w-full h-full object-cover" />
             </div>
             <div className="min-w-0">
               <div

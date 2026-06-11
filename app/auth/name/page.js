@@ -49,7 +49,7 @@ export default function NamePage() {
               className="w-24 h-24 lg:w-32 lg:h-32 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0"
               style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.25)' }}
             >
-              <Image src="/logo.png" alt="QurbanEt" width={128} height={128} className="w-full h-full object-cover" />
+              <Image src="/logo_test.png" alt="QurbanEt" width={128} height={128} className="w-full h-full object-cover" />
             </div>
 
             <div>

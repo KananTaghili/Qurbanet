@@ -51,7 +51,7 @@ export default function ClientShell({ children }) {
           }}
         >
           <Image
-            src="/logo.png"
+            src="/logo_test.png"
             alt="QurbanEt"
             width={100}
             height={100}

@@ -63,7 +63,7 @@ export default function Sidebar() {
         >
           <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl overflow-hidden flex-shrink-0 border border-white/20">
             <Image
-              src="/logo.png"
+              src="/logo_test.png"
               alt="QurbanEt"
               width={44}
               height={44}

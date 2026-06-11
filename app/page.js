@@ -158,7 +158,7 @@ export default function LandingPage() {
           <Link href="/" className="flex shrink-0 items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white">
               <Image
-                src="/logo.png"
+                src="/logo_test.png"
                 alt="MeatBox logo"
                 width={36}
                 height={36}
@@ -254,7 +254,7 @@ export default function LandingPage() {
       <section className="relative min-h-[430px] w-full overflow-hidden">
         {/* Background Image */}
         <Image
-          src="/home_image.jpg"
+          src="/home_image_test.jpg"
           alt="MeatBox hero"
           fill
           className="object-cover object-[center_78%]"
@@ -284,7 +284,7 @@ export default function LandingPage() {
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
             <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white/30 shadow-xl sm:h-24 sm:w-24">
               <Image
-                src="/logo.png"
+                src="/logo_test.png"
                 alt="MeatBox logo"
                 width={96}
                 height={96}
@@ -437,7 +437,7 @@ export default function LandingPage() {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2.5">
                 <Image
-                  src="/logo.png"
+                  src="/logo_test.png"
                   alt="MeatBox"
                   width={38}
                   height={38}
@@ -550,7 +550,7 @@ function ServiceCard({ service }) {
   } = service;
 
   const cardContent = (
-    <div style={{ position: "relative", paddingTop: 36, height: "100%" }}>
+    <div style={{ position: "relative", paddingTop: 46, height: "100%" }}>
       {/* Pop-out icon — kartın üstünə çıxır */}
       <div
         style={{
@@ -581,7 +581,7 @@ function ServiceCard({ service }) {
           boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
           cursor: disabled ? "default" : "pointer",
           overflow: "hidden",
-          paddingTop: 36,
+          paddingTop: 46,
         }}
         onMouseEnter={(e) => {
           if (!disabled) {
@@ -767,7 +767,7 @@ function ServiceCard({ service }) {
             opacity: disabled ? 0.45 : 1,
           }}
         >
-          {btnLabel.toUpperCase()}
+          {btnLabel}
           <ArrowRight size={14} strokeWidth={2.5} />
         </div>
       </div>

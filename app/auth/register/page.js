@@ -107,7 +107,7 @@ export default function RegisterPage() {
             boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
             background: "rgba(255,255,255,0.12)",
           }}>
-            <Image src="/logo.png" alt="MeatBox" width={120} height={120} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Image src="/logo_test.png" alt="MeatBox" width={120} height={120} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
 
           <div>
@@ -159,7 +159,7 @@ export default function RegisterPage() {
             <ArrowLeft size={16} /> Ana səhifəyə qayıt
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
-            <Image src="/logo.png" alt="MeatBox" width={44} height={44} style={{ borderRadius: 12 }} />
+            <Image src="/logo_test.png" alt="MeatBox" width={44} height={44} style={{ borderRadius: 12 }} />
             <div style={{ fontSize: 22, fontWeight: 900, color: "#1B5E20", fontStyle: "italic" }}>
               MEAT<span style={{ color: "#2E7D32" }}>BOX</span>.AZ
             </div>
