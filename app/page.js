@@ -24,7 +24,7 @@ import {
   FaHandHoldingHeart,
 } from "react-icons/fa";
 import { PiKnife } from "react-icons/pi";
-import { TbGrill } from "react-icons/tb";
+import { TbMeat } from "react-icons/tb";
 
 /* 
   ============================================================
@@ -93,7 +93,7 @@ const SERVICES = [
     btn: COLORS.redLight,
     btnShadow: "0 6px 18px -4px rgba(185,28,28,0.5)",
     btnLabel: "Məhsullara Bax",
-    ServiceIcon: TbGrill,
+    ServiceIcon: TbMeat,
     disabled: true,
   },
 ];
