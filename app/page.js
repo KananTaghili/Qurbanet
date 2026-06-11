@@ -319,8 +319,6 @@ export default function LandingPage() {
         SERVICE CARDS SECTION (4 cards, fully responsive)
         ======================================================
       */}
-      {/* Full-width green→white gradient behind cards so sides don't show white line */}
-      <div className="relative w-full" style={{ background: "linear-gradient(to bottom, rgba(27,94,32,0.38) 0%, rgba(255,255,255,0) 72px)" }}>
       <section className="relative z-10 mx-auto max-w-5xl -mt-16 px-5 pb-14 md:pb-20">
         {/* Desktop Grid (3 columns) */}
         <div className="hidden gap-6 md:grid md:grid-cols-3">
@@ -336,7 +334,6 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
-      </div>
 
       {/*
         ======================================================
