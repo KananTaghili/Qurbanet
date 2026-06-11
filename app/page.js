@@ -571,6 +571,33 @@ function ServiceCard({ service }) {
       }}
     >
 
+      {/* ① Dairəvi icon */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          paddingTop: 16,
+          paddingBottom: 10,
+        }}
+      >
+        <div
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "#fff",
+            border: `2px solid ${color}30`,
+            boxShadow: `0 4px 16px ${color}25`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <ServiceIcon size={36} color={color} />
+        </div>
+      </div>
+
       {/* ② Şəkil — overflow hidden, icon batır içəri */}
       <div
         style={{
