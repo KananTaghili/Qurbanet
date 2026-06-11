@@ -265,7 +265,7 @@ export default function LandingPage() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)",
+              "linear-gradient(135deg,rgba(27,94,32,0.35) 0%,rgba(26,112,40,0.30) 55%,rgba(20,83,45,0.35) 100%)",
           }}
         />
         {/* Alt ağ gradient — tam ağ keçid, xətt görünməsin */}
@@ -550,7 +550,7 @@ function ServiceCard({ service }) {
   } = service;
 
   const cardContent = (
-    <div style={{ position: "relative", paddingTop: 46, height: "100%" }}>
+    <div style={{ position: "relative", paddingTop: 34, height: "100%" }}>
       {/* Pop-out icon — kartın üstünə çıxır */}
       <div
         style={{
@@ -581,7 +581,7 @@ function ServiceCard({ service }) {
           boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
           cursor: disabled ? "default" : "pointer",
           overflow: "hidden",
-          paddingTop: 46,
+          paddingTop: 34,
         }}
         onMouseEnter={(e) => {
           if (!disabled) {
