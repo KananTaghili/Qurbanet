@@ -23,7 +23,7 @@ import {
   FaWhatsapp,
   FaHandHoldingHeart,
 } from "react-icons/fa";
-import { GiGoat, GiMeat, GiKnife } from "react-icons/gi";
+import { GiMeat, GiBowieKnife } from "react-icons/gi";
 
 /* 
   ============================================================
@@ -62,7 +62,7 @@ const SERVICES = [
     btn: COLORS.primaryLight,
     btnShadow: "0 6px 18px -4px rgba(27,94,32,0.5)",
     btnLabel: "Sifariş Et",
-    ServiceIcon: GiKnife,
+    ServiceIcon: GiBowieKnife,
     disabled: false,
   },
   {
