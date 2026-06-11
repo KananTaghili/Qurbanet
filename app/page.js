@@ -586,7 +586,7 @@ function ServiceCard({ service }) {
 
         {/* Tezliklə */}
         {disabled && (
-          <div style={{ position: "absolute", top: 28, left: 8, padding: "3px 10px", borderRadius: 999, background: "rgba(0,0,0,0.65)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
+          <div style={{ position: "absolute", top: 8, left: 8, padding: "3px 10px", borderRadius: 999, background: "rgba(0,0,0,0.65)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
             Tezliklə
           </div>
         )}
