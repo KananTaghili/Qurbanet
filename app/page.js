@@ -23,7 +23,7 @@ import {
   FaWhatsapp,
   FaHandHoldingHeart,
 } from "react-icons/fa";
-import { GiSteak, GiKitchenKnives } from "react-icons/gi";
+import { GiCurvyKnife, GiMeatCleaver } from "react-icons/gi";
 
 /* 
   ============================================================
@@ -62,7 +62,7 @@ const SERVICES = [
     btn: COLORS.primaryLight,
     btnShadow: "0 6px 18px -4px rgba(27,94,32,0.5)",
     btnLabel: "Sifariş Et",
-    ServiceIcon: GiKitchenKnives,
+    ServiceIcon: GiCurvyKnife,
     disabled: false,
   },
   {
@@ -92,7 +92,7 @@ const SERVICES = [
     btn: COLORS.redLight,
     btnShadow: "0 6px 18px -4px rgba(185,28,28,0.5)",
     btnLabel: "Məhsullara Bax",
-    ServiceIcon: GiSteak,
+    ServiceIcon: GiMeatCleaver,
     disabled: true,
   },
 ];
