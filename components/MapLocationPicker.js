@@ -135,41 +135,48 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
     loadMapLibre(() => {
       if (!containerRef.current) return;
 
-      const centerLat = initLat || DEFAULT.lat;
-      const centerLng = initLng || DEFAULT.lng;
+      // Wait one frame so iOS Safari finishes flex layout before reading container size
+      requestAnimationFrame(() => {
+        if (!containerRef.current) return;
 
-      const map = new window.maplibregl.Map({
-        container: containerRef.current,
-        style: MAP_STYLE,
-        center: [centerLng, centerLat],
-        zoom: 12,
-        minZoom: 9,
-        maxBounds: [[49.3, 39.9], [50.7, 40.8]], // Baku + Absheron peninsula
-        attributionControl: false,
-        trackResize: true,
-        fadeDuration: 0,
-      });
-      mapRef.current = map;
+        const centerLat = initLat || DEFAULT.lat;
+        const centerLng = initLng || DEFAULT.lng;
 
-      map.on("load", () => {
-        if (initLat && initLng) {
-          const m = new window.maplibregl.Marker({ element: makeMarkerEl(), draggable: true })
-            .setLngLat([centerLng, centerLat])
-            .addTo(map);
-          markerRef.current = m;
-          m.on("dragend", async () => {
-            const p = m.getLngLat();
-            setCoords({ lat: p.lat, lng: p.lng });
-            setGeocoding(true);
-            const { address: a, isBaku } = await reverseGeocode(p.lat, p.lng);
-            setAddress(a);
-            setOutsideBaku(isBaku === false);
-            setGeocoding(false);
-          });
-        }
-        map.on("click", (e) => placeMarker(e.lngLat.lat, e.lngLat.lng));
-        map.resize();
-        setMapReady(true);
+        const map = new window.maplibregl.Map({
+          container: containerRef.current,
+          style: MAP_STYLE,
+          center: [centerLng, centerLat],
+          zoom: 12,
+          minZoom: 9,
+          maxBounds: [[49.3, 39.9], [50.7, 40.8]], // Baku + Absheron peninsula
+          attributionControl: false,
+          trackResize: true,
+          fadeDuration: 0,
+        });
+        mapRef.current = map;
+
+        map.on("load", () => {
+          if (initLat && initLng) {
+            const m = new window.maplibregl.Marker({ element: makeMarkerEl(), draggable: true })
+              .setLngLat([centerLng, centerLat])
+              .addTo(map);
+            markerRef.current = m;
+            m.on("dragend", async () => {
+              const p = m.getLngLat();
+              setCoords({ lat: p.lat, lng: p.lng });
+              setGeocoding(true);
+              const { address: a, isBaku } = await reverseGeocode(p.lat, p.lng);
+              setAddress(a);
+              setOutsideBaku(isBaku === false);
+              setGeocoding(false);
+            });
+          }
+          map.on("click", (e) => placeMarker(e.lngLat.lat, e.lngLat.lng));
+          map.resize();
+          // Second resize after 300ms — iOS Safari sometimes needs extra layout pass
+          setTimeout(() => { if (mapRef.current) mapRef.current.resize(); }, 300);
+          setMapReady(true);
+        });
       });
     });
 
@@ -202,7 +209,7 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
   };
 
   const content = (
-    <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", flexDirection: "column", background: "#fff" }}>
+    <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, left: 0, zIndex: 99999, display: "flex", flexDirection: "column", background: "#fff", height: "100%" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid #EAECF0", background: "#fff", flexShrink: 0 }}>
         <button onClick={onClose}
@@ -237,13 +244,13 @@ export default function MapLocationPicker({ onClose, onConfirm, initialLocation 
       )}
 
       {/* Map area */}
-      <div style={{ flex: 1, position: "relative", minHeight: 0, overflow: "hidden" }}>
+      <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
         {!mapReady && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", zIndex: 10, color: "#94A3B8", fontSize: 14 }}>
+          <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", zIndex: 10, color: "#94A3B8", fontSize: 14 }}>
             Xəritə yüklənir...
           </div>
         )}
-        <div ref={containerRef} style={{ position: "absolute", inset: 0, overflow: "hidden" }} />
+        <div ref={containerRef} style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }} />
 
         {mapReady && (
           <button onClick={handleUseCurrent} disabled={geoLoading}
