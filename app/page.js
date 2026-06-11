@@ -197,60 +197,13 @@ export default function LandingPage() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {/* Auth dropdown */}
-            <div className="relative hidden md:block">
-              <button
-                onClick={() => setAuthDropdown(p => !p)}
-                className="flex items-center gap-1.5 rounded-xl bg-[#1B5E20] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#2E7D32]"
-              >
-                <User size={14} strokeWidth={2.5} />
-                Daxil ol
-              </button>
-
-              {authDropdown && (
-                <>
-                  {/* Backdrop */}
-                  <div className="fixed inset-0 z-40" onClick={() => setAuthDropdown(false)} />
-                  {/* Dropdown card */}
-                  <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
-                    <div className="p-4 pb-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">Hesab</p>
-                    </div>
-                    <div className="px-3 pb-3 flex flex-col gap-2">
-                      <Link
-                        href="/auth/login"
-                        onClick={() => setAuthDropdown(false)}
-                        className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50">
-                          <User size={16} strokeWidth={2} color="#1B5E20" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900">Daxil ol</div>
-                          <div className="text-[11px] text-gray-400">Hesabınıza girin</div>
-                        </div>
-                      </Link>
-                      <Link
-                        href="/auth/register"
-                        onClick={() => setAuthDropdown(false)}
-                        className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50">
-                          <User size={16} strokeWidth={2} color="#1B5E20" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900">Qeydiyyat</div>
-                          <div className="text-[11px] text-gray-400">OTP ilə hesab aç</div>
-                        </div>
-                      </Link>
-                    </div>
-                    <div className="border-t border-gray-50 px-4 py-3">
-                      <p className="text-[11px] text-gray-400 text-center">Qeydiyyat olmadan da baxmaq olar</p>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            <Link
+              href="/auth/login"
+              className="hidden items-center gap-1.5 rounded-xl bg-[#1B5E20] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#2E7D32] md:flex"
+            >
+              <User size={14} strokeWidth={2.5} />
+              Daxil ol
+            </Link>
 
             <button className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors hover:bg-gray-100">
               <ShoppingCart size={19} className="text-gray-600" />
