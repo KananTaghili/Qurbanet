@@ -270,8 +270,8 @@ export default function LandingPage() {
       <section className="relative min-h-[340px] w-full overflow-hidden">
         {/* Background Image */}
         <Image
-          src="/qoyun.jpg"
-          alt="Farm background"
+          src="/home_image.jpg"
+          alt="MeatBox hero"
           fill
           className="object-cover object-[center_30%] opacity-30"
           priority
