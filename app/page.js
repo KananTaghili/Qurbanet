@@ -296,7 +296,7 @@ export default function LandingPage() {
                 MEAT<span className="text-green-300">BOX</span>.AZ
               </h1>
               <p className="mt-1.5 text-sm font-medium text-white/80">
-                TAZE ƏT · QURBANLIQ · XEYRİYYƏ
+                Qurbanlıq · Xeyriyyə · Təzə Ət
               </p>
             </div>
           </div>
@@ -448,7 +448,7 @@ export default function LandingPage() {
                 </span>
               </div>
               <p className="mt-3 text-sm text-gray-400">
-                TAZE ƏT · QURBANLIQ · XEYRİYYƏ
+                Qurbanlıq · Xeyriyyə · Təzə Ət
               </p>
             </div>
 

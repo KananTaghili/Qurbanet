@@ -65,7 +65,7 @@ export default function NamePage() {
             </div>
 
             <div className="text-[10px] font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              TAZE ƏT · QURBANLIQ · XEYRİYYƏ
+              ETİBARLI · HALAL · SÜRƏTLİ
             </div>
           </div>
         </div>
