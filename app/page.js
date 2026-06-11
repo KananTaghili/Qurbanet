@@ -366,11 +366,11 @@ export default function LandingPage() {
               transform: "translateX(-50%)",
               background: "#fff",
               padding: "0 14px",
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: "0.1em",
+              fontSize: 15,
+              fontWeight: 800,
+              letterSpacing: "0.05em",
               textTransform: "uppercase",
-              color: COLORS.primary,
+              color: "#111827",
               whiteSpace: "nowrap",
             }}>
               Niyə MeatBox?
@@ -394,7 +394,7 @@ export default function LandingPage() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
                 }}>
-                  <Icon size={19} strokeWidth={1.5} color="#374151" />
+                  <Icon size={19} strokeWidth={1.5} color={COLORS.primary} />
                 </div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.35 }}>{label}</div>
