@@ -23,7 +23,7 @@ import {
   FaWhatsapp,
   FaHandshake,
 } from "react-icons/fa";
-import { GiGoat, GiMeat, GiHorseHead } from "react-icons/gi";
+import { GiGoat, GiMeat } from "react-icons/gi";
 
 /* 
   ============================================================
@@ -39,9 +39,7 @@ const COLORS = {
   purpleLight: "#7C3AED",
   red: "#B91C1C",
   redLight: "#DC2626",
-  orange: "#D97706",
-  orangeLight: "#EA580C",
-  textDark: "#111827",
+textDark: "#111827",
   textMuted: "#6B7280",
   border: "#EAECF0",
 };
@@ -81,21 +79,6 @@ const SERVICES = [
     btnLabel: "Qoşul",
     ServiceIcon: FaHandshake,
     disabled: true,
-  },
-  {
-    id: "at",
-    title: "At Satışı",
-    desc: "Təzə və keyfiyyətli at məhsullarını onlayn sifariş edin, qapınıza çatdırırıq.",
-    href: "/at",
-    img: "/horse.jpg",
-    imgFit: "cover",
-    imgBg: "#FEF3C7",
-    color: COLORS.orange,
-    btn: COLORS.orangeLight,
-    btnShadow: "0 6px 18px -4px rgba(217,119,6,0.5)",
-    btnLabel: "Məhsullara Bax",
-    ServiceIcon: GiHorseHead,
-    disabled: false,
   },
   {
     id: "et",
