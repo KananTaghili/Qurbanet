@@ -250,7 +250,7 @@ export default function LandingPage() {
         HERO SECTION (with overlay, branding, badges)
         ======================================================
       */}
-      <section className="relative min-h-[340px] w-full overflow-hidden">
+      <section className="relative min-h-[370px] w-full overflow-hidden">
         {/* Background Image */}
         <Image
           src="/home_image.jpg"
@@ -259,14 +259,19 @@ export default function LandingPage() {
           className="object-cover object-[center_78%]"
           priority
         />
-        {/* Green overlay — şəffaf saxla ki foto görünsün */}
+        {/* Green overlay */}
         <div
           className="absolute inset-0"
           style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)" }}
         />
+        {/* Alt ağ gradient — cards-la birləşmə üçün */}
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{ height: 110, background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.85) 70%, #ffffff 100%)" }}
+        />
 
         {/* Hero Content */}
-        <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-7 px-5 pb-8 pt-10 text-center sm:pb-10 sm:pt-14">
+        <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-7 px-5 pb-16 pt-10 text-center sm:pb-20 sm:pt-14">
           {/* Logo + Title */}
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
             <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white/30 shadow-xl sm:h-24 sm:w-24">
@@ -314,7 +319,7 @@ export default function LandingPage() {
         SERVICE CARDS SECTION (4 cards, fully responsive)
         ======================================================
       */}
-      <section className="mx-auto max-w-5xl px-5 pb-14 pt-6 md:pb-20 md:pt-8">
+      <section className="relative z-10 mx-auto max-w-5xl -mt-16 px-5 pb-14 md:pb-20">
         {/* Desktop Grid (3 columns) */}
         <div className="hidden gap-6 md:grid md:grid-cols-3">
           {SERVICES.map((service) => (
