@@ -70,7 +70,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", background: "#f8faf8" }}>
+    <div style={{ minHeight: "100vh", height: "100vh", overflow: "hidden", display: "flex", background: "#f8faf8" }}>
       {/* ── Sol panel — MeatBox branding ── */}
       <div
         style={{
@@ -327,7 +327,7 @@ export default function LoginPage() {
                   transition: "all 0.15s",
                 }}
               >
-                Qeydiyyatdan keç — OTP ilə
+                Qeydiyyatdan keç
               </Link>
             </div>
           </form>

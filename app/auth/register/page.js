@@ -1,8 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, ArrowRight, MessageSquare } from "lucide-react";
+import { Phone, Mail, ArrowRight, ArrowLeft, MessageSquare } from "lucide-react";
 import api from "../../../lib/api";
 
 const formatPhone = (val) => {
@@ -15,7 +16,7 @@ const formatPhone = (val) => {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [mode, setMode] = useState("phone"); // "phone" | "email"
+  const [mode, setMode] = useState("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,8 +33,7 @@ export default function RegisterPage() {
     setError("");
 
     if (mode === "phone") {
-      const raw = phone.replace(/\s/g, "");
-      if (raw.length < 9) { setError("Düzgün telefon nömrəsi daxil edin."); return; }
+      if (phone.replace(/\s/g, "").length < 9) { setError("Düzgün telefon nömrəsi daxil edin."); return; }
     } else {
       if (!email.trim() || !email.includes("@")) { setError("Düzgün email ünvanı daxil edin."); return; }
     }
@@ -46,17 +46,13 @@ export default function RegisterPage() {
       let identifier;
       if (mode === "phone") {
         const raw = phone.replace(/\s/g, "");
-        identifier = raw.startsWith("0")
-          ? "+994" + raw.slice(1)
-          : raw.startsWith("+994") ? raw : "+994" + raw;
+        identifier = raw.startsWith("0") ? "+994" + raw.slice(1) : raw.startsWith("+994") ? raw : "+994" + raw;
         body.phone = identifier;
       } else {
         identifier = email.trim().toLowerCase();
         body.email = identifier;
       }
-
       await api.post("/auth/send-otp", { ...body, isRegister: true }, { signal: abortRef.current.signal });
-
       sessionStorage.setItem("otp_identifier", identifier);
       sessionStorage.setItem("otp_identifier_type", mode === "email" ? "email" : "phone");
       router.push("/auth/otp");
@@ -65,9 +61,7 @@ export default function RegisterPage() {
       const status = err.response?.status;
       const msg = err.response?.data?.message;
       if (status === 409) {
-        setError(msg || (mode === "phone"
-          ? "Bu telefon nömrəsi artıq sistemdə qeydiyyatdan keçib."
-          : "Bu email artıq sistemdə qeydiyyatdan keçib."));
+        setError(msg || (mode === "phone" ? "Bu telefon nömrəsi artıq qeydiyyatdan keçib." : "Bu email artıq qeydiyyatdan keçib."));
       } else {
         setError(msg || "Xəta baş verdi. Yenidən cəhd edin.");
       }
@@ -77,177 +71,240 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="flex-1 flex flex-col lg:flex-row">
-
-        {/* ── Brand panel ── */}
-        <div
-          className="relative flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
-          style={{ background: "linear-gradient(160deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)" }}
+    <div style={{ minHeight: "100vh", display: "flex", background: "#f8faf8" }}>
+      {/* ── Sol panel — MeatBox branding ── */}
+      <div
+        style={{
+          width: "42%",
+          minHeight: "100vh",
+          background: "linear-gradient(160deg,#1B5E20 0%,#2E7D32 55%,#388E3C 100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "40px 32px",
+          position: "relative",
+        }}
+        className="hidden lg:flex"
+      >
+        <Link
+          href="/"
+          style={{
+            position: "absolute", top: 20, left: 20,
+            width: 36, height: 36, borderRadius: 12,
+            background: "rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff", textDecoration: "none",
+          }}
         >
-          {/* Back button — mobile only */}
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
-            style={{ background: "rgba(255,255,255,0.18)", color: "#fff" }}
-            aria-label="Geri qayıt"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+          <ArrowLeft size={18} />
+        </Link>
 
-          <div className="flex flex-col items-center gap-5 text-center">
-            <div
-              className="w-24 h-24 lg:w-32 lg:h-32 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0"
-              style={{ background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.25)" }}
-            >
-              <Image src="/logo.png" alt="QurbanEt" width={128} height={128} className="w-full h-full object-cover" />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28, textAlign: "center" }}>
+          <div style={{
+            width: 120, height: 120, borderRadius: 28, overflow: "hidden",
+            border: "2.5px solid rgba(255,255,255,0.25)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+            background: "rgba(255,255,255,0.12)",
+          }}>
+            <Image src="/logo.png" alt="MeatBox" width={120} height={120} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+
+          <div>
+            <div style={{ fontSize: 42, fontWeight: 900, color: "#fff", fontStyle: "italic", letterSpacing: "-1px", lineHeight: 1 }}>
+              MEAT<span style={{ color: "#86efac" }}>BOX</span>.AZ
             </div>
-
-            <div>
-              <div className="text-4xl lg:text-5xl font-black text-white italic leading-none">
-                Qurban<span style={{ color: "#86efac" }}>Et</span>
-              </div>
-              <div className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto" style={{ color: "rgba(255,255,255,0.65)" }}>
-                İlahi qurbanınızı etibarla kəsdirin
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-[10px] font-bold tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>
-              <span>ETİBARLI</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.35)" }} />
-              <span>HALAL</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.35)" }} />
-              <span>SÜRƏTLİ</span>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 10, lineHeight: 1.6, maxWidth: 220 }}>
+              Taze Ət · Qurbanlıq · Xeyriyyə Platforması
             </div>
           </div>
-        </div>
 
-        {/* ── Form panel ── */}
-        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10 bg-surface">
-          <div className="w-full max-w-sm">
-            <h2 className="text-2xl font-black text-text-primary mb-1">Qeydiyyat</h2>
-            <p className="text-sm text-text-secondary mb-6">
-              SMS və ya Email OTP ilə saniyələr içində hesab açın.
-            </p>
-
-            {/* Mode toggle */}
-            <div className="flex bg-surface-alt rounded-2xl p-1 mb-5 gap-1">
-              <button
-                type="button"
-                onClick={() => switchMode("phone")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  mode === "phone" ? "bg-surface shadow-sm text-primary" : "text-text-secondary"
-                }`}
-              >
-                <MessageSquare size={15} />
-                SMS
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode("email")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  mode === "email" ? "bg-surface shadow-sm text-primary" : "text-text-secondary"
-                }`}
-              >
-                <Mail size={15} />
-                Email
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
-              {mode === "phone" ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
+            {[
+              { label: "Halal kəsim", desc: "Dini qaydalara uyğun" },
+              { label: "Video hesabat", desc: "Kəsimi izləyin" },
+              { label: "Sürətli çatdırılma", desc: "Qapınıza çatdırırıq" },
+            ].map(({ label, desc }) => (
+              <div key={label} style={{
+                background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 16px",
+                display: "flex", alignItems: "center", gap: 10, textAlign: "left",
+                border: "1px solid rgba(255,255,255,0.12)",
+              }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#86efac", flexShrink: 0 }} />
                 <div>
-                  <label className="text-sm font-semibold text-text-primary mb-2 block">
-                    Telefon Nömrəsi *
-                  </label>
-                  <div className="flex items-center gap-2 bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 focus-within:border-primary focus-within:bg-surface transition-all">
-                    <span className="text-2xl flex-shrink-0">🇦🇿</span>
-                    <span className="text-text-secondary font-semibold text-sm flex-shrink-0">+994</span>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
-                      placeholder="50 123 45 67"
-                      className="flex-1 bg-transparent text-[17px] text-text-primary outline-none font-semibold tracking-wider"
-                      autoFocus
-                      inputMode="numeric"
-                    />
-                  </div>
-                  <p className="text-xs text-text-muted mt-1.5 ml-1">Nömrənizə SMS OTP göndəriləcək</p>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{label}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{desc}</div>
                 </div>
-              ) : (
-                <div>
-                  <label className="text-sm font-semibold text-text-primary mb-2 block">
-                    Email ünvanı *
-                  </label>
-                  <div className="flex items-center gap-2 bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 focus-within:border-primary focus-within:bg-surface transition-all">
-                    <Mail size={18} className="text-text-secondary flex-shrink-0" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                      placeholder="email@gmail.com"
-                      className="flex-1 bg-transparent text-[17px] text-text-primary outline-none font-semibold"
-                      autoFocus
-                      autoComplete="email"
-                    />
-                  </div>
-                  <p className="text-xs text-text-muted mt-1.5 ml-1">Email-inizə OTP kodu göndəriləcək</p>
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl flex flex-col gap-2">
-                  <span>{error}</span>
-                  {error.includes("artıq") && (
-                    <button
-                      type="button"
-                      onClick={() => router.push("/auth/login")}
-                      className="text-left text-sm font-bold text-primary underline underline-offset-2"
-                    >
-                      Daxil ol səhifəsinə keç →
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <button type="submit" className="btn-primary" disabled={loading}>
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Göndərilir...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    {mode === "phone" ? <MessageSquare size={16} /> : <Mail size={16} />}
-                    OTP kodu al
-                    <ArrowRight size={16} />
-                  </span>
-                )}
-              </button>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-text-muted font-medium">Artıq hesabınız var?</span>
-                <div className="flex-1 h-px bg-border" />
               </div>
+            ))}
+          </div>
 
-              <button
-                type="button"
-                onClick={() => router.push("/auth/login")}
-                className="w-full py-3 rounded-2xl border-2 border-border bg-surface text-sm font-bold text-text-primary hover:border-primary hover:text-primary transition-all"
-              >
-                Daxil ol
-              </button>
-            </form>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+              <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{t}</span>
+                {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.25)" }} />}
+              </span>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* ── Sağ panel — Form ── */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+
+        {/* Mobile back + logo */}
+        <div className="lg:hidden" style={{ width: "100%", maxWidth: 400, marginBottom: 24 }}>
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#1B5E20", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>
+            <ArrowLeft size={16} /> Ana səhifəyə qayıt
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
+            <Image src="/logo.png" alt="MeatBox" width={44} height={44} style={{ borderRadius: 12 }} />
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#1B5E20", fontStyle: "italic" }}>
+              MEAT<span style={{ color: "#2E7D32" }}>BOX</span>.AZ
+            </div>
+          </div>
+        </div>
+
+        <div style={{ width: "100%", maxWidth: 400 }}>
+          <div style={{ marginBottom: 28 }}>
+            <h1 style={{ fontSize: 26, fontWeight: 900, color: "#111827", margin: 0 }}>Qeydiyyat</h1>
+            <p style={{ fontSize: 14, color: "#6B7280", marginTop: 6 }}>Saniyələr içində hesab açın</p>
+          </div>
+
+          {/* Mode toggle */}
+          <div style={{
+            display: "flex", background: "#F3F4F6", borderRadius: 14,
+            padding: 4, marginBottom: 20, gap: 4,
+          }}>
+            {[
+              { key: "phone", icon: <MessageSquare size={14} />, label: "SMS" },
+              { key: "email", icon: <Mail size={14} />, label: "Email" },
+            ].map(({ key, icon, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => switchMode(key)}
+                style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  padding: "10px 0", borderRadius: 10, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer",
+                  background: mode === key ? "#fff" : "transparent",
+                  color: mode === key ? "#1B5E20" : "#6B7280",
+                  boxShadow: mode === key ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+                  transition: "all 0.15s",
+                }}
+              >
+                {icon} {label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {mode === "phone" ? (
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 8 }}>Telefon Nömrəsi</label>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  background: "#F9FAFB", border: "1.5px solid #E5E7EB", borderRadius: 12,
+                  padding: "12px 16px",
+                }}>
+                  <span style={{ fontSize: 20 }}>🇦🇿</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#6B7280" }}>+994</span>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
+                    placeholder="50 123 45 67"
+                    style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 16, fontWeight: 600, color: "#111827" }}
+                    autoFocus
+                    inputMode="numeric"
+                  />
+                </div>
+                <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6, marginLeft: 4 }}>Nömrənizə doğrulama kodu göndəriləcək</p>
+              </div>
+            ) : (
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 8 }}>Email ünvanı</label>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  background: "#F9FAFB", border: "1.5px solid #E5E7EB", borderRadius: 12,
+                  padding: "12px 16px",
+                }}>
+                  <Mail size={17} color="#9CA3AF" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    placeholder="email@gmail.com"
+                    style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 16, fontWeight: 600, color: "#111827" }}
+                    autoFocus
+                    autoComplete="email"
+                  />
+                </div>
+                <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6, marginLeft: 4 }}>Email-inizə doğrulama kodu göndəriləcək</p>
+              </div>
+            )}
+
+            {error && (
+              <div style={{ background: "#FEF2F2", color: "#B91C1C", fontSize: 13, fontWeight: 600, padding: "12px 16px", borderRadius: 10 }}>
+                {error}
+                {error.includes("artıq") && (
+                  <button type="button" onClick={() => router.push("/auth/login")}
+                    style={{ display: "block", marginTop: 6, background: "none", border: "none", cursor: "pointer", color: "#1B5E20", fontSize: 13, fontWeight: 700, textDecoration: "underline", padding: 0 }}>
+                    Daxil ol səhifəsinə keç →
+                  </button>
+                )}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: "100%", padding: "14px 0", borderRadius: 12, border: "none", cursor: loading ? "not-allowed" : "pointer",
+                background: loading ? "#9CA3AF" : "linear-gradient(135deg,#1B5E20,#2E7D32)",
+                color: "#fff", fontSize: 15, fontWeight: 700,
+                boxShadow: loading ? "none" : "0 4px 14px rgba(27,94,32,0.35)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              }}
+            >
+              {loading ? (
+                <>
+                  <span style={{ width: 16, height: 16, border: "2px solid #fff", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
+                  Göndərilir...
+                </>
+              ) : (
+                <>
+                  {mode === "phone" ? <MessageSquare size={16} /> : <Mail size={16} />}
+                  Kod al
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ flex: 1, height: 1, background: "#F3F4F6" }} />
+              <span style={{ fontSize: 12, color: "#9CA3AF" }}>Artıq hesabınız var?</span>
+              <div style={{ flex: 1, height: 1, background: "#F3F4F6" }} />
+            </div>
+
+            <Link
+              href="/auth/login"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                padding: "13px 0", borderRadius: 12,
+                border: "1.5px solid #E5E7EB",
+                background: "#fff", color: "#111827",
+                fontSize: 14, fontWeight: 700, textDecoration: "none",
+              }}
+            >
+              Daxil ol
+            </Link>
+          </form>
+        </div>
+      </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
