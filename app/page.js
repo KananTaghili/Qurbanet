@@ -317,11 +317,8 @@ export default function LandingPage() {
           className="object-cover object-[center_78%]"
           priority
         />
-        {/* Green overlay */}
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)" }}
-        />
+        {/* Green overlay — müvəqqəti söndürülüb */}
+        {/* <div className="absolute inset-0" style={{ background: "linear-gradient(135deg,rgba(27,94,32,0.58) 0%,rgba(26,112,40,0.52) 55%,rgba(20,83,45,0.58) 100%)" }} /> */}
         {/* Alt ağ gradient — tam ağ keçid, xətt görünməsin */}
         <div
           className="absolute bottom-0 left-0 right-0"
