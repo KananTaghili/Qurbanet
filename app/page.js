@@ -267,7 +267,7 @@ export default function LandingPage() {
         {/* Alt ağ gradient — cards-la birləşmə üçün */}
         <div
           className="absolute bottom-0 left-0 right-0"
-          style={{ height: 110, background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.85) 70%, #ffffff 100%)" }}
+          style={{ height: 90, background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.45) 60%, rgba(255,255,255,0.75) 100%)" }}
         />
 
         {/* Hero Content */}
