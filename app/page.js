@@ -581,7 +581,7 @@ function ServiceCard({ service }) {
           boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
           cursor: disabled ? "default" : "pointer",
           overflow: "hidden",
-          paddingTop: 34,
+          paddingTop: 39,
         }}
         onMouseEnter={(e) => {
           if (!disabled) {
