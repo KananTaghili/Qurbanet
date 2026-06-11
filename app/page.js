@@ -340,24 +340,28 @@ export default function LandingPage() {
         WHY MEATBOX? (4 feature cards)
         ======================================================
       */}
-      <section className="border-y border-gray-100 bg-gray-50/60 py-14">
-        <div className="mx-auto max-w-7xl px-5">
-          <h2 className="mb-8 text-center text-2xl font-extrabold tracking-tight text-gray-900">
+      <section className="py-10">
+        <div className="mx-auto max-w-4xl px-5">
+          <h2 className="mb-5 text-center text-xl font-extrabold tracking-tight text-gray-900">
             Niyə MeatBox?
           </h2>
-          <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+
+          {/* Strip */}
+          <div
+            className="flex flex-col divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:flex-row md:divide-x md:divide-y-0"
+          >
             {WHY.map(({ Icon, label, desc }) => (
               <div
                 key={label}
-                className="rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition-all hover:shadow-md"
+                className="flex flex-1 items-center gap-3 px-5 py-4"
               >
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
-                  <Icon size={24} strokeWidth={1.8} color={COLORS.primary} />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50">
+                  <Icon size={20} strokeWidth={1.8} color={COLORS.primary} />
                 </div>
-                <h3 className="text-sm font-bold text-gray-900">{label}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-gray-500">
-                  {desc}
-                </p>
+                <div>
+                  <div className="text-sm font-bold text-gray-900">{label}</div>
+                  <div className="mt-0.5 text-[11px] leading-snug text-gray-500">{desc}</div>
+                </div>
               </div>
             ))}
           </div>
