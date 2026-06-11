@@ -390,7 +390,7 @@ export default function LandingPage() {
                 {/* Icon — thin outline circle, no fill */}
                 <div style={{
                   width: 40, height: 40, borderRadius: "50%",
-                  border: "1.5px solid #D1D5DB",
+                  border: `1.5px solid ${COLORS.primary}60`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
                 }}>
