@@ -314,9 +314,9 @@ export default function LandingPage() {
         SERVICE CARDS SECTION (4 cards, fully responsive)
         ======================================================
       */}
-      <section className="mx-auto max-w-7xl px-5 py-14 md:py-20">
-        {/* Desktop Grid (4 columns) */}
-        <div className="hidden grid-cols-1 gap-6 md:grid md:grid-cols-2 lg:grid-cols-4">
+      <section className="mx-auto max-w-5xl px-5 py-14 md:py-20">
+        {/* Desktop Grid (3 columns) */}
+        <div className="hidden gap-6 md:grid md:grid-cols-3">
           {SERVICES.map((service) => (
             <DesktopCard key={service.id} service={service} />
           ))}
@@ -470,81 +470,104 @@ export default function LandingPage() {
 function ServiceCard({ service }) {
   const { title, desc, href, img, imgFit, imgBg, color, btn, btnShadow, btnLabel, ServiceIcon, disabled } = service;
 
-  // icon circle bg — rəngin açıq tonu
-  const iconBg = color + "18"; // ~10% opacity
-
   const cardContent = (
     <div
-      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200"
+      className="group flex h-full flex-col bg-white transition-all duration-200"
       style={{
+        borderRadius: 20,
         border: "1px solid #EAECF0",
         boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
         cursor: disabled ? "default" : "pointer",
+        overflow: "visible",   /* icon-un taşması üçün */
       }}
       onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.13)"; }}}
       onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)"; }}
     >
-      {/* ① Dairəvi icon — üst mərkəz */}
-      <div className="flex flex-col items-center pt-6 pb-3 px-4">
-        <div
-          className="flex items-center justify-center rounded-full mb-3"
-          style={{ width: 68, height: 68, background: iconBg, border: `2px solid ${color}22` }}
-        >
+      {/* ① Icon + başlıq — overflow:visible, icon şəklin üstünə düşür */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 24, paddingBottom: 0, paddingLeft: 16, paddingRight: 16, position: "relative", zIndex: 2 }}>
+
+        {/* Dairəvi icon */}
+        <div style={{
+          width: 72, height: 72,
+          borderRadius: "50%",
+          background: "#fff",
+          border: `2px solid ${color}30`,
+          boxShadow: `0 4px 16px ${color}25`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          marginBottom: -20,   /* şəklin üstünə 20px batır */
+          flexShrink: 0,
+          zIndex: 3,
+          position: "relative",
+        }}>
           <ServiceIcon size={32} color={color} />
         </div>
-
-        {/* ② Başlıq */}
-        <h3 className="text-center font-extrabold text-[15px] leading-snug tracking-tight" style={{ color }}>
-          {title}
-        </h3>
       </div>
 
-      {/* ③ Şəkil + play + badge-lər */}
-      <div className="relative mx-3 overflow-hidden rounded-xl" style={{ height: 178, background: imgBg, flexShrink: 0 }}>
+      {/* ② Şəkil — overflow hidden, icon batır içəri */}
+      <div style={{
+        position: "relative",
+        marginLeft: 12, marginRight: 12,
+        height: 155,
+        borderRadius: 14,
+        overflow: "hidden",
+        background: imgBg,
+        flexShrink: 0,
+        zIndex: 1,
+      }}>
         <img
           src={img}
           alt={title}
-          className="h-full w-full transition-transform duration-300 group-hover:scale-105"
-          style={{ objectFit: imgFit, objectPosition: "center", opacity: disabled ? 0.7 : 1 }}
+          className="group-hover:scale-105 transition-transform duration-300"
+          style={{ width: "100%", height: "100%", objectFit: imgFit, objectPosition: "center", opacity: disabled ? 0.7 : 1 }}
         />
-        {/* overlay */}
-        <div className="absolute inset-0 bg-black/15 rounded-xl" />
+
+        {/* Qaranlıq overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.15)" }} />
+
+        {/* Alt ağ gradient fade */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "45%", background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.92) 100%)" }} />
 
         {/* Play düyməsi */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/30">
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(0,0,0,0.52)", backdropFilter: "blur(4px)", border: "1.5px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Play size={17} fill="white" color="white" style={{ marginLeft: 2 }} />
           </div>
         </div>
 
         {/* 0:15 badge */}
-        <div className="absolute bottom-2 right-2 rounded-md bg-black/65 px-1.5 py-0.5 text-[10px] font-bold text-white">
+        <div style={{ position: "absolute", bottom: 8, right: 8, padding: "2px 7px", borderRadius: 5, background: "rgba(0,0,0,0.65)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
           0:15
         </div>
 
-        {/* Tezliklə badge */}
+        {/* Tezliklə */}
         {disabled && (
-          <div className="absolute left-2 top-2 rounded-full bg-black/65 px-2.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
+          <div style={{ position: "absolute", top: 28, left: 8, padding: "3px 10px", borderRadius: 999, background: "rgba(0,0,0,0.65)", fontSize: 10, fontWeight: 700, color: "#fff" }}>
             Tezliklə
           </div>
         )}
       </div>
 
-      {/* ④ Mətn + düymə */}
-      <div className="flex flex-1 flex-col p-4 pt-3">
-        <p className="flex-1 text-[12px] leading-relaxed text-gray-500 mb-4">{desc}</p>
+      {/* ③ Başlıq */}
+      <div style={{ padding: "12px 16px 4px", textAlign: "center" }}>
+        <h3 style={{ fontSize: 15, fontWeight: 800, color, lineHeight: 1.35, letterSpacing: "-0.2px", margin: 0 }}>
+          {title}
+        </h3>
+      </div>
 
-        {/* CTA düyməsi — tam genişlik */}
-        <div
-          className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold tracking-wide text-white"
-          style={{
-            background: btn,
-            boxShadow: disabled ? "none" : btnShadow,
-            opacity: disabled ? 0.45 : 1,
-          }}
-        >
+      {/* ④ Mətn + düymə */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "8px 16px 18px" }}>
+        <p style={{ flex: 1, fontSize: 12, color: "#6B7280", lineHeight: 1.65, marginBottom: 14 }}>{desc}</p>
+
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+          padding: "11px 0", borderRadius: 12, fontSize: 13, fontWeight: 700,
+          letterSpacing: "0.03em", color: "#fff",
+          background: btn,
+          boxShadow: disabled ? "none" : btnShadow,
+          opacity: disabled ? 0.45 : 1,
+        }}>
           {btnLabel.toUpperCase()}
-          <ArrowRight size={15} strokeWidth={2.5} />
+          <ArrowRight size={14} strokeWidth={2.5} />
         </div>
       </div>
     </div>
