@@ -23,8 +23,8 @@ import {
   FaWhatsapp,
   FaHandHoldingHeart,
 } from "react-icons/fa";
-import { GiSacrificialDagger } from "react-icons/gi";
-import { TbMeat } from "react-icons/tb";
+import { PiKnife } from "react-icons/pi";
+import { TbGrill } from "react-icons/tb";
 
 /* 
   ============================================================
@@ -63,7 +63,7 @@ const SERVICES = [
     btn: COLORS.primaryLight,
     btnShadow: "0 6px 18px -4px rgba(27,94,32,0.5)",
     btnLabel: "Sifariş Et",
-    ServiceIcon: GiSacrificialDagger,
+    ServiceIcon: PiKnife,
     disabled: false,
   },
   {
@@ -93,7 +93,7 @@ const SERVICES = [
     btn: COLORS.redLight,
     btnShadow: "0 6px 18px -4px rgba(185,28,28,0.5)",
     btnLabel: "Məhsullara Bax",
-    ServiceIcon: TbMeat,
+    ServiceIcon: TbGrill,
     disabled: true,
   },
 ];
