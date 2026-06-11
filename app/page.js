@@ -319,7 +319,7 @@ export default function LandingPage() {
         SERVICE CARDS SECTION (4 cards, fully responsive)
         ======================================================
       */}
-      <section className="relative z-10 mx-auto max-w-5xl -mt-[84px] px-5 pb-14 md:pb-20">
+      <section className="relative z-10 mx-auto max-w-5xl -mt-[104px] px-5 pb-14 md:pb-20">
         {/* Desktop Grid (3 columns) */}
         <div className="hidden gap-6 md:grid md:grid-cols-3">
           {SERVICES.map((service) => (
