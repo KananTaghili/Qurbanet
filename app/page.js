@@ -314,11 +314,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 
+      {/*
         ======================================================
         SERVICE CARDS SECTION (4 cards, fully responsive)
         ======================================================
       */}
+      {/* Full-width green→white gradient behind cards so sides don't show white line */}
+      <div className="relative w-full" style={{ background: "linear-gradient(to bottom, rgba(27,94,32,0.38) 0%, rgba(255,255,255,0) 72px)" }}>
       <section className="relative z-10 mx-auto max-w-5xl -mt-16 px-5 pb-14 md:pb-20">
         {/* Desktop Grid (3 columns) */}
         <div className="hidden gap-6 md:grid md:grid-cols-3">
@@ -334,41 +336,45 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
+      </div>
 
-      {/* 
+      {/*
         ======================================================
         WHY MEATBOX? (4 feature cards)
         ======================================================
       */}
-      <section className="py-10">
+      <section className="py-8">
         <div className="mx-auto max-w-4xl px-5">
-          <h2 className="mb-5 text-center text-xl font-extrabold tracking-tight text-gray-900">
+          <h2 className="mb-4 text-center text-xl font-extrabold tracking-tight text-gray-900">
             Niyə MeatBox?
           </h2>
 
-          {/* Strip */}
-          <div
-            className="flex flex-col divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:flex-row md:divide-x md:divide-y-0"
-          >
+          {/* Strip — referans şəkil kimi */}
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="flex flex-col divide-y divide-gray-100 md:flex-row md:divide-x md:divide-y-0">
             {WHY.map(({ Icon, label, desc }) => (
-              <div
-                key={label}
-                className="flex flex-1 items-center gap-3 px-5 py-4"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50">
-                  <Icon size={20} strokeWidth={1.8} color={COLORS.primary} />
+              <div key={label} className="flex flex-1 items-center gap-3 px-5 py-5">
+                {/* İkon — nazik kontur dairə */}
+                <div style={{
+                  width: 44, height: 44, borderRadius: "50%",
+                  border: `1.5px solid ${COLORS.primary}40`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0, background: "#f0fdf4",
+                }}>
+                  <Icon size={20} strokeWidth={1.6} color={COLORS.primary} />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-gray-900">{label}</div>
+                  <div className="text-[13px] font-bold text-gray-900 leading-tight">{label}</div>
                   <div className="mt-0.5 text-[11px] leading-snug text-gray-500">{desc}</div>
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 
+      {/*
         ======================================================
         FOOTER (modern dark design with social, payments)
         ======================================================
