@@ -22,8 +22,8 @@ import {
   FaInstagram,
   FaWhatsapp,
 } from "react-icons/fa";
-import { PiKnife, PiHandHeartThin } from "react-icons/pi";
-import { TbMeat } from "react-icons/tb";
+import { PiKnife } from "react-icons/pi";
+import { TbMeat, TbHeartHandshake } from "react-icons/tb";
 
 /* 
   ============================================================
@@ -77,7 +77,7 @@ const SERVICES = [
     btn: COLORS.purpleLight,
     btnShadow: "0 6px 18px -4px rgba(109,40,217,0.5)",
     btnLabel: "Qoşul",
-    ServiceIcon: PiHandHeartThin,
+    ServiceIcon: TbHeartHandshake,
     disabled: true,
   },
   {
