@@ -1,9 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HelpCircle, HandHeart, BookOpen, ClipboardList, Beef } from 'lucide-react';
-import api from '../lib/api';
+import { HelpCircle, BookOpen, ClipboardList, Beef } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../lib/i18n';
 
@@ -12,7 +10,6 @@ const MUTED = '#94a3b8';
 
 const ALL_TABS = [
   { href: '/how-it-works', labelKey: 'howItWorks',      Icon: HelpCircle,    key: 'how' },
-  { href: '/need-support',  labelKey: 'charity',          Icon: HandHeart,     key: 'charity' },
   { href: '/qurban',        labelKey: 'animalSelection',  Icon: Beef,          key: 'home' },
   { href: '/qurban-rules',  labelKey: 'rules',            Icon: BookOpen,      key: 'rules' },
   { href: '/my-orders',     labelKey: 'myOrders',         Icon: ClipboardList, key: 'orders' },
@@ -21,19 +18,8 @@ const ALL_TABS = [
 export default function BottomNav() {
   const pathname = usePathname();
   const { lang } = useLanguage();
-  const [charityEnabled, setCharityEnabled] = useState(null);
 
-  useEffect(() => {
-    api.get('/app-config/settings')
-      .then(res => {
-        setCharityEnabled(res.data?.data?.charityPageEnabled !== false);
-      })
-      .catch(() => setCharityEnabled(true));
-  }, []);
-
-  const visibleTabs = charityEnabled === null
-    ? ALL_TABS
-    : ALL_TABS.filter(({ key }) => key !== 'charity' || charityEnabled === true);
+  const visibleTabs = ALL_TABS;
 
   return (
     <nav className="bottom-nav-wrap mobile-only">
