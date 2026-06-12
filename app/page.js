@@ -60,6 +60,8 @@ const SERVICES = [
     btnLabel: "Sifariş Et",
     ServiceIcon: PiKnife,
     disabled: false,
+    videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1",
+    videoType: "youtube",
   },
   {
     id: "xeyriyye",
@@ -75,6 +77,8 @@ const SERVICES = [
     btnLabel: "Qoşul",
     ServiceIcon: TbHeartHandshake,
     disabled: true,
+    videoUrl: "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm",
+    videoType: "mp4",
   },
   {
     id: "et",
@@ -90,6 +94,8 @@ const SERVICES = [
     btnLabel: "Məhsullara Bax",
     ServiceIcon: TbMeat,
     disabled: true,
+    videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1",
+    videoType: "youtube",
   },
 ];
 
@@ -130,6 +136,7 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasShadow, setHasShadow] = useState(false);
   const [authDropdown, setAuthDropdown] = useState(false);
+  const [activeVideo, setActiveVideo] = useState(null); // { url, type }
 
   // Sticky navbar shadow effect
   useEffect(() => {
@@ -141,7 +148,12 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 antialiased">
-      {/* 
+      {/* Video Modal */}
+      {activeVideo && (
+        <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      )}
+
+      {/*
         ======================================================
         STICKY NAVBAR (Glassmorphism, fully responsive)
         ======================================================
@@ -331,14 +343,16 @@ export default function LandingPage() {
         {/* Desktop Grid (3 columns) */}
         <div className="hidden gap-6 md:grid md:grid-cols-3">
           {SERVICES.map((service) => (
-            <DesktopCard key={service.id} service={service} />
+            <DesktopCard key={service.id} service={service}
+              onPlay={() => setActiveVideo({ url: service.videoUrl, type: service.videoType })} />
           ))}
         </div>
 
         {/* Mobile Stack (horizontal cards) */}
         <div className="flex flex-col gap-5 md:hidden">
           {SERVICES.map((service) => (
-            <MobileCard key={service.id} service={service} />
+            <MobileCard key={service.id} service={service}
+              onPlay={() => setActiveVideo({ url: service.videoUrl, type: service.videoType })} />
           ))}
         </div>
       </section>
@@ -539,7 +553,44 @@ export default function LandingPage() {
   dairəvi icon (üst-mərkəz) → başlıq → şəkil → mətn → düymə
   ============================================================
 */
-function ServiceCard({ service }) {
+function VideoModal({ video, onClose }) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="relative w-full max-w-3xl">
+        <button
+          onClick={onClose}
+          className="absolute -top-10 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+        >
+          <X size={18} />
+        </button>
+        <div className="overflow-hidden rounded-2xl bg-black shadow-2xl" style={{ aspectRatio: "16/9" }}>
+          {video.type === "youtube" ? (
+            <iframe
+              src={video.url}
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              className="h-full w-full"
+              style={{ border: "none" }}
+            />
+          ) : (
+            <video
+              src={video.url}
+              autoPlay
+              controls
+              className="h-full w-full"
+              style={{ background: "#000" }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ServiceCard({ service, onPlay }) {
   const {
     title,
     desc,
@@ -660,7 +711,9 @@ function ServiceCard({ service }) {
             justifyContent: "center",
           }}
         >
-          <div
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPlay && onPlay(); }}
             style={{
               width: 44,
               height: 44,
@@ -671,15 +724,14 @@ function ServiceCard({ service }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              cursor: "pointer",
+              transition: "transform 0.15s, background 0.15s",
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,0,0,0.75)"; e.currentTarget.style.transform = "scale(1.1)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(0,0,0,0.52)"; e.currentTarget.style.transform = "scale(1)"; }}
           >
-            <Play
-              size={17}
-              fill="white"
-              color="white"
-              style={{ marginLeft: 2 }}
-            />
-          </div>
+            <Play size={17} fill="white" color="white" style={{ marginLeft: 2 }} />
+          </button>
         </div>
 
         {/* 0:15 badge */}
@@ -783,20 +835,15 @@ function ServiceCard({ service }) {
 
   if (disabled) return <div className="h-full">{cardContent}</div>;
   return (
-    <Link
-      href={href}
-      className="block h-full"
-      style={{ textDecoration: "none" }}
-    >
+    <Link href={href} className="block h-full" style={{ textDecoration: "none" }}>
       {cardContent}
     </Link>
   );
 }
 
-/* Desktop və mobil eyni ServiceCard istifadə edir */
-function DesktopCard({ service }) {
-  return <ServiceCard service={service} />;
+function DesktopCard({ service, onPlay }) {
+  return <ServiceCard service={service} onPlay={onPlay} />;
 }
-function MobileCard({ service }) {
-  return <ServiceCard service={service} />;
+function MobileCard({ service, onPlay }) {
+  return <ServiceCard service={service} onPlay={onPlay} />;
 }
