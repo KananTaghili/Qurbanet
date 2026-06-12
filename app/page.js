@@ -604,7 +604,11 @@ function ServiceCard({ service, onPlay }) {
     btnLabel,
     ServiceIcon,
     disabled,
+    videoUrl,
+    videoType,
   } = service;
+
+  const ytId = videoType === "youtube" ? videoUrl.split("/embed/")[1]?.split("?")[0] : null;
 
   const cardContent = (
     <div style={{ position: "relative", paddingTop: 45, height: "100%" }}>
@@ -652,7 +656,7 @@ function ServiceCard({ service, onPlay }) {
         }}
       >
 
-      {/* ② Şəkil */}
+      {/* ② Video / Şəkil */}
       <div
         style={{
           position: "relative",
@@ -661,22 +665,49 @@ function ServiceCard({ service, onPlay }) {
           height: 155,
           borderRadius: 14,
           overflow: "hidden",
-          background: imgBg,
+          background: "#000",
           flexShrink: 0,
           zIndex: 1,
         }}
       >
-        <img
-          src={img}
-          alt={title}
-          className="group-hover:scale-105 transition-transform duration-300"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: imgFit,
-            objectPosition: "center",
-            opacity: disabled ? 0.7 : 1,
-          }}
+        {/* Video preview */}
+        {ytId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0&iv_load_policy=3`}
+            allow="autoplay"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "calc(155px * 16 / 9)",
+              height: "155px",
+              transform: "translate(-50%, -50%)",
+              border: "none",
+              pointerEvents: "none",
+            }}
+            title={title}
+          />
+        ) : (
+          <video
+            src={videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              pointerEvents: "none",
+              opacity: disabled ? 0.75 : 1,
+            }}
+          />
+        )}
+
+        {/* Clickable overlay — clicks go to modal */}
+        <div
+          style={{ position: "absolute", inset: 0, zIndex: 2, cursor: "pointer" }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPlay && onPlay(); }}
         />
 
         {/* Qaranlıq overlay */}
@@ -684,7 +715,9 @@ function ServiceCard({ service, onPlay }) {
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(0,0,0,0.15)",
+            background: "rgba(0,0,0,0.18)",
+            zIndex: 1,
+            pointerEvents: "none",
           }}
         />
 
@@ -698,10 +731,12 @@ function ServiceCard({ service, onPlay }) {
             height: "45%",
             background:
               "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.92) 100%)",
+            zIndex: 1,
+            pointerEvents: "none",
           }}
         />
 
-        {/* Play düyməsi */}
+        {/* Play düyməsi (dekorativ) */}
         <div
           style={{
             position: "absolute",
@@ -709,11 +744,11 @@ function ServiceCard({ service, onPlay }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            zIndex: 3,
+            pointerEvents: "none",
           }}
         >
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPlay && onPlay(); }}
+          <div
             style={{
               width: 44,
               height: 44,
@@ -724,31 +759,10 @@ function ServiceCard({ service, onPlay }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              cursor: "pointer",
-              transition: "transform 0.15s, background 0.15s",
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,0,0,0.75)"; e.currentTarget.style.transform = "scale(1.1)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(0,0,0,0.52)"; e.currentTarget.style.transform = "scale(1)"; }}
           >
             <Play size={17} fill="white" color="white" style={{ marginLeft: 2 }} />
-          </button>
-        </div>
-
-        {/* 0:15 badge */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 8,
-            right: 8,
-            padding: "2px 7px",
-            borderRadius: 5,
-            background: "rgba(0,0,0,0.65)",
-            fontSize: 10,
-            fontWeight: 700,
-            color: "#fff",
-          }}
-        >
-          0:15
+          </div>
         </div>
 
         {/* Tezliklə */}
@@ -758,6 +772,8 @@ function ServiceCard({ service, onPlay }) {
               position: "absolute",
               top: 8,
               left: 8,
+              zIndex: 4,
+              pointerEvents: "none",
               padding: "3px 10px",
               borderRadius: 999,
               background: "rgba(0,0,0,0.65)",
