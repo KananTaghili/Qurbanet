@@ -630,7 +630,7 @@ function TamamlanmisPage() {
 
 /* ─── New Opening Modal ──────────────────────────────────────── */
 const ANIMAL_OPTS = [
-  { type: "Dana",  emoji: "🐄", image: "/dana.jpg",       price: 1800, weight: "180–240 kq" },
+  { type: "Dana",  emoji: "🐄", image: "/dana.png",       price: 1800, weight: "180–240 kq" },
   { type: "Qoyun", emoji: "🐑", image: "/qoyun_big.png",  price: 1500, weight: "35–55 kq"  },
   { type: "Qoç",   emoji: "🐏", image: "/qoc.jpg",        price: 1500, weight: "40–65 kq"  },
   { type: "Dəvə",  emoji: "🐪", image: "/deve.jpg",       price: 4000, weight: "350–520 kq"},
