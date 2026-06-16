@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -8,7 +8,7 @@ import {
   Plus, Bell, User, ChevronDown, Eye, Video, Users,
   ArrowRight, Play, CalendarDays, UsersRound, Share2,
   ArrowLeft, X, Wallet, Flag, Beef, Rabbit, BadgeIcon as CamelIcon,
-  Coins, Menu,
+  Coins, Menu, Shield,
 } from "lucide-react";
 
 /* ─── Data ───────────────────────────────────────────────────── */
@@ -628,13 +628,275 @@ function TamamlanmisPage() {
   );
 }
 
+/* ─── New Opening Modal ──────────────────────────────────────── */
+const ANIMAL_OPTS = [
+  { type: "Dana",  emoji: "🐄", image: "https://images.unsplash.com/photo-1618080206739-14e8ac105472?w=160&h=160&fit=crop&auto=format&q=80", price: 1800, weight: "180–240 kq" },
+  { type: "Qoyun", emoji: "🐑", image: "https://images.unsplash.com/photo-1683228081328-4eea21a25ca9?w=160&h=160&fit=crop&auto=format&q=80", price: 1500, weight: "35–55 kq"  },
+  { type: "Qoç",   emoji: "🐏", image: "https://images.unsplash.com/photo-1561514905-233607d44a50?w=160&h=160&fit=crop&auto=format&q=80", price: 1500, weight: "40–65 kq"  },
+  { type: "Dəvə",  emoji: "🐪", image: "https://images.unsplash.com/photo-1599475504246-11c1217748c2?w=160&h=160&fit=crop&auto=format&q=80", price: 4000, weight: "350–520 kq"},
+];
+const NOM_STEPS = ["Heyvan növü", "Ödəniş", "Təsdiq"];
+
+function NewOpeningModal({ onClose }) {
+  const [step,          setStep]         = useState(0);
+  const [selAnimal,     setSelAnimal]    = useState("Dana");
+  const [isAnon,        setIsAnon]       = useState(false);
+  const [amount,        setAmount]       = useState("540");
+  const [note,          setNote]         = useState("");
+  const [contMode,      setContMode]     = useState("");
+  const [name,          setName]         = useState("");
+  const [phone,         setPhone]        = useState("");
+  const [done,          setDone]         = useState(false);
+
+  const animal     = useMemo(() => ANIMAL_OPTS.find(a => a.type === selAnimal) ?? ANIMAL_OPTS[0], [selAnimal]);
+  const minAmount  = Math.ceil(animal.price * 0.3);
+  const numAmount  = Number(amount || 0);
+  const validAmt   = numAmount >= minAmount && numAmount <= animal.price;
+  const remaining  = Math.max(animal.price - numAmount, 0);
+  const finalValid = contMode === "registered" || (contMode === "guest" && name.trim() && phone.trim());
+
+  const goNext = () => {
+    if (step === 0) { setAmount(String(minAmount)); setStep(1); return; }
+    if (step === 1 && !validAmt) return;
+    setStep(s => s + 1);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative mx-auto flex max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+        {done ? (
+          <div className="flex flex-col items-center justify-center px-8 py-14 text-center">
+            <div className="mb-4 text-6xl">🌟</div>
+            <h2 className="mb-2 text-[1.25rem] font-extrabold text-[#1a0f2e]">Açılışınız yaradıldı!</h2>
+            <p className="mb-6 text-sm leading-relaxed text-[#7c6fa0]">
+              <strong>{animal.type} Qurbanı</strong> açılışı {numAmount.toLocaleString()} AZN ilkin ödənişlə qeydə alındı.
+              Qalan {remaining.toLocaleString()} AZN tam məbləğ yığılana qədər ianələrlə toplanacaq.
+            </p>
+            <button onClick={onClose} className="rounded-xl px-8 py-3 text-sm font-semibold text-white hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>Bağla</button>
+          </div>
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-purple-100 px-6 py-4 shrink-0"
+              style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
+              <div>
+                <div className="font-bold text-[#1a0f2e]">Yeni Açılış Et</div>
+                <div className="text-xs text-[#7c6fa0]">Heyvan seçin və minimum 30% ilkin ödəniş edin</div>
+              </div>
+              <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-purple-100 transition-colors">
+                <X size={16} className="text-[#7c6fa0]" />
+              </button>
+            </div>
+
+            {/* Step indicators */}
+            <div className="flex items-center justify-center gap-2 border-b border-purple-100 px-6 py-3 shrink-0">
+              {NOM_STEPS.map((s, i) => (
+                <div key={s} className="flex items-center gap-2">
+                  <div className={`flex items-center gap-1.5 text-xs font-semibold ${i === step ? "text-purple-700" : i < step ? "text-emerald-600" : "text-[#7c6fa0]"}`}>
+                    <div className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                      i === step ? "bg-purple-600 text-white" : i < step ? "bg-emerald-500 text-white" : "bg-[#e8e4f4] text-[#7c6fa0]"}`}>
+                      {i < step ? "✓" : i + 1}
+                    </div>
+                    {s}
+                  </div>
+                  {i < NOM_STEPS.length - 1 && <ChevronDown size={12} className="text-[#7c6fa0] -rotate-90" />}
+                </div>
+              ))}
+            </div>
+
+            {/* Scrollable body */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"
+              style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
+
+              {/* Step 0 — Animal selection */}
+              {step === 0 && (
+                <div>
+                  <div className="mb-3 text-xs font-semibold text-[#1a0f2e]">Heyvan növünü seçin</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {ANIMAL_OPTS.map(item => (
+                      <button key={item.type} onClick={() => setSelAnimal(item.type)}
+                        className={`rounded-2xl border-2 p-4 text-left transition-all ${selAnimal === item.type ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                        <div className="mb-3 flex items-center gap-3">
+                          <img src={item.image} alt={item.type}
+                            className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
+                          <div>
+                            <div className="text-sm font-bold text-[#1a0f2e]">{item.type}</div>
+                            <div className="text-[11px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
+                          </div>
+                        </div>
+                        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                          <div className="rounded-xl bg-white/70 p-2">
+                            <span className="block text-[#7c6fa0]">Qiymət</span>
+                            <b>{item.price.toLocaleString()} AZN</b>
+                          </div>
+                          <div className="rounded-xl bg-white/70 p-2">
+                            <span className="block text-[#7c6fa0]">Çəki</span>
+                            <b>{item.weight}</b>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <label className="mt-4 flex cursor-pointer items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/30 p-4">
+                    <div>
+                      <div className="text-sm font-bold text-[#1a0f2e]">Anonim açılış</div>
+                      <div className="text-xs text-[#7c6fa0]">Adınız iştirakçılara göstərilməyəcək</div>
+                    </div>
+                    <input type="checkbox" checked={isAnon} onChange={e => setIsAnon(e.target.checked)}
+                      className="h-5 w-5 accent-purple-700" />
+                  </label>
+                </div>
+              )}
+
+              {/* Step 1 — Payment */}
+              {step === 1 && (
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-4">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-3">
+                        <img src={animal.image} alt={animal.type}
+                          className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
+                        <div>
+                          <div className="font-bold text-[#1a0f2e]">{animal.type} Qurbanı</div>
+                          <div className="text-xs text-[#7c6fa0]">{animal.weight} • {animal.price.toLocaleString()} AZN</div>
+                        </div>
+                      </div>
+                      <div className="text-right text-xs text-[#7c6fa0]">
+                        Minimum ilkin ödəniş<br />
+                        <b className="text-sm text-purple-700">{minAmount.toLocaleString()} AZN</b>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Ödəmək istədiyiniz məbləğ</label>
+                    <input type="number" min={minAmount} max={animal.price} value={amount}
+                      onChange={e => setAmount(e.target.value)}
+                      className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-[#1a0f2e] focus:border-purple-400 focus:outline-none transition-colors" />
+                    <div className={`mt-1 text-xs ${validAmt ? "text-[#7c6fa0]" : "text-rose-500"}`}>
+                      Minimum {minAmount.toLocaleString()} AZN — heyvanın tam məbləği yığılana qədər minimum 10 AZN-lik ianələr qəbul olunacaq.
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Qeyd</label>
+                    <textarea value={note} onChange={e => setNote(e.target.value)}
+                      placeholder="Açılışla bağlı qeyd..." rows={3}
+                      className="w-full resize-none rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-[#1a0f2e] placeholder:text-[#7c6fa0] focus:border-purple-400 focus:outline-none transition-colors" />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2 — Confirmation */}
+              {step === 2 && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button onClick={() => setContMode("registered")}
+                      className={`rounded-2xl border-2 p-4 text-left transition ${contMode === "registered" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                      <div className="font-bold text-[#1a0f2e]">Qeydiyyat ilə</div>
+                      <div className="mt-1 text-xs text-[#7c6fa0]">Hesabınıza daxil olaraq davam edin</div>
+                    </button>
+                    <button onClick={() => setContMode("guest")}
+                      className={`rounded-2xl border-2 p-4 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                      <div className="font-bold text-[#1a0f2e]">Qeydiyyatsız</div>
+                      <div className="mt-1 text-xs text-[#7c6fa0]">Ad soyad və nömrə ilə davam edin</div>
+                    </button>
+                  </div>
+                  {isAnon && (
+                    <div className="rounded-2xl border border-purple-200 bg-purple-50/80 p-4 text-xs leading-relaxed text-purple-900">
+                      <strong>Qeyd:</strong> Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur.
+                      İstifadəçilərə açıq olan bölmələrdə adınız &ldquo;Anonim&rdquo; olaraq qeyd ediləcəkdir.
+                    </div>
+                  )}
+                  {contMode === "guest" && (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Ad Soyad</label>
+                        <input value={name} onChange={e => setName(e.target.value)} placeholder="Adınızı daxil edin"
+                          className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Telefon</label>
+                        <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+994 XX XXX XX XX"
+                          className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                      </div>
+                    </div>
+                  )}
+                  <div className="rounded-2xl border border-purple-100 p-4"
+                    style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
+                    <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-purple-700">
+                      <Shield size={12} /> Açılış xülasəsi
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[#7c6fa0]">Heyvan</span>
+                        <span className="flex items-center gap-2 font-semibold">
+                          <img src={animal.image} alt={animal.type} className="h-7 w-7 rounded-full bg-purple-100 object-cover ring-1 ring-purple-200" />
+                          {animal.type}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#7c6fa0]">Tam məbləğ</span>
+                        <span className="font-semibold">{animal.price.toLocaleString()} AZN</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#7c6fa0]">İlkin ödəniş</span>
+                        <span className="font-semibold">{numAmount.toLocaleString()} AZN</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#7c6fa0]">Anonim</span>
+                        <span className="font-semibold">{isAnon ? "Bəli" : "Xeyr"}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-purple-100 pt-2">
+                        <span className="font-bold text-[#1a0f2e]">Qalan toplanacaq</span>
+                        <span className="font-bold text-purple-700">{remaining.toLocaleString()} AZN</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs leading-relaxed text-[#7c6fa0]">
+                    Pay sistemi yoxdur. Tam məbləğ tamamlanana qədər digər istifadəçilər minimum 10 AZN ianə edə biləcəklər.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer buttons */}
+            <div className="flex gap-3 px-6 pb-6 pt-3 shrink-0 border-t border-purple-100">
+              {step > 0 && (
+                <button onClick={() => setStep(s => s - 1)}
+                  className="flex-1 rounded-xl border border-purple-200 py-3 text-sm font-semibold text-[#1a0f2e] hover:bg-purple-50 transition-colors">
+                  Geri
+                </button>
+              )}
+              {step < NOM_STEPS.length - 1 ? (
+                <button onClick={goNext} disabled={step === 1 && !validAmt}
+                  className="flex-1 rounded-xl py-3 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                  style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                  Davam et
+                </button>
+              ) : (
+                <button onClick={() => { if (finalValid) setDone(true); }} disabled={!finalValid}
+                  className="flex-1 rounded-xl py-3 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                  style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
+                  Açılışı təsdiqlə ✓
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Page ──────────────────────────────────────────────── */
 export default function CharityPage() {
-  const [page, setPage]                   = useState("home");
-  const [filter, setFilter]               = useState("Bütün heyvanlar");
-  const [dropdownOpen, setDropdownOpen]   = useState(false);
+  const [page, setPage]                     = useState("home");
+  const [filter, setFilter]                 = useState("Bütün heyvanlar");
+  const [dropdownOpen, setDropdownOpen]     = useState(false);
   const [donationTarget, setDonationTarget] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showNewOpening, setShowNewOpening] = useState(false);
 
   const filtered = filter === "Bütün heyvanlar" ? ANIMALS : ANIMALS.filter(a => a.type === filter);
 
@@ -649,7 +911,9 @@ export default function CharityPage() {
           <div className="text-white font-semibold text-[15px] tracking-wide">meatbox.az</div>
         </div>
         <div className="px-3 mb-3">
-          <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white bg-white/10 hover:bg-white/20 transition-all">
+          <button onClick={() => setShowNewOpening(true)}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/10 hover:bg-white/20 active:scale-95 transition-all"
+            style={{ backdropFilter: "blur(4px)" }}>
             <Plus size={15} /> Yeni açılış et
           </button>
         </div>
@@ -751,11 +1015,13 @@ export default function CharityPage() {
                   Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq. Tam şəffaflıq.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap mb-4">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium"
+                  <button onClick={() => setShowNewOpening(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold active:scale-95 transition-all hover:opacity-90"
                     style={{ background: "#4b14bd" }}>
                     <Plus size={13} /> Yeni açılış et
                   </button>
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border bg-white/70"
+                  <button onClick={() => setPage("nece")}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
                     style={{ color: "#4b14bd", borderColor: "rgba(75,20,189,0.3)" }}>
                     <Play size={11} fill="currentColor" /> Necə işləyir?
                   </button>
@@ -775,11 +1041,13 @@ export default function CharityPage() {
                     Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənilənlik.
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-medium hover:opacity-90 transition-all"
+                    <button onClick={() => setShowNewOpening(true)}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all"
                       style={{ background: "#4b14bd" }}>
                       <Plus size={14} /> Yeni açılış et
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
+                    <button onClick={() => setPage("nece")}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
                       style={{ color: "#4b14bd", borderColor: "rgba(75,20,189,0.3)" }}>
                       <Play size={12} fill="currentColor" /> Necə işləyir?
                     </button>
@@ -871,6 +1139,9 @@ export default function CharityPage() {
 
       {donationTarget && (
         <DonationModal animal={donationTarget} onClose={() => setDonationTarget(null)} />
+      )}
+      {showNewOpening && (
+        <NewOpeningModal onClose={() => setShowNewOpening(false)} />
       )}
     </div>
   );
