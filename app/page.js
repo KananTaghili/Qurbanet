@@ -68,7 +68,7 @@ const SERVICES = [
     title: "Kollektiv Qurban-Xeyriyyə Platforması",
     desc: "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı xeyriyyə platformasına qoşulun.",
     href: "/charity",
-    disabled: true,
+    disabled: false,
     icon: <IconHandshake cls="w-10 h-10 text-purple-700" />,
     ServiceIcon: TbHeartHandshake,
     serviceIconColor: "#6B21A8",
