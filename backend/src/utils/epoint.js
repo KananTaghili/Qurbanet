@@ -5,6 +5,14 @@ const EPOINT_API_BASE = () =>
 const PUBLIC_KEY = () => process.env.EPOINT_PUBLIC_KEY || "";
 const PRIVATE_KEY = () => process.env.EPOINT_PRIVATE_KEY || "";
 
+/** base64( json_string ) */
+const encodeData = (params) =>
+  Buffer.from(JSON.stringify(params)).toString("base64");
+
+/** Epoint-dən gələn Base64-JSON data sahəsini decode et */
+const decodeData = (dataStr) =>
+  JSON.parse(Buffer.from(dataStr, "base64").toString("utf-8"));
+
 // base64_encode(sha1(private_key + data + private_key, raw=true))
 const buildSignature = (dataStr) => {
   const raw = crypto
@@ -14,13 +22,7 @@ const buildSignature = (dataStr) => {
   return raw.toString("base64");
 };
 
-const encodeData = (params) =>
-  Buffer.from(JSON.stringify(params)).toString("base64");
-
-const decodeData = (dataStr) =>
-  JSON.parse(Buffer.from(dataStr, "base64").toString("utf-8"));
-
-// Timing-safe signature comparison
+/** Gələn imzanı timing-safe müqayisə ilə yoxla */
 const verifySignature = (dataStr, signature) => {
   const expected = buildSignature(dataStr);
   try {
@@ -33,14 +35,14 @@ const verifySignature = (dataStr, signature) => {
   }
 };
 
-// Build { data, signature } body for Epoint
+/** Hər Epoint endpoint-i üçün { data, signature } body qur */
 const buildEpointBody = (payload) => {
   const data = encodeData({ public_key: PUBLIC_KEY(), ...payload });
   const signature = buildSignature(data);
   return { data, signature };
 };
 
-// POST to Epoint API using JSON
+/** Epoint API-yə POST */
 const epointPost = async (endpoint, payload) => {
   const body = buildEpointBody(payload);
   const res = await fetch(`${EPOINT_API_BASE()}${endpoint}`, {
@@ -53,7 +55,7 @@ const epointPost = async (endpoint, payload) => {
   return res.json();
 };
 
-// ─── Payment operations ───────────────────────────────────────────────────────
+// ─── Epoint əməliyyatları ─────────────────────────────────────────────────────
 
 const createPayment = async ({
   orderId,
@@ -80,95 +82,9 @@ const createPayment = async ({
   return result;
 };
 
-const createPreAuth = async ({
-  orderId,
-  amount,
-  description,
-  successUrl,
-  errorUrl,
-  currency,
-}) => {
-  return epointPost("/pre-auth-request", {
-    amount: Number(amount).toFixed(2),
-    currency: currency || "AZN",
-    language: "az",
-    order_id: String(orderId),
-    description: String(description || "").slice(0, 1000),
-    ...(successUrl && { success_redirect_url: successUrl }),
-    ...(errorUrl && { error_redirect_url: errorUrl }),
-  });
-};
-
-const completePreAuth = async (transaction, amount) =>
-  epointPost("/pre-auth-complete", { amount: String(amount), transaction });
-
 const getTransactionStatus = async (lookup) => {
   const result = await epointPost("/get-status", lookup);
   console.log("[EPoint] getStatus ←", JSON.stringify(result));
-  return result;
-};
-
-const reverseTransaction = async (transaction, currency = "AZN", amount) =>
-  epointPost("/reverse", {
-    transaction,
-    language: "az",
-    currency,
-    ...(amount !== undefined && amount !== null && { amount: String(amount) }),
-  });
-
-const registerCard = async ({
-  description,
-  successUrl,
-  errorUrl,
-  language,
-} = {}) =>
-  epointPost("/card-registration", {
-    language: language || "az",
-    description: description || "",
-    ...(successUrl && { success_redirect_url: successUrl }),
-    ...(errorUrl && { error_redirect_url: errorUrl }),
-  });
-
-const executePayWithCard = async ({
-  cardId,
-  orderId,
-  amount,
-  currency,
-  description,
-  language,
-}) =>
-  epointPost("/execute-pay", {
-    language: language || "az",
-    card_id: cardId,
-    order_id: String(orderId),
-    amount: String(amount),
-    currency: currency || "AZN",
-    description: String(description || "").slice(0, 1000),
-  });
-
-// GET widget URL for Apple Pay / Google Pay
-const createWidget = async ({ orderId, amount, description }) => {
-  const payload = {
-    public_key: PUBLIC_KEY(),
-    amount: Number(amount).toFixed(2),
-    order_id: String(orderId),
-    description: String(description || "ödəniş").slice(0, 1000),
-  };
-  const data = encodeData(payload);
-  const signature = buildSignature(data);
-  console.log("[EPoint] createWidget →", JSON.stringify(payload));
-
-  const url = new URL(`${EPOINT_API_BASE()}/token/widget`);
-  url.searchParams.set("data", data);
-  url.searchParams.set("signature", signature);
-
-  const res = await fetch(url.toString());
-  const result = await res.json();
-  console.log("[EPoint] createWidget ←", JSON.stringify(result));
-
-  if (result.status !== "success") {
-    throw new Error(`EPoint widget xətası: ${result.message || result.status}`);
-  }
   return result;
 };
 
@@ -260,16 +176,8 @@ module.exports = {
   encodeData,
   decodeData,
   buildSignature,
-  buildEpointBody,
-  epointPost,
   verifySignature,
   createPayment,
-  createPreAuth,
-  completePreAuth,
   getTransactionStatus,
-  reverseTransaction,
-  registerCard,
-  executePayWithCard,
-  createWidget,
   getAzPaymentErrorMessage,
 };

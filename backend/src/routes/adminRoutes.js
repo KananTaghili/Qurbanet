@@ -50,12 +50,12 @@ const charityOptionUpload = multer({
   limits: { fileSize: 200 * 1024 * 1024 },
 });
 
-// ─── Public: Admin Login ─────────────────────────────────────────────────
-router.post("/login", adminController.adminLogin);
+// ─── Public: Admin Auth (token tələb olunmur) ────────────────────────────
 router.post("/send-otp", adminController.adminSendOTP);
 router.post("/verify-otp", adminController.adminVerifyOTP);
-router.post("/forgot-password", adminController.adminForgotPassword);
-router.post("/reset-password", adminController.adminResetPassword);
+if (process.env.ADMIN_REGISTER === "true") {
+  router.post("/register", adminController.adminRegister);
+}
 
 // ─── Qorunan admin route-lar ─────────────────────────────────────────────
 router.use(adminAuth);

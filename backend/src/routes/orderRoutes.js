@@ -31,12 +31,6 @@ router.post("/:orderId/pay", authenticate, orderController.processPayment);
 // POST /api/orders/:orderId/epoint/start - EPoint ödənişi başlat
 router.post("/:orderId/epoint/start", authenticate, epointController.startPayment);
 
-// POST /api/orders/:orderId/epoint/widget - Google Pay / Apple Pay widget başlat
-router.post("/:orderId/epoint/widget", authenticate, epointController.startWidgetPayment);
-
-// POST /api/orders/:orderId/epoint/verify - EPoint-dən birbaşa status yoxla
-router.post("/:orderId/epoint/verify", authenticate, epointController.verifyPayment);
-
 // POST /api/orders/:orderId/review - Rəy yaz
 router.post(
   "/:orderId/review",

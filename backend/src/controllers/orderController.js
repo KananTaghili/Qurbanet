@@ -7,7 +7,6 @@ const {
   ANIMALS,
   ORDER_STATUS,
   ORDER_STATUS_LABELS,
-  WEIGHT_OPTIONS_BY_ANIMAL,
   DELIVERY_TIME_WINDOWS,
   QURBAN_PART_FEES_BY_ANIMAL,
   QURBAN_PART_PROCESSING_FEES_BY_ANIMAL,
@@ -349,9 +348,17 @@ const getAnimals = async (req, res) => {
       obj.imageUrl = obj.imageFileId ? fileIdToUrl(obj.imageFileId, req) : fixMediaUrl(obj.imageUrl, req);
       obj.videoUrl = obj.videoFileId ? fileIdToUrl(obj.videoFileId, req) : fixMediaUrl(obj.videoUrl, req);
 
-      obj.weightOptions = obj.weightOptions?.length
-        ? obj.weightOptions
-        : WEIGHT_OPTIONS_BY_ANIMAL[obj.type] || [];
+      obj.weightOptions = (obj.weightOptions || []).filter((w) => w.isActive !== false);
+      // weightRange varsa amma weightOptions yoxdursa — weightRange-dən avtomatik bir seçim yarat
+      if (!obj.weightOptions.length && obj.weightRange) {
+        obj.weightOptions = [{
+          key: "default",
+          labelAz: obj.weightRange,
+          label: obj.weightRange,
+          price: obj.pricePerShare || 0,
+          isActive: true,
+        }];
+      }
 
       // Baş seçimləri - admin panelindən
       obj.headOptions = (obj.headOptions || []).filter(
@@ -797,9 +804,7 @@ const createOrder = async (req, res) => {
     let finalPricePerUnit;
     let finalTotalPrice;
     let normalizedLambSelection;
-    const availableWeightOptions = animal.weightOptions?.length
-      ? animal.weightOptions
-      : WEIGHT_OPTIONS_BY_ANIMAL[normalizedType] || [];
+    const availableWeightOptions = (animal.weightOptions || []).filter((w) => w.isActive !== false);
     const selectedWeight = availableWeightOptions.find(
       (item) => item.key === lambSelection?.weightCategoryKey,
     );
@@ -1043,17 +1048,6 @@ const getMyOrders = async (req, res) => {
 
     const orders = await Order.find({
       user: req.userId,
-      status: {
-        $in: [
-          ORDER_STATUS.PLACED,
-          ORDER_STATUS.CONFIRMED,
-          ORDER_STATUS.SLAUGHTERING,
-          ORDER_STATUS.PREPARING,
-          ORDER_STATUS.DELIVERING,
-          ORDER_STATUS.COMPLETED,
-          ORDER_STATUS.CANCELLED,
-        ],
-      },
     })
       .sort({ createdAt: -1 })
       .select("-__v");

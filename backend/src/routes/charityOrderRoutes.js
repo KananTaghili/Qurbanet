@@ -19,10 +19,4 @@ router.get("/:orderId", charityOrderController.getCharityOrderById);
 // POST /api/charity-orders/:orderId/epoint/start
 router.post("/:orderId/epoint/start", epointController.startCharityPayment);
 
-// POST /api/charity-orders/:orderId/epoint/widget - Google Pay / Apple Pay
-router.post("/:orderId/epoint/widget", epointController.startCharityWidgetPayment);
-
-// POST /api/charity-orders/:orderId/epoint/verify
-router.post("/:orderId/epoint/verify", epointController.verifyCharityPayment);
-
 module.exports = router;

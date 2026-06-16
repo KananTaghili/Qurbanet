@@ -12,6 +12,19 @@ const CharityOption = require("../models/CharityOption");
 const DeliveryOption = require("../models/DeliveryOption");
 const { success, error } = require("../utils/response");
 
+const DELIVERY_DEFAULTS = [
+  { key: "catdirilsin",        labelAz: "Sizə çatdırılsın",            icon: "🚚", basePrice: 12, isActive: true },
+  { key: "ozun_gotur",         labelAz: "Özünüz götürün",               icon: "🏠", basePrice: 0,  isActive: true },
+  { key: "usaqlar_evi",        labelAz: "Uşaqlar evinə göndər",         icon: "🏫", basePrice: 0,  isActive: true },
+  { key: "qocalar_evi",        labelAz: "Qocalar evinə göndər",         icon: "👵", basePrice: 0,  isActive: true },
+  { key: "ehtiyac_sahibleri",  labelAz: "Ehtiyac sahiblərinə göndər",   icon: "🤲", basePrice: 20, isActive: true },
+];
+
+const ensureDeliveryDefaults = async () => {
+  const count = await DeliveryOption.countDocuments({});
+  if (count === 0) await DeliveryOption.insertMany(DELIVERY_DEFAULTS);
+};
+
 // ═══════════════════════════════════════════════════════════════════
 //  XEYRİYYƏ SEÇİMLƏRİ
 // ═══════════════════════════════════════════════════════════════════
@@ -178,6 +191,7 @@ const getDeliveryOptions = async (req, res) => {
  */
 const getAllDeliveryOptions = async (req, res) => {
   try {
+    await ensureDeliveryDefaults();
     const options = await DeliveryOption.find({})
       .sort({ key: 1 })
       .populate("categorySpecificPrices.categoryId", "nameAz type")

@@ -344,12 +344,13 @@ const resetPassword = async (req, res) => {
   }
 };
 
-// ─── Qonaq giriş ─────────────────────────────────────────────────────────────
+// ─── Qonaq giriş — DB-yə yazılmır ───────────────────────────────────────────
 const guestLogin = async (req, res) => {
   try {
-    const user = await User.create({ isGuest: true, isVerified: true });
-    const token = makeToken(user);
-    return success(res, { token, user: userPayload(user) }, "Qonaq olaraq daxil oldunuz.");
+    const guestId = new (require("mongoose").Types.ObjectId)();
+    const fakeUser = { _id: guestId, id: guestId.toString(), isGuest: true, isVerified: true };
+    const token = makeToken(fakeUser);
+    return success(res, { token, user: { ...fakeUser, id: guestId.toString() } }, "Qonaq olaraq daxil oldunuz.");
   } catch (err) {
     return error(res, "Qonaq girişi zamanı xəta baş verdi.", 500);
   }

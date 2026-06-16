@@ -82,18 +82,16 @@ const maybeAutoConfirm = async (order) => {
   }
 };
 
-const OTP_EXPIRY_MS = 5 * 60 * 1000;
+const OTP_EXPIRY_MS = Number(process.env.OTP_EXPIRY_MINUTES || 5) * 60 * 1000;
 const OTP_MAX_ATTEMPTS = 5;
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const getAllowedEmails = async () => {
   const settings = await AppSettings.findOne({ singleton: "global" });
-  return settings?.allowedAdminEmails?.length
-    ? settings.allowedAdminEmails
-    : ["nbiyevmuhammd1@gmail.com"];
+  return settings?.allowedAdminEmails || [];
 };
 
-// ─── Admin Email OTP ──────────────────────────────────────────────────────────
+// ─── Admin Login — Step 1: credentials yoxla, OTP göndər ─────────────────────
 const adminSendOTP = async (req, res) => {
   try {
     const { email: rawEmail, password } = req.body;
@@ -103,49 +101,61 @@ const adminSendOTP = async (req, res) => {
     if (!isValidEmail(email))
       return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
-    const settings = await AppSettings.findOne({ singleton: "global" }).select(
-      "+adminPasswordHash +adminCredentials.passwordHash",
-    );
-    const allowed = settings?.allowedAdminEmails?.length
-      ? settings.allowedAdminEmails
-      : ["nbiyevmuhammd1@gmail.com"];
+    // Credentials yoxlama — raw collection (select:false bypass)
+    const rawSettings = await AppSettings.collection.findOne({ singleton: "global" });
+    const cred = rawSettings?.adminCredentials?.find((c) => c.email === email);
 
-    if (!allowed.includes(email))
-      return error(
-        res,
-        "Bu email ünvanına admin girişi icazəsi verilməyib.",
-        403,
-      );
+    const credValid = cred?.passwordHash
+      ? await bcrypt.compare(password, cred.passwordHash)
+      : false;
 
-    // Email-ə məxsus şifrəni yoxla
-    const cred = settings?.adminCredentials?.find((c) => c.email === email);
-    let passwordValid = false;
-    if (cred?.passwordHash) {
-      passwordValid = await bcrypt.compare(password, cred.passwordHash);
-    } else if (settings?.adminPasswordHash) {
-      passwordValid = await bcrypt.compare(
-        password,
-        settings.adminPasswordHash,
-      );
-    } else {
-      passwordValid =
-        password === (process.env.ADMIN_OTP_PASSWORD || "Muhammad_123456");
+    if (!credValid) {
+      return error(res, "Email və ya şifrə yanlışdır.", 401);
     }
-    if (!passwordValid) return error(res, "Email və ya şifrə yanlışdır.", 401);
 
+    // Emaili icazə siyahısına əlavə et
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $addToSet: { allowedAdminEmails: email } },
+      { upsert: true },
+    );
+
+    // OTP yarat və DB-ə yaz
+    const testMode = process.env.TEST_MODE === "true";
+    const code = testMode ? "1234" : generateOTP();
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MS);
     await OTP.deleteMany({ email });
-    const code = generateOTP();
-    await OTP.create({
-      email,
-      code,
-      expiresAt: new Date(Date.now() + OTP_EXPIRY_MS),
-    });
-    await sendEmail(email, code, "az");
+    await OTP.create({ email, code, expiresAt, attempts: 0 });
+
+    // Test modunda email göndərmə, kodu birbaşa qaytar
+    if (testMode) {
+      console.log(`[TEST OTP] ${email} → ${code}`);
+      return success(res, { otpSent: true, devCode: code }, "Test mode: OTP kodu avtomatik dolduruldu.");
+    }
+
+    // Email göndər
+    let emailDelivered = false;
+    try {
+      await sendEmail(email, code);
+      emailDelivered = true;
+    } catch (emailErr) {
+      console.error("[OTP] Email xətası:", emailErr.message);
+      console.log(`[OTP] Kod: ${code} | Email: ${email}`);
+    }
+
+    const data = { otpSent: true };
+    // Email çatmadısa kodu response-a əlavə et (production-da gizlə)
+    if (!emailDelivered && process.env.NODE_ENV !== "production") {
+      data.devCode = code;
+    }
+    if (!emailDelivered && process.env.NODE_ENV === "production") {
+      return error(res, "OTP kodu göndərilə bilmədi. Yenidən cəhd edin.", 500);
+    }
 
     return success(
       res,
-      { email },
-      `Doğrulama kodu ${email} ünvanına göndərildi.`,
+      data,
+      emailDelivered ? "OTP kodu emailinizə göndərildi." : "OTP kodu (dev mode)",
     );
   } catch (err) {
     console.error("adminSendOTP xətası:", err);
@@ -193,8 +203,8 @@ const adminVerifyOTP = async (req, res) => {
     await OTP.deleteMany({ email });
     const token = jwt.sign(
       { role: "admin", email },
-      process.env.ADMIN_JWT_SECRET,
-      { expiresIn: "12h" },
+      process.env.ADMIN_JWT_SECRET || "qurbanet_admin_proxy_secret_2026",
+      { expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || "12h" },
     );
     return success(res, { token }, "Admin girişi uğurlu.");
   } catch (err) {
@@ -203,13 +213,68 @@ const adminVerifyOTP = async (req, res) => {
   }
 };
 
+// ─── Admin Register ───────────────────────────────────────────────────────────
+const adminRegister = async (req, res) => {
+  if (process.env.ADMIN_REGISTER !== "true") {
+    return error(res, "Qeydiyyat hazırda bağlıdır.", 403);
+  }
+  try {
+    const { email: rawEmail, password, confirmPassword } = req.body;
+    if (!rawEmail || !password || !confirmPassword)
+      return error(res, "Bütün sahələri doldurun.", 400);
+    if (password !== confirmPassword)
+      return error(res, "Şifrələr uyğun gəlmir.", 400);
+    if (password.length < 6)
+      return error(res, "Şifrə ən azı 6 simvol olmalıdır.", 400);
+
+    const email = rawEmail.trim().toLowerCase();
+    if (!isValidEmail(email))
+      return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+    // Raw collection — select:false bypass üçün
+    const rawSettings = await AppSettings.collection.findOne({ singleton: "global" });
+
+    // Mövcud credentials yoxlanması
+    const existing = rawSettings?.adminCredentials?.find((c) => c.email === email);
+    if (existing) {
+      return error(res, "Bu email üçün artıq hesab mövcuddur. Daxil olun.", 409);
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // allowedAdminEmails-ə əlavə et (əgər yoxdursa) + credentials yaz
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $addToSet: { allowedAdminEmails: email } },
+      { upsert: true },
+    );
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $pull: { adminCredentials: { email } } },
+    );
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $push: { adminCredentials: { email, passwordHash } } },
+    );
+
+    const token = jwt.sign(
+      { role: "admin", email },
+      process.env.ADMIN_JWT_SECRET || "qurbanet_admin_proxy_secret_2026",
+      { expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || "12h" },
+    );
+
+    return success(res, { token }, "Admin hesabı yaradıldı.", 201);
+  } catch (err) {
+    console.error("adminRegister xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
 // ─── Allowed Emails CRUD ──────────────────────────────────────────────────────
 const getAdminAllowedEmails = async (req, res) => {
   try {
     const settings = await AppSettings.findOne({ singleton: "global" });
-    const emails = settings?.allowedAdminEmails?.length
-      ? settings.allowedAdminEmails
-      : ["nbiyevmuhammd1@gmail.com"];
+    const emails = settings?.allowedAdminEmails || [];
     const credEmails = (settings?.adminCredentials || []).map((c) => c.email);
     const admins = emails.map((email) => ({
       email,
@@ -277,135 +342,6 @@ const removeAdminAllowedEmail = async (req, res) => {
     }));
     return success(res, { admins }, "Admin silindi.");
   } catch (err) {
-    return error(res, "Server xətası.", 500);
-  }
-};
-
-// ─── Admin Login ─────────────────────────────────────────────────────────────
-const adminLogin = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    if (username !== process.env.ADMIN_USERNAME) {
-      return error(res, "Yanlış istifadəçi adı və ya şifrə.", 401);
-    }
-
-    // DB-də saxlanmış hash varsa onu yoxla, yoxdursa .env şifrəsinə bax
-    const settings = await AppSettings.findOne({ singleton: "global" }).select(
-      "+adminPasswordHash",
-    );
-    let passwordValid = false;
-    if (settings?.adminPasswordHash) {
-      passwordValid = await bcrypt.compare(
-        password,
-        settings.adminPasswordHash,
-      );
-    } else {
-      passwordValid = password === process.env.ADMIN_PASSWORD;
-    }
-
-    if (!passwordValid) {
-      return error(res, "Yanlış istifadəçi adı və ya şifrə.", 401);
-    }
-
-    const token = jwt.sign(
-      { role: "admin", username },
-      process.env.ADMIN_JWT_SECRET,
-      { expiresIn: "12h" },
-    );
-
-    return success(res, { token }, "Admin girişi uğurlu.");
-  } catch (err) {
-    return error(res, "Server xətası.", 500);
-  }
-};
-
-// ─── Admin Şifrəni Unutdum — OTP göndər ─────────────────────────────────────
-const adminForgotPassword = async (req, res) => {
-  try {
-    const { username } = req.body;
-    const adminPhone = process.env.ADMIN_PHONE;
-
-    if (!adminPhone) {
-      return error(
-        res,
-        "ADMIN_PHONE mühit dəyişəni konfiqurasiya edilməyib.",
-        500,
-      );
-    }
-
-    if (username !== process.env.ADMIN_USERNAME) {
-      return success(
-        res,
-        {},
-        "Əgər məlumatlar düzgündürsə, telefona kod göndəriləcək.",
-      );
-    }
-
-    await OTP.deleteMany({ phone: adminPhone });
-    const code = generateOTP();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    await OTP.create({ phone: adminPhone, code, expiresAt });
-    await sendSMS(adminPhone, code);
-
-    const masked =
-      adminPhone.slice(0, -4).replace(/\d/g, "*") + adminPhone.slice(-4);
-    return success(
-      res,
-      { maskedPhone: masked },
-      "OTP kodu telefonunuza göndərildi.",
-    );
-  } catch (err) {
-    console.error("adminForgotPassword xətası:", err);
-    return error(res, "Server xətası.", 500);
-  }
-};
-
-// ─── Admin Şifrəni Sıfırla — OTP yoxla + yeni şifrə ────────────────────────
-const adminResetPassword = async (req, res) => {
-  try {
-    const { code, newPassword } = req.body;
-    const adminPhone = process.env.ADMIN_PHONE;
-
-    if (!adminPhone) {
-      return error(
-        res,
-        "ADMIN_PHONE mühit dəyişəni konfiqurasiya edilməyib.",
-        500,
-      );
-    }
-    if (!code || !newPassword) {
-      return error(res, "OTP kodu və yeni şifrə tələb olunur.", 400);
-    }
-    if (newPassword.length < 6) {
-      return error(res, "Şifrə ən az 6 simvol olmalıdır.", 400);
-    }
-    if (!/^\d{6}$/.test(code)) {
-      return error(res, "OTP kodu 6 rəqəmli olmalıdır.", 400);
-    }
-
-    const otpRecord = await OTP.findOne({ phone: adminPhone });
-    if (!otpRecord || otpRecord.expiresAt < new Date()) {
-      await OTP.deleteMany({ phone: adminPhone });
-      return error(res, "OTP kodu etibarsızdır. Yenidən göndərin.", 400);
-    }
-    if (otpRecord.code !== code) {
-      await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
-      return error(res, "Yanlış OTP kodu.", 400);
-    }
-
-    await OTP.deleteMany({ phone: adminPhone });
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await AppSettings.findOneAndUpdate(
-      { singleton: "global" },
-      { adminPasswordHash: hashedPassword },
-      { upsert: true, new: true },
-    );
-
-    return success(res, {}, "Admin şifrəsi uğurla yeniləndi.");
-  } catch (err) {
-    console.error("adminResetPassword xətası:", err);
     return error(res, "Server xətası.", 500);
   }
 };
@@ -1280,7 +1216,9 @@ const getUsers = async (req, res) => {
     if (filterEmail === "yes") conditions.push({ email: { $exists: true, $nin: [null, ""] } });
     if (filterEmail === "no") conditions.push(emptyEmail);
 
-    const filter = conditions.length > 0 ? { $and: conditions } : {};
+    // Qonaq istifadəçiləri göstərmə
+    conditions.push({ isGuest: { $ne: true } });
+    const filter = { $and: conditions };
 
     const [users, total] = await Promise.all([
       User.find(filter)
@@ -1292,15 +1230,20 @@ const getUsers = async (req, res) => {
     ]);
 
     const userIds = users.map((u) => u._id);
-    const orderCounts = await Order.aggregate([
+    const orderAgg = await Order.aggregate([
       { $match: { user: { $in: userIds } } },
-      { $group: { _id: "$user", count: { $sum: 1 } } },
+      { $group: { _id: "$user", count: { $sum: 1 }, totalSpent: { $sum: "$totalPrice" } } },
     ]);
     const countMap = {};
-    for (const { _id, count } of orderCounts) countMap[String(_id)] = count;
+    const spentMap = {};
+    for (const { _id, count, totalSpent } of orderAgg) {
+      countMap[String(_id)] = count;
+      spentMap[String(_id)] = totalSpent || 0;
+    }
     const usersWithCount = users.map((u) => ({
       ...u.toObject(),
       orderCount: countMap[String(u._id)] || 0,
+      totalSpent: spentMap[String(u._id)] || 0,
     }));
 
     return success(res, {
@@ -1456,14 +1399,12 @@ const updateOrderContact = async (req, res) => {
 };
 
 module.exports = {
-  adminLogin,
   adminSendOTP,
   adminVerifyOTP,
+  adminRegister,
   getAdminAllowedEmails,
   addAdminAllowedEmail,
   removeAdminAllowedEmail,
-  adminForgotPassword,
-  adminResetPassword,
   getAllOrders,
   getSharedOrders,
   getOrderById,

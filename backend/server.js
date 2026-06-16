@@ -26,21 +26,6 @@ const httpServer = createServer(app);
 // Render (və digər reverse proxy) arxasında işləyərkən X-Forwarded-For başlığına etibar et
 app.set("trust proxy", 1);
 
-// ─── Database ──────────────────────────────────────────────────────────────
-connectDB()
-  .then(() => {
-    seedCharityOptions();
-    seedDeliveryOptions();
-  })
-  .catch((err) => {
-    console.error("\n❌ MongoDB bağlantı xətası:", err.message);
-    console.error("⚠️  .env faylında MONGO_URI-ni yoxlayın!");
-    if (process.pkg) {
-      console.error("📂 .env faylı backend.exe ilə eyni qovluqda olmalıdır");
-    }
-    console.error("💡 API serveri işləməyə davam edir, lakin DB olmadan.\n");
-  });
-
 // ─── Security Middleware ────────────────────────────────────────────────────
 app.use(
   helmet({
@@ -48,25 +33,16 @@ app.use(
   }),
 );
 
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:3000",
-//       "http://localhost:3001",
-//       "http://localhost:5173",
-//       "http://localhost:19006",
-//       "exp://localhost:8081",
-//       "https://sacrifice-api-az.loca.lt",
-//     ],
-//     credentials: true,
-//   }),
-// );
-
 const defaultOrigins = [
   "https://admin.qurbanet.az",
   "https://qurbanet.az",
+  "https://admin-tars-dev.qurbanet.az",
+  "https://admin-tars-uat.qurbanet.az",
+  "https://tars-dev.qurbanet.az",
   "http://localhost:3000",
   "http://localhost:3001",
+  "http://localhost:3100",
+  "http://localhost:3101",
   "http://localhost:5173",
 ];
 
@@ -121,11 +97,17 @@ app.use("/api/app-config", appConfigRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/epoint", epointRoutes);
+// Epoint merchant panelində result_url kök səviyyədə qeyd olunub:
+// https://api.qurbanet.az/callback/result — ona görə bu alias saxlanılır
+app.post(
+  "/callback/result",
+  require("./src/controllers/epointController").handleResult,
+);
 app.use("/api/charity-orders", charityOrderRoutes);
 app.use("/api/admin", adminRoutes);
 
-// ─── Health Check ───────────────────────────────────────────────────────────
-app.get("/api/health", (req, res) => {
+// ─── Health Check / Up ──────────────────────────────────────────────────────
+app.get(["/api/health", "/up"], (req, res) => {
   res.json({
     success: true,
     message: "Server işləyir 🟢",
@@ -149,25 +131,55 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({ success: false, message });
 });
 
-// ─── Start ──────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 4000;
-socketService.init(httpServer);
-httpServer.listen(PORT, () => {
-  console.log(`\n🚀 Qurbanet API serveri işləyir: http://localhost:${PORT}`);
-  console.log(`📋 Admin Panel API: http://localhost:${PORT}/api/admin`);
-  console.log(`💳 Epoint Callback: ${process.env.BACKEND_URL || `http://localhost:${PORT}`}/api/epoint/result`);
-  console.log(`🌐 CORS Origin: ${process.env.CORS_ORIGIN || "*"}`);
-  console.log(
-    `🔑 Test Mode: ${process.env.TEST_MODE === "true" ? "AÇIQ (OTP: 123456)" : "BAĞLI"}\n`,
-  );
+// ─── Asinxron Start Mexanizmi ───────────────────────────────────────────────
 
-  // Render free tier-da server 15 dəqiqəyə yatır — hər 10 dəqiqədən bir özünü ping et
-  if (process.env.BACKEND_URL && process.env.NODE_ENV !== "development") {
-    const https = require("https");
-    setInterval(() => {
-      https.get(`${process.env.BACKEND_URL}/api/health`, () => {}).on("error", () => {});
-    }, 10 * 60 * 1000);
+const startServer = async () => {
+  try {
+    // 1. İlk öncə bazaya qoşuluruq və toxum (seed) datalarını atırıq
+    await connectDB();
+    await seedCharityOptions();
+    await seedDeliveryOptions();
+    // Köhnə qonaq istifadəçiləri DB-dən bir dəfəlik sil
+    try {
+      const User = require("./src/models/User");
+      const { deletedCount } = await User.deleteMany({ isGuest: true });
+      if (deletedCount > 0) console.log(`🧹 ${deletedCount} köhnə qonaq istifadəçi silindi.`);
+    } catch (e) { console.error("Qonaq silmə xətası:", e.message); }
+
+    const PORT = process.env.PORT;
+    socketService.init(httpServer);
+
+    // 2. Yalnız baza tam hazır olduqdan sonra portu açırıq
+    httpServer.listen(PORT, () => {
+      console.log(`\n🚀 Qurbanet API serveri işləyir: http://localhost:${PORT}`);
+      console.log(`📋 Admin Panel API: http://localhost:${PORT}/api/admin`);
+      console.log(`💳 Epoint Callback: ${process.env.BACKEND_URL || `http://localhost:${PORT}`}/api/epoint/result`);
+      console.log(`🌐 CORS Origin: ${process.env.CORS_ORIGIN || "*"}`);
+      console.log(`🔑 Test Mode: ${process.env.TEST_MODE === "true" ? "AÇIQ (OTP: 123456)" : "BAĞLI"}\n`);
+
+      // ─── PM2 READY SİQNALI ───
+      if (process.send) {
+        process.send("ready");
+        console.log("📢 PM2 prosesinə 'ready' siqnalı uğurla ötürüldü.");
+      }
+
+      // Render üçün ping mexanizmi (Yalnız dev mühitində deyilsə işləyir)
+      if (process.env.BACKEND_URL && process.env.NODE_ENV !== "development") {
+        const https = require("https");
+        setInterval(() => {
+          https.get(`${process.env.BACKEND_URL}/api/health`, () => {}).on("error", () => {});
+        }, 10 * 60 * 1000);
+      }
+    });
+
+  } catch (error) {
+    console.error("\n❌ Server başladılarkən kritik xəta baş verdi:", error.message);
+    console.error("⚠️  Baza bağlantısını və ya mühit dəyişənlərini yoxlayın!\n");
+    process.exit(1); // Kritik xətada prosesi tam dayandırırıq ki, PM2 çökməni görsün
   }
-});
+};
+
+// Serveri başladırıq
+startServer();
 
 module.exports = app;

@@ -172,7 +172,9 @@ const listCategories = async (req, res) => {
 const createCategory = async (req, res) => {
   try {
     const input = { ...req.body };
-    await uploadMediaToGridFS(req, input);
+    try { await uploadMediaToGridFS(req, input); } catch (mediaErr) {
+      console.error("[CATEGORY CREATE] Media yükləmə xətası (keçilir):", mediaErr.message);
+    }
     const parsed = parseCategoryPayload(input);
     if (!parsed.valid) return error(res, parsed.message, 400);
 
@@ -187,7 +189,8 @@ const createCategory = async (req, res) => {
     return success(res, { category: withFixedUrls(category, req) }, "Kateqoriya yaradıldı.", 201);
   } catch (err) {
     console.error("[CATEGORY CREATE] Xəta:", err.message, err.errors || "");
-    return error(res, "Kateqoriya yaradılmadı.", 500);
+    const detail = process.env.NODE_ENV !== "production" ? ` (${err.message})` : "";
+    return error(res, `Kateqoriya yaradılmadı.${detail}`, 500);
   }
 };
 
@@ -230,7 +233,9 @@ const updateCategory = async (req, res) => {
       input.type = category.type;
     }
 
-    await uploadMediaToGridFS(req, input);
+    try { await uploadMediaToGridFS(req, input); } catch (mediaErr) {
+      console.error("[CATEGORY UPDATE] Media yükləmə xətası (keçilir):", mediaErr.message);
+    }
 
     const parsed = parseCategoryPayload(input);
     if (!parsed.valid) return error(res, parsed.message, 400);
@@ -258,7 +263,9 @@ const updateCategory = async (req, res) => {
       "Kateqoriya yeniləndi.",
     );
   } catch (err) {
-    return error(res, "Kateqoriya yenilənmədi.", 500);
+    console.error("[CATEGORY UPDATE] Xəta:", err.message, err.errors || "");
+    const detail = process.env.NODE_ENV !== "production" ? ` (${err.message})` : "";
+    return error(res, `Kateqoriya yenilənmədi.${detail}`, 500);
   }
 };
 

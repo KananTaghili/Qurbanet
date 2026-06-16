@@ -13,39 +13,35 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Kodları serverə təhlükəsiz şəkildə kopyalayırıq (rsync ilə)
-      - name: Copy files to Server via SSH
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }} # və ya secrets.SSH_PRIVATE_KEY
-          source: "./*"
-          target: "/var/www/qurbanetbackend"
-          rm: false # node_modules və .env silinməsin deyə false saxlayırıq
-
-      # 3. Serverə qoşulub paketləri yazırıq və PM2-ni məcburi restart edirik
+      # 2. Serverə SSH açarı ilə təhlükəsiz bağlanıb əmrləri icra edirik
       - name: Executing remote SSH commands
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
+          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          port: 22
           script: |
+            # Node.js mühitini aktivləşdiririk (NVM)
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
-            # Əgər hər hansı komanda xəta versə, deploy-u dayandır və mənə bildir
+            # Hər hansı komanda xəta versə, deploy-u dayandır
             set -e 
             
+            # Layihə qovluğuna keçirik
             cd /var/www/qurbanetbackend
             
-            # Yeni paketləri yoxlayırıq
-            npm install
+            # 3. KODLARI ÇƏKMƏK: SCP əvəzinə birbaşa SSH ilə GitHub-dan sürətli çəkirik
+            git pull origin main
+            
+            # Yeni paketləri yoxlayırıq (Yalnız production paketləri)
+            npm install --production
             
             # PM2-ni mütləq şəkildə təzələyirik
             PORT=4000 pm2 restart qurbanetbackendpm --update-env \
-              || PORT=4000 pm2 start server.js --name "qurbanetbackendpm"
+            || PORT=4000 pm2 start server.js --name "qurbanetbackendpm" --wait-ready --listen-timeout 10000 --max-memory-restart 500M
+            
             pm2 save
 
             # Nginx: video/media yükləmə üçün 100MB limitini təmin et
