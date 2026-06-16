@@ -29,10 +29,6 @@ jobs:
 
             # Kodları GitHub-dan çəkirik
             git pull origin main
-            git submodule update --init --recursive
-
-            # Web qovluğuna keçirik (Next.js app buradadır)
-            cd web
 
             # Paketləri yeniləyirik
             npm install

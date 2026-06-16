@@ -30,10 +30,6 @@ jobs:
             # Kodları GitHub-dan çəkirik (server-dəki local dəyişiklikləri ləğv edib təmiz çəkirik)
             git fetch origin dev
             git reset --hard origin/dev
-            git submodule update --init --recursive
-
-            # Web qovluğuna keçirik (Next.js app buradadır)
-            cd web
 
             # Paketləri yeniləyirik
             npm install
