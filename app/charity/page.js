@@ -485,7 +485,7 @@ function RingProgress({ percent, type, img }) {
         <img src={img} alt={type} className="max-h-[85%] max-w-[85%] object-contain" style={{ mixBlendMode: "multiply" }} />
       </div>
       <div className="absolute left-1/2 top-[164px] z-20 -translate-x-1/2 rounded-2xl px-6 py-1.5 leading-none text-white"
-        style={{ backgroundColor: "#551dc7", boxShadow: "0 8px 16px rgba(85,29,199,.25)", border: "3px solid white", fontSize: "22px", fontWeight: 900, letterSpacing: "-.04em" }}>
+        style={{ backgroundColor: "#551dc7", boxShadow: "0 8px 16px rgba(85,29,199,.25)", border: "3px solid white", fontSize: "22px", fontWeight: 900, letterSpacing: "-.04em", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
         {p}%
       </div>
     </div>
