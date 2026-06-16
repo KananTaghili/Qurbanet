@@ -10,7 +10,6 @@ import {
   ArrowLeft, X
 } from "lucide-react";
 
-/* ─── Data ───────────────────────────────────────────────────── */
 const SIDEBAR_NAV = [
   { icon: Home,        label: "Əsas Səhifə",  page: "home" },
   { icon: List,        label: "İanələrim",     page: "ianelerim" },
@@ -20,41 +19,17 @@ const SIDEBAR_NAV = [
 ];
 
 const FEATURES = [
-  { icon: Eye,    title: "Tam şəffaflıq",      desc: "Hər addımı izləyə bilərsiniz" },
-  { icon: Video,  title: "Canlı izləmə",       desc: "Kəsim anını canlı izləyin" },
+  { icon: Eye,    title: "Tam şəffaflıq",       desc: "Hər addımı izləyə bilərsiniz" },
+  { icon: Video,  title: "Canlı izləmə",        desc: "Kəsim anını canlı izləyin" },
   { icon: Heart,  title: "Ehtiyac sahiblərinə", desc: "Birbaşa çatdırılır" },
-  { icon: Users,  title: "Birlikdə xeyir",     desc: "Paylaş, birlikdə eylə" },
+  { icon: Users,  title: "Birlikdə xeyir",      desc: "Paylaş, birlikdə eylə" },
 ];
 
 const ANIMALS = [
-  {
-    type: "Dana", status: "Açıq", progressPercent: 62,
-    collected: "1,116", target: "1,800", currency: "AZN",
-    organizer: "Rəşad Əhmədov", participants: 5,
-    shareMin: "540", totalMin: "684", totalMax: "1,800",
-    startTime: "10 May 2024", img: "/dana.png",
-  },
-  {
-    type: "Qoyun", status: "Açıq", progressPercent: 48,
-    collected: "720", target: "1,500", currency: "AZN",
-    organizer: "Elsın Hüseynli", participants: 3,
-    shareMin: "450", totalMin: "780", totalMax: "1,500",
-    startTime: "12 May 2024", img: "/qoyun.png",
-  },
-  {
-    type: "Qoç", status: "Açıq", progressPercent: 75,
-    collected: "1,125", target: "3,500", currency: "AZN",
-    organizer: "Tural Məmmədov", participants: 4,
-    shareMin: "375", totalMin: "375", totalMax: "1,500",
-    startTime: "14 May 2024", img: "/qoc.png",
-  },
-  {
-    type: "Dəvə", status: "Açıq", progressPercent: 30,
-    collected: "1,200", target: "4,000", currency: "AZN",
-    organizer: "Müşviq Babanlı", participants: 2,
-    shareMin: "400", totalMin: "2,800", totalMax: "4,000",
-    startTime: "15 May 2024", img: "/deve.png",
-  },
+  { type: "Dana",  status: "Açıq", progressPercent: 62, collected: "1,116", target: "1,800", currency: "AZN", organizer: "Rəşad Əhmədov",  participants: 5, shareMin: "540", totalMin: "684",   totalMax: "1,800", startTime: "10 May 2024", img: "/dana.png"  },
+  { type: "Qoyun", status: "Açıq", progressPercent: 48, collected: "720",   target: "1,500", currency: "AZN", organizer: "Elsın Hüseynli",  participants: 3, shareMin: "450", totalMin: "780",   totalMax: "1,500", startTime: "12 May 2024", img: "/qoyun.png" },
+  { type: "Qoç",   status: "Açıq", progressPercent: 75, collected: "1,125", target: "3,500", currency: "AZN", organizer: "Tural Məmmədov",  participants: 4, shareMin: "375", totalMin: "375",   totalMax: "1,500", startTime: "14 May 2024", img: "/qoc.png"   },
+  { type: "Dəvə",  status: "Açıq", progressPercent: 30, collected: "1,200", target: "4,000", currency: "AZN", organizer: "Müşviq Babanlı",  participants: 2, shareMin: "400", totalMin: "2,800", totalMax: "4,000", startTime: "15 May 2024", img: "/deve.png"  },
 ];
 
 const FILTER_OPTIONS = ["Bütün heyvanlar", "Dana", "Qoyun", "Qoç", "Dəvə"];
@@ -87,8 +62,8 @@ function RingProgress({ percent, type, img }) {
         style={{ backgroundColor: "#fbfaff" }}>
         <img src={img} alt={type} className="max-h-[85%] max-w-[85%] object-contain" style={{ mixBlendMode: "multiply" }} />
       </div>
-      <div className="absolute left-1/2 top-[164px] z-20 -translate-x-1/2 rounded-2xl px-6 py-1.5 text-xl font-black leading-none text-white ring-4 ring-white"
-        style={{ backgroundColor: "#551dc7", boxShadow: "0 8px 16px rgba(85,29,199,.25)", letterSpacing: "-.04em" }}>
+      <div className="absolute left-1/2 top-[164px] z-20 -translate-x-1/2 rounded-2xl px-6 py-1.5 text-xl font-bold leading-none text-white ring-4 ring-white"
+        style={{ backgroundColor: "#551dc7", boxShadow: "0 8px 16px rgba(85,29,199,.25)", letterSpacing: "-.02em" }}>
         {p}%
       </div>
     </div>
@@ -98,7 +73,6 @@ function RingProgress({ percent, type, img }) {
 /* ─── Animal Card ────────────────────────────────────────────── */
 function AnimalCard({ animal, onDonate }) {
   const [copied, setCopied] = useState(false);
-  const statusLabel = animal.status === "Açıq" ? "Davam Edir" : "Tamamlanıb";
   const toNum = (v) => Number(String(v).replace(/[^0-9.]/g, ""));
   const paidPct = Math.round((toNum(animal.shareMin) / Math.max(toNum(animal.target), 1)) * 100);
 
@@ -112,84 +86,91 @@ function AnimalCard({ animal, onDonate }) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-[22px] border border-[#eee8f6] bg-white px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1"
       style={{ boxShadow: "0 8px 28px rgba(54,27,99,.08)" }}>
+
+      {/* Header */}
       <div className="mb-2 flex items-start justify-between gap-3">
-        <h3 className="text-[22px] font-black leading-none text-[#241a4d]" style={{ letterSpacing: "-.035em" }}>{animal.type}</h3>
-        <span className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-black text-emerald-500">{statusLabel}</span>
+        <h3 className="text-[22px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
+        <span className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-600">Davam Edir</span>
       </div>
 
       <RingProgress percent={animal.progressPercent} type={animal.type} img={animal.img} />
 
-      <div className="mt-0 text-center text-[12px] font-black text-[#281d55]" style={{ letterSpacing: "-.035em" }}>
-        {animal.collected} / {animal.target} <span className="font-extrabold">{animal.currency}</span>
+      {/* Collected */}
+      <div className="mt-1 text-center text-[13px] font-semibold text-[#281d55]">
+        {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
+      {/* Date + participants */}
+      <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
         <div className="flex items-center gap-2">
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm" style={{ color: "#5521c6" }}>
-            <CalendarDays size={15} strokeWidth={2.6} />
+            <CalendarDays size={15} strokeWidth={2} />
           </span>
-          <div className="text-[12px] font-black text-[#241a4d]">{animal.startTime}</div>
+          <div className="text-[12px] font-medium text-[#241a4d]">{animal.startTime}</div>
         </div>
         <div className="flex items-center gap-2">
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm" style={{ color: "#5521c6" }}>
-            <UsersRound size={15} strokeWidth={2.6} />
+            <UsersRound size={15} strokeWidth={2} />
           </span>
-          <div className="text-[12px] font-black text-[#241a4d]">{animal.participants}</div>
+          <div className="text-[12px] font-medium text-[#241a4d]">{animal.participants} iştirakçı</div>
         </div>
       </div>
 
-      <div className="mt-5">
-        <div className="mb-2 text-[11px] font-extrabold" style={{ color: "#8a7ba7" }}>Açan şəxs</div>
+      {/* Organizer */}
+      <div className="mt-4">
+        <div className="mb-2 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Açan şəxs</div>
         <div className="flex items-center gap-3">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-purple-100 text-sm font-black text-purple-700 shrink-0">
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-purple-100 text-sm font-semibold text-purple-700 shrink-0">
             {animal.organizer[0]}
           </div>
-          <div className="truncate text-[12px] font-black" style={{ color: "#342760" }}>
-            {animal.organizer} <span style={{ color: "#5521c6" }}>●</span>
+          <div className="truncate text-[13px] font-medium" style={{ color: "#342760" }}>
+            {animal.organizer}
+          </div>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+        </div>
+      </div>
+
+      {/* Paid amount */}
+      <div className="mt-4">
+        <div className="mb-1.5 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Ödədiyi məbləğ</div>
+        <div className="flex items-center gap-2">
+          <span className="text-[17px] font-bold text-[#241a4d]">{animal.shareMin} {animal.currency}</span>
+          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold" style={{ color: "#5521c6" }}>{paidPct}%</span>
+        </div>
+      </div>
+
+      {/* Qalan / Ümumi */}
+      <div className="mt-4 border-t border-[#eee8f6] pt-4 grid grid-cols-2 gap-3">
+        <div>
+          <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Qalan məbləğ</div>
+          <div className="text-[19px] font-bold text-[#241a4d]">
+            {animal.totalMin} <span className="text-[11px] font-normal">{animal.currency}</span>
+          </div>
+        </div>
+        <div>
+          <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Ümumi məbləğ</div>
+          <div className="text-[19px] font-bold text-[#241a4d]">
+            {animal.totalMax} <span className="text-[11px] font-normal">{animal.currency}</span>
           </div>
         </div>
       </div>
 
-      <div className="mt-5">
-        <div className="mb-2 text-[11px] font-extrabold" style={{ color: "#8a7ba7" }}>Ödədiyi məbləğ</div>
-        <div className="flex items-end gap-2 text-[17px] font-black text-[#241a4d]" style={{ letterSpacing: "-.03em" }}>
-          {animal.shareMin} {animal.currency}
-          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-black" style={{ color: "#5521c6" }}>{paidPct}%</span>
-        </div>
-      </div>
-
-      <div className="mt-4 border-t border-[#eee8f6] pt-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <div className="mb-2 text-[11px] font-extrabold" style={{ color: "#8a7ba7" }}>Qalan məbləğ</div>
-            <div className="text-[20px] font-black text-[#241a4d]" style={{ letterSpacing: "-.04em" }}>
-              {animal.totalMin} <span className="text-[12px]">{animal.currency}</span>
-            </div>
-          </div>
-          <div>
-            <div className="mb-2 text-[11px] font-extrabold" style={{ color: "#8a7ba7" }}>Ümumi məbləğ</div>
-            <div className="text-[20px] font-black text-[#241a4d]" style={{ letterSpacing: "-.04em" }}>
-              {animal.totalMax} <span className="text-[12px]">{animal.currency}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* Share button */}
       <button onClick={handleShare}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-black transition-all hover:bg-white"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-medium transition-all hover:bg-white"
         style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}>
-        <Share2 size={14} strokeWidth={2.6} />
+        <Share2 size={14} strokeWidth={2} />
         İanəyə Dəvət Et
       </button>
 
       <button onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
-        className="mt-2 w-full rounded-xl py-2 text-xs font-semibold text-white opacity-0 transition-all group-hover:opacity-100"
+        className="mt-2 w-full rounded-xl py-2 text-xs font-medium text-white opacity-0 transition-all group-hover:opacity-100"
         style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
         İanə et →
       </button>
 
       {copied && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#241a4d] px-5 py-3 text-center text-sm font-bold text-white"
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#241a4d] px-5 py-3 text-center text-sm font-medium text-white"
           style={{ boxShadow: "0 18px 44px rgba(36,26,77,.28)" }}>
           Səhifənin bağlantısı kopyalandı.
         </div>
@@ -202,20 +183,21 @@ function AnimalCard({ animal, onDonate }) {
 function DonationModal({ animal, onClose }) {
   const [amount, setAmount] = useState(animal.shareMin);
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-black text-[#241a4d]">{animal.type} — İanə et</h3>
+          <h3 className="text-lg font-semibold text-[#241a4d]">{animal.type} — İanə et</h3>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
             <X size={16} />
           </button>
         </div>
         <div className="mb-4">
-          <label className="text-xs font-extrabold text-[#8a7ba7] mb-1.5 block">Məbləğ (AZN)</label>
+          <label className="text-xs font-medium text-[#8a7ba7] mb-1.5 block">Məbləğ (AZN)</label>
           <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} min="10"
-            className="w-full border border-[#d9cdfa] rounded-xl px-4 py-3 text-lg font-black text-[#241a4d] focus:outline-none focus:border-[#5521c6]" />
+            className="w-full border border-[#d9cdfa] rounded-xl px-4 py-3 text-lg font-semibold text-[#241a4d] focus:outline-none focus:border-[#5521c6]" />
         </div>
-        <button className="w-full py-3 rounded-xl text-white font-bold text-sm"
+        <button className="w-full py-3 rounded-xl text-white font-semibold text-sm"
           style={{ background: "linear-gradient(135deg, #4b14bd, #7c3aed)" }}>
           Ödəməyə keç
         </button>
@@ -224,30 +206,30 @@ function DonationModal({ animal, onClose }) {
   );
 }
 
-/* ─── Necə işləyir page ──────────────────────────────────────── */
+/* ─── Sub-pages ──────────────────────────────────────────────── */
 function NecePage() {
   const steps = [
     { title: "Qeydiyyatdan keç", desc: "Platformada hesab yaradın, şəxsiyyətinizi təsdiqləyin." },
-    { title: "Açılış seç", desc: "Mövcud qurban açılışlarına baxın, sizə uyğun olanı seçin." },
-    { title: "Payını ödə", desc: "Seçdiyiniz heyvana görə payınızı təhlükəsiz ödəyin." },
-    { title: "Canlı izlə", desc: "Kəsim prosesini canlı yayım vasitəsilə izləyin." },
-    { title: "Yardım çatsın", desc: "Ət ehtiyaclı ailələrə birbaşa çatdırılır." },
+    { title: "Açılış seç",       desc: "Mövcud qurban açılışlarına baxın, sizə uyğun olanı seçin." },
+    { title: "Payını ödə",       desc: "Seçdiyiniz heyvana görə payınızı təhlükəsiz ödəyin." },
+    { title: "Canlı izlə",       desc: "Kəsim prosesini canlı yayım vasitəsilə izləyin." },
+    { title: "Yardım çatsın",    desc: "Ət ehtiyaclı ailələrə birbaşa çatdırılır." },
   ];
   return (
     <div className="flex-1 overflow-y-auto px-6 py-6">
-      <h1 className="text-[#241a4d] mb-1 text-2xl font-black">Necə işləyir?</h1>
+      <h1 className="text-[#241a4d] mb-1 text-2xl font-semibold">Necə işləyir?</h1>
       <p className="text-gray-500 text-sm mb-8">Kollektiv platformasında qurban prosesi</p>
       <div className="relative">
         <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-purple-100" />
         <div className="space-y-5">
           {steps.map((s, i) => (
             <div key={i} className="flex gap-5 relative">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 z-10 shadow-sm font-black text-[#5521c6] text-lg"
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 z-10 shadow-sm font-semibold text-[#5521c6] text-lg"
                 style={{ background: "linear-gradient(135deg, #ede9fe, #ddd6fe)" }}>
                 {i + 1}
               </div>
               <div className="bg-white rounded-2xl p-4 flex-1 border border-[#eee8f6] shadow-sm">
-                <div className="font-bold text-[#241a4d] text-sm mb-1">{i + 1}. {s.title}</div>
+                <div className="font-semibold text-[#241a4d] text-sm mb-1">{i + 1}. {s.title}</div>
                 <div className="text-sm text-gray-500">{s.desc}</div>
               </div>
             </div>
@@ -258,19 +240,18 @@ function NecePage() {
   );
 }
 
-/* ─── Şərtlər page ───────────────────────────────────────────── */
 function SertlerPage() {
   const stats = [
-    { value: "30%",    label: "Dana, Qoç, Dəvə üçün ən az 30% toplanmalıdır" },
-    { value: "10 AZN", label: "Ən az 10 AZN ianə etmək mümkündür" },
-    { value: "1 gün",  label: "Ödənişdən 1 gün sonra geri qaytarıla bilər" },
-    { value: "1 nəfər",label: "Hər açılışa 1 nəfər maksimum iştirak edə bilər" },
-    { value: "7 gün",  label: "Kəsimdən əvvəl 7 gün müddəti qalan açılışlar" },
-    { value: "Anonim", label: "Anonim ianə etmək mümkündür" },
+    { value: "30%",     label: "Dana, Qoç, Dəvə üçün ən az 30% toplanmalıdır" },
+    { value: "10 AZN",  label: "Ən az 10 AZN ianə etmək mümkündür" },
+    { value: "1 gün",   label: "Ödənişdən 1 gün sonra geri qaytarıla bilər" },
+    { value: "1 nəfər", label: "Hər açılışa 1 nəfər maksimum iştirak edə bilər" },
+    { value: "7 gün",   label: "Kəsimdən əvvəl 7 gün müddəti qalan açılışlar" },
+    { value: "Anonim",  label: "Anonim ianə etmək mümkündür" },
   ];
   return (
     <div className="flex-1 overflow-y-auto px-6 py-6">
-      <h1 className="text-[#241a4d] mb-1 text-2xl font-black">Şərtlərimiz</h1>
+      <h1 className="text-[#241a4d] mb-1 text-2xl font-semibold">Şərtlərimiz</h1>
       <p className="text-gray-500 text-sm mb-6">Platforma qaydaları və istifadə şərtləri</p>
       <div className="grid grid-cols-2 gap-4">
         {stats.map((s) => (
@@ -284,36 +265,34 @@ function SertlerPage() {
   );
 }
 
-/* ─── İanələrim page ─────────────────────────────────────────── */
 function IanelerimPage() {
   return (
     <div className="flex-1 overflow-y-auto px-6 py-6">
-      <h1 className="text-[#241a4d] mb-1 text-2xl font-black">İanələrim</h1>
+      <h1 className="text-[#241a4d] mb-1 text-2xl font-semibold">İanələrim</h1>
       <p className="text-gray-500 text-sm mb-6">Etdiyiniz ianələrin siyahısı</p>
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
           style={{ backgroundColor: "rgba(75,20,189,0.08)" }}>
           <Heart size={28} style={{ color: "#4b14bd" }} />
         </div>
-        <p className="text-[#241a4d] font-bold mb-1">Hələ ianə etməmisiniz</p>
+        <p className="text-[#241a4d] font-semibold mb-1">Hələ ianə etməmisiniz</p>
         <p className="text-gray-400 text-sm">Açılışlardan birinə ianə edin</p>
       </div>
     </div>
   );
 }
 
-/* ─── Tamamlanmış page ───────────────────────────────────────── */
 function TamamlanmisPage() {
   return (
     <div className="flex-1 overflow-y-auto px-6 py-6">
-      <h1 className="text-[#241a4d] mb-1 text-2xl font-black">Tamamlanmış</h1>
+      <h1 className="text-[#241a4d] mb-1 text-2xl font-semibold">Tamamlanmış</h1>
       <p className="text-gray-500 text-sm mb-6">Tamamlanmış açılışlar</p>
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
           style={{ backgroundColor: "rgba(75,20,189,0.08)" }}>
           <CheckCircle size={28} style={{ color: "#4b14bd" }} />
         </div>
-        <p className="text-[#241a4d] font-bold mb-1">Tamamlanmış açılış yoxdur</p>
+        <p className="text-[#241a4d] font-semibold mb-1">Tamamlanmış açılış yoxdur</p>
         <p className="text-gray-400 text-sm">Tamamlanan açılışlar burada görünəcək</p>
       </div>
     </div>
@@ -322,50 +301,51 @@ function TamamlanmisPage() {
 
 /* ─── Main Page ──────────────────────────────────────────────── */
 export default function CharityPage() {
-  const [page, setPage]               = useState("home");
-  const [filter, setFilter]           = useState("Bütün heyvanlar");
+  const [page, setPage]                 = useState("home");
+  const [filter, setFilter]             = useState("Bütün heyvanlar");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [donationTarget, setDonationTarget] = useState(null);
 
   const filtered = filter === "Bütün heyvanlar" ? ANIMALS : ANIMALS.filter(a => a.type === filter);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f7f5ff]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="flex h-screen overflow-hidden bg-[#f7f5ff]">
 
       {/* ── Sidebar ── */}
       <aside className="w-56 min-h-screen flex flex-col shrink-0" style={{ backgroundColor: "#301586" }}>
         <div className="px-4 py-5 flex items-center gap-3">
-          <Image src="/logo_test.png" alt="meatbox.az" width={48} height={48} className="rounded-full object-contain bg-white shadow-sm" />
-          <div className="text-white font-black text-lg leading-tight tracking-wide">meatbox.az</div>
+          <Image src="/logo_test.png" alt="meatbox.az" width={48} height={48}
+            className="rounded-full object-contain bg-white shadow-sm" />
+          <div className="text-white font-semibold text-[15px] tracking-wide">meatbox.az</div>
         </div>
 
         <div className="px-3 mb-3">
-          <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/10 hover:bg-white/20 transition-all">
+          <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white bg-white/10 hover:bg-white/20 transition-all">
             <Plus size={15} />
             Yeni açılış et
           </button>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1 px-3 space-y-0.5">
           {SIDEBAR_NAV.map(({ icon: Icon, label, page: p }) => (
             <button key={p} onClick={() => setPage(p)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                 page === p
-                  ? "bg-white/15 text-white font-black"
-                  : "text-purple-100/80 hover:bg-white/5 hover:text-white"
+                  ? "bg-white/15 text-white font-semibold"
+                  : "text-purple-100/70 hover:bg-white/5 hover:text-white font-normal"
               }`}>
-              <Icon size={16} className={page === p ? "text-white" : "text-purple-200/70"} />
+              <Icon size={16} className={page === p ? "text-white" : "text-purple-200/60"} />
               {label}
             </button>
           ))}
         </nav>
 
         <div className="mx-3 mb-5 p-3.5 rounded-xl bg-white/5">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Heart size={14} className="text-white/90" />
-            <span className="text-white/90 text-xs font-semibold">Birlikdə xeyir,</span>
+          <div className="flex items-center gap-2 mb-1">
+            <Heart size={13} className="text-white/80" />
+            <span className="text-white/80 text-xs font-medium">Birlikdə xeyir,</span>
           </div>
-          <span className="text-purple-100/70 text-xs">birlikdə paylaşaq</span>
+          <span className="text-purple-100/60 text-xs">birlikdə paylaşaq</span>
         </div>
       </aside>
 
@@ -373,15 +353,15 @@ export default function CharityPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* TopBar */}
-        <div className="flex items-center justify-between gap-3 px-6 py-2.5 border-b border-purple-900/20 shrink-0"
+        <div className="flex items-center justify-between gap-3 px-6 py-3 border-b border-purple-900/20 shrink-0"
           style={{ backgroundColor: "#301586" }}>
           <div className="flex items-center gap-3">
             <Link href="/" className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
               <ArrowLeft size={18} className="text-white" />
             </Link>
-            <div className="text-2xl font-black text-white" style={{ letterSpacing: "-.03em" }}>
+            <span className="text-[17px] font-semibold text-white tracking-[-0.01em]">
               Kollektiv Qurban-Xeyriyyə Platforması
-            </div>
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors relative">
@@ -392,9 +372,9 @@ export default function CharityPage() {
               <User size={18} className="text-white" />
             </button>
             <Link href="/auth/register"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-white text-[#301586] text-sm font-black hover:bg-purple-50 transition-all shadow-sm">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-[#301586] text-sm font-semibold hover:bg-purple-50 transition-all shadow-sm">
               Qeydiyyat
-              <ChevronDown size={14} />
+              <ChevronDown size={13} />
             </Link>
           </div>
         </div>
@@ -409,7 +389,7 @@ export default function CharityPage() {
                 style={{ background: "radial-gradient(circle, #7c3aed, transparent)", transform: "translate(30%, -30%)" }} />
               <div className="relative grid grid-cols-2 gap-6 items-stretch">
                 <div className="pl-8 py-8 pr-2 flex flex-col justify-center">
-                  <h1 className="leading-tight mb-3 text-[#241a4d]" style={{ fontSize: "1.75rem", fontWeight: 800 }}>
+                  <h1 className="leading-tight mb-3 text-[#241a4d]" style={{ fontSize: "1.75rem", fontWeight: 700 }}>
                     Birlikdə qurban,<br />
                     <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
                   </h1>
@@ -418,12 +398,12 @@ export default function CharityPage() {
                     Tam şəffaflıq, tam izlənilənlik.
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-all"
+                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-medium hover:opacity-90 transition-all"
                       style={{ background: "#4b14bd" }}>
                       <Plus size={14} />
                       Yeni açılış et
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border bg-white/70 hover:bg-white transition-all"
+                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
                       style={{ color: "#4b14bd", borderColor: "rgba(75,20,189,0.3)" }}>
                       <Play size={12} fill="currentColor" />
                       Necə işləyir?
@@ -447,12 +427,12 @@ export default function CharityPage() {
             {/* Filter + heading */}
             <div className="flex items-center justify-between px-6 mb-4">
               <div>
-                <h2 className="font-bold text-[#241a4d] text-lg">Davam edən açılışlar</h2>
+                <h2 className="font-semibold text-[#241a4d] text-lg">Davam edən açılışlar</h2>
                 <p className="text-gray-400 text-xs mt-0.5">İanə etmək üçün açılışa basın</p>
               </div>
               <div className="relative">
                 <button onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-white border border-[#eee8f6] text-[#241a4d] hover:border-purple-300 transition-all">
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-white border border-[#eee8f6] text-[#241a4d] hover:border-purple-300 transition-all">
                   {filter}
                   <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
                 </button>
@@ -460,7 +440,7 @@ export default function CharityPage() {
                   <div className="absolute right-0 top-full mt-1.5 bg-white rounded-xl border border-[#eee8f6] shadow-lg z-10 min-w-full overflow-hidden">
                     {FILTER_OPTIONS.map(opt => (
                       <button key={opt} onClick={() => { setFilter(opt); setDropdownOpen(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-purple-50 transition-colors ${
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-purple-50 ${
                           filter === opt ? "text-purple-700 font-semibold bg-purple-50" : "text-[#241a4d]"
                         }`}>
                         {opt}
@@ -471,14 +451,14 @@ export default function CharityPage() {
               </div>
             </div>
 
-            {/* Cards grid */}
+            {/* Cards */}
             <div className="grid grid-cols-1 gap-4 px-6 mb-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filtered.map(animal => (
                 <AnimalCard key={animal.type} animal={animal} onDonate={setDonationTarget} />
               ))}
             </div>
 
-            {/* Features */}
+            {/* Features banner */}
             <div className="grid grid-cols-4 gap-3 mx-6 mb-6">
               {FEATURES.map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="bg-white rounded-[22px] p-3 flex items-center gap-3 border border-[#eee8f6] transition-all hover:shadow-md"
@@ -488,8 +468,8 @@ export default function CharityPage() {
                     <Icon size={18} style={{ color: "#4b14bd" }} />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[13px] font-bold text-[#241a4d] leading-none truncate">{title}</div>
-                    <div className="text-[11px] font-medium mt-1 truncate" style={{ color: "#8a7ba7" }}>{desc}</div>
+                    <div className="text-[13px] font-semibold text-[#241a4d] leading-none truncate">{title}</div>
+                    <div className="text-[11px] mt-1 truncate" style={{ color: "#8a7ba7" }}>{desc}</div>
                   </div>
                 </div>
               ))}
@@ -503,7 +483,6 @@ export default function CharityPage() {
         {page === "sertler"     && <SertlerPage />}
       </div>
 
-      {/* Donation Modal */}
       {donationTarget && (
         <DonationModal animal={donationTarget} onClose={() => setDonationTarget(null)} />
       )}
