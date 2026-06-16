@@ -630,10 +630,10 @@ function TamamlanmisPage() {
 
 /* ─── New Opening Modal ──────────────────────────────────────── */
 const ANIMAL_OPTS = [
-  { type: "Dana",  emoji: "🐄", image: "https://images.unsplash.com/photo-1618080206739-14e8ac105472?w=160&h=160&fit=crop&auto=format&q=80", price: 1800, weight: "180–240 kq" },
-  { type: "Qoyun", emoji: "🐑", image: "https://images.unsplash.com/photo-1683228081328-4eea21a25ca9?w=160&h=160&fit=crop&auto=format&q=80", price: 1500, weight: "35–55 kq"  },
-  { type: "Qoç",   emoji: "🐏", image: "https://images.unsplash.com/photo-1561514905-233607d44a50?w=160&h=160&fit=crop&auto=format&q=80", price: 1500, weight: "40–65 kq"  },
-  { type: "Dəvə",  emoji: "🐪", image: "https://images.unsplash.com/photo-1599475504246-11c1217748c2?w=160&h=160&fit=crop&auto=format&q=80", price: 4000, weight: "350–520 kq"},
+  { type: "Dana",  emoji: "🐄", image: "/dana.jpg",       price: 1800, weight: "180–240 kq" },
+  { type: "Qoyun", emoji: "🐑", image: "/qoyun_big.png",  price: 1500, weight: "35–55 kq"  },
+  { type: "Qoç",   emoji: "🐏", image: "/qoc.jpg",        price: 1500, weight: "40–65 kq"  },
+  { type: "Dəvə",  emoji: "🐪", image: "/deve.jpg",       price: 4000, weight: "350–520 kq"},
 ];
 const NOM_STEPS = ["Heyvan növü", "Ödəniş", "Təsdiq"];
 
