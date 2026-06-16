@@ -26,17 +26,21 @@ jobs:
             set -e 
             
             cd /var/www/qurbanetfront-dev
-            
+
             # Kodları GitHub-dan çəkirik (server-dəki local dəyişiklikləri ləğv edib təmiz çəkirik)
             git fetch origin dev
             git reset --hard origin/dev
-            
+            git submodule update --init --recursive
+
+            # Web qovluğuna keçirik (Next.js app buradadır)
+            cd web
+
             # Paketləri yeniləyirik
             npm install
-            
+
             # Next.js production build edirik (Kritik addım)
             npm run build
-            
+
             # PM2 ilə tətbiqi sıfır itki ilə (zero-downtime) restart edirik
             PORT=3001 pm2 restart qurbanetfrontpm-dev --update-env
             pm2 save
