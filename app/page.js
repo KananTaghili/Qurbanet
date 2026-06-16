@@ -1,0 +1,865 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  ShoppingCart,
+  Menu,
+  X,
+  ArrowRight,
+  Play,
+  ShieldCheck,
+  Video,
+  Truck,
+  Heart,
+  Phone,
+  Mail,
+  User,
+} from "lucide-react";
+import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
+import { PiKnife } from "react-icons/pi";
+import { TbMeat, TbHeartHandshake } from "react-icons/tb";
+
+/* 
+  ============================================================
+  DESIGN SYSTEM – Colors
+  ============================================================
+*/
+const COLORS = {
+  primary: "#1B5E20",
+  primaryLight: "#2E7D32",
+  primarySurface: "#E8F5E9",
+  accent: "#F59E0B",
+  purple: "#6B21A8",
+  purpleLight: "#7C3AED",
+  red: "#B91C1C",
+  redLight: "#DC2626",
+  textDark: "#111827",
+  textMuted: "#6B7280",
+  border: "#EAECF0",
+};
+
+/*
+  ============================================================
+  SERVICES DATA – Exactly matching the photo (4 cards)
+  ============================================================
+*/
+const SERVICES = [
+  {
+    id: "qurban",
+    title: "Qurbanlıq Sifarişi",
+    desc: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Evdəkindən çıxmadan etibarlı xidmət.",
+    href: "/qurban",
+    img: "/qoyun.jpg",
+    imgFit: "cover",
+    imgBg: "#f3f3f3",
+    color: COLORS.primary,
+    btn: COLORS.primaryLight,
+    btnShadow: "0 6px 18px -4px rgba(27,94,32,0.5)",
+    btnLabel: "Sifariş Et",
+    ServiceIcon: PiKnife,
+    disabled: false,
+    videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1",
+    videoType: "youtube",
+  },
+  {
+    id: "xeyriyye",
+    title: "Kollektiv Qurban-Xeyriyyə Platforması",
+    desc: "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı xeyriyyə platformasına qoşulun.",
+    href: "#",
+    img: "/qutu.png",
+    imgFit: "contain",
+    imgBg: "linear-gradient(135deg,#f5f3ff,#ede9fe)",
+    color: COLORS.purple,
+    btn: COLORS.purpleLight,
+    btnShadow: "0 6px 18px -4px rgba(109,40,217,0.5)",
+    btnLabel: "Qoşul",
+    ServiceIcon: TbHeartHandshake,
+    disabled: true,
+    videoUrl: "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm",
+    videoType: "mp4",
+  },
+  {
+    id: "et",
+    title: "Ət Sifarişi",
+    desc: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdırırıq.",
+    href: "#",
+    img: "/dana.jpg",
+    imgFit: "cover",
+    imgBg: "#f3f3f3",
+    color: COLORS.red,
+    btn: COLORS.redLight,
+    btnShadow: "0 6px 18px -4px rgba(185,28,28,0.5)",
+    btnLabel: "Məhsullara Bax",
+    ServiceIcon: TbMeat,
+    disabled: true,
+    videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1",
+    videoType: "youtube",
+  },
+];
+
+/*
+  ============================================================
+  WHY MEATBOX? – Feature list
+  ============================================================
+*/
+const WHY = [
+  {
+    Icon: ShieldCheck,
+    label: "Halal Kəsim",
+    desc: "Dini qaydalara uyğun peşəkar kəsim",
+  },
+  {
+    Icon: Video,
+    label: "Video Hesabat",
+    desc: "Kəsim prosesini addım-addım izləyin",
+  },
+  {
+    Icon: Truck,
+    label: "Çatdırılma",
+    desc: "Sürətli və etibarlı çatdırılma",
+  },
+  {
+    Icon: Heart,
+    label: "Şəffaf Xeyriyyə",
+    desc: "Hər qəpiyin hesabatı, şəffaf pay bölgüsü",
+  },
+];
+
+/*
+  ============================================================
+  MAIN LANDING PAGE COMPONENT
+  ============================================================
+*/
+export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hasShadow, setHasShadow] = useState(false);
+  const [authDropdown, setAuthDropdown] = useState(false);
+  const [activeVideo, setActiveVideo] = useState(null); // { url, type }
+
+  // Sticky navbar shadow effect
+  useEffect(() => {
+    const handleScroll = () => setHasShadow(window.scrollY > 8);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-white font-sans text-gray-900 antialiased">
+      {/* Video Modal */}
+      {activeVideo && (
+        <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      )}
+
+      {/*
+        ======================================================
+        STICKY NAVBAR (Glassmorphism, fully responsive)
+        ======================================================
+      */}
+      <header
+        className={`sticky top-0 z-50 transition-all duration-200 ${
+          hasShadow
+            ? "bg-white/95 shadow-lg backdrop-blur-md"
+            : "bg-white/90 border-b border-gray-100"
+        }`}
+      >
+        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
+          {/* Logo + Brand */}
+          <Link href="/" className="flex shrink-0 items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white">
+              <Image
+                src="/logo_test.png"
+                alt="MeatBox logo"
+                width={36}
+                height={36}
+                className="h-full w-full object-cover"
+                priority
+              />
+            </div>
+            <div className="leading-tight">
+              <span className="block text-lg font-black tracking-tight text-gray-900">
+                MEAT<span style={{ color: COLORS.primary }}>BOX</span>.AZ
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation Links */}
+          <div className="hidden items-center gap-7 md:flex">
+            {["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"].map(
+              (item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/\s/g, "")}`}
+                  className="text-sm font-semibold text-gray-600 transition-colors hover:text-[#1B5E20]"
+                >
+                  {item}
+                </a>
+              ),
+            )}
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/auth/login"
+              className="hidden items-center gap-1.5 rounded-xl bg-[#1B5E20] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#2E7D32] md:flex"
+            >
+              <User size={14} strokeWidth={2.5} />
+              Daxil ol
+            </Link>
+
+            <button
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 md:hidden"
+            >
+              {mobileMenuOpen ? (
+                <X size={22} className="text-gray-800" />
+              ) : (
+                <Menu size={22} className="text-gray-800" />
+              )}
+            </button>
+          </div>
+        </nav>
+
+        {/* Mobile Menu Drawer */}
+        {mobileMenuOpen && (
+          <div className="border-t border-gray-100 bg-white px-5 pb-4 pt-2 md:hidden">
+            {["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"].map(
+              (item) => (
+                <a
+                  key={item}
+                  href="#"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block border-b border-gray-50 py-3 text-sm font-semibold text-gray-700"
+                >
+                  {item}
+                </a>
+              ),
+            )}
+            <div className="mt-3 flex gap-2">
+              <Link
+                href="/auth/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 rounded-xl border border-gray-200 py-3 text-center text-sm font-bold text-gray-800"
+              >
+                Daxil ol
+              </Link>
+              <Link
+                href="/auth/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 rounded-xl bg-[#1B5E20] py-3 text-center text-sm font-bold text-white"
+              >
+                Qeydiyyat
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* 
+        ======================================================
+        HERO SECTION (with overlay, branding, badges)
+        ======================================================
+      */}
+      <section className="relative min-h-[430px] w-full overflow-hidden">
+        {/* Background Image */}
+        <Image
+          src="/home_image_test.jpg"
+          alt="MeatBox hero"
+          fill
+          className="object-cover object-[center_78%]"
+          priority
+        />
+        {/* Green overlay — açıq ton */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg,rgba(27,94,32,0.35) 0%,rgba(26,112,40,0.30) 55%,rgba(20,83,45,0.35) 100%)",
+          }}
+        />
+        {/* Alt ağ gradient — tam ağ keçid, xətt görünməsin */}
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: 140,
+            background:
+              "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.6) 50%, #ffffff 100%)",
+          }}
+        />
+
+        {/* Hero Content */}
+        <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-7 px-5 pb-16 pt-10 text-center sm:pb-20 sm:pt-14">
+          {/* Logo + Title */}
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
+            <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white/30 shadow-xl sm:h-24 sm:w-24">
+              <Image
+                src="/logo_test.png"
+                alt="MeatBox logo"
+                width={96}
+                height={96}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="text-center sm:text-left">
+              <h1 className="text-4xl font-black italic tracking-tighter text-white sm:text-5xl">
+                MEAT<span className="text-green-300">BOX</span>.AZ
+              </h1>
+              <p className="mt-1.5 text-sm font-medium text-white/80">
+                Qurbanlıq · Xeyriyyə · Təzə Ət
+              </p>
+            </div>
+          </div>
+
+          {/* Feature Badges */}
+          <div className="flex flex-wrap justify-center gap-5">
+            {[
+              { Icon: ShieldCheck, label: "Halal kəsim" },
+              { Icon: Video, label: "Video hesabat" },
+              { Icon: Truck, label: "Çatdırılma" },
+            ].map(({ Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2"
+              >
+                <Icon size={17} className="text-white" strokeWidth={2} />
+                <span className="text-sm font-semibold text-white">
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/*
+        ======================================================
+        SERVICE CARDS SECTION (4 cards, fully responsive)
+        ======================================================
+      */}
+      <section className="relative z-10 mx-auto max-w-5xl -mt-[154px] px-5 pb-6 md:pb-8">
+        {/* Desktop Grid (3 columns) */}
+        <div className="hidden gap-6 md:grid md:grid-cols-3">
+          {SERVICES.map((service) => (
+            <DesktopCard key={service.id} service={service}
+              onPlay={() => setActiveVideo({ url: service.videoUrl, type: service.videoType })} />
+          ))}
+        </div>
+
+        {/* Mobile Stack (horizontal cards) */}
+        <div className="flex flex-col gap-5 md:hidden">
+          {SERVICES.map((service) => (
+            <MobileCard key={service.id} service={service}
+              onPlay={() => setActiveVideo({ url: service.videoUrl, type: service.videoType })} />
+          ))}
+        </div>
+      </section>
+
+      {/*
+        ======================================================
+        WHY MEATBOX? (4 feature cards)
+        ======================================================
+      */}
+      <section className="py-4">
+        <div className="mx-auto max-w-4xl px-5">
+          {/* Floating title ON the border */}
+          <div style={{ position: "relative", marginTop: 12 }}>
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid #E5E7EB",
+                borderRadius: 16,
+                boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+                display: "flex",
+                flexWrap: "wrap",
+                paddingTop: 20,
+              }}
+            >
+              {/* Title sitting on the top border */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: -11,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "#fff",
+                  padding: "0 14px",
+                  fontSize: 15,
+                  fontWeight: 800,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  color: "#111827",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Niyə MeatBox?
+              </div>
+              {WHY.map(({ Icon, label, desc }, i) => (
+                <div
+                  key={label}
+                  style={{
+                    flex: "1 1 200px",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 12,
+                    padding: "20px 22px",
+                    borderRight:
+                      i < WHY.length - 1 ? "1px solid #F3F4F6" : "none",
+                  }}
+                >
+                  <Icon size={28} strokeWidth={1.5} color={COLORS.primary} style={{ flexShrink: 0, marginTop: 2 }} />
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: "#111827",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "#6B7280",
+                        marginTop: 3,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {desc}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/*
+        ======================================================
+        FOOTER (modern dark design with social, payments)
+        ======================================================
+      */}
+      <footer className="bg-gray-900 text-white">
+        <div className="mx-auto max-w-7xl px-5 py-12">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {/* Brand Column */}
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2.5">
+                <Image
+                  src="/logo_test.png"
+                  alt="MeatBox"
+                  width={38}
+                  height={38}
+                  className="rounded-lg"
+                />
+                <span className="text-lg font-black">
+                  MEAT<span className="text-green-300">BOX</span>.AZ
+                </span>
+              </div>
+              <p className="mt-3 text-sm text-gray-400">
+                Qurbanlıq · Xeyriyyə · Təzə Ət
+              </p>
+            </div>
+
+            {/* Links */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Keçidlər
+              </h4>
+              <ul className="mt-3 space-y-2">
+                {["Haqqımızda", "Xidmətlər", "Necə işləyir?"].map((item) => (
+                  <li key={item}>
+                    <a
+                      href="#"
+                      className="text-sm text-gray-300 transition hover:text-white"
+                    >
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Əlaqə
+              </h4>
+              <ul className="mt-3 space-y-2">
+                <li className="flex items-center gap-2 text-sm text-gray-300">
+                  <Phone size={13} className="text-green-400" />
+                  010 399 02 22
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-300">
+                  <Mail size={13} className="text-green-400" />
+                  info@meatbox.az
+                </li>
+              </ul>
+              <div className="mt-4 flex gap-2.5">
+                {[FaFacebook, FaInstagram, FaWhatsapp].map((Icon, idx) => (
+                  <a
+                    key={idx}
+                    href="#"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition hover:bg-white/10"
+                  >
+                    <Icon size={14} className="text-gray-300" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Payment Methods */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Ödəniş üsulları
+              </h4>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {/* Visa */}
+                <div style={{ background: "#1a1f71", borderRadius: 8, padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "center", minWidth: 56, height: 34 }}>
+                  <span style={{ color: "#fff", fontFamily: "serif", fontWeight: 900, fontStyle: "italic", fontSize: 16, letterSpacing: "-0.5px" }}>VISA</span>
+                </div>
+                {/* Mastercard */}
+                <div style={{ background: "#252525", borderRadius: 8, padding: "5px 10px", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, height: 34 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#eb001b" }} />
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#f79e1b", marginLeft: -10 }} />
+                </div>
+                {/* Maestro */}
+                <div style={{ background: "#252525", borderRadius: 8, padding: "5px 10px", display: "flex", alignItems: "center", justifyContent: "center", gap: 2, height: 34 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#0099df" }} />
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#cc0000", marginLeft: -8, opacity: 0.85 }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-gray-500">
+            © 2024 MeatBox.az. Bütün hüquqlar qorunur.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+/*
+  ============================================================
+  SERVICE CARD — həm desktop həm mobil eyni dizayn:
+  dairəvi icon (üst-mərkəz) → başlıq → şəkil → mətn → düymə
+  ============================================================
+*/
+function VideoModal({ video, onClose }) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="relative w-full max-w-3xl">
+        <button
+          onClick={onClose}
+          className="absolute -top-10 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+        >
+          <X size={18} />
+        </button>
+        <div className="overflow-hidden rounded-2xl bg-black shadow-2xl" style={{ aspectRatio: "16/9" }}>
+          {video.type === "youtube" ? (
+            <iframe
+              src={video.url}
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              className="h-full w-full"
+              style={{ border: "none" }}
+            />
+          ) : (
+            <video
+              src={video.url}
+              autoPlay
+              controls
+              className="h-full w-full"
+              style={{ background: "#000" }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ServiceCard({ service, onPlay }) {
+  const {
+    title,
+    desc,
+    href,
+    img,
+    imgFit,
+    imgBg,
+    color,
+    btn,
+    btnShadow,
+    btnLabel,
+    ServiceIcon,
+    disabled,
+    videoUrl,
+    videoType,
+  } = service;
+
+  const ytId = videoType === "youtube" ? videoUrl.split("/embed/")[1]?.split("?")[0] : null;
+
+  const cardContent = (
+    <div style={{ position: "relative", paddingTop: 45, height: "100%" }}>
+      {/* Pop-out icon — kartın üstünə çıxır */}
+      <div
+        style={{
+          position: "absolute",
+          top: 11,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 68,
+          height: 68,
+          borderRadius: "50%",
+          background: "#fff",
+          border: `2.5px solid ${color}40`,
+          boxShadow: `0 4px 20px ${color}35, 0 0 0 4px ${color}12`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+        }}
+      >
+        <ServiceIcon size={34} color={color} />
+      </div>
+
+      <div
+        className="group flex h-full flex-col bg-white transition-all duration-200"
+        style={{
+          borderRadius: 20,
+          border: "1px solid #EAECF0",
+          boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
+          cursor: disabled ? "default" : "pointer",
+          overflow: "hidden",
+          paddingTop: 46,
+        }}
+        onMouseEnter={(e) => {
+          if (!disabled) {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.13)";
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)";
+        }}
+      >
+
+      {/* ② Video / Şəkil */}
+      <div
+        style={{
+          position: "relative",
+          marginLeft: 12,
+          marginRight: 12,
+          height: 155,
+          borderRadius: 14,
+          overflow: "hidden",
+          background: "#000",
+          flexShrink: 0,
+          zIndex: 1,
+        }}
+      >
+        {/* Video preview */}
+        {ytId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0&iv_load_policy=3`}
+            allow="autoplay"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "calc(155px * 16 / 9)",
+              height: "155px",
+              transform: "translate(-50%, -50%)",
+              border: "none",
+              pointerEvents: "none",
+            }}
+            title={title}
+          />
+        ) : (
+          <video
+            src={videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              pointerEvents: "none",
+              opacity: disabled ? 0.75 : 1,
+            }}
+          />
+        )}
+
+        {/* Clickable overlay — clicks go to modal */}
+        <div
+          style={{ position: "absolute", inset: 0, zIndex: 2, cursor: "pointer" }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPlay && onPlay(); }}
+        />
+
+        {/* Qaranlıq overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.18)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Alt ağ gradient fade */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "45%",
+            background:
+              "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.92) 100%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Play düyməsi (dekorativ) */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              background: "rgba(0,0,0,0.52)",
+              backdropFilter: "blur(4px)",
+              border: "1.5px solid rgba(255,255,255,0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Play size={17} fill="white" color="white" style={{ marginLeft: 2 }} />
+          </div>
+        </div>
+
+        {/* Tezliklə */}
+        {disabled && (
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              zIndex: 4,
+              pointerEvents: "none",
+              padding: "3px 10px",
+              borderRadius: 999,
+              background: "rgba(0,0,0,0.65)",
+              fontSize: 10,
+              fontWeight: 700,
+              color: "#fff",
+            }}
+          >
+            Tezliklə
+          </div>
+        )}
+      </div>
+
+      {/* ③ Başlıq */}
+      <div style={{ padding: "12px 16px 4px", textAlign: "center" }}>
+        <h3
+          style={{
+            fontSize: 15,
+            fontWeight: 800,
+            color,
+            lineHeight: 1.35,
+            letterSpacing: "-0.2px",
+            margin: 0,
+          }}
+        >
+          {title}
+        </h3>
+      </div>
+
+      {/* ④ Mətn + düymə */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: "8px 16px 18px",
+        }}
+      >
+        <p
+          style={{
+            flex: 1,
+            fontSize: 12,
+            color: "#6B7280",
+            lineHeight: 1.65,
+            marginBottom: 14,
+          }}
+        >
+          {desc}
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            padding: "11px 0",
+            borderRadius: 12,
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: "0.03em",
+            color: "#fff",
+            background: btn,
+            boxShadow: disabled ? "none" : btnShadow,
+            opacity: disabled ? 0.45 : 1,
+          }}
+        >
+          {btnLabel}
+          <ArrowRight size={14} strokeWidth={2.5} />
+        </div>
+      </div>
+      </div>
+    </div>
+  );
+
+  if (disabled) return <div className="h-full">{cardContent}</div>;
+  return (
+    <Link href={href} className="block h-full" style={{ textDecoration: "none" }}>
+      {cardContent}
+    </Link>
+  );
+}
+
+function DesktopCard({ service, onPlay }) {
+  return <ServiceCard service={service} onPlay={onPlay} />;
+}
+function MobileCard({ service, onPlay }) {
+  return <ServiceCard service={service} onPlay={onPlay} />;
+}

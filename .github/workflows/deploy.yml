@@ -1,0 +1,43 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            set -e 
+            
+            cd /var/www/qurbanetfront
+            
+            # Kodları GitHub-dan çəkirik
+            git pull origin main
+            
+            # Paketləri yeniləyirik
+            npm install
+            
+            # Next.js production build edirik (Kritik addım)
+            npm run build
+            
+            # PM2 ilə tətbiqi sıfır itki ilə (zero-downtime) restart edirik
+            PORT=3000 pm2 restart qurbanetfrontpm --update-env
+            pm2 save
+            
+            echo "🚀 Frontend mühiti 100% uğurla yeniləndi!"
