@@ -398,7 +398,6 @@ function IanelerimPage() {
                 {/* Info */}
                 <div className="px-4 py-4">
                   <div className="mb-2.5 flex items-center gap-3">
-                    <AnimalIcon type={item.type} />
                     <h3 className="text-[19px] font-bold leading-none text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2.5 py-1 text-[11px] font-medium ${cfg.badge}`}>{cfg.label}</span>
                   </div>
