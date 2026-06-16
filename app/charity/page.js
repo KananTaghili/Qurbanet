@@ -29,9 +29,9 @@ const FEATURES = [
 
 const ANIMALS = [
   { type: "Dana",  progressPercent: 62, collected: "1,116", target: "1,800", currency: "AZN", organizer: "Rəşad Əhmədov", participants: 5, shareMin: "540", totalMin: "684",   totalMax: "1,800", startTime: "10 May 2024", img: "/dana.png"  },
-  { type: "Qoyun", progressPercent: 48, collected: "720",   target: "1,500", currency: "AZN", organizer: "Elsın Hüseynli", participants: 3, shareMin: "450", totalMin: "780",   totalMax: "1,500", startTime: "12 May 2024", img: "/qoyun.png" },
-  { type: "Qoç",   progressPercent: 75, collected: "1,125", target: "3,500", currency: "AZN", organizer: "Tural Məmmədov", participants: 4, shareMin: "375", totalMin: "375",   totalMax: "1,500", startTime: "14 May 2024", img: "/qoc.png"   },
-  { type: "Dəvə",  progressPercent: 30, collected: "1,200", target: "4,000", currency: "AZN", organizer: "Müşviq Babanlı", participants: 2, shareMin: "400", totalMin: "2,800", totalMax: "4,000", startTime: "15 May 2024", img: "/deve.png"  },
+  { type: "Qoyun", progressPercent: 48, collected: "720",   target: "1,500", currency: "AZN", organizer: "Elsın Hüseynli", participants: 3, shareMin: "450", totalMin: "780",   totalMax: "1,500", startTime: "12 May 2024", img: "/qoyun_big.png" },
+  { type: "Qoç",   progressPercent: 75, collected: "1,125", target: "3,500", currency: "AZN", organizer: "Tural Məmmədov", participants: 4, shareMin: "375", totalMin: "375",   totalMax: "1,500", startTime: "14 May 2024", img: "/qoc.jpg"       },
+  { type: "Dəvə",  progressPercent: 30, collected: "1,200", target: "4,000", currency: "AZN", organizer: "Müşviq Babanlı", participants: 2, shareMin: "400", totalMin: "2,800", totalMax: "4,000", startTime: "15 May 2024", img: "/deve.jpg"      },
 ];
 const FILTER_OPTIONS = ["Bütün heyvanlar", "Dana", "Qoyun", "Qoç", "Dəvə"];
 
