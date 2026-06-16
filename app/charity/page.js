@@ -538,7 +538,7 @@ function AnimalCard({ animal, onDonate }) {
             {animal.organizer[0]}
           </div>
           <div className="truncate text-[13px] font-medium" style={{ color: "#342760" }}>{animal.organizer}</div>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "#5521c6" }} />
         </div>
       </div>
       <div className="mt-4">
