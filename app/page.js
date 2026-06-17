@@ -68,7 +68,7 @@ const SERVICES = [
     title: "Kollektiv Qurban-Xeyriyyə Platforması",
     desc: "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı xeyriyyə platformasına qoşulun.",
     href: "/charity",
-    disabled: true,
+    disabled: false,
     icon: <IconHandshake cls="w-10 h-10 text-purple-700" />,
     ServiceIcon: TbHeartHandshake,
     serviceIconColor: "#6B21A8",
@@ -138,32 +138,10 @@ function VideoModal({ video, onClose }) {
    MOBILE LAYOUT
 ═══════════════════════════════════════════════════════════════ */
 function MobileHeader() {
-  const [open, setOpen] = useState(false);
-  const navLinks = [
-    { label: "Haqqımızda",  Icon: User },
-    { label: "Xidmətlər",   Icon: ShoppingCart },
-    { label: "Necə işləyir?", Icon: Play },
-    { label: "Əlaqə",       Icon: Phone },
-  ];
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
       <div className="px-4">
         <div className="flex items-center justify-between h-16">
-          <button
-            className="w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-xl hover:bg-gray-100 transition-colors"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? (
-              <X size={20} className="text-gray-700" />
-            ) : (
-              <>
-                <span className="w-5 h-0.5 bg-gray-700 rounded-full" />
-                <span className="w-3.5 h-0.5 bg-gray-400 rounded-full self-start ml-2" />
-                <span className="w-5 h-0.5 bg-gray-700 rounded-full" />
-              </>
-            )}
-          </button>
-
           <Link href="/" className="flex items-center gap-2 cursor-pointer">
             <Image src="/logo_test.png" alt="MeatBox Logo" width={40} height={40} className="object-contain" />
             <div className="leading-none">
@@ -181,46 +159,6 @@ function MobileHeader() {
           </Link>
         </div>
       </div>
-
-      {/* Dropdown overlay — does NOT push content */}
-      {open && (
-        <>
-          {/* backdrop */}
-          <div
-            className="fixed inset-0 z-[55] bg-black/30"
-            onClick={() => setOpen(false)}
-          />
-          {/* panel */}
-          <div className="absolute left-0 right-0 top-full z-[60] bg-white border-b border-gray-100 shadow-xl">
-            <nav className="px-4 py-3 flex flex-col gap-1">
-              {navLinks.map(({ label, Icon }) => (
-                <a
-                  key={label}
-                  href="#"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group"
-                >
-                  <span className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-green-50 flex items-center justify-center transition-colors">
-                    <Icon size={16} className="text-gray-500 group-hover:text-green-700 transition-colors" />
-                  </span>
-                  <span className="font-medium text-gray-800 text-sm group-hover:text-green-700 transition-colors">{label}</span>
-                  <ArrowRight size={14} className="ml-auto text-gray-300 group-hover:text-green-500 transition-colors" />
-                </a>
-              ))}
-            </nav>
-            <div className="px-4 pb-4">
-              <Link
-                href="/auth/login"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-700 hover:bg-green-800 text-white font-bold text-sm transition-colors"
-              >
-                <User size={15} />
-                Daxil ol
-              </Link>
-            </div>
-          </div>
-        </>
-      )}
     </header>
   );
 }
@@ -245,7 +183,7 @@ function MobileServicesSection({ onPlay }) {
       {SERVICES.map((s) => {
         const ytId = s.videoType === "youtube" ? s.videoUrl.split("/embed/")[1]?.split("?")[0] : null;
         const inner = (
-          <div key={s.id} className="relative rounded-2xl shadow-md overflow-hidden bg-black" style={{ height: 320 }}>
+          <div key={s.id} className="relative rounded-2xl shadow-md overflow-hidden bg-black" style={{ height: 190 }}>
             {/* Real video background */}
             {ytId ? (
               <iframe
@@ -253,7 +191,7 @@ function MobileServicesSection({ onPlay }) {
                 allow="autoplay"
                 style={{
                   position: "absolute", top: "50%", left: "50%",
-                  width: "calc(320px * 16 / 9)", height: "320px",
+                  width: "calc(190px * 16 / 9)", height: "190px",
                   transform: "translate(-50%, -50%)",
                   border: "none", pointerEvents: "none",
                 }}
@@ -273,18 +211,18 @@ function MobileServicesSection({ onPlay }) {
             }} />
 
             {/* Text — left side */}
-            <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between p-4 w-[43%]">
+            <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between p-3 w-[45%]">
               <div>
-                <h3 className={`text-xl font-bold ${s.titleColor} leading-tight line-clamp-3 mb-2`}>
+                <h3 className={`text-[15px] font-bold ${s.titleColor} leading-tight line-clamp-2 mb-1`}>
                   {s.title}
                 </h3>
-                <p className="text-gray-600 text-[14px] leading-relaxed line-clamp-4">
+                <p className="text-gray-600 text-[11px] leading-snug line-clamp-3">
                   {s.desc}
                 </p>
               </div>
-              <button className={`${s.btnCls} text-white font-bold py-3 px-5 rounded-xl transition-colors flex items-center gap-2 text-base self-start whitespace-nowrap opacity-${s.disabled ? "50" : "100"}`}>
+              <button className={`${s.btnCls} text-white font-bold py-2 px-3 rounded-xl transition-colors flex items-center gap-1.5 text-[12px] self-start whitespace-nowrap opacity-${s.disabled ? "50" : "100"}`}>
                 {s.btnLabel}
-                <ArrowRight size={16} strokeWidth={2.5} />
+                <ArrowRight size={12} strokeWidth={2.5} />
               </button>
             </div>
 
@@ -301,12 +239,12 @@ function MobileServicesSection({ onPlay }) {
             </button>
 
             {/* Circular icon badge — top right */}
-            <div className="absolute z-20 top-3 right-3">
+            <div className="absolute z-20 top-2 right-2">
               <div
-                className={`w-[84px] h-[84px] rounded-full border-2 ${s.iconRing} flex items-center justify-center shadow-md`}
+                className={`w-[56px] h-[56px] rounded-full border-2 ${s.iconRing} flex items-center justify-center shadow-md`}
                 style={{ boxShadow: `0 4px 14px ${s.serviceIconColor}35` }}
               >
-                <s.ServiceIcon size={44} color={s.serviceIconColor} />
+                <s.ServiceIcon size={28} color={s.serviceIconColor} />
               </div>
             </div>
 
@@ -334,9 +272,10 @@ function MobileServicesSection({ onPlay }) {
 function MobileBottomNav() {
   const [active, setActive] = useState(0);
   const items = [
-    { icon: <IconKnife cls="w-6 h-6" />,    label: "Qurbanlıq" },
-    { icon: <IconHandshake cls="w-6 h-6" />, label: "Xeyriyyə" },
-    { icon: <IconMeat cls="w-6 h-6" />,      label: "Təzə Ət" },
+    { icon: <User size={22} />,         label: "Haqqımızda" },
+    { icon: <ShoppingCart size={22} />, label: "Xidmətlər" },
+    { icon: <Play size={22} />,         label: "Necə işləyir?" },
+    { icon: <Phone size={22} />,        label: "Əlaqə" },
   ];
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex items-center justify-around px-1 py-2 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
@@ -695,7 +634,7 @@ export default function LandingPage() {
       {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
 
       {/* ── MOBILE (< 768px) ── */}
-      <div className="md:hidden min-h-screen bg-gray-50 flex flex-col pb-[52px]">
+      <div className="md:hidden min-h-screen bg-gray-50 flex flex-col pb-[60px]">
         <MobileHeader />
         <main className="flex-1">
           <MobileServicesSection onPlay={setActiveVideo} />
