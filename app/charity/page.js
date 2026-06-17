@@ -1117,7 +1117,7 @@ function NewOpeningModal({ onClose }) {
 
   const animals    = settingsData?.animals || [];
   const settings   = settingsData?.settings || {};
-  const animal     = animals.find(a => String(a._id) === String(selAnimalId)) || animals[0];
+  const animal     = animals.find(a => String(a._id) === String(selAnimalId)) || null;
   const minPct     = settings.minOpenPercent || 30;
   const minAmount  = animal ? Math.ceil(animal.price * minPct / 100) : 0;
   const numAmount  = Number(amount || 0);
@@ -1126,6 +1126,7 @@ function NewOpeningModal({ onClose }) {
   const finalValid = contMode === "registered" || (contMode === "guest" && name.trim());
 
   const goNext = () => {
+    if (step === 0 && !animal) return;
     if (step === 0) { setAmount(String(minAmount)); setStep(1); return; }
     if (step === 1 && !validAmt) return;
     setStep(s => s + 1);
@@ -1354,7 +1355,7 @@ function NewOpeningModal({ onClose }) {
                 </button>
               )}
               {step < NOM_STEPS.length - 1 ? (
-                <button onClick={goNext} disabled={step === 1 && !validAmt}
+                <button onClick={goNext} disabled={(step === 0 && !animal) || (step === 1 && !validAmt)}
                   className="flex-1 rounded-xl py-3 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                   style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
                   Davam et
