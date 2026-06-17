@@ -335,7 +335,7 @@ function IaneDetailPage({ item, onBack }) {
         <div>
           <div className="inline-flex rounded-t-md bg-[#4b14bd] px-3 py-1.5 text-[11px] font-medium text-white">Açan şəxs</div>
           <div className="rounded-b-xl rounded-tr-xl border border-[#e1d8ee] bg-[#f5f0ff] px-4 py-3 flex flex-wrap items-center gap-4">
-            <div className="w-9 h-9 rounded-full bg-purple-200 grid place-items-center text-purple-700 font-semibold text-sm shrink-0">R</div>
+            <div className="w-9 h-9 rounded-full bg-purple-200 grid place-items-center text-purple-700 font-semibold text-[11px] shrink-0">RƏ</div>
             <div>
               <div className="text-[13px] font-semibold text-[#33245f]">Rəşad Əhmədov <span className="text-[#4b14bd]">●</span></div>
               <div className="text-[12px] text-[#6f6290]">Açılış edən şəxs</div>
@@ -366,7 +366,7 @@ function IaneDetailPage({ item, onBack }) {
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2.5">
                         {p[5] ? <img src={p[5]} alt={p[1]} className="h-6 w-6 rounded-full object-cover" />
-                          : <div className="grid h-6 w-6 place-items-center rounded-full bg-[#f0edf6] text-[#6f6290]"><User size={13} /></div>}
+                          : <div className="grid h-6 w-6 place-items-center rounded-full bg-purple-100 text-purple-700 text-[9px] font-semibold">{p[1].split(" ").slice(0, 2).map(w => w[0]).join("")}</div>}
                         <span>{p[1]}</span>
                       </div>
                     </td>
