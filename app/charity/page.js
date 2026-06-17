@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
+import api from "../../lib/api";
 import {
   Home, List, CheckCircle, HelpCircle, FileText, Heart,
   Plus, Bell, User, ChevronDown, Eye, Video, Users,
@@ -60,7 +61,42 @@ const PAYERS = [
   ["7","Murad İbrahimov","70 AZN", "4.67%","12 May 2024  •  16:45","https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=48&h=48&fit=crop"],
 ];
 
-const TAB_OPTIONS    = ["Hamısı","Açdığım açılışlar","İştirak etdiyim açılışlar"];
+/* ─── API helpers ────────────────────────────────────────────── */
+const AZ_MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
+const ANIMAL_IMG_FALLBACK = { "Dana":"/dana.png","Qoyun":"/qoyun.png","Qoç":"/qoc.png","Dəvə":"/deve.png" };
+const ORDER_STATUS_MAP = {
+  placed:"Davam edir", confirmed:"Davam edir", slaughtering:"Davam edir",
+  preparing:"Davam edir", delivering:"Davam edir", completed:"Tamamlandı", cancelled:"Ləğv olundu",
+};
+const ORDER_PROGRESS = { placed:15, confirmed:35, slaughtering:65, preparing:80, delivering:90, completed:100, cancelled:0 };
+
+function fmtDate(d) {
+  if (!d) return "—";
+  const dt = new Date(d);
+  return `${dt.getDate()} ${AZ_MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+}
+function fmtAmt(v) {
+  const n = Number(v || 0);
+  return isNaN(n) ? "0" : n.toLocaleString();
+}
+function mapOrder(o) {
+  const video = o.media?.find(m => m.type === "video");
+  const img = (o.animalImageUrl?.startsWith?.("http") ? o.animalImageUrl : null)
+    || ANIMAL_IMG_FALLBACK[o.animalName] || "/qoyun.png";
+  return {
+    id: o._id, orderNumber: o.orderNumber || "",
+    type: o.animalName || "Qurban",
+    amount: fmtAmt(o.totalAmount), amountRaw: Number(o.totalAmount || 0),
+    collectedAmount: fmtAmt(o.totalAmount), totalAmount: fmtAmt(o.totalAmount),
+    progressPercent: ORDER_PROGRESS[o.status] ?? 0,
+    startDate: fmtDate(o.createdAt), endDate: o.status === "completed" ? fmtDate(o.updatedAt) : "—",
+    date: fmtDate(o.status === "completed" ? o.updatedAt : o.createdAt),
+    status: ORDER_STATUS_MAP[o.status] || "Davam edir",
+    organizer: "Siz ödədiniz", participants: 1, img, videoUrl: video?.url || null,
+  };
+}
+
+const TAB_OPTIONS    = ["Hamısı","Aktiv ianələr","Tamamlanmış"];
 const STATUS_OPTIONS = ["Hamısı","Davam edir","Tamamlandı","Ləğv olundu"];
 
 /* ─── Helpers ────────────────────────────────────────────────── */
@@ -392,17 +428,28 @@ function IaneDetailPage({ item, onBack }) {
 
 /* ─── İanələrim list ─────────────────────────────────────────── */
 function IanelerimPage() {
+  const [orders, setOrders]               = useState([]);
+  const [loading, setLoading]             = useState(true);
   const [selected, setSelected]           = useState(null);
   const [activeTab, setActiveTab]         = useState("Hamısı");
   const [statusFilter, setStatusFilter]   = useState("Hamısı");
   const [statusOpen, setStatusOpen]       = useState(false);
   const [videoTarget, setVideoTarget]     = useState(null);
 
-  const filtered = DONATIONS.filter((item) => {
+  useEffect(() => {
+    api.get("/charity-orders")
+      .then(res => setOrders((res.data?.data || []).map(mapOrder)))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const totalPaid = orders.reduce((s, o) => s + o.amountRaw, 0);
+
+  const filtered = orders.filter((item) => {
     const tabMatch =
       activeTab === "Hamısı" ||
-      (activeTab === "Açdığım açılışlar"        && item.organizer === "Siz açmısınız") ||
-      (activeTab === "İştirak etdiyim açılışlar" && item.organizer === "Siz iştirak etmisiniz");
+      (activeTab === "Aktiv ianələr" && item.status === "Davam edir") ||
+      (activeTab === "Tamamlanmış"   && item.status === "Tamamlandı");
     return tabMatch && (statusFilter === "Hamısı" || item.status === statusFilter);
   });
 
@@ -412,9 +459,9 @@ function IanelerimPage() {
     <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-3 md:py-4 pb-20 lg:pb-4">
       {/* Top stats */}
       <div className="mb-4 flex flex-col sm:flex-row overflow-hidden rounded-xl border border-[#e7e1f0] bg-white shadow-sm">
-        <TopStat icon={Wallet} title="Bütün ianələrimin toplamı" value="4,550 AZN" />
-        <TopStat icon={Flag}   title="Ümumi açılış sayı"         value="2"         />
-        <TopStat icon={Users}  title="Ümumi iştirak edilən sayı" value="2"         />
+        <TopStat icon={Wallet} title="Bütün ianələrimin toplamı" value={`${fmtAmt(totalPaid)} AZN`} />
+        <TopStat icon={Flag}   title="Ümumi ianə sayı"           value={String(orders.length)}       />
+        <TopStat icon={Users}  title="Tamamlanmış ianələr"       value={String(orders.filter(o => o.status === "Tamamlandı").length)} />
       </div>
 
       {/* Tabs + filter */}
@@ -449,8 +496,13 @@ function IanelerimPage() {
       </div>
 
       {/* List */}
+      {loading && (
+        <div className="flex justify-center py-16">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
+        </div>
+      )}
       <div className="space-y-3">
-        {filtered.map((item) => {
+        {!loading && filtered.map((item) => {
           const cfg = STATUS_CFG[item.status] || STATUS_CFG["Davam edir"];
           return (
             <div key={item.id} onClick={() => setSelected(item)}
@@ -550,9 +602,9 @@ function IanelerimPage() {
             </div>
           );
         })}
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="rounded-2xl border border-dashed border-[#d8cdec] bg-white px-6 py-14 text-center text-[14px] text-[#77689c]">
-            Seçilmiş filterlərə uyğun ianə tapılmadı.
+            {orders.length === 0 ? "Hələ heç bir ianəniz yoxdur." : "Seçilmiş filterlərə uyğun ianə tapılmadı."}
           </div>
         )}
       </div>
@@ -602,7 +654,7 @@ function IanelerimPage() {
                 style={{ display: "block" }}
               >
                 <source
-                  src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                  src={videoTarget.videoUrl || "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"}
                   type="video/mp4"
                 />
               </video>
@@ -812,13 +864,26 @@ function CompletedStat({ label, value }) {
 }
 
 function TamamlanmisPage() {
+  const [orders, setOrders]             = useState([]);
+  const [loading, setLoading]           = useState(true);
   const [selected, setSelected]         = useState(null);
   const [shareMessage, setShareMessage] = useState(false);
   const [videoTarget, setVideoTarget]   = useState(null);
 
-  const sorted = [...COMPLETED_OPENINGS].sort(
-    (a, b) => parseAzDate(b.date) - parseAzDate(a.date)
-  );
+  useEffect(() => {
+    api.get("/charity-orders")
+      .then(res => {
+        const completed = (res.data?.data || [])
+          .filter(o => o.status === "completed")
+          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+          .map(mapOrder);
+        setOrders(completed);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const sorted = orders;
 
   const handleShare = async (e, item) => {
     e.stopPropagation();
@@ -850,9 +915,9 @@ function TamamlanmisPage() {
             <CheckCircle size={30} strokeWidth={2} />
           </div>
           <div>
-            <div className="mb-1 text-[12px] font-extrabold text-[#33245f]">Ümumi tamamlanmış açılış sayı</div>
-            <div className="text-[24px] font-black leading-none tracking-[-.03em] text-[#24124f]">{COMPLETED_OPENINGS.length}</div>
-            <div className="mt-1 text-[11px] font-bold text-[#77689c]">Tamamlanmış açılışlar</div>
+            <div className="mb-1 text-[12px] font-extrabold text-[#33245f]">Ümumi tamamlanmış ianə sayı</div>
+            <div className="text-[24px] font-black leading-none tracking-[-.03em] text-[#24124f]">{orders.length}</div>
+            <div className="mt-1 text-[11px] font-bold text-[#77689c]">Tamamlanmış ianələr</div>
           </div>
         </div>
       </div>
@@ -862,10 +927,20 @@ function TamamlanmisPage() {
         <p className="mt-1 text-[12px] font-semibold text-[#8778a8]">Açılışlar tamamlanma vaxtına görə sıralanıb</p>
       </div>
 
+      {loading && (
+        <div className="flex justify-center py-16">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
+        </div>
+      )}
+      {!loading && sorted.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-[#d8cdec] bg-white px-6 py-14 text-center text-[14px] text-[#77689c]">
+          Hələ tamamlanmış ianəniz yoxdur.
+        </div>
+      )}
       <div className="space-y-3.5">
         {sorted.map((item) => {
           const paidPct = Math.round(
-            (Number(item.amount.replace(/,/g, "")) / Number(item.totalAmount.replace(/,/g, ""))) * 100
+            (Number(item.amount.replace(/[^\d]/g, "")) / Math.max(1, Number(item.totalAmount.replace(/[^\d]/g, "")))) * 100
           );
           return (
             <div
@@ -992,7 +1067,7 @@ function TamamlanmisPage() {
                 style={{ display: "block" }}
               >
                 <source
-                  src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                  src={videoTarget.videoUrl || "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"}
                   type="video/mp4"
                 />
               </video>
@@ -1295,6 +1370,31 @@ export default function CharityPage() {
   const [donationTarget, setDonationTarget] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNewOpening, setShowNewOpening] = useState(false);
+  const [homeAnimals, setHomeAnimals]       = useState(ANIMALS);
+
+  useEffect(() => {
+    api.get("/app-config/charity-animals/stats")
+      .then(res => {
+        const raw = res.data?.data?.charityAnimals || [];
+        if (!raw.length) return;
+        setHomeAnimals(raw.map(a => {
+          const prices = a.priceOptions || [];
+          const minPrice = prices.reduce((mn, p) => Math.min(mn, p.price), Infinity);
+          const img = (a.imageUrl?.startsWith?.("http") ? a.imageUrl : null)
+            || ANIMAL_IMG_FALLBACK[a.nameAz] || "/qoyun.png";
+          return {
+            type: a.nameAz, progressPercent: a.progressPercent || 0,
+            collected: a.collected || "0", target: a.target || "0",
+            currency: "AZN", organizer: "Ehtiyac sahibləri",
+            participants: a.donorCount || 0,
+            shareMin: isFinite(minPrice) ? String(minPrice) : "0",
+            totalMin: "0", totalMax: a.target || "0", startTime: "",
+            img, animalId: a._id, priceOptions: prices,
+          };
+        }));
+      })
+      .catch(() => {});
+  }, []);
 
   const visibleNav = isGuest
     ? SIDEBAR_NAV.filter(n => n.page !== "ianelerim")
@@ -1305,7 +1405,7 @@ export default function CharityPage() {
     setPage(p);
   };
 
-  const filtered = filter === "Bütün heyvanlar" ? ANIMALS : ANIMALS.filter(a => a.type === filter);
+  const filtered = filter === "Bütün heyvanlar" ? homeAnimals : homeAnimals.filter(a => a.type === filter);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f7f5ff]">

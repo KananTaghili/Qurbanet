@@ -28,6 +28,7 @@ const charityAnimalController = require("../controllers/charityAnimalController"
 router.get("/charity-options", ctrl.getCharityOptions);
 router.get("/delivery-options", ctrl.getDeliveryOptions);
 router.get("/settings", appSettingsController.getPublicSettings);
+router.get("/charity-animals/stats", charityAnimalController.getCharityAnimalStats);
 router.get("/charity-animals", charityAnimalController.getPublicCharityAnimals);
 
 // ─── ADMIN (qorunan) ─────────────────────────────────────────────────────────

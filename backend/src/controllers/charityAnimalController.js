@@ -1,4 +1,46 @@
 const CharityAnimal = require("../models/CharityAnimal");
+const CharityOrder  = require("../models/CharityOrder");
+
+// ─── Public: hər heyvan üçün ödənilmiş ianə cəmi + iştirakçı sayı ────────────
+exports.getCharityAnimalStats = async (req, res) => {
+  try {
+    const animals = await CharityAnimal.find({ isActive: true }).sort({ sortOrder: 1, createdAt: 1 });
+
+    const stats = await Promise.all(animals.map(async (a) => {
+      const paidOrders = await CharityOrder.find({
+        charityAnimalId: a._id,
+        paymentStatus: "paid",
+        status: { $nin: ["cancelled"] },
+      }).select("totalAmount");
+
+      const collected   = paidOrders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+      const donorCount  = paidOrders.length;
+      const targetPrice = a.priceOptions.length
+        ? a.priceOptions.reduce((mx, p) => Math.max(mx, p.price), 0)
+        : 0;
+      const progressPercent = targetPrice > 0
+        ? Math.min(100, Math.round((collected / targetPrice) * 100))
+        : 0;
+
+      return {
+        _id:              a._id,
+        nameAz:           a.nameAz,
+        emoji:            a.emoji,
+        imageUrl:         a.imageUrl,
+        priceOptions:     a.priceOptions,
+        charityTargets:   a.charityTargets,
+        progressPercent,
+        collected:        collected.toLocaleString("az-AZ"),
+        target:           targetPrice.toLocaleString("az-AZ"),
+        donorCount,
+      };
+    }));
+
+    res.json({ success: true, data: { charityAnimals: stats } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 // ─── Admin: bütün heyvanları siyahıla ────────────────────────────────────────
 exports.listCharityAnimals = async (req, res) => {
