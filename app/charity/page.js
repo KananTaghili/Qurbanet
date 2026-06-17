@@ -365,8 +365,7 @@ function IaneDetailPage({ item, onBack }) {
                     <td className="px-4 py-2.5 font-semibold">{p[0]}</td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2.5">
-                        {p[5] ? <img src={p[5]} alt={p[1]} className="h-6 w-6 rounded-full object-cover" />
-                          : <div className="grid h-6 w-6 place-items-center rounded-full bg-purple-100 text-purple-700 text-[9px] font-semibold">{p[1].split(" ").slice(0, 2).map(w => w[0]).join("")}</div>}
+                        <div className="grid h-6 w-6 place-items-center rounded-full bg-purple-100 text-purple-700 text-[9px] font-semibold shrink-0">{p[1].split(" ").slice(0, 2).map(w => w[0]).join("")}</div>
                         <span>{p[1]}</span>
                       </div>
                     </td>
