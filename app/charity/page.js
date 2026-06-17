@@ -823,23 +823,53 @@ function NecePage() {
   );
 }
 
+const SERTLER = [
+  {
+    icon: "📊",
+    value: "Yeni Açılış üçün minimum 30%",
+    label: "Yeni ianə açılışı zamanı ümumi qurbanlıq məbləğinin minimum 30%-ni açılış edən şəxs ödəməlidir.",
+  },
+  {
+    icon: "💰",
+    value: "İanə üçün minimum 10 AZN",
+    label: "Əsas səhifədə göstərilən açılışı davam edən qurbanlıqlara ianə vermək üçün minimum 10 AZN tələb olunur.",
+  },
+  {
+    icon: "🐄",
+    value: "Hər heyvan növünə 1 ədəd",
+    label: "Hər heyvan tipi üçün yalnız 1 açılış ola bilər. Yeni açılış üçün müvafiq heyvan tipinə uyğun davam edən açılışın bitməsi lazımdır.",
+  },
+  {
+    icon: "👤",
+    value: "Yeni açılışa 1 nəfər",
+    label: "Yeni açılışı yalnız bir nəfər edə bilər. Yeni açılış əlavə et səhifəsinə daxil olaraq aktiv görünən heyvan tipini seçib ilkin ödənişi etdikdən sonra açılış baş tutacaq.",
+  },
+  {
+    icon: "🔒",
+    value: "Anonim açılış və ya ianə",
+    label: "Əgər adınızın digər istifadəçilərə görünməsini istəmirsinizsə həm Anonim olaraq açılış edə bilərsiniz, həm də ianə verə bilərsiniz. Bu zaman qeydiyyat etməyə ehtiyac yoxdur.",
+  },
+  {
+    icon: "📄",
+    value: "Şəxsi səhifə",
+    label: "Əgər qeydiyyatdan keçmisinizsə əsas səhifədən İanələrim bölməsinə keçərək etdiyiniz açılış və ianə detalları haqqında ətraflı məlumat əldə edə bilərsiniz.",
+  },
+];
+
 function SertlerPage() {
-  const stats = [
-    { value: "30%",     label: "Dana, Qoç, Dəvə üçün ən az 30% toplanmalıdır" },
-    { value: "10 AZN",  label: "Ən az 10 AZN ianə etmək mümkündür" },
-    { value: "1 gün",   label: "Ödənişdən 1 gün sonra geri qaytarıla bilər" },
-    { value: "1 nəfər", label: "Hər açılışa 1 nəfər maksimum iştirak edə bilər" },
-    { value: "7 gün",   label: "Kəsimdən əvvəl 7 gün müddəti qalan açılışlar" },
-    { value: "Anonim",  label: "Anonim ianə etmək mümkündür" },
-  ];
   return (
     <div className="flex-1 overflow-y-auto px-4 py-5 pb-20 lg:pb-5">
-      <h1 className="text-[#241a4d] mb-1 text-xl font-semibold">Şərtlərimiz</h1>
-      <p className="text-gray-500 text-sm mb-5">Platforma qaydaları və istifadə şərtləri</p>
+      <h1 className="text-[#241a4d] mb-1 font-extrabold" style={{ fontSize: "1.35rem" }}>Şərtlərimiz</h1>
+      <p className="text-gray-500 text-sm mb-6">Platforma qaydaları və istifadə şərtləri</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl p-5 border border-[#eee8f6] shadow-sm">
-            <div className="font-bold text-purple-700 mb-1 text-2xl">{s.value}</div>
+        {SERTLER.map((s) => (
+          <div key={s.value} className="bg-white rounded-2xl p-5 border border-[#eee8f6] shadow-sm">
+            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-50 text-2xl">
+              {s.icon}
+            </div>
+            <div className="font-extrabold text-purple-700 mb-2 leading-tight" style={{ fontSize: "1rem" }}>
+              {s.value}
+            </div>
             <div className="text-sm text-gray-500 leading-relaxed">{s.label}</div>
           </div>
         ))}
