@@ -1370,13 +1370,13 @@ export default function CharityPage() {
   const [donationTarget, setDonationTarget] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNewOpening, setShowNewOpening] = useState(false);
-  const [homeAnimals, setHomeAnimals]       = useState(ANIMALS);
+  const [homeAnimals, setHomeAnimals]       = useState([]);
+  const [animalsLoading, setAnimalsLoading] = useState(true);
 
   useEffect(() => {
     api.get("/app-config/charity-animals/stats")
       .then(res => {
         const raw = res.data?.data?.charityAnimals || [];
-        if (!raw.length) return;
         setHomeAnimals(raw.map(a => {
           const prices = a.priceOptions || [];
           const minPrice = prices.reduce((mn, p) => Math.min(mn, p.price), Infinity);
@@ -1393,7 +1393,8 @@ export default function CharityPage() {
           };
         }));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setAnimalsLoading(false));
   }, []);
 
   const visibleNav = isGuest
@@ -1597,10 +1598,22 @@ export default function CharityPage() {
             </div>
 
             {/* Cards grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 px-3 md:px-6 mb-5">
-              {filtered.map(animal => (
-                <AnimalCard key={animal.type} animal={animal} onDonate={setDonationTarget} />
-              ))}
+            <div className="px-3 md:px-6 mb-5">
+              {animalsLoading ? (
+                <div className="flex justify-center py-16">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-[#d8cdec] bg-white px-6 py-14 text-center text-[14px] text-[#77689c]">
+                  Hal-hazırda aktiv açılış yoxdur.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                  {filtered.map(animal => (
+                    <AnimalCard key={animal.type} animal={animal} onDonate={setDonationTarget} />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Features */}
