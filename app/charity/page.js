@@ -30,45 +30,16 @@ const FEATURES = [
   { icon: Users,  title: "Birlikdə xeyir",      desc: "Paylaş, birlikdə eylə"        },
 ];
 
-const ANIMALS = [
-  { type: "Dana",  progressPercent: 62, collected: "1,116", target: "1,800", currency: "AZN", organizer: "Rəşad Əhmədov", participants: 5, shareMin: "540", totalMin: "684",   totalMax: "1,800", startTime: "10 May 2024", img: "/dana.png"  },
-  { type: "Qoyun", progressPercent: 48, collected: "720",   target: "1,500", currency: "AZN", organizer: "Elsın Hüseynli", participants: 3, shareMin: "450", totalMin: "780",   totalMax: "1,500", startTime: "12 May 2024", img: "/qoyun_big.png" },
-  { type: "Qoç",   progressPercent: 75, collected: "1,125", target: "3,500", currency: "AZN", organizer: "Tural Məmmədov", participants: 4, shareMin: "375", totalMin: "375",   totalMax: "1,500", startTime: "14 May 2024", img: "/qoc.jpg"       },
-  { type: "Dəvə",  progressPercent: 30, collected: "1,200", target: "4,000", currency: "AZN", organizer: "Müşviq Babanlı", participants: 2, shareMin: "400", totalMin: "2,800", totalMax: "4,000", startTime: "15 May 2024", img: "/deve.jpg"      },
-];
-const FILTER_OPTIONS = ["Bütün heyvanlar", "Dana", "Qoyun", "Qoç", "Dəvə"];
-
-const DONATIONS = [
-  { id: 1, type: "Qoyun", amount: "540", collectedAmount: "1,080", totalAmount: "1,800", progressPercent: 60, startDate: "15 May 2024", endDate: "22 May 2024", status: "Davam edir",  organizer: "Siz açmısınız",        participants: 6, img: "/qoyun.png" },
-  { id: 2, type: "Dana",  amount: "900", collectedAmount: "3,080", totalAmount: "3,000", progressPercent: 100,startDate: "01 May 2024", endDate: "07 May 2024", status: "Tamamlandı", organizer: "Siz açmısınız",        participants: 8, img: "/dana.png"  },
-  { id: 3, type: "Qoç",   amount: "150", collectedAmount: "750",   totalAmount: "1,500", progressPercent: 50, startDate: "10 May 2024", endDate: "17 May 2024", status: "Davam edir",  organizer: "Siz iştirak etmisiniz", participants: 5, img: "/qoc.png"   },
-  { id: 4, type: "Dəvə",  amount: "200", collectedAmount: "400",   totalAmount: "2,000", progressPercent: 0,  startDate: "01 May 2024", endDate: "08 May 2024", status: "Ləğv olundu", organizer: "Siz iştirak etmisiniz", participants: 2, img: "/deve.png"  },
-];
-
 const STATUS_CFG = {
   "Tamamlandı": { label: "Tamamlanıb",        badge: "bg-emerald-50 text-emerald-700", color: "#2f8b58", track: "#dff4e9" },
   "Davam edir": { label: "Açılış davam edir", badge: "bg-amber-50 text-amber-600",    color: "#5a19c9", track: "#eee4ff" },
   "Ləğv olundu":{ label: "Ləğv olundu",       badge: "bg-rose-50 text-rose-500",      color: "#fb4c61", track: "#ffe0e5" },
 };
 
-const PAYERS = [
-  ["1","Elvin Həsənli",  "100 AZN","6.67%","10 May 2024  •  11:15","https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=48&h=48&fit=crop"],
-  ["2","Aysel Muradova", "100 AZN","6.67%","10 May 2024  •  11:30","https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=48&h=48&fit=crop"],
-  ["3","Anonim",         "50 AZN", "3.33%","10 May 2024  •  12:05",""],
-  ["4","Tural Məmmədli", "100 AZN","6.67%","11 May 2024  •  09:20","https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=48&h=48&fit=crop"],
-  ["5","Zeynəb Quliyeva","50 AZN", "3.33%","11 May 2024  •  10:40","https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=48&h=48&fit=crop"],
-  ["6","Anonim",         "30 AZN", "2.00%","11 May 2024  •  13:15",""],
-  ["7","Murad İbrahimov","70 AZN", "4.67%","12 May 2024  •  16:45","https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=48&h=48&fit=crop"],
-];
-
 /* ─── API helpers ────────────────────────────────────────────── */
 const AZ_MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
 const ANIMAL_IMG_FALLBACK = { "Dana":"/dana.png","Qoyun":"/qoyun.png","Qoç":"/qoc.png","Dəvə":"/deve.png" };
-const ORDER_STATUS_MAP = {
-  placed:"Davam edir", confirmed:"Davam edir", slaughtering:"Davam edir",
-  preparing:"Davam edir", delivering:"Davam edir", completed:"Tamamlandı", cancelled:"Ləğv olundu",
-};
-const ORDER_PROGRESS = { placed:15, confirmed:35, slaughtering:65, preparing:80, delivering:90, completed:100, cancelled:0 };
+const CAMPAIGN_STATUS_MAP = { collecting:"Davam edir", completed:"Tamamlandı", cancelled:"Ləğv olundu" };
 
 function fmtDate(d) {
   if (!d) return "—";
@@ -79,24 +50,65 @@ function fmtAmt(v) {
   const n = Number(v || 0);
   return isNaN(n) ? "0" : n.toLocaleString();
 }
-function mapOrder(o) {
-  const video = o.media?.find(m => m.type === "video");
-  const img = (o.animalImageUrl?.startsWith?.("http") ? o.animalImageUrl : null)
-    || ANIMAL_IMG_FALLBACK[o.animalName] || "/qoyun.png";
+function mapMyCampaign(c) {
+  const img = (c.animal?.image?.startsWith?.("http") ? c.animal.image : null)
+    || ANIMAL_IMG_FALLBACK[c.animal?.nameAz] || "/qoyun.png";
+  const video = (c.media || []).find(m => m.type === "video");
   return {
-    id: o._id, orderNumber: o.orderNumber || "",
-    type: o.animalName || "Qurban",
-    amount: fmtAmt(o.totalAmount), amountRaw: Number(o.totalAmount || 0),
-    collectedAmount: fmtAmt(o.totalAmount), totalAmount: fmtAmt(o.totalAmount),
-    progressPercent: ORDER_PROGRESS[o.status] ?? 0,
-    startDate: fmtDate(o.createdAt), endDate: o.status === "completed" ? fmtDate(o.updatedAt) : "—",
-    date: fmtDate(o.status === "completed" ? o.updatedAt : o.createdAt),
-    status: ORDER_STATUS_MAP[o.status] || "Davam edir",
-    organizer: "Siz ödədiniz", participants: 1, img, videoUrl: video?.url || null,
+    id: c._id, campaignNumber: c.campaignNumber || "",
+    type: c.animal?.nameAz || "Qurban",
+    amount: fmtAmt(c.myPaidAmount), amountRaw: c.myPaidAmount || 0,
+    collectedAmount: fmtAmt(c.collectedAmount), totalAmount: fmtAmt(c.totalAmount),
+    progressPercent: c.percent || 0,
+    startDate: fmtDate(c.createdAt),
+    endDate: c.status === "completed" ? fmtDate(c.completedAt) : "—",
+    date: fmtDate(c.status === "completed" ? c.completedAt : c.createdAt),
+    status: CAMPAIGN_STATUS_MAP[c.status] || "Davam edir",
+    organizer: c.iAmOpener ? "Siz açmısınız" : "Siz iştirak etmisiniz",
+    participants: c.participantCount || 1,
+    img, videoUrl: video?.url || null, iAmOpener: !!c.iAmOpener,
+    donations: c.donations || [],
+  };
+}
+function mapCompletedCampaign(c) {
+  const img = (c.animal?.image?.startsWith?.("http") ? c.animal.image : null)
+    || ANIMAL_IMG_FALLBACK[c.animal?.nameAz] || "/qoyun.png";
+  const video = (c.media || []).find(m => m.type === "video");
+  return {
+    id: c._id, campaignNumber: c.campaignNumber || "",
+    type: c.animal?.nameAz || "Qurban",
+    amount: fmtAmt(c.collectedAmount), amountRaw: c.collectedAmount || 0,
+    collectedAmount: fmtAmt(c.collectedAmount), totalAmount: fmtAmt(c.totalAmount),
+    progressPercent: 100,
+    date: fmtDate(c.completedAt), startDate: fmtDate(c.createdAt), endDate: fmtDate(c.completedAt),
+    status: "Tamamlandı",
+    organizer: c.opener?.isAnonymous ? "Anonim" : (c.opener?.name || "—"),
+    participants: c.participantCount || 0,
+    img, videoUrl: video?.url || null,
+    donations: c.donations || [],
+  };
+}
+function mapHomeCampaign(c, minDonation) {
+  const img = (c.animal?.image?.startsWith?.("http") ? c.animal.image : null)
+    || ANIMAL_IMG_FALLBACK[c.animal?.nameAz] || "/qoyun.png";
+  return {
+    campaignId: c._id,
+    type: c.animal?.nameAz || "Qurban",
+    progressPercent: c.percent || 0,
+    collected: fmtAmt(c.collectedAmount),
+    target: fmtAmt(c.totalAmount),
+    currency: "AZN",
+    organizer: c.opener?.isAnonymous ? "Anonim" : (c.opener?.name || "—"),
+    participants: c.participantCount || 0,
+    shareMin: String(minDonation || 10),
+    totalMin: fmtAmt(Math.max(0, c.totalAmount - c.collectedAmount)),
+    totalMax: fmtAmt(c.totalAmount),
+    startTime: fmtDate(c.createdAt),
+    img, remainingAmount: c.remainingAmount, status: c.status,
   };
 }
 
-const TAB_OPTIONS    = ["Hamısı","Aktiv ianələr","Tamamlanmış"];
+const TAB_OPTIONS    = ["Hamısı","Açdığım açılışlar","İştirak etdiyim açılışlar"];
 const STATUS_OPTIONS = ["Hamısı","Davam edir","Tamamlandı","Ləğv olundu"];
 
 /* ─── Helpers ────────────────────────────────────────────────── */
@@ -273,7 +285,24 @@ function AnimalCard({ animal, onDonate }) {
 
 /* ─── Donation Modal ─────────────────────────────────────────── */
 function DonationModal({ animal, onClose }) {
-  const [amount, setAmount] = useState(animal.shareMin);
+  const [amount, setAmount]       = useState(animal.shareMin || "10");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    const n = Number(amount);
+    if (!n || n < 1) return alert("Düzgün məbləğ daxil edin");
+    setSubmitting(true);
+    try {
+      const r1 = await api.post(`/campaigns/${animal.campaignId}/donate`, { amount: n });
+      const { donationId } = r1.data.data;
+      const r2 = await api.post(`/campaigns/${animal.campaignId}/epoint/start`, { donationId });
+      window.location.href = r2.data.data.redirect_url;
+    } catch (err) {
+      alert(err.response?.data?.message || "Xəta baş verdi");
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -284,14 +313,16 @@ function DonationModal({ animal, onClose }) {
             <X size={16} />
           </button>
         </div>
+        <div className="mb-1 text-xs text-[#8a7ba7]">Qalan: <b className="text-[#241a4d]">{animal.totalMin} AZN</b></div>
         <div className="mb-4">
           <label className="text-xs font-medium text-[#8a7ba7] mb-1.5 block">Məbləğ (AZN)</label>
-          <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} min="10"
+          <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} min={animal.shareMin || 10}
             className="w-full border border-[#d9cdfa] rounded-xl px-4 py-3 text-lg font-semibold text-[#241a4d] focus:outline-none focus:border-[#5521c6]" />
         </div>
-        <button className="w-full py-3 rounded-xl text-white font-semibold text-sm"
+        <button onClick={handleSubmit} disabled={submitting}
+          className="w-full py-3 rounded-xl text-white font-semibold text-sm disabled:opacity-60"
           style={{ background: "linear-gradient(135deg, #4b14bd, #7c3aed)" }}>
-          Ödəməyə keç
+          {submitting ? "Yönləndirilir..." : "Ödəməyə keç"}
         </button>
       </div>
     </div>
@@ -437,8 +468,8 @@ function IanelerimPage() {
   const [videoTarget, setVideoTarget]     = useState(null);
 
   useEffect(() => {
-    api.get("/charity-orders")
-      .then(res => setOrders((res.data?.data || []).map(mapOrder)))
+    api.get("/campaigns/my")
+      .then(res => setOrders((res.data?.data?.campaigns || []).map(mapMyCampaign)))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -448,8 +479,8 @@ function IanelerimPage() {
   const filtered = orders.filter((item) => {
     const tabMatch =
       activeTab === "Hamısı" ||
-      (activeTab === "Aktiv ianələr" && item.status === "Davam edir") ||
-      (activeTab === "Tamamlanmış"   && item.status === "Tamamlandı");
+      (activeTab === "Açdığım açılışlar"         && item.iAmOpener === true) ||
+      (activeTab === "İştirak etdiyim açılışlar" && item.iAmOpener === false);
     return tabMatch && (statusFilter === "Hamısı" || item.status === statusFilter);
   });
 
@@ -817,43 +848,6 @@ function SertlerPage() {
   );
 }
 
-const COMPLETED_OPENINGS = [
-  {
-    id: 1, type: "Qoyun", amount: "450", collectedAmount: "1,500", totalAmount: "1,500",
-    progressPercent: 100, date: "13 İyun 2024", startDate: "10 May 2024", endDate: "13 İyun 2024",
-    status: "Tamamlandı", organizer: "Rəşad Əhmədov", participants: 24,
-    img: "/qoyun.png",
-  },
-  {
-    id: 2, type: "Dana", amount: "900", collectedAmount: "3,000", totalAmount: "3,000",
-    progressPercent: 100, date: "07 May 2024", startDate: "01 May 2024", endDate: "07 May 2024",
-    status: "Tamamlandı", organizer: "Siz açmısınız", participants: 18,
-    img: "/dana.png",
-  },
-  {
-    id: 3, type: "Qoç", amount: "300", collectedAmount: "1,500", totalAmount: "1,500",
-    progressPercent: 100, date: "22 Aprel 2024", startDate: "10 Aprel 2024", endDate: "22 Aprel 2024",
-    status: "Tamamlandı", organizer: "Tural Məmmədov", participants: 15,
-    img: "/qoc.png",
-  },
-  {
-    id: 4, type: "Dəvə", amount: "1,200", collectedAmount: "4,000", totalAmount: "4,000",
-    progressPercent: 100, date: "18 Mart 2024", startDate: "01 Mart 2024", endDate: "18 Mart 2024",
-    status: "Tamamlandı", organizer: "Kamran Nəsirov", participants: 31,
-    img: "/deve.png",
-  },
-];
-
-const MONTH_INDEX = {
-  Yanvar: 0, Fevral: 1, Mart: 2, Aprel: 3, May: 4, İyun: 5,
-  İyul: 6, Avqust: 7, Sentyabr: 8, Oktyabr: 9, Noyabr: 10, Dekabr: 11,
-};
-
-function parseAzDate(value) {
-  const [day, month, year] = value.split(" ");
-  return new Date(Number(year), MONTH_INDEX[month] ?? 0, Number(day)).getTime();
-}
-
 function CompletedStat({ label, value }) {
   return (
     <div className="min-w-[102px] border-r border-[#e7e1f0] pr-5 last:border-r-0 last:pr-0">
@@ -871,14 +865,8 @@ function TamamlanmisPage() {
   const [videoTarget, setVideoTarget]   = useState(null);
 
   useEffect(() => {
-    api.get("/charity-orders")
-      .then(res => {
-        const completed = (res.data?.data || [])
-          .filter(o => o.status === "completed")
-          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-          .map(mapOrder);
-        setOrders(completed);
-      })
+    api.get("/campaigns/completed")
+      .then(res => setOrders((res.data?.data?.campaigns || []).map(mapCompletedCampaign)))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -1101,36 +1089,67 @@ function TamamlanmisPage() {
 }
 
 /* ─── New Opening Modal ──────────────────────────────────────── */
-const ANIMAL_OPTS = [
-  { type: "Dana",  emoji: "🐄", image: "/dana.png",       price: 1800, weight: "180–240 kq" },
-  { type: "Qoyun", emoji: "🐑", image: "/qoyun_big.png",  price: 1500, weight: "35–55 kq"  },
-  { type: "Qoç",   emoji: "🐏", image: "/qoc.jpg",        price: 1500, weight: "40–65 kq"  },
-  { type: "Dəvə",  emoji: "🐪", image: "/deve.jpg",       price: 4000, weight: "350–520 kq"},
-];
 const NOM_STEPS = ["Heyvan növü", "Ödəniş", "Təsdiq"];
 
 function NewOpeningModal({ onClose }) {
-  const [step,          setStep]         = useState(0);
-  const [selAnimal,     setSelAnimal]    = useState("Dana");
-  const [isAnon,        setIsAnon]       = useState(false);
-  const [amount,        setAmount]       = useState("540");
-  const [note,          setNote]         = useState("");
-  const [contMode,      setContMode]     = useState("");
-  const [name,          setName]         = useState("");
-  const [phone,         setPhone]        = useState("");
-  const [done,          setDone]         = useState(false);
+  const [step,        setStep]        = useState(0);
+  const [selAnimalId, setSelAnimalId] = useState(null);
+  const [isAnon,      setIsAnon]      = useState(false);
+  const [amount,      setAmount]      = useState("");
+  const [note,        setNote]        = useState("");
+  const [contMode,    setContMode]    = useState("");
+  const [name,        setName]        = useState("");
+  const [phone,       setPhone]       = useState("");
+  const [submitting,  setSubmitting]  = useState(false);
+  const [settingsData, setSettingsData] = useState(null);
+  const [loadingSettings, setLoadingSettings] = useState(true);
 
-  const animal     = useMemo(() => ANIMAL_OPTS.find(a => a.type === selAnimal) ?? ANIMAL_OPTS[0], [selAnimal]);
-  const minAmount  = Math.ceil(animal.price * 0.3);
+  useEffect(() => {
+    api.get("/campaigns/settings")
+      .then(res => {
+        const d = res.data?.data || {};
+        setSettingsData(d);
+        if (d.animals?.length) setSelAnimalId(d.animals[0]._id);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingSettings(false));
+  }, []);
+
+  const animals    = settingsData?.animals || [];
+  const settings   = settingsData?.settings || {};
+  const animal     = animals.find(a => String(a._id) === String(selAnimalId)) || animals[0];
+  const minPct     = settings.minOpenPercent || 30;
+  const minAmount  = animal ? Math.ceil(animal.price * minPct / 100) : 0;
   const numAmount  = Number(amount || 0);
-  const validAmt   = numAmount >= minAmount && numAmount <= animal.price;
-  const remaining  = Math.max(animal.price - numAmount, 0);
-  const finalValid = contMode === "registered" || (contMode === "guest" && name.trim() && phone.trim());
+  const validAmt   = animal ? (numAmount >= minAmount && numAmount <= animal.price) : false;
+  const remaining  = animal ? Math.max(animal.price - numAmount, 0) : 0;
+  const finalValid = contMode === "registered" || (contMode === "guest" && name.trim());
 
   const goNext = () => {
     if (step === 0) { setAmount(String(minAmount)); setStep(1); return; }
     if (step === 1 && !validAmt) return;
     setStep(s => s + 1);
+  };
+
+  const handleConfirm = async () => {
+    if (!finalValid || !animal) return;
+    setSubmitting(true);
+    try {
+      const body = {
+        animalId: animal._id,
+        amount: numAmount,
+        isAnonymous: isAnon,
+        note: note || undefined,
+        ...(contMode === "guest" && !isAnon ? { openerName: name, openerPhone: phone } : {}),
+      };
+      const r1 = await api.post("/campaigns", body);
+      const { campaignId, donationId } = r1.data.data;
+      const r2 = await api.post(`/campaigns/${campaignId}/epoint/start`, { donationId });
+      window.location.href = r2.data.data.redirect_url;
+    } catch (err) {
+      alert(err.response?.data?.message || "Xəta baş verdi");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -1186,15 +1205,18 @@ function NewOpeningModal({ onClose }) {
               {step === 0 && (
                 <div>
                   <div className="mb-3 text-xs font-semibold text-[#1a0f2e]">Heyvan növünü seçin</div>
+                  {loadingSettings ? (
+                    <div className="flex justify-center py-8"><div className="h-7 w-7 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" /></div>
+                  ) : (
                   <div className="grid grid-cols-2 gap-3">
-                    {ANIMAL_OPTS.map(item => (
-                      <button key={item.type} onClick={() => setSelAnimal(item.type)}
-                        className={`rounded-2xl border-2 p-4 text-left transition-all ${selAnimal === item.type ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                    {animals.map(item => (
+                      <button key={item._id} onClick={() => setSelAnimalId(item._id)}
+                        className={`rounded-2xl border-2 p-4 text-left transition-all ${String(selAnimalId) === String(item._id) ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
                         <div className="mb-3 flex items-center gap-3">
-                          <img src={item.image} alt={item.type}
+                          <img src={item.image || ANIMAL_IMG_FALLBACK[item.nameAz] || "/qoyun.png"} alt={item.nameAz}
                             className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
                           <div>
-                            <div className="text-sm font-bold text-[#1a0f2e]">{item.type}</div>
+                            <div className="text-sm font-bold text-[#1a0f2e]">{item.nameAz}</div>
                             <div className="text-[11px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
                           </div>
                         </div>
@@ -1205,12 +1227,13 @@ function NewOpeningModal({ onClose }) {
                           </div>
                           <div className="rounded-xl bg-white/70 p-2">
                             <span className="block text-[#7c6fa0]">Çəki</span>
-                            <b>{item.weight}</b>
+                            <b>{item.weightRange || "—"}</b>
                           </div>
                         </div>
                       </button>
                     ))}
                   </div>
+                  )}
                   <label className="mt-4 flex cursor-pointer items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/30 p-4">
                     <div>
                       <div className="text-sm font-bold text-[#1a0f2e]">Anonim açılış</div>
@@ -1223,16 +1246,16 @@ function NewOpeningModal({ onClose }) {
               )}
 
               {/* Step 1 — Payment */}
-              {step === 1 && (
+              {step === 1 && animal && (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div className="flex items-center gap-3">
-                        <img src={animal.image} alt={animal.type}
+                        <img src={animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || "/qoyun.png"} alt={animal.nameAz}
                           className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
                         <div>
-                          <div className="font-bold text-[#1a0f2e]">{animal.type} Qurbanı</div>
-                          <div className="text-xs text-[#7c6fa0]">{animal.weight} • {animal.price.toLocaleString()} AZN</div>
+                          <div className="font-bold text-[#1a0f2e]">{animal.nameAz} Qurbanı</div>
+                          <div className="text-xs text-[#7c6fa0]">{animal.weightRange} • {animal.price.toLocaleString()} AZN</div>
                         </div>
                       </div>
                       <div className="text-right text-xs text-[#7c6fa0]">
@@ -1260,7 +1283,7 @@ function NewOpeningModal({ onClose }) {
               )}
 
               {/* Step 2 — Confirmation */}
-              {step === 2 && (
+              {step === 2 && animal && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <button onClick={() => setContMode("registered")}
@@ -1268,11 +1291,13 @@ function NewOpeningModal({ onClose }) {
                       <div className="font-bold text-[#1a0f2e]">Qeydiyyat ilə</div>
                       <div className="mt-1 text-xs text-[#7c6fa0]">Hesabınıza daxil olaraq davam edin</div>
                     </button>
+                    {settings.allowGuest !== false && (
                     <button onClick={() => setContMode("guest")}
                       className={`rounded-2xl border-2 p-4 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
                       <div className="font-bold text-[#1a0f2e]">Qeydiyyatsız</div>
-                      <div className="mt-1 text-xs text-[#7c6fa0]">Ad soyad və nömrə ilə davam edin</div>
+                      <div className="mt-1 text-xs text-[#7c6fa0]">Ad soyad ilə davam edin</div>
                     </button>
+                    )}
                   </div>
                   {isAnon && (
                     <div className="rounded-2xl border border-purple-200 bg-purple-50/80 p-4 text-xs leading-relaxed text-purple-900">
@@ -1303,8 +1328,8 @@ function NewOpeningModal({ onClose }) {
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-[#7c6fa0]">Heyvan</span>
                         <span className="flex items-center gap-2 font-semibold">
-                          <img src={animal.image} alt={animal.type} className="h-7 w-7 rounded-full bg-purple-100 object-cover ring-1 ring-purple-200" />
-                          {animal.type}
+                          <img src={animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || "/qoyun.png"} alt={animal.nameAz} className="h-7 w-7 rounded-full bg-purple-100 object-cover ring-1 ring-purple-200" />
+                          {animal.nameAz}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -1347,10 +1372,10 @@ function NewOpeningModal({ onClose }) {
                   Davam et
                 </button>
               ) : (
-                <button onClick={() => { if (finalValid) setDone(true); }} disabled={!finalValid}
+                <button onClick={handleConfirm} disabled={!finalValid || submitting}
                   className="flex-1 rounded-xl py-3 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                   style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
-                  Açılışı təsdiqlə ✓
+                  {submitting ? "Yönləndirilir..." : "Açılışı təsdiqlə ✓"}
                 </button>
               )}
             </div>
@@ -1374,27 +1399,14 @@ export default function CharityPage() {
   const [animalsLoading, setAnimalsLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/app-config/charity-animals/stats")
-      .then(res => {
-        const raw = res.data?.data?.charityAnimals || [];
-        setHomeAnimals(raw.map(a => {
-          const prices = a.priceOptions || [];
-          const minPrice = prices.reduce((mn, p) => Math.min(mn, p.price), Infinity);
-          const img = (a.imageUrl?.startsWith?.("http") ? a.imageUrl : null)
-            || ANIMAL_IMG_FALLBACK[a.nameAz] || "/qoyun.png";
-          return {
-            type: a.nameAz, progressPercent: a.progressPercent || 0,
-            collected: a.collected || "0", target: a.target || "0",
-            currency: "AZN", organizer: "Ehtiyac sahibləri",
-            participants: a.donorCount || 0,
-            shareMin: isFinite(minPrice) ? String(minPrice) : "0",
-            totalMin: "0", totalMax: a.target || "0", startTime: "",
-            img, animalId: a._id, priceOptions: prices,
-          };
-        }));
-      })
-      .catch(() => {})
-      .finally(() => setAnimalsLoading(false));
+    Promise.all([
+      api.get("/campaigns/settings").catch(() => ({ data: {} })),
+      api.get("/campaigns").catch(() => ({ data: {} })),
+    ]).then(([sRes, cRes]) => {
+      const minDon    = sRes.data?.data?.settings?.minDonation || 10;
+      const campaigns = cRes.data?.data?.campaigns || [];
+      setHomeAnimals(campaigns.map(c => mapHomeCampaign(c, minDon)));
+    }).finally(() => setAnimalsLoading(false));
   }, []);
 
   const visibleNav = isGuest
@@ -1405,6 +1417,11 @@ export default function CharityPage() {
     if (p === "ianelerim" && isGuest) return;
     setPage(p);
   };
+
+  const filterOptions = useMemo(() => {
+    const types = [...new Set(homeAnimals.map(a => a.type))];
+    return ["Bütün heyvanlar", ...types];
+  }, [homeAnimals]);
 
   const filtered = filter === "Bütün heyvanlar" ? homeAnimals : homeAnimals.filter(a => a.type === filter);
 
@@ -1586,7 +1603,7 @@ export default function CharityPage() {
                 </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 top-full mt-1.5 bg-white rounded-xl border border-[#eee8f6] shadow-lg z-10 min-w-[160px] overflow-hidden">
-                    {FILTER_OPTIONS.map(opt => (
+                    {filterOptions.map(opt => (
                       <button key={opt} onClick={() => { setFilter(opt); setDropdownOpen(false); }}
                         className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-purple-50 ${filter === opt ? "text-purple-700 font-semibold bg-purple-50" : "text-[#241a4d]"}`}>
                         {opt}
@@ -1610,7 +1627,7 @@ export default function CharityPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                   {filtered.map(animal => (
-                    <AnimalCard key={animal.type} animal={animal} onDonate={setDonationTarget} />
+                    <AnimalCard key={animal.campaignId || animal.type} animal={animal} onDonate={setDonationTarget} />
                   ))}
                 </div>
               )}
