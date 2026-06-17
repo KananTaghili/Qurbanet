@@ -1326,66 +1326,74 @@ function NewOpeningModal({ onClose }) {
                     ))}
                   </div>
 
-                  {/* ── LOGIN form ── */}
-                  {authMode === "login" && (
-                    <div className="flex flex-col gap-3">
-                      <input
-                        type={authMethod === "email" ? "email" : "tel"}
-                        placeholder={authMethod === "email" ? "example@mail.com" : "+994 50 000 00 00"}
-                        value={authInput}
-                        onChange={e => setAuthInput(e.target.value)}
-                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
-                      />
-                      <input
-                        type="password"
-                        placeholder="Şifrə"
-                        value={authPassword}
-                        onChange={e => setAuthPassword(e.target.value)}
-                        onKeyDown={e => e.key === "Enter" && handleAuthLogin()}
-                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
-                      />
-                      {authError && <p className="text-xs text-red-500">{authError}</p>}
-                      <button onClick={handleAuthLogin} disabled={authLoading}
-                        className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
-                        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
-                        {authLoading ? "Giriş edilir..." : "Daxil ol"}
-                      </button>
-                    </div>
-                  )}
+                  {/* ── Form area — fixed min-height so modal doesn't resize on tab switch ── */}
+                  <div className="flex flex-col gap-3" style={{ minHeight: "228px" }}>
 
-                  {/* ── REGISTER form ── */}
-                  {authMode === "register" && !authOtpSent && (
-                    <div className="flex flex-col gap-3">
-                      <input
-                        type="text"
-                        placeholder="Ad Soyad *"
-                        value={authRegName}
-                        onChange={e => setAuthRegName(e.target.value)}
-                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
-                      />
-                      <input
-                        type={authMethod === "email" ? "email" : "tel"}
-                        placeholder={authMethod === "email" ? "example@mail.com *" : "+994 50 000 00 00 *"}
-                        value={authInput}
-                        onChange={e => setAuthInput(e.target.value)}
-                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
-                      />
-                      <input
-                        type="password"
-                        placeholder="Şifrə (min 6 simvol) *"
-                        value={authPassword}
-                        onChange={e => setAuthPassword(e.target.value)}
-                        onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
-                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
-                      />
-                      {authError && <p className="text-xs text-red-500">{authError}</p>}
-                      <button onClick={handleAuthSendOtp} disabled={authLoading}
-                        className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
-                        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
-                        {authLoading ? "Göndərilir..." : "OTP kodu göndər"}
-                      </button>
-                    </div>
-                  )}
+                    {/* LOGIN */}
+                    {authMode === "login" && (
+                      <>
+                        {/* spacer so login aligns same as register (which has name field on top) */}
+                        <div className="rounded-xl border border-transparent bg-transparent px-4 py-3 text-sm invisible select-none" aria-hidden>
+                          placeholder
+                        </div>
+                        <input
+                          type={authMethod === "email" ? "email" : "tel"}
+                          placeholder={authMethod === "email" ? "example@mail.com" : "+994 50 000 00 00"}
+                          value={authInput}
+                          onChange={e => setAuthInput(e.target.value)}
+                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                        />
+                        <input
+                          type="password"
+                          placeholder="Şifrə"
+                          value={authPassword}
+                          onChange={e => setAuthPassword(e.target.value)}
+                          onKeyDown={e => e.key === "Enter" && handleAuthLogin()}
+                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                        />
+                        {authError && <p className="text-xs text-red-500">{authError}</p>}
+                        <button onClick={handleAuthLogin} disabled={authLoading}
+                          className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                          {authLoading ? "Giriş edilir..." : "Daxil ol"}
+                        </button>
+                      </>
+                    )}
+
+                    {/* REGISTER — step 1 */}
+                    {authMode === "register" && !authOtpSent && (
+                      <>
+                        <input
+                          type="text"
+                          placeholder="Ad Soyad"
+                          value={authRegName}
+                          onChange={e => setAuthRegName(e.target.value)}
+                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                        />
+                        <input
+                          type={authMethod === "email" ? "email" : "tel"}
+                          placeholder={authMethod === "email" ? "example@mail.com" : "+994 50 000 00 00"}
+                          value={authInput}
+                          onChange={e => setAuthInput(e.target.value)}
+                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                        />
+                        <input
+                          type="password"
+                          placeholder="Şifrə (min 6 simvol)"
+                          value={authPassword}
+                          onChange={e => setAuthPassword(e.target.value)}
+                          onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
+                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                        />
+                        {authError && <p className="text-xs text-red-500">{authError}</p>}
+                        <button onClick={handleAuthSendOtp} disabled={authLoading}
+                          className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                          {authLoading ? "Göndərilir..." : "OTP kodu göndər"}
+                        </button>
+                      </>
+                    )}
+                  </div>
 
                   {/* ── OTP verify (register step 2) ── */}
                   {authMode === "register" && authOtpSent && (
