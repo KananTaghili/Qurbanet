@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "../../context/AuthContext";
 import {
   Home, List, CheckCircle, HelpCircle, FileText, Heart,
   Plus, Bell, User, ChevronDown, Eye, Video, Users,
@@ -1055,12 +1056,22 @@ function NewOpeningModal({ onClose }) {
 
 /* ─── Main Page ──────────────────────────────────────────────── */
 export default function CharityPage() {
+  const { isGuest } = useAuth();
   const [page, setPage]                     = useState("home");
   const [filter, setFilter]                 = useState("Bütün heyvanlar");
   const [dropdownOpen, setDropdownOpen]     = useState(false);
   const [donationTarget, setDonationTarget] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNewOpening, setShowNewOpening] = useState(false);
+
+  const visibleNav = isGuest
+    ? SIDEBAR_NAV.filter(n => n.page !== "ianelerim")
+    : SIDEBAR_NAV;
+
+  const setPageGuarded = (p) => {
+    if (p === "ianelerim" && isGuest) return;
+    setPage(p);
+  };
 
   const filtered = filter === "Bütün heyvanlar" ? ANIMALS : ANIMALS.filter(a => a.type === filter);
 
@@ -1082,8 +1093,8 @@ export default function CharityPage() {
           </button>
         </div>
         <nav className="flex-1 px-3 space-y-0.5">
-          {SIDEBAR_NAV.map(({ icon: Icon, label, page: p }) => (
-            <button key={p} onClick={() => setPage(p)}
+          {visibleNav.map(({ icon: Icon, label, page: p }) => (
+            <button key={p} onClick={() => setPageGuarded(p)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                 page === p ? "bg-white/15 text-white font-semibold" : "text-purple-100/70 hover:bg-white/5 hover:text-white"
               }`}>
@@ -1143,8 +1154,8 @@ export default function CharityPage() {
         {/* Mobile slide-down menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden shrink-0 border-b border-purple-900/30 py-2 px-3" style={{ backgroundColor: "#301586" }}>
-            {SIDEBAR_NAV.map(({ icon: Icon, label, page: p }) => (
-              <button key={p} onClick={() => { setPage(p); setMobileMenuOpen(false); }}
+            {visibleNav.map(({ icon: Icon, label, page: p }) => (
+              <button key={p} onClick={() => { setPageGuarded(p); setMobileMenuOpen(false); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                   page === p ? "bg-white/15 text-white font-semibold" : "text-purple-100/70"
                 }`}>
@@ -1279,7 +1290,33 @@ export default function CharityPage() {
           </main>
         )}
 
-        {page === "ianelerim"   && <IanelerimPage />}
+        {page === "ianelerim" && (
+          isGuest ? (
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-14 pb-24 lg:pb-14 text-center bg-[#fbfaff]">
+              <div className="grid h-[72px] w-[72px] place-items-center rounded-2xl mb-5"
+                style={{ background: "linear-gradient(135deg,#f0ebff,#e4d9ff)" }}>
+                <List size={32} style={{ color: "#4b14bd" }} />
+              </div>
+              <h2 className="text-[20px] font-black text-[#241a4d] mb-2">Giriş tələb olunur</h2>
+              <p className="text-[14px] text-[#77689c] mb-6 max-w-xs leading-relaxed">
+                İanələrim səhifəsini görmək üçün qeydiyyatdan keçin və ya hesabınıza daxil olun.
+              </p>
+              <div className="flex flex-col gap-3 w-full max-w-[220px]">
+                <Link href="/auth/register"
+                  className="flex h-[44px] items-center justify-center rounded-xl text-[14px] font-bold text-white"
+                  style={{ background: "linear-gradient(135deg,#4b14bd,#7c3aed)" }}>
+                  Qeydiyyatdan keç
+                </Link>
+                <Link href="/auth/login"
+                  className="flex h-[44px] items-center justify-center rounded-xl border border-[#d9cff0] text-[14px] font-bold text-[#4b14bd] bg-white hover:bg-[#f6f1ff] transition">
+                  Daxil ol
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <IanelerimPage />
+          )
+        )}
         {page === "tamamlanmis" && <TamamlanmisPage />}
         {page === "nece"        && <NecePage />}
         {page === "sertler"     && <SertlerPage />}
@@ -1287,8 +1324,8 @@ export default function CharityPage() {
 
       {/* ── Mobile Bottom Nav (< lg) ── */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e7e1f0] bg-white flex">
-        {SIDEBAR_NAV.map(({ icon: Icon, label, page: p }) => (
-          <button key={p} onClick={() => { setPage(p); setMobileMenuOpen(false); }}
+        {visibleNav.map(({ icon: Icon, label, page: p }) => (
+          <button key={p} onClick={() => { setPageGuarded(p); setMobileMenuOpen(false); }}
             className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
               page === p ? "text-[#4b14bd]" : "text-gray-400"
             }`}>
