@@ -1026,9 +1026,6 @@ export default function CharityPage() {
                     <Play size={11} fill="currentColor" /> Necə işləyir?
                   </button>
                 </div>
-                <img src="/charity-hero.png" alt="Qurban heyvanları"
-                  className="w-full h-[140px] object-cover rounded-xl"
-                  style={{ maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)" }} />
               </div>
               {/* Desktop: 2-col */}
               <div className="hidden lg:grid grid-cols-2 gap-6 items-stretch">
