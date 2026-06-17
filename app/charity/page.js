@@ -610,18 +610,179 @@ function SertlerPage() {
   );
 }
 
-function TamamlanmisPage() {
+const COMPLETED_OPENINGS = [
+  {
+    id: 1, type: "Qoyun", amount: "450", collectedAmount: "1,500", totalAmount: "1,500",
+    progressPercent: 100, date: "13 İyun 2024", startDate: "10 May 2024", endDate: "13 İyun 2024",
+    status: "Tamamlandı", organizer: "Rəşad Əhmədov", participants: 24,
+    img: "/qoyun.png",
+  },
+  {
+    id: 2, type: "Dana", amount: "900", collectedAmount: "3,000", totalAmount: "3,000",
+    progressPercent: 100, date: "07 May 2024", startDate: "01 May 2024", endDate: "07 May 2024",
+    status: "Tamamlandı", organizer: "Siz açmısınız", participants: 18,
+    img: "/dana.png",
+  },
+  {
+    id: 3, type: "Qoç", amount: "300", collectedAmount: "1,500", totalAmount: "1,500",
+    progressPercent: 100, date: "22 Aprel 2024", startDate: "10 Aprel 2024", endDate: "22 Aprel 2024",
+    status: "Tamamlandı", organizer: "Tural Məmmədov", participants: 15,
+    img: "/qoc.png",
+  },
+  {
+    id: 4, type: "Dəvə", amount: "1,200", collectedAmount: "4,000", totalAmount: "4,000",
+    progressPercent: 100, date: "18 Mart 2024", startDate: "01 Mart 2024", endDate: "18 Mart 2024",
+    status: "Tamamlandı", organizer: "Kamran Nəsirov", participants: 31,
+    img: "/deve.png",
+  },
+];
+
+const MONTH_INDEX = {
+  Yanvar: 0, Fevral: 1, Mart: 2, Aprel: 3, May: 4, İyun: 5,
+  İyul: 6, Avqust: 7, Sentyabr: 8, Oktyabr: 9, Noyabr: 10, Dekabr: 11,
+};
+
+function parseAzDate(value) {
+  const [day, month, year] = value.split(" ");
+  return new Date(Number(year), MONTH_INDEX[month] ?? 0, Number(day)).getTime();
+}
+
+function CompletedStat({ label, value }) {
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-5 pb-20 lg:pb-5">
-      <h1 className="text-[#241a4d] mb-1 text-xl font-semibold">Tamamlanmış</h1>
-      <p className="text-gray-500 text-sm mb-5">Tamamlanmış açılışlar</p>
-      <div className="flex flex-col items-center justify-center py-14 text-center">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-          style={{ backgroundColor: "rgba(75,20,189,0.08)" }}>
-          <CheckCircle size={26} style={{ color: "#4b14bd" }} />
+    <div className="min-w-[102px] border-r border-[#e7e1f0] pr-5 last:border-r-0 last:pr-0">
+      <div className="mb-1.5 text-[11px] font-semibold text-[#8778a8]">{label}</div>
+      <div className="text-[15px] font-extrabold leading-none text-[#33245f]">{value}</div>
+    </div>
+  );
+}
+
+function TamamlanmisPage() {
+  const [selected, setSelected]     = useState(null);
+  const [shareMessage, setShareMessage] = useState(false);
+
+  const sorted = [...COMPLETED_OPENINGS].sort(
+    (a, b) => parseAzDate(b.date) - parseAzDate(a.date)
+  );
+
+  const handleShare = async (e, item) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}${window.location.pathname}#tamamlanmis-${item.id}`;
+    try { await navigator.clipboard.writeText(url); } catch {
+      const ta = document.createElement("textarea");
+      ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setShareMessage(true);
+    window.setTimeout(() => setShareMessage(false), 2600);
+  };
+
+  if (selected) return <IaneDetailPage item={selected} onBack={() => setSelected(null)} />;
+
+  return (
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-4 py-4 pb-20 lg:pb-4">
+      {shareMessage && (
+        <div className="fixed right-5 top-5 z-50 max-w-sm rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-[0_14px_36px_rgba(28,18,72,0.16)]">
+          Səhifənin bağlantısı kopyalandı. Dostlarınla paylaşa bilərsən.
         </div>
-        <p className="text-[#241a4d] font-semibold mb-1">Tamamlanmış açılış yoxdur</p>
-        <p className="text-gray-400 text-sm">Tamamlanan açılışlar burada görünəcək</p>
+      )}
+
+      {/* Summary card */}
+      <div className="mb-4 flex overflow-hidden rounded-[11px] border border-[#e7e1f0] bg-white shadow-[0_4px_16px_rgba(63,34,116,0.07)]">
+        <div className="flex min-h-[92px] flex-1 items-center gap-5 px-6">
+          <div className="grid h-[62px] w-[62px] shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#6a24d1] to-[#3d0aa8] text-white shadow-[0_8px_18px_rgba(83,25,188,.22)]">
+            <CheckCircle size={30} strokeWidth={2} />
+          </div>
+          <div>
+            <div className="mb-1 text-[12px] font-extrabold text-[#33245f]">Ümumi tamamlanmış açılış sayı</div>
+            <div className="text-[24px] font-black leading-none tracking-[-.03em] text-[#24124f]">{COMPLETED_OPENINGS.length}</div>
+            <div className="mt-1 text-[11px] font-bold text-[#77689c]">Tamamlanmış açılışlar</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <h1 className="text-[20px] font-black tracking-[-.02em] text-[#33245f]">Tamamlanmış Açılışlar</h1>
+        <p className="mt-1 text-[12px] font-semibold text-[#8778a8]">Açılışlar tamamlanma vaxtına görə sıralanıb</p>
+      </div>
+
+      <div className="space-y-3.5">
+        {sorted.map((item) => {
+          const paidPct = Math.round(
+            (Number(item.amount.replace(/,/g, "")) / Number(item.totalAmount.replace(/,/g, ""))) * 100
+          );
+          return (
+            <div
+              key={item.id}
+              onClick={() => setSelected(item)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
+              role="button"
+              tabIndex={0}
+              className="group w-full cursor-pointer overflow-hidden rounded-[16px] border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]"
+            >
+              <div className="grid min-h-[150px] grid-cols-1 lg:grid-cols-[132px_168px_1fr_250px]">
+                {/* Date column */}
+                <div className="flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e7e1f0] bg-[#fbf9ff] px-5 py-4 lg:py-0">
+                  <div className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#8778a8]">
+                    <CalendarDays size={14} className="text-[#5b22c7]" />Tamamlanma tarixi
+                  </div>
+                  <div className="text-[16px] font-black leading-tight text-[#33245f]">{item.date}</div>
+                </div>
+
+                {/* Animal image */}
+                <div className="relative p-4 pr-3 hidden lg:block">
+                  <img
+                    src={item.img}
+                    alt={`${item.type} qurban heyvanı`}
+                    className="h-[122px] w-full rounded-[9px] bg-white object-contain"
+                  />
+                </div>
+
+                {/* Info */}
+                <div className="px-4 py-4">
+                  <div className="mb-3 flex items-center gap-3">
+                    <img src={item.img} alt={item.type} className="lg:hidden h-[56px] w-[56px] rounded-[8px] object-contain bg-[#f8f5ff]" />
+                    <h3 className="text-[20px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
+                  </div>
+                  <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-bold text-[#77689c]">
+                    <User size={15} className="text-[#7760bb]" />
+                    <span>{item.organizer}</span>
+                    <span className="rounded-full bg-[#f1ecff] px-2 py-0.5 text-[#5622c6]">
+                      {paidPct}% · {item.amount} AZN ödədi
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-end gap-5">
+                    <CompletedStat label="Açılış tarixi"  value={item.date} />
+                    <CompletedStat label="Ümumi məbləğ"   value={`${item.totalAmount} AZN`} />
+                    <CompletedStat label="İştirakçı sayı" value={`${item.participants} nəfər`} />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-center border-t lg:border-t-0 lg:border-l border-[#e7e1f0] px-5 py-5 lg:px-6 lg:py-4">
+                  <div className="w-full max-w-[176px] space-y-2">
+                    <div className="mx-auto max-w-[156px] rounded-[8px] bg-emerald-50 px-3 py-2 text-center">
+                      <CheckCircle size={22} className="mx-auto mb-1.5 text-emerald-600" />
+                      <div className="text-[11px] font-black text-emerald-700">Açılış tamamlanıb</div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelected(item); }}
+                      className="flex h-[32px] w-full items-center justify-center gap-2 rounded-[5px] bg-[#4b14bd] text-[12px] font-extrabold text-white shadow-[0_5px_10px_rgba(75,20,189,.22)]"
+                    >
+                      <Users size={15} />İştirakçılara bax
+                    </button>
+                    <button
+                      onClick={(e) => handleShare(e, item)}
+                      className="flex h-[32px] w-full items-center justify-center gap-2 rounded-[5px] border border-[#d9cff0] bg-white text-[12px] font-extrabold text-[#4b14bd] transition hover:bg-[#f6f1ff]"
+                    >
+                      <Share2 size={14} />Dostlarınla paylaş
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
