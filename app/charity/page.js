@@ -1156,18 +1156,6 @@ function NewOpeningModal({ onClose }) {
     <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative mx-auto flex max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
-        {done ? (
-          <div className="flex flex-col items-center justify-center px-8 py-14 text-center">
-            <div className="mb-4 text-6xl">🌟</div>
-            <h2 className="mb-2 text-[1.25rem] font-extrabold text-[#1a0f2e]">Açılışınız yaradıldı!</h2>
-            <p className="mb-6 text-sm leading-relaxed text-[#7c6fa0]">
-              <strong>{animal.type} Qurbanı</strong> açılışı {numAmount.toLocaleString()} AZN ilkin ödənişlə qeydə alındı.
-              Qalan {remaining.toLocaleString()} AZN tam məbləğ yığılana qədər ianələrlə toplanacaq.
-            </p>
-            <button onClick={onClose} className="rounded-xl px-8 py-3 text-sm font-semibold text-white hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>Bağla</button>
-          </div>
-        ) : (
           <>
             {/* Header */}
             <div className="flex items-center justify-between border-b border-purple-100 px-6 py-4 shrink-0"
@@ -1380,7 +1368,6 @@ function NewOpeningModal({ onClose }) {
               )}
             </div>
           </>
-        )}
       </div>
     </div>
   );
