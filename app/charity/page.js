@@ -453,16 +453,16 @@ function IanelerimPage() {
             <div key={item.id} onClick={() => setSelected(item)}
               className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
               {/* Mobile layout */}
-              <div className="flex lg:hidden gap-3 p-3">
+              <div className="flex lg:hidden gap-3 p-2.5">
                 <img src={item.img} alt={item.type}
-                  className="h-[90px] w-[90px] rounded-xl bg-purple-50 object-contain shrink-0" />
+                  className="w-[80px] self-stretch rounded-xl bg-purple-50 object-contain shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <h3 className="text-[16px] font-bold text-[#33245f]">{item.type}</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-[15px] font-bold text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${cfg.badge}`}>{cfg.label}</span>
                   </div>
-                  <div className="text-[11px] text-[#77689c] mb-2">{item.organizer}</div>
-                  <div className="grid grid-cols-3 gap-2 mb-2">
+                  <div className="text-[11px] text-[#77689c] mb-1">{item.organizer}</div>
+                  <div className="grid grid-cols-3 gap-1.5 mb-1.5">
                     <div>
                       <div className="text-[10px] text-[#8778a8]">İanəniz</div>
                       <div className="text-[12px] font-bold text-[#33245f]">{item.amount}</div>
@@ -477,8 +477,8 @@ function IanelerimPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CircularProgress percent={item.progressPercent} status={item.status} />
-                    <div className="flex flex-col gap-1.5 flex-1">
+                    <div className="scale-[0.78] origin-left shrink-0"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
+                    <div className="flex flex-col gap-1 flex-1">
                       <button onClick={(e) => e.stopPropagation()}
                         className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#4b14bd] text-[11px] font-medium text-white">
                         <Users size={12} /> İştirakçılara bax
