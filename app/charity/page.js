@@ -1092,6 +1092,9 @@ function TamamlanmisPage() {
 const NOM_STEPS = ["Heyvan növü", "Ödəniş", "Təsdiq"];
 
 function NewOpeningModal({ onClose }) {
+  const { isGuest, login } = useAuth();
+
+  // campaign flow
   const [step,        setStep]        = useState(0);
   const [selAnimalId, setSelAnimalId] = useState(null);
   const [isAnon,      setIsAnon]      = useState(false);
@@ -1103,6 +1106,18 @@ function NewOpeningModal({ onClose }) {
   const [submitting,  setSubmitting]  = useState(false);
   const [settingsData, setSettingsData] = useState(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
+
+  // mini auth flow
+  const [authPhase,     setAuthPhase]    = useState(false); // true = show auth UI
+  const [authMode,      setAuthMode]     = useState("login");  // "login"|"register"
+  const [authMethod,    setAuthMethod]   = useState("email");  // "email"|"phone"
+  const [authInput,     setAuthInput]    = useState("");
+  const [authOtp,       setAuthOtp]      = useState("");
+  const [authOtpSent,   setAuthOtpSent]  = useState(false);
+  const [authNeedsName, setAuthNeedsName]= useState(false);
+  const [authFullName,  setAuthFullName] = useState("");
+  const [authLoading,   setAuthLoading]  = useState(false);
+  const [authError,     setAuthError]    = useState("");
 
   useEffect(() => {
     api.get("/campaigns/settings")
@@ -1134,6 +1149,11 @@ function NewOpeningModal({ onClose }) {
 
   const handleConfirm = async () => {
     if (!finalValid || !animal) return;
+    // If registered mode but user is still guest → show mini auth
+    if (contMode === "registered" && isGuest) {
+      setAuthPhase(true);
+      return;
+    }
     setSubmitting(true);
     try {
       const body = {
@@ -1150,6 +1170,88 @@ function NewOpeningModal({ onClose }) {
     } catch (err) {
       alert(err.response?.data?.message || "Xəta baş verdi");
       setSubmitting(false);
+    }
+  };
+
+  const handleAuthSendOtp = async () => {
+    setAuthError("");
+    const val = authInput.trim();
+    if (!val) return setAuthError("Məlumat daxil edin");
+    setAuthLoading(true);
+    try {
+      const isEmail = val.includes("@");
+      const body = isEmail
+        ? { email: val, isRegister: authMode === "register" }
+        : { phone: val, channel: "sms", isRegister: authMode === "register" };
+      await api.post("/auth/send-otp", body);
+      setAuthOtpSent(true);
+    } catch (err) {
+      setAuthError(err.response?.data?.message || "OTP göndərilmədi");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAuthVerifyOtp = async () => {
+    setAuthError("");
+    const val = authInput.trim();
+    if (!authOtp.trim()) return setAuthError("OTP kodu daxil edin");
+    setAuthLoading(true);
+    try {
+      const isEmail = val.includes("@");
+      const body = isEmail ? { email: val, code: authOtp } : { phone: val, code: authOtp };
+      const res = await api.post("/auth/verify-otp", body);
+      const { token, user: u, needsName } = res.data.data;
+      if (needsName) {
+        setAuthNeedsName(true);
+        // store temp token+user to use after name entry
+        setAuthLoading(false);
+        // keep them in state for next step via login after name
+        window.__tmpAuthToken = token;
+        window.__tmpAuthUser  = u;
+        return;
+      }
+      login(token, u);
+      setAuthPhase(false);
+      // now confirm as registered user
+      setSubmitting(true);
+      const body2 = { animalId: animal._id, amount: numAmount, isAnonymous: isAnon, note: note || undefined };
+      const r1 = await api.post("/campaigns", body2);
+      const { campaignId, donationId } = r1.data.data;
+      const r2 = await api.post(`/campaigns/${campaignId}/epoint/start`, { donationId });
+      window.location.href = r2.data.data.redirect_url;
+    } catch (err) {
+      setAuthError(err.response?.data?.message || "Kod yanlışdır");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAuthSetName = async () => {
+    setAuthError("");
+    if (!authFullName.trim()) return setAuthError("Ad daxil edin");
+    setAuthLoading(true);
+    try {
+      // temporarily set auth header for the profile update
+      const tempToken = window.__tmpAuthToken;
+      const res = await api.put("/auth/profile", { name: authFullName.trim() }, {
+        headers: { Authorization: `Bearer ${tempToken}` },
+      });
+      const { token, user: u } = res.data.data;
+      login(token || tempToken, u || { ...window.__tmpAuthUser, name: authFullName.trim() });
+      delete window.__tmpAuthToken;
+      delete window.__tmpAuthUser;
+      setAuthPhase(false);
+      setSubmitting(true);
+      const body = { animalId: animal._id, amount: numAmount, isAnonymous: isAnon, note: note || undefined };
+      const r1 = await api.post("/campaigns", body);
+      const { campaignId, donationId } = r1.data.data;
+      const r2 = await api.post(`/campaigns/${campaignId}/epoint/start`, { donationId });
+      window.location.href = r2.data.data.redirect_url;
+    } catch (err) {
+      setAuthError(err.response?.data?.message || "Xəta baş verdi");
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -1190,8 +1292,103 @@ function NewOpeningModal({ onClose }) {
             <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"
               style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
 
+              {/* ── Mini Auth Phase ── */}
+              {authPhase && (
+                <div className="flex flex-col gap-4">
+                  <button onClick={() => { setAuthPhase(false); setAuthOtpSent(false); setAuthOtp(""); setAuthError(""); }}
+                    className="flex items-center gap-1.5 text-xs text-[#7c6fa0] hover:text-[#1a0f2e] transition-colors self-start">
+                    <ChevronDown size={14} className="rotate-90" /> Geri qayıt
+                  </button>
+
+                  {!authNeedsName ? (
+                    <>
+                      {/* Login / Register tabs */}
+                      <div className="flex rounded-2xl bg-[#f5f3ff] p-1 gap-1">
+                        {["login","register"].map(m => (
+                          <button key={m} onClick={() => { setAuthMode(m); setAuthOtpSent(false); setAuthOtp(""); setAuthError(""); }}
+                            className={`flex-1 rounded-xl py-2 text-xs font-bold transition-all ${authMode === m ? "bg-white shadow text-purple-700" : "text-[#7c6fa0]"}`}>
+                            {m === "login" ? "Daxil ol" : "Qeydiyyat"}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Method selector: email / phone */}
+                      <div className="flex gap-2">
+                        {["email","phone"].map(mt => (
+                          <button key={mt} onClick={() => { setAuthMethod(mt); setAuthInput(""); setAuthOtpSent(false); setAuthOtp(""); setAuthError(""); }}
+                            className={`flex-1 rounded-xl border py-2 text-xs font-semibold transition-all ${authMethod === mt ? "border-purple-400 bg-purple-50 text-purple-700" : "border-slate-200 text-slate-500"}`}>
+                            {mt === "email" ? "📧 Email" : "📱 Telefon"}
+                          </button>
+                        ))}
+                      </div>
+
+                      {!authOtpSent ? (
+                        <div className="flex flex-col gap-3">
+                          <input
+                            type={authMethod === "email" ? "email" : "tel"}
+                            placeholder={authMethod === "email" ? "example@mail.com" : "+994 50 000 00 00"}
+                            value={authInput}
+                            onChange={e => setAuthInput(e.target.value)}
+                            onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
+                            className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                          />
+                          {authError && <p className="text-xs text-red-500">{authError}</p>}
+                          <button onClick={handleAuthSendOtp} disabled={authLoading}
+                            className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                            style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                            {authLoading ? "Göndərilir..." : "OTP kodu göndər"}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3">
+                          <p className="text-xs text-[#7c6fa0]">
+                            Kod <b>{authInput}</b> ünvanına göndərildi.{" "}
+                            <button onClick={() => { setAuthOtpSent(false); setAuthOtp(""); setAuthError(""); }}
+                              className="text-purple-600 underline">Dəyiş</button>
+                          </p>
+                          <input
+                            type="text" inputMode="numeric" maxLength={6}
+                            placeholder="6 rəqəmli kod"
+                            value={authOtp}
+                            onChange={e => setAuthOtp(e.target.value.replace(/\D/g, ""))}
+                            onKeyDown={e => e.key === "Enter" && handleAuthVerifyOtp()}
+                            className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-center font-bold tracking-[0.4em] text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                          />
+                          {authError && <p className="text-xs text-red-500">{authError}</p>}
+                          <button onClick={handleAuthVerifyOtp} disabled={authLoading || authOtp.length < 4}
+                            className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                            style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
+                            {authLoading ? "Yoxlanılır..." : "Təsdiqlə"}
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    /* Need name after OTP verified */
+                    <div className="flex flex-col gap-3">
+                      <p className="text-sm text-[#1a0f2e] font-semibold">Ad və soyadınızı daxil edin</p>
+                      <input
+                        type="text"
+                        placeholder="Ad Soyad"
+                        value={authFullName}
+                        onChange={e => setAuthFullName(e.target.value)}
+                        onKeyDown={e => e.key === "Enter" && handleAuthSetName()}
+                        autoFocus
+                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-4 py-3 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                      />
+                      {authError && <p className="text-xs text-red-500">{authError}</p>}
+                      <button onClick={handleAuthSetName} disabled={authLoading}
+                        className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                        style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
+                        {authLoading ? "Saxlanılır..." : "Davam et →"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Step 0 — Animal selection */}
-              {step === 0 && (
+              {!authPhase && step === 0 && (
                 <div>
                   <div className="mb-3 text-xs font-semibold text-[#1a0f2e]">Heyvan növünü seçin</div>
                   {loadingSettings ? (
@@ -1235,7 +1432,7 @@ function NewOpeningModal({ onClose }) {
               )}
 
               {/* Step 1 — Payment */}
-              {step === 1 && animal && (
+              {!authPhase && step === 1 && animal && (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -1272,7 +1469,7 @@ function NewOpeningModal({ onClose }) {
               )}
 
               {/* Step 2 — Confirmation */}
-              {step === 2 && animal && (
+              {!authPhase && step === 2 && animal && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <button onClick={() => setContMode("registered")}
@@ -1347,7 +1544,7 @@ function NewOpeningModal({ onClose }) {
             </div>
 
             {/* Footer buttons */}
-            <div className="flex gap-3 px-6 pb-6 pt-3 shrink-0 border-t border-purple-100">
+            {!authPhase && <div className="flex gap-3 px-6 pb-6 pt-3 shrink-0 border-t border-purple-100">
               {step > 0 && (
                 <button onClick={() => setStep(s => s - 1)}
                   className="flex-1 rounded-xl border border-purple-200 py-3 text-sm font-semibold text-[#1a0f2e] hover:bg-purple-50 transition-colors">
@@ -1367,7 +1564,7 @@ function NewOpeningModal({ onClose }) {
                   {submitting ? "Yönləndirilir..." : "Açılışı təsdiqlə ✓"}
                 </button>
               )}
-            </div>
+            </div>}
           </>
       </div>
     </div>
