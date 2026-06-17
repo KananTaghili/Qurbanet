@@ -407,9 +407,9 @@ function IanelerimPage() {
   if (selected) return <IaneDetailPage item={selected} onBack={() => setSelected(null)} />;
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-3 md:py-4 pb-20 lg:pb-4 flex flex-col">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-3 md:py-4 pb-20 lg:pb-4">
       {/* Top stats */}
-      <div className="mb-4 flex flex-col sm:flex-row overflow-hidden rounded-xl border border-[#e7e1f0] bg-white shadow-sm order-last sm:order-none mt-4 sm:mt-0">
+      <div className="mb-4 flex flex-col sm:flex-row overflow-hidden rounded-xl border border-[#e7e1f0] bg-white shadow-sm">
         <TopStat icon={Wallet} title="Bütün ianələrimin toplamı" value="4,550 AZN" />
         <TopStat icon={Flag}   title="Ümumi açılış sayı"         value="2"         />
         <TopStat icon={Users}  title="Ümumi iştirak edilən sayı" value="2"         />
