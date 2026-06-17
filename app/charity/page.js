@@ -189,8 +189,8 @@ function AnimalCard({ animal, onDonate }) {
       <div className="mt-4">
         <div className="mb-1.5 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Açan şəxs</div>
         <div className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-full bg-purple-100 text-xs font-semibold text-purple-700 shrink-0">
-            {animal.organizer[0]}
+          <div className="grid h-7 w-7 place-items-center rounded-full bg-purple-100 text-[10px] font-semibold text-purple-700 shrink-0">
+            {animal.organizer.split(" ").slice(0, 2).map(w => w[0]).join("")}
           </div>
           <div className="truncate text-[12px] font-medium" style={{ color: "#342760" }}>{animal.organizer}</div>
           <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "#5521c6" }} />
