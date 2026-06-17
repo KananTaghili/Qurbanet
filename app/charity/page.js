@@ -395,6 +395,7 @@ function IanelerimPage() {
   const [activeTab, setActiveTab]         = useState("Hamısı");
   const [statusFilter, setStatusFilter]   = useState("Hamısı");
   const [statusOpen, setStatusOpen]       = useState(false);
+  const [videoTarget, setVideoTarget]     = useState(null);
 
   const filtered = DONATIONS.filter((item) => {
     const tabMatch =
@@ -480,7 +481,7 @@ function IanelerimPage() {
                   <div className="flex items-center gap-2">
                     <div className="scale-[0.78] origin-left shrink-0"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
                     <div className="flex flex-col gap-1 flex-1">
-                      <button onClick={(e) => e.stopPropagation()}
+                      <button onClick={(e) => { e.stopPropagation(); if (item.status === "Tamamlandı") setVideoTarget(item); }}
                         className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#4b14bd] text-[11px] font-medium text-white">
                         {item.status === "Tamamlandı"
                           ? <><Video size={12} /> Kəsim Videosu</>
@@ -530,7 +531,7 @@ function IanelerimPage() {
                 <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5">
                   <div className="w-full max-w-[190px] space-y-2">
                     <div className="flex justify-center"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
-                    <button onClick={(e) => e.stopPropagation()}
+                    <button onClick={(e) => { e.stopPropagation(); if (item.status === "Tamamlandı") setVideoTarget(item); }}
                       className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg bg-[#4b14bd] text-[12px] font-medium text-white hover:bg-[#3d0aa8] transition">
                       {item.status === "Tamamlandı"
                         ? <><Video size={14} /> Kəsim Videosu</>
@@ -554,6 +555,81 @@ function IanelerimPage() {
           </div>
         )}
       </div>
+
+      {/* ── Kəsim Video Modal ── */}
+      {videoTarget && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center px-4 backdrop-blur-sm"
+          style={{ backgroundColor: "rgba(10,4,30,0.72)" }}
+          onClick={() => setVideoTarget(null)}
+        >
+          <div
+            className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-[0_32px_80px_rgba(10,4,30,0.4)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between border-b border-[#e7e1f0] px-5 py-4"
+              style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#4b14bd] text-white shadow-[0_4px_10px_rgba(75,20,189,.3)]">
+                  <Video size={16} strokeWidth={2} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[15px] font-black text-[#33245f] leading-none truncate">
+                    {videoTarget.type} — Kəsim Videosu
+                  </div>
+                  <div className="mt-1 text-[11px] font-semibold text-[#8778a8]">
+                    {videoTarget.endDate} tarixində tamamlanmış qurbanlıq
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setVideoTarget(null)}
+                className="ml-3 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/80 text-[#4b14bd] transition hover:bg-white shadow-sm"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Video player */}
+            <div className="relative bg-black aspect-video">
+              <video
+                controls
+                autoPlay
+                className="h-full w-full"
+                poster={videoTarget.img}
+                style={{ display: "block" }}
+              >
+                <source
+                  src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                  type="video/mp4"
+                />
+              </video>
+            </div>
+
+            {/* Modal footer */}
+            <div className="flex items-center justify-between gap-4 border-t border-[#e7e1f0] bg-[#fbfaff] px-5 py-3">
+              <div className="flex items-center gap-2.5 text-[12px] font-semibold text-[#6e5b9b]">
+                <img
+                  src={videoTarget.img}
+                  alt={videoTarget.type}
+                  className="h-8 w-8 rounded-lg object-contain bg-purple-50"
+                />
+                <span>{videoTarget.organizer}</span>
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                  Tamamlandı
+                </span>
+              </div>
+              <button
+                onClick={() => setVideoTarget(null)}
+                className="flex h-8 items-center gap-2 rounded-lg border border-[#d9cff0] bg-white px-4 text-[12px] font-bold text-[#4b14bd] hover:bg-[#f6f1ff] transition"
+              >
+                Bağla
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
