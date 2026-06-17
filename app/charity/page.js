@@ -481,7 +481,9 @@ function IanelerimPage() {
                     <div className="flex flex-col gap-1 flex-1">
                       <button onClick={(e) => e.stopPropagation()}
                         className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#4b14bd] text-[11px] font-medium text-white">
-                        <Users size={12} /> İştirakçılara bax
+                        {item.status === "Tamamlandı"
+                          ? <><Video size={12} /> Kəsim Videosu</>
+                          : <><Users size={12} /> İştirakçılara bax</>}
                       </button>
                       {item.status !== "Ləğv olundu" && (
                         <button onClick={(e) => e.stopPropagation()}
@@ -529,7 +531,9 @@ function IanelerimPage() {
                     <div className="flex justify-center"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
                     <button onClick={(e) => e.stopPropagation()}
                       className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg bg-[#4b14bd] text-[12px] font-medium text-white hover:bg-[#3d0aa8] transition">
-                      <Users size={14} /> İştirakçılara bax
+                      {item.status === "Tamamlandı"
+                        ? <><Video size={14} /> Kəsim Videosu</>
+                        : <><Users size={14} /> İştirakçılara bax</>}
                     </button>
                     {item.status !== "Ləğv olundu" && (
                       <button onClick={(e) => e.stopPropagation()}
