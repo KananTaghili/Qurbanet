@@ -267,17 +267,17 @@ function AnimalCard({ animal, onDonate }) {
       <button onClick={handleShare}
         className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-medium transition-all hover:bg-white"
         style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}>
-        <Share2 size={13} strokeWidth={2} /> İanəyə Dəvət Et
+        <Share2 size={13} strokeWidth={2} /> Dostlarını dəvət et
       </button>
       <button onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
-        className="mt-2 w-full rounded-xl py-2 text-xs font-medium text-white opacity-0 transition-all group-hover:opacity-100"
+        className="mt-2 w-full rounded-xl py-2 text-xs font-medium text-white"
         style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
         İanə et →
       </button>
       {copied && (
         <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#241a4d] px-5 py-3 text-center text-sm font-medium text-white"
           style={{ boxShadow: "0 18px 44px rgba(36,26,77,.28)" }}>
-          Səhifənin bağlantısı kopyalandı.
+          Keçid kopyalandı
         </div>
       )}
     </div>
