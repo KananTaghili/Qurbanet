@@ -1,4 +1,4 @@
-﻿// Mobile-app aligned status badge with dot indicator
+// Mobile-app aligned status badge with dot indicator
 const STATUS_MAP = {
   placed:          { label: 'Gözləmədə',       bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B' },
   pending_payment: { label: 'Ödəniş gözlənilir', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B' },

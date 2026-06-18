@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { BASE_URL } from '../lib/api';
