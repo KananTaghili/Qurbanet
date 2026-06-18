@@ -264,16 +264,18 @@ function AnimalCard({ animal, onDonate, onClick }) {
           <div className="text-[17px] font-bold text-[#241a4d]">{animal.totalMax} <span className="text-[11px] font-normal">AZN</span></div>
         </div>
       </div>
-      <button onClick={(e) => { e.stopPropagation(); handleShare(e); }}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-medium transition-all hover:bg-white"
-        style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}>
-        <Share2 size={13} strokeWidth={2} /> Dostlarını dəvət et
-      </button>
-      <button onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
-        className="mt-2 w-full rounded-xl py-2 text-xs font-medium text-white"
-        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
-        İanə et →
-      </button>
+      <div className="mt-auto pt-3 flex flex-col gap-2">
+        <button onClick={(e) => { e.stopPropagation(); handleShare(e); }}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-semibold transition-all hover:bg-white"
+          style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}>
+          <Share2 size={13} strokeWidth={2} /> Dostlarını dəvət et
+        </button>
+        <button onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
+          className="w-full rounded-xl py-2.5 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+          İanə et →
+        </button>
+      </div>
       {copied && (
         <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#241a4d] px-5 py-3 text-center text-sm font-medium text-white"
           style={{ boxShadow: "0 18px 44px rgba(36,26,77,.28)" }}>
@@ -361,19 +363,18 @@ function NewOpeningPlaceholderCard({ onOpen }) {
         </div>
       </div>
 
-      {/* spacer + share button skeleton */}
-      <div className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-purple-100 bg-[#f7f3ff] py-2.5 text-xs font-black text-purple-300">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        Dostlarını dəvət et
+      {/* share + CTA — pinned to bottom, same layout as real card */}
+      <div className="mt-auto pt-3 flex flex-col gap-2">
+        <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-purple-100 bg-[#f7f3ff] py-2.5 text-xs font-semibold text-purple-300">
+          <Share2 size={13} strokeWidth={2} /> Dostlarını dəvət et
+        </div>
+        <button
+          onClick={e => { e.stopPropagation(); onOpen(); }}
+          className="w-full rounded-xl py-2.5 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2"
+          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+          <Plus size={15} strokeWidth={2.6} /> Açılış et
+        </button>
       </div>
-
-      {/* CTA button — same position as real card's "İanə et →" */}
-      <button
-        onClick={e => { e.stopPropagation(); onOpen(); }}
-        className="mt-2 w-full rounded-xl py-2.5 text-sm font-black text-white transition-all hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2"
-        style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)" }}>
-        <Plus size={15} strokeWidth={2.6} /> Açılış et
-      </button>
     </div>
   );
 }
