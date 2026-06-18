@@ -1760,10 +1760,6 @@ function NewOpeningModal({ onClose }) {
 }
 
 /* ─── Campaign Detail View ───────────────────────────────────── */
-function fmtDate(d) {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("az-AZ", { day: "2-digit", month: "long", year: "numeric" });
-}
 function fmtTime(d) {
   if (!d) return "";
   return new Date(d).toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" });
@@ -1804,7 +1800,7 @@ function CampaignDetailView({ campaignId, onBack }) {
     if (!campaignId) return;
     setLoading(true);
     api.get(`/campaigns/${campaignId}`)
-      .then(r => setCampaign(r.data?.data?.campaign || null))
+      .then(r => setCampaign(r.data?.data || null))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [campaignId]);
