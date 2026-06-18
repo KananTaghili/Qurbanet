@@ -317,7 +317,7 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
         <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
           {animalImg
             ? <img src={animalImg} alt={animal.nameAz}
-                className="h-full w-full object-cover mix-blend-multiply"
+                className="h-full w-full object-cover mix-blend-multiply opacity-40"
                 onError={e => { e.currentTarget.style.display = "none"; e.currentTarget.nextSibling?.style && (e.currentTarget.nextSibling.style.display = "flex"); }} />
             : null}
           <Plus size={48} className="text-purple-200" strokeWidth={1.5} style={{ display: animalImg ? "none" : "block" }} />
