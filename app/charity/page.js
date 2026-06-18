@@ -2394,11 +2394,19 @@ export default function CharityPage() {
   const [allAnimals, setAllAnimals]               = useState([]);
   const [animalsLoading, setAnimalsLoading] = useState(true);
   const [pageSettings, setPageSettings]     = useState({ minDon: 10, minOpenPct: 30 });
+  const [paymentToast, setPaymentToast]     = useState(null); // { type: "fail", message }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cId = params.get("campaign");
     if (cId) setSelectedCampaignId(cId);
+
+    if (params.get("payment") === "fail") {
+      const msg = params.get("message") || "Ödəniş uğursuz oldu. Yenidən cəhd edin.";
+      setPaymentToast({ type: "fail", message: msg });
+      window.history.replaceState({}, "", "/charity");
+      setTimeout(() => setPaymentToast(null), 6000);
+    }
 
     const onPop = () => {
       const p = new URLSearchParams(window.location.search);
@@ -2459,6 +2467,23 @@ export default function CharityPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f7f5ff]">
+
+      {/* Payment fail toast */}
+      {paymentToast?.type === "fail" && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex items-start gap-3 rounded-2xl bg-white border border-red-200 shadow-2xl px-5 py-4 max-w-sm w-[calc(100vw-2rem)]"
+          style={{ boxShadow: "0 8px 32px rgba(220,38,38,.18)" }}>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 text-lg">✕</div>
+          <div className="min-w-0">
+            <div className="text-sm font-black text-red-700 mb-0.5">Ödəniş uğursuz oldu</div>
+            <div className="text-xs text-red-500 leading-relaxed">{paymentToast.message}</div>
+          </div>
+          <button onClick={() => setPaymentToast(null)}
+            className="shrink-0 text-red-300 hover:text-red-500 transition-colors ml-1">
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
 
       {/* ── Desktop Sidebar (lg+) ── */}
       <aside className="hidden lg:flex w-56 min-h-screen flex-col shrink-0" style={{ backgroundColor: "#301586" }}>

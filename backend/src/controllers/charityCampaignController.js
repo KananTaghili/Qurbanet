@@ -457,14 +457,14 @@ exports.startCampaignPayment = async (req, res) => {
 
 exports.handleCampaignSuccess = async (campaignId, donationId) => {
   const campaign = await CharityCampaign.findById(campaignId);
-  if (!campaign) return { ok: false, redirectUrl: `${FRONTEND_URL()}/charity-campaigns?payment=fail&message=Kampaniya+tapılmadı` };
+  if (!campaign) return { ok: false, redirectUrl: `${FRONTEND_URL()}/charity?payment=fail&message=${encodeURIComponent("Kampaniya tapılmadı")}` };
 
   const donation = campaign.donations.id(donationId);
-  if (!donation) return { ok: false, redirectUrl: `${FRONTEND_URL()}/charity-campaigns?payment=fail&message=İanə+tapılmadı` };
+  if (!donation) return { ok: false, redirectUrl: `${FRONTEND_URL()}/charity?payment=fail&message=${encodeURIComponent("İanə tapılmadı")}` };
 
   if (donation.paymentStatus === "paid") {
     const role = donation.isOpener ? "opener" : "donor";
-    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity-campaigns/confirmation?campaignId=${campaign._id}&role=${role}` };
+    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success` };
   }
 
   // get-status ilə yoxla
@@ -480,24 +480,23 @@ exports.handleCampaignSuccess = async (campaignId, donationId) => {
     await campaign.save();
 
     const role = donation.isOpener ? "opener" : "donor";
-    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity-campaigns/confirmation?campaignId=${campaign._id}&role=${role}` };
+    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success` };
   }
 
   const msg = getAzPaymentErrorMessage(ep?.code, ep?.message) || "Ödəniş təsdiqlənmədi";
   donation.paymentStatus = "failed";
   await campaign.save();
 
-  const page = "xeyriyye";
   return {
     ok:          false,
-    redirectUrl: `${FRONTEND_URL()}/${page}?payment=fail&message=${encodeURIComponent(msg)}`,
+    redirectUrl: `${FRONTEND_URL()}/charity?payment=fail&message=${encodeURIComponent(msg)}`,
   };
 };
 
 exports.handleCampaignError = async (campaignId, donationId) => {
   try {
     const campaign = await CharityCampaign.findById(campaignId);
-    if (!campaign) return `${FRONTEND_URL()}/charity-campaigns?payment=fail&message=${encodeURIComponent("Kampaniya tapılmadı")}`;
+    if (!campaign) return `${FRONTEND_URL()}/charity?payment=fail&message=${encodeURIComponent("Kampaniya tapılmadı")}`;
 
     const donation = campaign.donations.id(donationId);
 
@@ -512,13 +511,13 @@ exports.handleCampaignError = async (campaignId, donationId) => {
         checkCompletion(campaign);
         await campaign.save();
         const role = donation.isOpener ? "opener" : "donor";
-        return `${FRONTEND_URL()}/charity-campaigns/confirmation?campaignId=${campaign._id}&role=${role}`;
+        return `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success`;
       }
       donation.paymentStatus = "failed";
       await campaign.save();
     }
   } catch (_) {}
-  return `${FRONTEND_URL()}/charity-campaigns?payment=fail&message=${encodeURIComponent("Ödəniş uğursuz oldu")}`;
+  return `${FRONTEND_URL()}/charity?payment=fail&message=${encodeURIComponent("Ödəniş uğursuz oldu")}`;
 };
 
 // ─── Admin endpointləri ───────────────────────────────────────────────────────

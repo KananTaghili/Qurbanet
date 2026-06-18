@@ -198,7 +198,7 @@ const handleSuccessCallback = async (req, res) => {
     } catch (err) {
       console.error("[EPoint] campaign callback xətası:", err.message);
       const FRONTEND = process.env.FRONTEND_URL || "http://localhost:3000";
-      return res.redirect(`${FRONTEND}/charity-campaigns?payment=fail&message=${encodeURIComponent("Ödəniş yoxlanıla bilmədi")}`);
+      return res.redirect(`${FRONTEND}/charity?payment=fail&message=${encodeURIComponent("Ödəniş yoxlanıla bilmədi")}`);
     }
   }
 
@@ -244,7 +244,7 @@ const handleErrorCallback = async (req, res) => {
       return res.redirect(url);
     } catch (_) {}
     const FRONTEND = process.env.FRONTEND_URL || "http://localhost:3000";
-    return res.redirect(`${FRONTEND}/charity-campaigns?payment=fail&message=${encodeURIComponent("Ödəniş uğursuz oldu")}`);
+    return res.redirect(`${FRONTEND}/charity?payment=fail&message=${encodeURIComponent("Ödəniş uğursuz oldu")}`);
   }
 
   let userMessage = "Ödəniş uğursuz oldu. Yenidən cəhd edin.";
