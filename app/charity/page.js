@@ -1875,7 +1875,7 @@ function CampaignDetailView({ campaignId, onBack }) {
                 </div>
                 <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">Qalan məbləğ</div>
                 <div className="flex items-center gap-2 text-[15px] font-black text-[#33245f]">
-                  <Coins size={20} className="text-[#5b22c7]" />{campaign.remainingAmount} AZN
+                  <Coins size={20} className="text-[#5b22c7]" />{Number(campaign.remainingAmount.toFixed(2))} AZN
                 </div>
               </div>
             </div>
@@ -1923,7 +1923,7 @@ function CampaignDetailView({ campaignId, onBack }) {
               </div>
               <div className="text-center text-[20px] font-black text-[#24124f]">
                 {openerDon.amount} AZN
-                <span className="ml-3 text-[13px] text-[#5b22c7]">({openerDon.percent}%)</span>
+                <span className="ml-3 text-[13px] text-[#5b22c7]">({Math.round(openerDon.percent)}%)</span>
               </div>
               <div className="text-right text-[11px] font-bold leading-6 text-[#4f4075]">
                 {fmtDate(openerDon.paidAt)}<br />{fmtTime(openerDon.paidAt)}
@@ -1965,7 +1965,7 @@ function CampaignDetailView({ campaignId, onBack }) {
                         </div>
                       </td>
                       <td className="px-4 py-3 font-black">{d.amount} AZN</td>
-                      <td className="px-4 py-3 text-[#5b22c7]">{d.percent}%</td>
+                      <td className="px-4 py-3 text-[#5b22c7]">{Math.round(d.percent)}%</td>
                       <td className="px-4 py-3 text-right">
                         {fmtDate(d.paidAt)}  •  {fmtTime(d.paidAt)}
                       </td>
