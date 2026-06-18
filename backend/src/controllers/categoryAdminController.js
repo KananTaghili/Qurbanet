@@ -1,4 +1,5 @@
 const Category = require("../models/Category");
+const CharityCampaign = require("../models/CharityCampaign");
 const { uploadBuffer, deleteFile } = require("../utils/gridfs");
 const { ANIMALS } = require("../config/constants");
 const { success, error } = require("../utils/response");
@@ -262,6 +263,19 @@ const updateCategory = async (req, res) => {
 
     Object.assign(category, parsed.payload);
     await category.save();
+
+    // Sync image URLs to all campaigns that reference this animal
+    try {
+      const fixedCat = withFixedUrls(category, req);
+      const newImage     = fixedCat.imageUrl    || "";
+      const newImageHome = fixedCat.imageHomeUrl || newImage;
+      await CharityCampaign.updateMany(
+        { "animal.id": category._id },
+        { $set: { "animal.image": newImage, "animal.imageHome": newImageHome } },
+      );
+    } catch (syncErr) {
+      console.error("[CATEGORY UPDATE] Kampaniya şəkli sinxronizasiyası uğursuz:", syncErr.message);
+    }
 
     const { getIo } = require("../socket");
     try {
