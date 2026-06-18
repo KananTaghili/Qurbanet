@@ -288,26 +288,39 @@ function AnimalCard({ animal, onDonate, onClick }) {
 }
 
 /* ─── New Opening Placeholder Card ──────────────────────────── */
-function NewOpeningPlaceholderCard({ onOpen }) {
+function NewOpeningPlaceholderCard({ onOpen, animal }) {
+  const animalImg = animal
+    ? (animal.imageHome || animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || null)
+    : null;
+
   return (
     <div onClick={onOpen}
       className="flex flex-col overflow-hidden rounded-[22px] border-2 border-dashed border-purple-200 bg-white/70 px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
       style={{ boxShadow: "0 8px 28px rgba(54,27,99,.04)" }}>
 
-      {/* row 1: title + status badge — skeleton */}
+      {/* row 1: title + "Açılış yoxdur" badge */}
       <div className="mb-2 flex items-start justify-between gap-3">
-        <div className="h-[28px] w-20 rounded-lg bg-purple-100/50" />
-        <div className="h-[26px] w-20 rounded-lg bg-purple-50" />
+        {animal
+          ? <div className="text-[17px] font-black leading-none tracking-[-.03em] text-[#6b4fa0]">{animal.nameAz}</div>
+          : <div className="h-[28px] w-20 rounded-lg bg-purple-100/50" />}
+        <div className="flex h-[26px] items-center rounded-full bg-purple-50 px-3 text-[11px] font-bold text-purple-300 whitespace-nowrap shrink-0">
+          Açılış yoxdur
+        </div>
       </div>
 
-      {/* ring + plus icon — matches RingProgress layout exactly */}
+      {/* ring — matches RingProgress layout exactly */}
       <div className="relative mx-auto mt-2" style={{ height: 218, width: "100%", maxWidth: 198 }}>
         <svg width="188" height="188" viewBox="0 0 188 188"
           className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none">
           <circle cx="94" cy="94" r="82" fill="none" stroke="#ede9fe" strokeWidth="7" strokeLinecap="round" />
         </svg>
         <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
-          <Plus size={48} className="text-purple-200" strokeWidth={1.5} />
+          {animalImg
+            ? <img src={animalImg} alt={animal.nameAz}
+                className="h-full w-full object-cover mix-blend-multiply"
+                onError={e => { e.currentTarget.style.display = "none"; e.currentTarget.nextSibling?.style && (e.currentTarget.nextSibling.style.display = "flex"); }} />
+            : null}
+          <Plus size={48} className="text-purple-200" strokeWidth={1.5} style={{ display: animalImg ? "none" : "block" }} />
         </div>
         <div className="absolute bottom-0 left-1/2 z-20 -translate-x-1/2 rounded-[16px] bg-[#ede9fe] px-6 py-1.5 text-[20px] font-black leading-none tracking-[-.04em] text-purple-300 ring-4 ring-white">
           —%
@@ -2357,6 +2370,7 @@ export default function CharityPage() {
   const [showNewOpening, setShowNewOpening]       = useState(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState(null);
   const [homeAnimals, setHomeAnimals]             = useState([]);
+  const [allAnimals, setAllAnimals]               = useState([]);
   const [animalsLoading, setAnimalsLoading] = useState(true);
   const [pageSettings, setPageSettings]     = useState({ minDon: 10, minOpenPct: 30 });
 
@@ -2384,6 +2398,7 @@ export default function CharityPage() {
       const minDon   = s.minDonation   || 10;
       const minOpenPct = s.minOpenPercent || 30;
       setPageSettings({ minDon, minOpenPct });
+      setAllAnimals(sRes.data?.data?.animals || []);
       const campaigns = cRes.data?.data?.campaigns || [];
       setHomeAnimals(campaigns.map(c => mapHomeCampaign(c, minDon)));
     }).finally(() => setAnimalsLoading(false));
@@ -2416,6 +2431,10 @@ export default function CharityPage() {
   }, [homeAnimals]);
 
   const filtered = filter === "Bütün heyvanlar" ? homeAnimals : homeAnimals.filter(a => a.type === filter);
+
+  // Animals that have no active campaign → shown in placeholder cards
+  const activeTypes = new Set(homeAnimals.map(a => a.type));
+  const missingAnimals = allAnimals.filter(a => !activeTypes.has(a.nameAz));
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f7f5ff]">
@@ -2627,7 +2646,7 @@ export default function CharityPage() {
                       onClick={() => openCampaign(animal.campaignId)} />
                   ))}
                   {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
-                    <NewOpeningPlaceholderCard key={`placeholder-${i}`} onOpen={() => setShowNewOpening(true)} />
+                    <NewOpeningPlaceholderCard key={`placeholder-${i}`} animal={missingAnimals[i] || null} onOpen={() => setShowNewOpening(true)} />
                   ))}
                 </div>
               )}
