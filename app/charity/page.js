@@ -205,7 +205,8 @@ function RingProgress({ percent, type, img }) {
 function AnimalCard({ animal, onDonate }) {
   const [copied, setCopied] = useState(false);
   const toNum   = (v) => Number(String(v).replace(/[^0-9.]/g, ""));
-  const paidPct = Math.round((toNum(animal.shareMin) / Math.max(toNum(animal.target), 1)) * 100);
+  const _target = toNum(animal.target);
+  const paidPct = _target > 0 ? Math.round((toNum(animal.shareMin) / _target) * 100) : 0;
   const handleShare = async (e) => {
     e.stopPropagation();
     try { await navigator.clipboard.writeText(window.location.href); } catch {}
@@ -1399,6 +1400,12 @@ function NewOpeningModal({ onClose }) {
                           />
                         </div>
                         {authError && <p className="text-xs text-red-500 -mt-0.5">{authError}</p>}
+                        <div className="flex justify-end -mt-0.5">
+                          <a href="/auth/forgot-password" target="_blank" rel="noopener noreferrer"
+                            className="text-xs text-purple-600 hover:text-purple-800 hover:underline transition-colors">
+                            Şifrəmi unutdum
+                          </a>
+                        </div>
                         <button onClick={handleAuthLogin} disabled={authLoading}
                           className="w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-60 transition-all mt-auto"
                           style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
