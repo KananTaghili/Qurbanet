@@ -348,7 +348,7 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
 
       {/* Açan şəxs */}
       <div className="mt-5">
-        <div className="mb-2 text-[11px] font-extrabold text-[#8a7ba7]">Açan şəxs</div>
+        <div className="mb-2 text-[11px] font-medium text-[#8a7ba7]">Açan şəxs</div>
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-purple-100/60 shrink-0" />
           <div className="h-[12px] w-28 rounded bg-purple-100/50" />
@@ -357,7 +357,7 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
 
       {/* Ödədiyi məbləğ */}
       <div className="mt-5">
-        <div className="mb-2 text-[11px] font-extrabold text-[#8a7ba7]">Ödədiyi məbləğ</div>
+        <div className="mb-2 text-[11px] font-medium text-[#8a7ba7]">Ödədiyi məbləğ</div>
         <div className="flex items-end gap-2">
           <div className="h-[22px] w-20 rounded-lg bg-purple-100/50" />
           <div className="h-[22px] w-12 rounded-full bg-purple-100/40" />
@@ -367,11 +367,11 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
       {/* Qalan / Ümumi */}
       <div className="mt-4 border-t border-[#eee8f6] pt-4 grid grid-cols-2 gap-3">
         <div>
-          <div className="mb-1 text-[11px] font-extrabold text-[#8a7ba7]">Qalan məbləğ</div>
+          <div className="mb-1 text-[11px] font-medium text-[#8a7ba7]">Qalan məbləğ</div>
           <div className="h-[26px] w-16 rounded-lg bg-purple-100/50" />
         </div>
         <div>
-          <div className="mb-1 text-[11px] font-extrabold text-[#8a7ba7]">Ümumi məbləğ</div>
+          <div className="mb-1 text-[11px] font-medium text-[#8a7ba7]">Ümumi məbləğ</div>
           <div className="h-[26px] w-16 rounded-lg bg-purple-100/50" />
         </div>
       </div>
