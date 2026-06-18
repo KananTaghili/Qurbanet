@@ -589,8 +589,8 @@ function DonationModal({ animal, onClose }) {
               )}
 
               {anonymous && (
-                <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3 text-[12px] font-semibold leading-relaxed text-amber-800">
-                  Anonim ianə seçdiyiniz üçün adınız iştirakçı siyahısında "Anonim" olaraq görünəcək.
+                <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 text-[12px] font-semibold leading-relaxed text-amber-800">
+                  Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
                 </div>
               )}
 
@@ -1996,9 +1996,8 @@ function NewOpeningModal({ onClose }) {
                     )}
                   </div>
                   {isAnon && (
-                    <div className="rounded-2xl border border-purple-200 bg-purple-50/80 p-4 text-xs leading-relaxed text-purple-900">
-                      <strong>Qeyd:</strong> Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur.
-                      İstifadəçilərə açıq olan bölmələrdə adınız &ldquo;Anonim&rdquo; olaraq qeyd ediləcəkdir.
+                    <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 text-[12px] font-semibold leading-relaxed text-amber-800">
+                      Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
                     </div>
                   )}
                   {contMode === "guest" && (
