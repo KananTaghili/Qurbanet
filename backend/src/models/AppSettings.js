@@ -82,7 +82,7 @@ const appSettingsSchema = new mongoose.Schema(
     },
     // ─── Xeyriyyə kampaniyası tənzimləmələri ───────────────────────────────
     campaignMinOpenPercent:  { type: Number, default: 30, min: 1, max: 100 },
-    campaignMinDonation:     { type: Number, default: 10, min: 1 },
+    campaignMinDonation:     { type: Number, default: 10, min: 0.01 },
     campaignAllowAnonymous:  { type: Boolean, default: true },
     campaignAllowGuest:      { type: Boolean, default: true },
     campaignGuestNameRequired:  { type: Boolean, default: false },
