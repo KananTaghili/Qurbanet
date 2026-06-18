@@ -299,13 +299,12 @@ function NewOpeningPlaceholderCard({ onOpen }) {
         <div className="h-[26px] w-20 rounded-lg bg-purple-50" />
       </div>
 
-      {/* ring + plus icon */}
-      <div className="relative mx-auto mt-2 h-[218px] w-full max-w-[198px] flex items-center justify-center">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg width="188" height="188" viewBox="0 0 188 188">
-            <circle cx="94" cy="94" r="82" fill="none" stroke="#ede9fe" strokeWidth="7" strokeLinecap="round" />
-          </svg>
-        </div>
+      {/* ring + plus icon — matches RingProgress layout exactly */}
+      <div className="relative mx-auto mt-2" style={{ height: 218, width: "100%", maxWidth: 198 }}>
+        <svg width="188" height="188" viewBox="0 0 188 188"
+          className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none">
+          <circle cx="94" cy="94" r="82" fill="none" stroke="#ede9fe" strokeWidth="7" strokeLinecap="round" />
+        </svg>
         <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
           <Plus size={48} className="text-purple-200" strokeWidth={1.5} />
         </div>
