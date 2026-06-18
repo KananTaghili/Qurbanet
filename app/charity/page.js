@@ -823,17 +823,7 @@ function NecePage() {
   );
 }
 
-const SERTLER = [
-  {
-    icon: "📊",
-    value: "Yeni Açılış üçün minimum 30%",
-    label: "Yeni ianə açılışı zamanı ümumi qurbanlıq məbləğinin minimum 30%-ni açılış edən şəxs ödəməlidir.",
-  },
-  {
-    icon: "💰",
-    value: "İanə üçün minimum 10 AZN",
-    label: "Əsas səhifədə göstərilən açılışı davam edən qurbanlıqlara ianə vermək üçün minimum 10 AZN tələb olunur.",
-  },
+const SERTLER_STATIC = [
   {
     icon: "🐄",
     value: "Hər heyvan növünə 1 ədəd",
@@ -856,13 +846,26 @@ const SERTLER = [
   },
 ];
 
-function SertlerPage() {
+function SertlerPage({ minDon = 10, minOpenPct = 30 }) {
+  const sertler = [
+    {
+      icon: "📊",
+      value: `Yeni Açılış üçün minimum ${minOpenPct}%`,
+      label: `Yeni ianə açılışı zamanı ümumi qurbanlıq məbləğinin minimum ${minOpenPct}%-ni açılış edən şəxs ödəməlidir.`,
+    },
+    {
+      icon: "💰",
+      value: `İanə üçün minimum ${minDon} AZN`,
+      label: `Əsas səhifədə göstərilən açılışı davam edən qurbanlıqlara ianə vermək üçün minimum ${minDon} AZN tələb olunur.`,
+    },
+    ...SERTLER_STATIC,
+  ];
   return (
     <div className="flex-1 overflow-y-auto px-4 py-5 pb-20 lg:pb-5">
       <h1 className="text-[#241a4d] mb-1 font-extrabold" style={{ fontSize: "1.35rem" }}>Şərtlərimiz</h1>
       <p className="text-gray-500 text-sm mb-6">Platforma qaydaları və istifadə şərtləri</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {SERTLER.map((s) => (
+        {sertler.map((s) => (
           <div key={s.value} className="bg-white rounded-2xl p-5 border border-[#eee8f6] shadow-sm">
             <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-50 text-2xl">
               {s.icon}
@@ -1658,13 +1661,17 @@ export default function CharityPage() {
   const [showNewOpening, setShowNewOpening] = useState(false);
   const [homeAnimals, setHomeAnimals]       = useState([]);
   const [animalsLoading, setAnimalsLoading] = useState(true);
+  const [pageSettings, setPageSettings]     = useState({ minDon: 10, minOpenPct: 30 });
 
   useEffect(() => {
     Promise.all([
       api.get("/campaigns/settings").catch(() => ({ data: {} })),
       api.get("/campaigns").catch(() => ({ data: {} })),
     ]).then(([sRes, cRes]) => {
-      const minDon    = sRes.data?.data?.settings?.minDonation || 10;
+      const s        = sRes.data?.data?.settings || {};
+      const minDon   = s.minDonation   || 10;
+      const minOpenPct = s.minOpenPercent || 30;
+      setPageSettings({ minDon, minOpenPct });
       const campaigns = cRes.data?.data?.campaigns || [];
       setHomeAnimals(campaigns.map(c => mapHomeCampaign(c, minDon)));
     }).finally(() => setAnimalsLoading(false));
@@ -1942,7 +1949,7 @@ export default function CharityPage() {
         )}
         {page === "tamamlanmis" && <TamamlanmisPage />}
         {page === "nece"        && <NecePage />}
-        {page === "sertler"     && <SertlerPage />}
+        {page === "sertler"     && <SertlerPage minDon={pageSettings.minDon} minOpenPct={pageSettings.minOpenPct} />}
       </div>
 
       {/* ── Mobile Bottom Nav (< lg) ── */}
