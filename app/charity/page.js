@@ -284,6 +284,62 @@ function AnimalCard({ animal, onDonate, onClick }) {
   );
 }
 
+/* ─── New Opening Placeholder Card ──────────────────────────── */
+function NewOpeningPlaceholderCard({ onOpen }) {
+  return (
+    <div onClick={onOpen}
+      className="flex flex-col overflow-hidden rounded-[22px] border-2 border-dashed border-purple-200 bg-white/60 px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
+      style={{ boxShadow: "0 8px 28px rgba(54,27,99,.04)" }}>
+      {/* top badge area */}
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <div className="h-[22px] w-24 rounded-lg bg-purple-100/60" />
+        <div className="h-[26px] w-16 rounded-lg bg-purple-50" />
+      </div>
+      {/* circle placeholder */}
+      <div className="relative mx-auto mt-2 h-[218px] w-full max-w-[198px] flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <svg width="188" height="188" viewBox="0 0 188 188">
+            <circle cx="94" cy="94" r="82" fill="none" stroke="#ede9fe" strokeWidth="7" strokeLinecap="round" />
+          </svg>
+        </div>
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <div className="flex h-[90px] w-[90px] items-center justify-center rounded-full bg-purple-50">
+            <Plus size={36} className="text-purple-300" strokeWidth={1.5} />
+          </div>
+          <div className="rounded-[14px] bg-[#f3effe] px-5 py-1.5 text-[15px] font-black text-purple-400">
+            Yeni
+          </div>
+        </div>
+      </div>
+      {/* text */}
+      <div className="mt-1 text-center text-[13px] font-semibold text-purple-300">— / — AZN</div>
+      {/* info row skeleton */}
+      <div className="mt-4 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
+        <div className="flex items-center justify-center gap-1.5 text-[12px] font-semibold text-purple-400">
+          <Plus size={14} /> Yeni açılış başlat
+        </div>
+      </div>
+      {/* skeleton rows */}
+      <div className="mt-4">
+        <div className="mb-1.5 h-[11px] w-20 rounded bg-purple-100/60" />
+        <div className="h-7 w-28 rounded-lg bg-purple-100/40" />
+      </div>
+      <div className="mt-3">
+        <div className="mb-1 h-[11px] w-24 rounded bg-purple-100/60" />
+        <div className="h-6 w-32 rounded-lg bg-purple-100/40" />
+      </div>
+      <div className="mt-3 border-t border-[#eee8f6] pt-3 grid grid-cols-2 gap-3">
+        <div><div className="mb-1 h-[11px] w-16 rounded bg-purple-100/50" /><div className="h-7 w-14 rounded-lg bg-purple-100/40" /></div>
+        <div><div className="mb-1 h-[11px] w-16 rounded bg-purple-100/50" /><div className="h-7 w-14 rounded-lg bg-purple-100/40" /></div>
+      </div>
+      <div className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-purple-200 py-2.5 text-xs font-semibold text-purple-500"
+        style={{ backgroundColor: "#f7f3ff" }}>
+        <Plus size={13} /> Açılış et
+      </div>
+    </div>
+  );
+}
+
 /* ─── Donation Modal ─────────────────────────────────────────── */
 function DonationModal({ animal, onClose }) {
   const [amount, setAmount]       = useState(animal.shareMin || "10");
@@ -2196,16 +2252,15 @@ export default function CharityPage() {
                 <div className="flex justify-center py-16">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
                 </div>
-              ) : filtered.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-[#d8cdec] bg-white px-6 py-14 text-center text-[14px] text-[#77689c]">
-                  Hal-hazırda aktiv açılış yoxdur.
-                </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                   {filtered.map(animal => (
                     <AnimalCard key={animal.campaignId || animal.type} animal={animal}
                       onDonate={setDonationTarget}
                       onClick={() => setSelectedCampaignId(animal.campaignId)} />
+                  ))}
+                  {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
+                    <NewOpeningPlaceholderCard key={`placeholder-${i}`} onOpen={() => setShowNewOpening(true)} />
                   ))}
                 </div>
               )}
