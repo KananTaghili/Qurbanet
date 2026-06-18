@@ -288,54 +288,92 @@ function AnimalCard({ animal, onDonate, onClick }) {
 function NewOpeningPlaceholderCard({ onOpen }) {
   return (
     <div onClick={onOpen}
-      className="flex flex-col overflow-hidden rounded-[22px] border-2 border-dashed border-purple-200 bg-white/60 px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
+      className="flex flex-col overflow-hidden rounded-[22px] border-2 border-dashed border-purple-200 bg-white/70 px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
       style={{ boxShadow: "0 8px 28px rgba(54,27,99,.04)" }}>
-      {/* top badge area */}
+
+      {/* row 1: title + status badge — skeleton */}
       <div className="mb-2 flex items-start justify-between gap-3">
-        <div className="h-[22px] w-24 rounded-lg bg-purple-100/60" />
-        <div className="h-[26px] w-16 rounded-lg bg-purple-50" />
+        <div className="h-[28px] w-20 rounded-lg bg-purple-100/50" />
+        <div className="h-[26px] w-20 rounded-lg bg-purple-50" />
       </div>
-      {/* circle placeholder */}
+
+      {/* ring + plus icon */}
       <div className="relative mx-auto mt-2 h-[218px] w-full max-w-[198px] flex items-center justify-center">
         <div className="absolute inset-0 flex items-center justify-center">
           <svg width="188" height="188" viewBox="0 0 188 188">
             <circle cx="94" cy="94" r="82" fill="none" stroke="#ede9fe" strokeWidth="7" strokeLinecap="round" />
           </svg>
         </div>
-        <div className="relative z-10 flex flex-col items-center gap-3">
-          <div className="flex h-[90px] w-[90px] items-center justify-center rounded-full bg-purple-50">
-            <Plus size={36} className="text-purple-300" strokeWidth={1.5} />
-          </div>
-          <div className="rounded-[14px] bg-[#f3effe] px-5 py-1.5 text-[15px] font-black text-purple-400">
-            Yeni
-          </div>
+        <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
+          <Plus size={48} className="text-purple-200" strokeWidth={1.5} />
+        </div>
+        <div className="absolute bottom-0 left-1/2 z-20 -translate-x-1/2 rounded-[16px] bg-[#ede9fe] px-6 py-1.5 text-[20px] font-black leading-none tracking-[-.04em] text-purple-300 ring-4 ring-white">
+          —%
         </div>
       </div>
-      {/* text */}
-      <div className="mt-1 text-center text-[13px] font-semibold text-purple-300">— / — AZN</div>
-      {/* info row skeleton */}
-      <div className="mt-4 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
-        <div className="flex items-center justify-center gap-1.5 text-[12px] font-semibold text-purple-400">
-          <Plus size={14} /> Yeni açılış başlat
+
+      {/* collected / total */}
+      <div className="mt-0 text-center text-[12px] font-black tracking-[-.035em] text-purple-200">— / — AZN</div>
+
+      {/* info box: date + participants */}
+      <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-[#f8f5ff] p-3">
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white text-purple-200 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </span>
+          <div className="h-[12px] w-16 rounded bg-purple-100/60" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white text-purple-200 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <div className="h-[12px] w-12 rounded bg-purple-100/60" />
         </div>
       </div>
-      {/* skeleton rows */}
-      <div className="mt-4">
-        <div className="mb-1.5 h-[11px] w-20 rounded bg-purple-100/60" />
-        <div className="h-7 w-28 rounded-lg bg-purple-100/40" />
+
+      {/* Açan şəxs */}
+      <div className="mt-5">
+        <div className="mb-2 text-[11px] font-extrabold text-[#8a7ba7]">Açan şəxs</div>
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-purple-100/60 shrink-0" />
+          <div className="h-[12px] w-28 rounded bg-purple-100/50" />
+        </div>
       </div>
-      <div className="mt-3">
-        <div className="mb-1 h-[11px] w-24 rounded bg-purple-100/60" />
-        <div className="h-6 w-32 rounded-lg bg-purple-100/40" />
+
+      {/* Ödədiyi məbləğ */}
+      <div className="mt-5">
+        <div className="mb-2 text-[11px] font-extrabold text-[#8a7ba7]">Ödədiyi məbləğ</div>
+        <div className="flex items-end gap-2">
+          <div className="h-[22px] w-20 rounded-lg bg-purple-100/50" />
+          <div className="h-[22px] w-12 rounded-full bg-purple-100/40" />
+        </div>
       </div>
-      <div className="mt-3 border-t border-[#eee8f6] pt-3 grid grid-cols-2 gap-3">
-        <div><div className="mb-1 h-[11px] w-16 rounded bg-purple-100/50" /><div className="h-7 w-14 rounded-lg bg-purple-100/40" /></div>
-        <div><div className="mb-1 h-[11px] w-16 rounded bg-purple-100/50" /><div className="h-7 w-14 rounded-lg bg-purple-100/40" /></div>
+
+      {/* Qalan / Ümumi */}
+      <div className="mt-4 border-t border-[#eee8f6] pt-4 grid grid-cols-2 gap-3">
+        <div>
+          <div className="mb-1 text-[11px] font-extrabold text-[#8a7ba7]">Qalan məbləğ</div>
+          <div className="h-[26px] w-16 rounded-lg bg-purple-100/50" />
+        </div>
+        <div>
+          <div className="mb-1 text-[11px] font-extrabold text-[#8a7ba7]">Ümumi məbləğ</div>
+          <div className="h-[26px] w-16 rounded-lg bg-purple-100/50" />
+        </div>
       </div>
-      <div className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-purple-200 py-2.5 text-xs font-semibold text-purple-500"
-        style={{ backgroundColor: "#f7f3ff" }}>
-        <Plus size={13} /> Açılış et
+
+      {/* spacer + share button skeleton */}
+      <div className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-purple-100 bg-[#f7f3ff] py-2.5 text-xs font-black text-purple-300">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Dostlarını dəvət et
       </div>
+
+      {/* CTA button — same position as real card's "İanə et →" */}
+      <button
+        onClick={e => { e.stopPropagation(); onOpen(); }}
+        className="mt-2 w-full rounded-xl py-2.5 text-sm font-black text-white transition-all hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2"
+        style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)" }}>
+        <Plus size={15} strokeWidth={2.6} /> Açılış et
+      </button>
     </div>
   );
 }
