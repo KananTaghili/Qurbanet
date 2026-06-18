@@ -56,6 +56,17 @@ const categorySchema = new mongoose.Schema(
       trim: true,
       maxlength: [30, "Çəki aralığı çox uzundur"],
     },
+    // Xeyriyyə bölməsindən əlavə edilmiş heyvan (əsas Heyvanlar ilə qarışmasın)
+    charityEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    // Xeyriyyə açılışında standart kimi göstəriləcək çəki seçiminin açarı (weightOptions.key)
+    charityWeightKey: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     imageUrl: {
       type: String,
       trim: true,

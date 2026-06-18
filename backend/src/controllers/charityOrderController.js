@@ -1,5 +1,6 @@
 const CharityOrder = require("../models/CharityOrder");
 const { success, error } = require("../utils/response");
+const { parsePagination } = require("../utils/pagination");
 
 const VALID_STATUSES = ["placed", "confirmed", "slaughtering", "preparing", "delivering", "completed", "cancelled"];
 
@@ -62,7 +63,8 @@ exports.getCharityOrderById = async (req, res) => {
 // GET /api/admin/charity-orders
 exports.listAdminCharityOrders = async (req, res) => {
   try {
-    const { page = 1, limit = 20, status, charityType } = req.query;
+    const { status, charityType } = req.query;
+    const { page, limit } = parsePagination(req.query);
     const filter = {};
     if (status) filter.status = status;
     if (charityType) filter.charityType = charityType;
@@ -70,11 +72,11 @@ exports.listAdminCharityOrders = async (req, res) => {
     const total = await CharityOrder.countDocuments(filter);
     const orders = await CharityOrder.find(filter)
       .sort({ createdAt: -1 })
-      .skip((page - 1) * Number(limit))
-      .limit(Number(limit))
+      .skip((page - 1) * limit)
+      .limit(limit)
       .populate("user", "name phone");
 
-    return success(res, { orders, pagination: { total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) } });
+    return success(res, { orders, pagination: { total, page, totalPages: Math.ceil(total / limit) } });
   } catch (err_) {
     console.error(err_);
     return error(res, "Xəta baş verdi", 500);

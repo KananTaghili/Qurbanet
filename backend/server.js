@@ -13,7 +13,8 @@ const {
 } = require("./src/utils/seedDefaults");
 const authRoutes = require("./src/routes/authRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
-const charityOrderRoutes = require("./src/routes/charityOrderRoutes");
+const charityOrderRoutes    = require("./src/routes/charityOrderRoutes");
+const charityCampaignRoutes = require("./src/routes/charityCampaignRoutes");
 const adminRoutes = require("./src/routes/adminRoutes");
 const appConfigRoutes = require("./src/routes/appConfigRoutes");
 const epointRoutes = require("./src/routes/epointRoutes");
@@ -79,10 +80,15 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
+// Auth/OTP üçün sərt limit (brute-force qarşısı) — qlobaldan aşağı olmalıdır ki, təsirli olsun
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 1000,
-  standardHeaders: false,
+  max: 30,
+  message: {
+    success: false,
+    message: "Çox sayda cəhd. Bir az gözləyib yenidən cəhd edin.",
+  },
+  standardHeaders: true,
   legacyHeaders: false,
 });
 
@@ -104,6 +110,7 @@ app.post(
   require("./src/controllers/epointController").handleResult,
 );
 app.use("/api/charity-orders", charityOrderRoutes);
+app.use("/api/campaigns",     charityCampaignRoutes);
 app.use("/api/admin", adminRoutes);
 
 // ─── Health Check / Up ──────────────────────────────────────────────────────

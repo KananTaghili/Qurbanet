@@ -33,7 +33,8 @@ const getSettings = async (req, res) => {
 const updateSettings = async (req, res) => {
   try {
     const settings = await getOrCreateSettings();
-    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, quickDateTodayEnabled, quickDateTomorrowEnabled } = req.body;
+    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, quickDateTodayEnabled, quickDateTomorrowEnabled,
+      campaignMinOpenPercent, campaignMinDonation, campaignAllowAnonymous, campaignAllowGuest, campaignGuestNameRequired, campaignGuestPhoneRequired, campaignOnePerAnimal, campaignMaxPerAnimal } = req.body;
 
     if (Array.isArray(timeWindows)) {
       const valid = timeWindows.filter(
@@ -102,6 +103,24 @@ const updateSettings = async (req, res) => {
       settings.quickDateTomorrowEnabled = Boolean(quickDateTomorrowEnabled);
     }
 
+    if (campaignMinOpenPercent !== undefined) {
+      const v = Number(campaignMinOpenPercent);
+      if (!Number.isNaN(v) && v >= 1 && v <= 100) settings.campaignMinOpenPercent = v;
+    }
+    if (campaignMinDonation !== undefined) {
+      const v = Number(campaignMinDonation);
+      if (!Number.isNaN(v) && v >= 1) settings.campaignMinDonation = v;
+    }
+    if (campaignAllowAnonymous  !== undefined) settings.campaignAllowAnonymous  = Boolean(campaignAllowAnonymous);
+    if (campaignAllowGuest      !== undefined) settings.campaignAllowGuest      = Boolean(campaignAllowGuest);
+    if (campaignGuestNameRequired  !== undefined) settings.campaignGuestNameRequired  = Boolean(campaignGuestNameRequired);
+    if (campaignGuestPhoneRequired !== undefined) settings.campaignGuestPhoneRequired = Boolean(campaignGuestPhoneRequired);
+    if (campaignOnePerAnimal       !== undefined) settings.campaignOnePerAnimal       = Boolean(campaignOnePerAnimal);
+    if (campaignMaxPerAnimal       !== undefined) {
+      const v = Number(campaignMaxPerAnimal);
+      if (!Number.isNaN(v) && v >= 1) settings.campaignMaxPerAnimal = Math.floor(v);
+    }
+
     if (meatPickupLocation !== undefined) {
       const addr = String(meatPickupLocation.address || "").trim().slice(0, 300);
       const lat = Number(meatPickupLocation.lat);
@@ -144,6 +163,14 @@ const getPublicSettings = async (req, res) => {
       multiLanguageEnabled: settings.multiLanguageEnabled !== false,
       quickDateTodayEnabled: settings.quickDateTodayEnabled !== false,
       quickDateTomorrowEnabled: settings.quickDateTomorrowEnabled !== false,
+      campaignMinOpenPercent:  settings.campaignMinOpenPercent  ?? 30,
+      campaignMinDonation:     settings.campaignMinDonation     ?? 10,
+      campaignAllowAnonymous:  settings.campaignAllowAnonymous  !== false,
+      campaignAllowGuest:      settings.campaignAllowGuest      !== false,
+      campaignGuestNameRequired:  settings.campaignGuestNameRequired  === true,
+      campaignGuestPhoneRequired: settings.campaignGuestPhoneRequired === true,
+      campaignOnePerAnimal:       settings.campaignOnePerAnimal       !== false,
+      campaignMaxPerAnimal:       settings.campaignMaxPerAnimal       ?? 1,
       cashPickupLocation: settings.cashPickupLocation || {
         address: "20 Yanvar metro stansiyası yaxınlığı, Bakı",
         lat: 40.3875,

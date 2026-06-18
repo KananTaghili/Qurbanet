@@ -11,7 +11,8 @@ const charityOrderController  = require("../controllers/charityOrderController")
 const appSettingsController = require("../controllers/appSettingsController");
 const cashPaymentController = require("../controllers/cashPaymentController");
 const deliveryConfirmController = require("../controllers/deliveryConfirmController");
-const pricingConfigController = require("../controllers/pricingConfigController");
+const pricingConfigController    = require("../controllers/pricingConfigController");
+const charityCampaignController  = require("../controllers/charityCampaignController");
 const adminAuth = require("../middleware/adminAuth");
 
 // ─── Multer konfiqurasiyası (memory — fayllar GridFS-ə göndərilir) ───────
@@ -244,6 +245,13 @@ router.get("/users/:userId/orders", adminController.getUserOrders);
 router.put("/users/:userId", adminController.updateUser);
 // DELETE /api/admin/users/:userId  (ALLOW_USER_MANAGEMENT=true lazımdır)
 router.delete("/users/:userId", adminController.deleteUser);
+
+// ─── Charity Campaigns ────────────────────────────────────────────────────────
+router.get("/charity-campaigns",                               charityCampaignController.adminListCampaigns);
+router.get("/charity-campaigns/:id",                           charityCampaignController.adminGetCampaign);
+router.put("/charity-campaigns/:id/status",                    charityCampaignController.adminUpdateStatus);
+router.post("/charity-campaigns/:id/media",                    upload.array("files", 10), charityCampaignController.adminAddMedia);
+router.delete("/charity-campaigns/:id/media/:mediaIndex",      charityCampaignController.adminDeleteMedia);
 
 // ─── Charity Orders ────────────────────────────────────────────────────────────
 router.get("/charity-orders",                              charityOrderController.listAdminCharityOrders);

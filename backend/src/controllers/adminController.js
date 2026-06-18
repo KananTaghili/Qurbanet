@@ -12,6 +12,7 @@ const {
   ORDER_STATUS_LABELS,
 } = require("../config/constants");
 const { success, error } = require("../utils/response");
+const { parsePagination } = require("../utils/pagination");
 const {
   getDirSizeBytes,
   enforceStorageQuota,
@@ -349,7 +350,8 @@ const removeAdminAllowedEmail = async (req, res) => {
 // ─── Bütün sifarişlər ────────────────────────────────────────────────────────
 const getAllOrders = async (req, res) => {
   try {
-    const { status, page = 1, limit = 20, orderMode } = req.query;
+    const { status, orderMode } = req.query;
+    const { page, limit } = parsePagination(req.query);
 
     const filter = {};
     if (status) {
@@ -359,14 +361,14 @@ const getAllOrders = async (req, res) => {
     }
     if (orderMode) filter.orderMode = orderMode;
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (page - 1) * limit;
 
     const [orders, total, categories] = await Promise.all([
       Order.find(filter)
         .populate("user", "phone name")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(parseInt(limit))
+        .limit(limit)
         .select("-__v"),
       Order.countDocuments(filter),
       Category.find().select("type weightRange weightOptions"),
@@ -386,9 +388,9 @@ const getAllOrders = async (req, res) => {
       ),
       pagination: {
         total,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(total / parseInt(limit)),
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (err) {
@@ -1192,8 +1194,9 @@ const getUsers = async (req, res) => {
     return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
   }
   try {
-    const { page = 1, limit = 20, search = "", filterPhone = "", filterEmail = "" } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const { search = "", filterPhone = "", filterEmail = "" } = req.query;
+    const { page, limit } = parsePagination(req.query);
+    const skip = (page - 1) * limit;
 
     const conditions = [];
 
@@ -1224,7 +1227,7 @@ const getUsers = async (req, res) => {
       User.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(parseInt(limit))
+        .limit(limit)
         .select("-__v"),
       User.countDocuments(filter),
     ]);
@@ -1250,9 +1253,9 @@ const getUsers = async (req, res) => {
       users: usersWithCount,
       pagination: {
         total,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(total / parseInt(limit)),
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (err) {

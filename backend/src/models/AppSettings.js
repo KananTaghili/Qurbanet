@@ -80,6 +80,16 @@ const appSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // ─── Xeyriyyə kampaniyası tənzimləmələri ───────────────────────────────
+    campaignMinOpenPercent:  { type: Number, default: 30, min: 1, max: 100 },
+    campaignMinDonation:     { type: Number, default: 10, min: 1 },
+    campaignAllowAnonymous:  { type: Boolean, default: true },
+    campaignAllowGuest:      { type: Boolean, default: true },
+    campaignGuestNameRequired:  { type: Boolean, default: false },
+    campaignGuestPhoneRequired: { type: Boolean, default: false },
+    campaignOnePerAnimal:       { type: Boolean, default: true },  // heyvan başına açılış limiti aktiv?
+    campaignMaxPerAnimal:       { type: Number,  default: 1, min: 1 },  // hər heyvandan maksimum neçə aktiv açılış
+
     allowedAdminEmails: {
       type: [String],
       default: ["nbiyevmuhammd1@gmail.com"],
