@@ -11,7 +11,7 @@ import {
   ArrowRight, Play, CalendarDays, UsersRound, Share2,
   ArrowLeft, X, Wallet, Flag, Beef, Rabbit, BadgeIcon as CamelIcon,
   Coins, Menu, Shield, UserRoundCheck, PlusCircle, Scissors,
-  Truck, HandHeart,
+  Truck, HandHeart, Mail, Phone, Lock,
 } from "lucide-react";
 
 /* ─── Data ───────────────────────────────────────────────────── */
@@ -1135,6 +1135,7 @@ function NewOpeningModal({ onClose }) {
   const [note,        setNote]        = useState("");
   const [contMode,    setContMode]    = useState("");
   const [name,        setName]        = useState("");
+  const [guestLastName, setGuestLastName] = useState("");
   const [phone,       setPhone]       = useState("");
   const [submitting,  setSubmitting]  = useState(false);
   const [settingsData, setSettingsData] = useState(null);
@@ -1173,7 +1174,7 @@ function NewOpeningModal({ onClose }) {
   const numAmount  = Number(amount || 0);
   const validAmt   = animal ? (numAmount >= minAmount && numAmount <= animal.price) : false;
   const remaining  = animal ? Math.max(animal.price - numAmount, 0) : 0;
-  const finalValid = contMode === "registered" || (contMode === "guest" && name.trim());
+  const finalValid = contMode === "registered" || (contMode === "guest" && name.trim() && guestLastName.trim());
 
   const goNext = () => {
     if (step === 0 && !animal) return;
@@ -1196,7 +1197,7 @@ function NewOpeningModal({ onClose }) {
         amount: numAmount,
         isAnonymous: isAnon,
         note: note || undefined,
-        ...(contMode === "guest" && !isAnon ? { openerName: name, openerPhone: phone } : {}),
+        ...(contMode === "guest" && !isAnon ? { openerName: `${name.trim()} ${guestLastName.trim()}`, openerPhone: phone } : {}),
       };
       const r1 = await api.post("/campaigns", body);
       const { campaignId, donationId } = r1.data.data;
@@ -1355,10 +1356,10 @@ function NewOpeningModal({ onClose }) {
 
                   {/* Method selector */}
                   <div className="flex gap-2">
-                    {[["email","📧 Email"],["phone","📱 Telefon"]].map(([mt, label]) => (
+                    {([["email", Mail, "Email"], ["phone", Phone, "Telefon"]] ).map(([mt, Icon, label]) => (
                       <button key={mt} onClick={() => { setAuthMethod(mt); setAuthInput(""); setAuthError(""); }}
-                        className={`flex-1 rounded-xl border py-1.5 text-xs font-semibold transition-all ${authMethod === mt ? "border-purple-400 bg-purple-50 text-purple-700" : "border-slate-200 text-slate-500"}`}>
-                        {label}
+                        className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border py-1.5 text-xs font-semibold transition-all ${authMethod === mt ? "border-purple-400 bg-purple-50 text-purple-700" : "border-slate-200 text-slate-500"}`}>
+                        <Icon size={13} />{label}
                       </button>
                     ))}
                   </div>
@@ -1377,14 +1378,17 @@ function NewOpeningModal({ onClose }) {
                           onChange={e => setAuthInput(e.target.value)}
                           className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
                         />
-                        <input
-                          type="password"
-                          placeholder="Şifrə"
-                          value={authPassword}
-                          onChange={e => setAuthPassword(e.target.value)}
-                          onKeyDown={e => e.key === "Enter" && handleAuthLogin()}
-                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
-                        />
+                        <div className="relative">
+                          <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                          <input
+                            type="password"
+                            placeholder="Şifrə"
+                            value={authPassword}
+                            onChange={e => setAuthPassword(e.target.value)}
+                            onKeyDown={e => e.key === "Enter" && handleAuthLogin()}
+                            className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                          />
+                        </div>
                         {authError && <p className="text-xs text-red-500 -mt-0.5">{authError}</p>}
                         <button onClick={handleAuthLogin} disabled={authLoading}
                           className="w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-60 transition-all mt-auto"
@@ -1420,14 +1424,17 @@ function NewOpeningModal({ onClose }) {
                           onChange={e => setAuthInput(e.target.value)}
                           className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
                         />
-                        <input
-                          type="password"
-                          placeholder="Şifrə (min 6 simvol)"
-                          value={authPassword}
-                          onChange={e => setAuthPassword(e.target.value)}
-                          onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
-                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
-                        />
+                        <div className="relative">
+                          <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                          <input
+                            type="password"
+                            placeholder="Şifrə (min 6 simvol)"
+                            value={authPassword}
+                            onChange={e => setAuthPassword(e.target.value)}
+                            onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
+                            className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors"
+                          />
+                        </div>
                         {authError && <p className="text-xs text-red-500 -mt-0.5">{authError}</p>}
                         <button onClick={handleAuthSendOtp} disabled={authLoading}
                           className="w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-60 transition-all mt-auto"
@@ -1572,10 +1579,17 @@ function NewOpeningModal({ onClose }) {
                   )}
                   {contMode === "guest" && (
                     <div className="space-y-3">
-                      <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Ad Soyad</label>
-                        <input value={name} onChange={e => setName(e.target.value)} placeholder="Adınızı daxil edin"
-                          className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Ad</label>
+                          <input value={name} onChange={e => setName(e.target.value)} placeholder="Adınız"
+                            className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Soyad</label>
+                          <input value={guestLastName} onChange={e => setGuestLastName(e.target.value)} placeholder="Soyadınız"
+                            className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                        </div>
                       </div>
                       <div>
                         <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Telefon</label>
