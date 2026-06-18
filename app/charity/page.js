@@ -810,8 +810,8 @@ function IaneDetailPage({ item, onBack }) {
                       <td className="px-5 py-3 font-black">{i + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#f0edf6] text-[#6f6290] text-[9px] font-bold">
-                            {d.isAnonymous ? <User size={14} /> : initials(d.name)}
+                          <div className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[9px] font-bold ${d.isAnonymous ? "bg-slate-100 text-slate-500" : "bg-[#f0edf6] text-[#6f6290]"}`}>
+                            {d.isAnonymous ? "AN" : initials(d.name)}
                           </div>
                           <span>
                             {d.isAnonymous ? "Anonim" : d.name}
@@ -2305,8 +2305,8 @@ function CampaignDetailView({ campaignId, onBack }) {
                       <td className="px-5 py-3 font-black">{i + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f0edf6] text-[#6f6290] shrink-0">
-                            <User size={14} />
+                          <div className={`grid h-7 w-7 place-items-center rounded-full shrink-0 text-[9px] font-bold ${d.isAnonymous ? "bg-slate-100 text-slate-500" : "bg-[#f0edf6] text-[#6f6290]"}`}>
+                            {d.isAnonymous ? "AN" : (d.name || "?")[0].toUpperCase()}
                           </div>
                           <span>
                             {d.isAnonymous ? "Anonim" : d.name}
