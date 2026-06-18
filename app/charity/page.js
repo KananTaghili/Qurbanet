@@ -202,18 +202,18 @@ function RingProgress({ percent, type, img }) {
 }
 
 /* ─── Animal Card (home) ─────────────────────────────────────── */
-function AnimalCard({ animal, onDonate }) {
+function AnimalCard({ animal, onDonate, onClick }) {
   const [copied, setCopied] = useState(false);
   const toNum   = (v) => Number(String(v).replace(/[^0-9.]/g, ""));
   const _target = toNum(animal.target);
   const paidPct = _target > 0 ? Math.round((toNum(animal.shareMin) / _target) * 100) : 0;
   const handleShare = async (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     try { await navigator.clipboard.writeText(window.location.href); } catch {}
     setCopied(true); setTimeout(() => setCopied(false), 2600);
   };
   return (
-    <div className="group flex flex-col overflow-hidden rounded-[22px] border border-[#eee8f6] bg-white px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1"
+    <div onClick={onClick} className="group flex flex-col overflow-hidden rounded-[22px] border border-[#eee8f6] bg-white px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1"
       style={{ boxShadow: "0 8px 28px rgba(54,27,99,.08)" }}>
       <div className="mb-2 flex items-start justify-between gap-3">
         <h3 className="text-[20px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
@@ -264,7 +264,7 @@ function AnimalCard({ animal, onDonate }) {
           <div className="text-[17px] font-bold text-[#241a4d]">{animal.totalMax} <span className="text-[11px] font-normal">AZN</span></div>
         </div>
       </div>
-      <button onClick={handleShare}
+      <button onClick={(e) => { e.stopPropagation(); handleShare(e); }}
         className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-medium transition-all hover:bg-white"
         style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}>
         <Share2 size={13} strokeWidth={2} /> Dostlarını dəvət et
@@ -1703,18 +1703,265 @@ function NewOpeningModal({ onClose }) {
   );
 }
 
+/* ─── Campaign Detail View ───────────────────────────────────── */
+function fmtDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("az-AZ", { day: "2-digit", month: "long", year: "numeric" });
+}
+function fmtTime(d) {
+  if (!d) return "";
+  return new Date(d).toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" });
+}
+
+function DetailCircle({ percent }) {
+  const size = 108, r = 42, c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(percent, 100));
+  const prog = (clamped / 100) * c;
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <defs>
+          <linearGradient id="dcp" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#4513ad" />
+            <stop offset="65%" stopColor="#5d28cf" />
+            <stop offset="100%" stopColor="#7b4cea" />
+          </linearGradient>
+        </defs>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e6dcff" strokeWidth="9" />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="url(#dcp)" strokeWidth="11"
+          strokeLinecap="round"
+          strokeDasharray={`${prog} ${c - prog}`}
+          transform={`rotate(90 ${size/2} ${size/2})`} />
+        <text x={size/2} y={size/2+7} textAnchor="middle" fontSize="22" fontWeight="900" fill="#4b14bd">{clamped}%</text>
+      </svg>
+      <div className="text-[12px] font-bold text-[#6e5b9b]">Tamamlanma</div>
+    </div>
+  );
+}
+
+function CampaignDetailView({ campaignId, onBack }) {
+  const [campaign, setCampaign] = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [showAll, setShowAll]   = useState(false);
+
+  useEffect(() => {
+    if (!campaignId) return;
+    setLoading(true);
+    api.get(`/campaigns/${campaignId}`)
+      .then(r => setCampaign(r.data?.data?.campaign || null))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [campaignId]);
+
+  if (loading) return (
+    <div className="flex-1 flex items-center justify-center bg-[#fbfaff]">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
+    </div>
+  );
+  if (!campaign) return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-[#fbfaff]">
+      <div className="text-[#4b14bd] text-4xl">⚠️</div>
+      <div className="text-[#33245f] font-bold">Kampaniya tapılmadı</div>
+      <button onClick={onBack} className="mt-2 flex items-center gap-2 rounded-xl border border-[#ded5ec] bg-white px-4 py-2 text-sm font-bold text-[#4b14bd]">
+        <ArrowLeft size={15} /> Geri qayıt
+      </button>
+    </div>
+  );
+
+  const isCompleted  = campaign.status === "completed";
+  const paidDons     = (campaign.donations || []);
+  const openerDon    = paidDons.find(d => d.isOpener);
+  const otherDons    = paidDons.filter(d => !d.isOpener);
+  const displayDons  = showAll ? otherDons : otherDons.slice(0, 10);
+  const animalImg    = campaign.animal?.image || ANIMAL_IMG_FALLBACK[campaign.animal?.nameAz] || "/qoyun.png";
+
+  return (
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff]">
+      {/* Header */}
+      <div className="flex items-center gap-4 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm sticky top-0 z-10">
+        <button onClick={onBack}
+          className="flex h-9 items-center gap-2 rounded-xl border border-[#ded5ec] bg-white px-3 text-[13px] font-bold text-[#4b14bd] shadow-sm hover:bg-purple-50">
+          <ArrowLeft size={16} /> Geri qayıt
+        </button>
+        <h1 className="truncate text-[17px] font-black text-[#33245f]">
+          {isCompleted ? "Tamamlanmış açılış" : "İanəsi davam edən qurbanlıq"}
+        </h1>
+      </div>
+
+      <div className="p-3 md:p-4">
+        {/* Info card */}
+        <div className="rounded-[10px] border border-[#e7e1f0] bg-white p-3 shadow-sm">
+          <div className="grid grid-cols-1 xl:grid-cols-[200px_1fr_190px] gap-4">
+            {/* Animal image */}
+            <img src={animalImg} alt={campaign.animal?.nameAz}
+              className="h-[180px] w-full xl:h-[210px] rounded-[7px] bg-purple-50 object-contain" />
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
+              <div className="md:border-r border-[#e7e1f0] md:pr-6">
+                <div className="text-[23px] font-black text-[#33245f] mb-6">{campaign.animal?.nameAz || "Qurban"}</div>
+                <div className="mb-2 text-[11px] font-bold text-[#8b7dac]">Açılış tarixi</div>
+                <div className="flex items-center gap-2 text-[14px] font-black text-[#33245f]">
+                  <CalendarDays size={16} className="text-[#6840c6]" />
+                  {fmtDate(campaign.createdAt)}
+                </div>
+              </div>
+              <div className="md:border-r border-[#e7e1f0] md:pr-6">
+                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">Ümumi məbləğ</div>
+                <div className="flex items-center gap-2 text-[18px] font-black text-[#33245f] mb-8">
+                  <Coins size={22} className="text-[#5b22c7]" />{campaign.totalAmount} AZN
+                </div>
+                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">Toplanan məbləğ</div>
+                <div className="flex items-center gap-2 text-[18px] font-black text-[#33245f]">
+                  <Coins size={22} className="text-[#5b22c7]" />{campaign.collectedAmount} AZN
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">İştirakçı sayı</div>
+                <div className="flex items-center gap-2 text-[15px] font-black text-[#33245f] mb-8">
+                  <Users size={20} className="text-[#5b22c7]" />{campaign.participantCount} nəfər
+                </div>
+                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">Qalan məbləğ</div>
+                <div className="flex items-center gap-2 text-[15px] font-black text-[#33245f]">
+                  <Coins size={20} className="text-[#5b22c7]" />{campaign.remainingAmount} AZN
+                </div>
+              </div>
+            </div>
+
+            {/* Status box */}
+            <div className="rounded-[8px] border border-[#dcd2ec] p-4 text-center flex flex-col items-center justify-center gap-3">
+              {isCompleted ? (
+                <>
+                  <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                    <CheckCircle size={28} />
+                  </div>
+                  <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-[12px] font-black text-[#6e5b9b]">Qurbanlıq statusu</div>
+                  <span className="rounded-[4px] bg-[#fff6dd] px-3 py-1.5 text-[12px] font-black text-[#f59a00]">
+                    Açılış davam edir
+                  </span>
+                  <DetailCircle percent={campaign.percent || 0} />
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Opener row */}
+        {openerDon && (
+          <>
+            <div className="mt-4 inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1.5 text-[11px] font-black text-white">
+              Açan şəxs
+            </div>
+            <div className="grid min-h-[64px] grid-cols-1 md:grid-cols-3 items-center rounded-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-5 py-4 shadow-sm gap-3 md:gap-0 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-purple-200 text-sm font-black text-purple-800 shrink-0">
+                  {(openerDon.isAnonymous ? "A" : (openerDon.name || "?")[0]).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-[13px] font-black text-[#33245f]">
+                    {openerDon.isAnonymous ? "Anonim" : openerDon.name}
+                    {!openerDon.isAnonymous && <span className="text-[#4b14bd] ml-1">●</span>}
+                  </div>
+                  <div className="text-[12px] font-bold text-[#6f6290]">Açılış edən şəxs</div>
+                </div>
+              </div>
+              <div className="text-center text-[20px] font-black text-[#24124f]">
+                {openerDon.amount} AZN
+                <span className="ml-3 text-[13px] text-[#5b22c7]">({openerDon.percent}%)</span>
+              </div>
+              <div className="text-right text-[11px] font-bold leading-6 text-[#4f4075]">
+                {fmtDate(openerDon.paidAt)}<br />{fmtTime(openerDon.paidAt)}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Other donors table */}
+        {otherDons.length > 0 && (
+          <>
+            <h2 className="mb-3 text-[15px] font-black text-[#33245f]">
+              Digər ödəniş edənlər ({otherDons.length} nəfər)
+            </h2>
+            <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-sm overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-[11px] font-bold text-[#33245f]">
+                <thead className="bg-white text-[12px] text-[#8b7dac]">
+                  <tr className="border-b border-[#e7e1f0]">
+                    <th className="px-5 py-4">#</th>
+                    <th className="px-4 py-4">Ad Soyad</th>
+                    <th className="px-4 py-4">Ödənilən məbləğ</th>
+                    <th className="px-4 py-4">Faiz</th>
+                    <th className="px-4 py-4 text-right">Ödəniş tarixi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayDons.map((d, i) => (
+                    <tr key={d._id || i} className="border-b border-[#eee8f6] last:border-b-0">
+                      <td className="px-5 py-3 font-black">{i + 1}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f0edf6] text-[#6f6290] shrink-0">
+                            <User size={14} />
+                          </div>
+                          <span>
+                            {d.isAnonymous ? "Anonim" : d.name}
+                            {!d.isAnonymous && <span className="text-[#4b14bd] ml-1">●</span>}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-black">{d.amount} AZN</td>
+                      <td className="px-4 py-3 text-[#5b22c7]">{d.percent}%</td>
+                      <td className="px-4 py-3 text-right">
+                        {fmtDate(d.paidAt)}  •  {fmtTime(d.paidAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {otherDons.length > 10 && !showAll && (
+                <div className="flex justify-center py-4">
+                  <button onClick={() => setShowAll(true)}
+                    className="flex h-10 items-center gap-2 rounded-[6px] border border-[#c8b9eb] px-6 text-[13px] font-black text-[#5b22c7]">
+                    Daha çoxunu göstər <ChevronDown size={15} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {otherDons.length === 0 && !openerDon && (
+          <div className="mt-4 rounded-2xl border border-dashed border-[#d8cdec] bg-white px-6 py-10 text-center text-sm text-[#77689c]">
+            Hələ ödəniş edən yoxdur.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Page ──────────────────────────────────────────────── */
 export default function CharityPage() {
   const { isGuest } = useAuth();
   const [page, setPage]                     = useState("home");
   const [filter, setFilter]                 = useState("Bütün heyvanlar");
   const [dropdownOpen, setDropdownOpen]     = useState(false);
-  const [donationTarget, setDonationTarget] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showNewOpening, setShowNewOpening] = useState(false);
-  const [homeAnimals, setHomeAnimals]       = useState([]);
+  const [donationTarget, setDonationTarget]       = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen]       = useState(false);
+  const [showNewOpening, setShowNewOpening]       = useState(false);
+  const [selectedCampaignId, setSelectedCampaignId] = useState(null);
+  const [homeAnimals, setHomeAnimals]             = useState([]);
   const [animalsLoading, setAnimalsLoading] = useState(true);
   const [pageSettings, setPageSettings]     = useState({ minDon: 10, minOpenPct: 30 });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cId = params.get("campaign");
+    if (cId) setSelectedCampaignId(cId);
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -1736,6 +1983,7 @@ export default function CharityPage() {
 
   const setPageGuarded = (p) => {
     if (p === "ianelerim" && isGuest) return;
+    setSelectedCampaignId(null);
     setPage(p);
   };
 
@@ -1844,7 +2092,14 @@ export default function CharityPage() {
         )}
 
         {/* ── Content ── */}
-        {page === "home" && (
+        {page === "home" && selectedCampaignId && (
+          <CampaignDetailView
+            campaignId={selectedCampaignId}
+            onBack={() => setSelectedCampaignId(null)}
+          />
+        )}
+
+        {page === "home" && !selectedCampaignId && (
           <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
             {/* Hero */}
             <div className="relative overflow-hidden rounded-xl md:rounded-2xl mx-3 md:mx-6 mt-4 mb-5"
@@ -1948,7 +2203,9 @@ export default function CharityPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                   {filtered.map(animal => (
-                    <AnimalCard key={animal.campaignId || animal.type} animal={animal} onDonate={setDonationTarget} />
+                    <AnimalCard key={animal.campaignId || animal.type} animal={animal}
+                      onDonate={setDonationTarget}
+                      onClick={() => setSelectedCampaignId(animal.campaignId)} />
                   ))}
                 </div>
               )}
