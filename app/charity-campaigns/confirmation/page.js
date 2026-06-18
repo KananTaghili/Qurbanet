@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CheckCircle, Heart, ArrowLeft, Users } from "lucide-react";
 import api from "../../../lib/api";
 
-export default function CampaignConfirmationPage() {
+function ConfirmationContent() {
   const params   = useSearchParams();
   const router   = useRouter();
   const campaignId = params.get("campaignId");
@@ -122,5 +122,13 @@ export default function CampaignConfirmationPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function CampaignConfirmationPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600" /></div>}>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
