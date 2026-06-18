@@ -1169,7 +1169,7 @@ function NewOpeningModal({ onClose }) {
   const animal     = animals.find(a => String(a._id) === String(selAnimalId)) || null;
   const minPct     = settings.minOpenPercent || 30;
   const minDon     = settings.minDonation    || 10;
-  const minAmount  = animal ? Math.min(Math.ceil(animal.price * minPct / 100), animal.price) : 0;
+  const minAmount  = animal ? Math.min(Math.ceil(Math.round(animal.price * 100) * minPct / 100) / 100, animal.price) : 0;
   const numAmount  = Number(amount || 0);
   const validAmt   = animal ? (numAmount >= minAmount && numAmount <= animal.price) : false;
   const remaining  = animal ? Math.max(animal.price - numAmount, 0) : 0;
