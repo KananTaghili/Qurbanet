@@ -1706,7 +1706,7 @@ function NewOpeningModal({ onClose }) {
       <div className="relative mx-auto flex h-[560px] max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
           <>
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-purple-100 px-6 py-4 shrink-0"
+            <div className="flex items-center justify-between border-b border-purple-100 px-5 py-3 shrink-0"
               style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
               <div>
                 <div className="font-bold text-[#1a0f2e]">Yeni Açılış Et</div>
@@ -1718,7 +1718,7 @@ function NewOpeningModal({ onClose }) {
             </div>
 
             {/* Step indicators */}
-            <div className="flex items-center justify-center gap-2 border-b border-purple-100 px-6 py-3 shrink-0">
+            <div className="flex items-center justify-center gap-2 border-b border-purple-100 px-5 py-2 shrink-0">
               {NOM_STEPS.map((s, i) => (
                 <div key={s} className="flex items-center gap-2">
                   <div className={`flex items-center gap-1.5 text-xs font-semibold ${i === step ? "text-purple-700" : i < step ? "text-emerald-600" : "text-[#7c6fa0]"}`}>
@@ -1734,7 +1734,7 @@ function NewOpeningModal({ onClose }) {
             </div>
 
             {/* Scrollable body */}
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4"
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3"
               style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
 
               {/* ── Mini Auth Phase ── */}
@@ -1883,11 +1883,11 @@ function NewOpeningModal({ onClose }) {
               {/* Step 0 — Animal selection */}
               {!authPhase && step === 0 && (
                 <div>
-                  <div className="mb-3 text-xs font-semibold text-[#1a0f2e]">Heyvan növünü seçin</div>
+                  <div className="mb-2 text-xs font-semibold text-[#1a0f2e]">Heyvan növünü seçin</div>
                   {loadingSettings ? (
                     <div className="flex justify-center py-8"><div className="h-7 w-7 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" /></div>
                   ) : (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2">
                     {animals.map(item => {
                       const limited = isAtLimit(item);
                       const isSelected = !limited && String(selAnimalId) === String(item._id);
@@ -1895,7 +1895,7 @@ function NewOpeningModal({ onClose }) {
                         <button key={item._id}
                           onClick={() => !limited && setSelAnimalId(item._id)}
                           disabled={limited}
-                          className={`relative rounded-2xl border-2 p-4 text-left transition-all overflow-hidden
+                          className={`relative rounded-2xl border-2 p-3 text-left transition-all overflow-hidden
                             ${limited ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
                               : isSelected ? "border-purple-500 bg-purple-50"
                               : "border-purple-100 hover:border-purple-300"}`}>
@@ -1906,20 +1906,20 @@ function NewOpeningModal({ onClose }) {
                               </span>
                             </div>
                           )}
-                          <div className="mb-3 flex items-center gap-3">
+                          <div className="mb-2 flex items-center gap-2">
                             <img src={item.image || ANIMAL_IMG_FALLBACK[item.nameAz] || "/qoyun.png"} alt={item.nameAz}
-                              className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
+                              className="h-10 w-10 rounded-xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
                             <div>
                               <div className="text-sm font-bold text-[#1a0f2e]">{item.nameAz}</div>
-                              <div className="text-[11px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
+                              <div className="text-[10px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
                             </div>
                           </div>
-                          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                            <div className="rounded-xl bg-white/70 p-2">
+                          <div className="mt-1 grid grid-cols-2 gap-1.5 text-xs">
+                            <div className="rounded-lg bg-white/70 p-1.5">
                               <span className="block text-[#7c6fa0]">Qiymət</span>
                               <b>{item.price.toLocaleString()} AZN</b>
                             </div>
-                            <div className="rounded-xl bg-white/70 p-2">
+                            <div className="rounded-lg bg-white/70 p-1.5">
                               <span className="block text-[#7c6fa0]">Çəki</span>
                               <b>{item.weightRange || "—"}</b>
                             </div>
@@ -1929,7 +1929,7 @@ function NewOpeningModal({ onClose }) {
                     })}
                   </div>
                   )}
-                  <label className="mt-4 flex cursor-pointer items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/30 p-4">
+                  <label className="mt-3 flex cursor-pointer items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/30 p-3">
                     <div>
                       <div className="text-sm font-bold text-[#1a0f2e]">Anonim açılış</div>
                       <div className="text-xs text-[#7c6fa0]">Adınız iştirakçılara göstərilməyəcək</div>
@@ -1942,12 +1942,12 @@ function NewOpeningModal({ onClose }) {
 
               {/* Step 1 — Payment */}
               {!authPhase && step === 1 && animal && (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-4">
+                <div className="space-y-3">
+                  <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-3">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <img src={animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || "/qoyun.png"} alt={animal.nameAz}
-                          className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
+                          className="h-10 w-10 rounded-xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
                         <div>
                           <div className="font-bold text-[#1a0f2e]">{animal.nameAz} Qurbanı</div>
                           <div className="text-xs text-[#7c6fa0]">{animal.weightRange} • {animal.price.toLocaleString()} AZN</div>
@@ -1971,7 +1971,7 @@ function NewOpeningModal({ onClose }) {
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Qeyd</label>
                     <textarea value={note} onChange={e => setNote(e.target.value)}
-                      placeholder="Açılışla bağlı qeyd..." rows={3}
+                      placeholder="Açılışla bağlı qeyd..." rows={2}
                       className="w-full resize-none rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-[#1a0f2e] placeholder:text-[#7c6fa0] focus:border-purple-400 focus:outline-none transition-colors" />
                   </div>
                 </div>
@@ -1979,23 +1979,23 @@ function NewOpeningModal({ onClose }) {
 
               {/* Step 2 — Confirmation */}
               {!authPhase && step === 2 && animal && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
                     <button onClick={() => setContMode("registered")}
-                      className={`rounded-2xl border-2 p-4 text-left transition ${contMode === "registered" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                      className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "registered" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
                       <div className="font-bold text-[#1a0f2e]">Qeydiyyat ilə</div>
-                      <div className="mt-1 text-xs text-[#7c6fa0]">Hesabınıza daxil olaraq davam edin</div>
+                      <div className="mt-0.5 text-xs text-[#7c6fa0]">Hesabınıza daxil olaraq davam edin</div>
                     </button>
                     {settings.allowGuest !== false && (
                     <button onClick={() => setContMode("guest")}
-                      className={`rounded-2xl border-2 p-4 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                      className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
                       <div className="font-bold text-[#1a0f2e]">Qeydiyyatsız</div>
-                      <div className="mt-1 text-xs text-[#7c6fa0]">Ad soyad ilə davam edin</div>
+                      <div className="mt-0.5 text-xs text-[#7c6fa0]">Ad soyad ilə davam edin</div>
                     </button>
                     )}
                   </div>
                   {isAnon && (
-                    <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 text-[12px] font-semibold leading-relaxed text-amber-800">
+                    <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3 text-[12px] font-semibold leading-relaxed text-amber-800">
                       Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
                     </div>
                   )}
@@ -2020,9 +2020,9 @@ function NewOpeningModal({ onClose }) {
                       </div>
                     </div>
                   )}
-                  <div className="rounded-2xl border border-purple-100 p-4"
+                  <div className="rounded-2xl border border-purple-100 p-3"
                     style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
-                    <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-purple-700">
+                    <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-purple-700">
                       <Shield size={12} /> Açılış xülasəsi
                     </div>
                     <div className="space-y-2 text-sm">
@@ -2059,22 +2059,22 @@ function NewOpeningModal({ onClose }) {
             </div>
 
             {/* Footer buttons */}
-            {!authPhase && <div className="flex gap-3 px-6 pb-6 pt-3 shrink-0 border-t border-purple-100">
+            {!authPhase && <div className="flex gap-3 px-5 pb-4 pt-3 shrink-0 border-t border-purple-100">
               {step > 0 && (
                 <button onClick={() => setStep(s => s - 1)}
-                  className="flex-1 rounded-xl border border-purple-200 py-3 text-sm font-semibold text-[#1a0f2e] hover:bg-purple-50 transition-colors">
+                  className="flex-1 rounded-xl border border-purple-200 py-2.5 text-sm font-semibold text-[#1a0f2e] hover:bg-purple-50 transition-colors">
                   Geri
                 </button>
               )}
               {step < NOM_STEPS.length - 1 ? (
                 <button onClick={goNext} disabled={(step === 0 && !animal) || (step === 1 && !validAmt)}
-                  className="flex-1 rounded-xl py-3 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                   style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
                   Davam et
                 </button>
               ) : (
                 <button onClick={handleConfirm} disabled={!finalValid || submitting}
-                  className="flex-1 rounded-xl py-3 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                   style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
                   {submitting ? "Yönləndirilir..." : "Açılışı təsdiqlə ✓"}
                 </button>
