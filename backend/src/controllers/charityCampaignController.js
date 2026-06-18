@@ -108,7 +108,7 @@ const publicCampaign = (c) => {
     animal:           c.animal,
     totalAmount:      c.totalAmount,
     collectedAmount:  c.collectedAmount,
-    remainingAmount:  Math.max(0, c.totalAmount - c.collectedAmount),
+    remainingAmount:  Math.round(Math.max(0, c.totalAmount - c.collectedAmount) * 100) / 100,
     percent:          Math.min(100, Math.round((c.collectedAmount / c.totalAmount) * 100)),
     participantCount: paidDonations.length,
     status:           c.status,
@@ -357,7 +357,7 @@ exports.addDonation = async (req, res) => {
     const { donorName, donorPhone, isAnonymous, amount, note } = req.body;
     const parsedAmount = Number(amount);
 
-    const remaining      = campaign.totalAmount - campaign.collectedAmount;
+    const remaining      = Math.round((campaign.totalAmount - campaign.collectedAmount) * 100) / 100;
     const completionPct  = campaign.totalAmount > 0
       ? (campaign.collectedAmount / campaign.totalAmount) * 100 : 0;
     const isNearlyFull   = completionPct >= settings.nearlyFullPercent;
