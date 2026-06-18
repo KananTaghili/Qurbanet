@@ -1169,15 +1169,21 @@ function NewOpeningModal({ onClose }) {
       .then(res => {
         const d = res.data?.data || {};
         setSettingsData(d);
-        if (d.animals?.length) setSelAnimalId(d.animals[0]._id);
+        if (d.animals?.length) {
+          const mp = d.settings?.maxPerAnimal || 1;
+          const first = d.animals.find(a => (a.activeCount || 0) < mp) || d.animals[0];
+          setSelAnimalId(first._id);
+        }
       })
       .catch(() => {})
       .finally(() => setLoadingSettings(false));
   }, []);
 
-  const animals    = settingsData?.animals || [];
-  const settings   = settingsData?.settings || {};
-  const animal     = animals.find(a => String(a._id) === String(selAnimalId)) || null;
+  const animals       = settingsData?.animals || [];
+  const settings      = settingsData?.settings || {};
+  const maxPerAnimal  = settings.maxPerAnimal || 1;
+  const isAtLimit     = (item) => item.activeCount >= maxPerAnimal;
+  const animal        = animals.find(a => String(a._id) === String(selAnimalId)) || null;
   const minPct     = settings.minOpenPercent || 30;
   const minDon     = settings.minDonation    || 10;
   const minAmount  = animal ? Math.min(Math.ceil(Math.round(animal.price * 100) * minPct / 100) / 100, animal.price) : 0;
@@ -1187,7 +1193,7 @@ function NewOpeningModal({ onClose }) {
   const finalValid = contMode === "registered" || (contMode === "guest" && name.trim() && guestLastName.trim());
 
   const goNext = () => {
-    if (step === 0 && !animal) return;
+    if (step === 0 && (!animal || isAtLimit(animal))) return;
     if (step === 0) { setAmount(String(minAmount)); setStep(1); return; }
     if (step === 1 && !validAmt) return;
     setStep(s => s + 1);
@@ -1497,29 +1503,45 @@ function NewOpeningModal({ onClose }) {
                     <div className="flex justify-center py-8"><div className="h-7 w-7 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" /></div>
                   ) : (
                   <div className="grid grid-cols-2 gap-3">
-                    {animals.map(item => (
-                      <button key={item._id} onClick={() => setSelAnimalId(item._id)}
-                        className={`rounded-2xl border-2 p-4 text-left transition-all ${String(selAnimalId) === String(item._id) ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
-                        <div className="mb-3 flex items-center gap-3">
-                          <img src={item.image || ANIMAL_IMG_FALLBACK[item.nameAz] || "/qoyun.png"} alt={item.nameAz}
-                            className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
-                          <div>
-                            <div className="text-sm font-bold text-[#1a0f2e]">{item.nameAz}</div>
-                            <div className="text-[11px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
+                    {animals.map(item => {
+                      const limited = isAtLimit(item);
+                      const isSelected = !limited && String(selAnimalId) === String(item._id);
+                      return (
+                        <button key={item._id}
+                          onClick={() => !limited && setSelAnimalId(item._id)}
+                          disabled={limited}
+                          className={`relative rounded-2xl border-2 p-4 text-left transition-all overflow-hidden
+                            ${limited ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
+                              : isSelected ? "border-purple-500 bg-purple-50"
+                              : "border-purple-100 hover:border-purple-300"}`}>
+                          {limited && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-slate-100/80 rounded-2xl z-10">
+                              <span className="rounded-xl bg-slate-700 px-2.5 py-1.5 text-[10px] font-bold text-white text-center leading-snug">
+                                Açılış Limitinə<br />Çatıb
+                              </span>
+                            </div>
+                          )}
+                          <div className="mb-3 flex items-center gap-3">
+                            <img src={item.image || ANIMAL_IMG_FALLBACK[item.nameAz] || "/qoyun.png"} alt={item.nameAz}
+                              className="h-12 w-12 rounded-2xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
+                            <div>
+                              <div className="text-sm font-bold text-[#1a0f2e]">{item.nameAz}</div>
+                              <div className="text-[11px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                          <div className="rounded-xl bg-white/70 p-2">
-                            <span className="block text-[#7c6fa0]">Qiymət</span>
-                            <b>{item.price.toLocaleString()} AZN</b>
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                            <div className="rounded-xl bg-white/70 p-2">
+                              <span className="block text-[#7c6fa0]">Qiymət</span>
+                              <b>{item.price.toLocaleString()} AZN</b>
+                            </div>
+                            <div className="rounded-xl bg-white/70 p-2">
+                              <span className="block text-[#7c6fa0]">Çəki</span>
+                              <b>{item.weightRange || "—"}</b>
+                            </div>
                           </div>
-                          <div className="rounded-xl bg-white/70 p-2">
-                            <span className="block text-[#7c6fa0]">Çəki</span>
-                            <b>{item.weightRange || "—"}</b>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                   )}
                   <label className="mt-4 flex cursor-pointer items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/30 p-4">
