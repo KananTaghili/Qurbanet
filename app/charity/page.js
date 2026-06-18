@@ -1628,7 +1628,12 @@ function NewOpeningModal({ onClose }) {
         amount: numAmount,
         isAnonymous: isAnon,
         note: note || undefined,
-        ...(isGuestMode && !isAnon ? { openerName: `${name.trim()} ${guestLastName.trim()}`, openerPhone: phone } : {}),
+        ...(!isAnon ? {
+          openerName: isGuestMode
+            ? `${name.trim()} ${guestLastName.trim()}`
+            : (user?.name || ""),
+          ...(isGuestMode ? { openerPhone: phone } : {}),
+        } : {}),
       };
       const r1 = await api.post("/campaigns", body);
       const { campaignId, donationId } = r1.data.data;
