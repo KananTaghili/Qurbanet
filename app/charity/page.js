@@ -322,7 +322,8 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
             : null}
           <Plus size={48} className="text-purple-200" strokeWidth={1.5} style={{ display: animalImg ? "none" : "block" }} />
         </div>
-        <div className="absolute top-[164px] left-1/2 z-20 -translate-x-1/2 rounded-[16px] bg-[#ede9fe] px-6 py-1.5 text-[20px] font-black leading-none tracking-[-.04em] text-purple-300 ring-4 ring-white">
+        <div className="absolute top-[164px] left-1/2 z-20 -translate-x-1/2 rounded-2xl bg-[#ede9fe] px-6 py-1.5 leading-none text-purple-300"
+          style={{ fontSize: "22px", fontWeight: 900, letterSpacing: "-.04em", border: "3px solid white", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           —%
         </div>
       </div>
