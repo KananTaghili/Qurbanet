@@ -71,11 +71,19 @@ const categorySchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    imageHomeUrl: {
+      type: String,
+      trim: true,
+    },
     videoUrl: {
       type: String,
       trim: true,
     },
     imageFileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+    imageHomeFileId: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,
     },

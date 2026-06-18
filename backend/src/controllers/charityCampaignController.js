@@ -35,6 +35,15 @@ const categoryImageUrl = (cat) => {
   return "";
 };
 
+const categoryImageHomeUrl = (cat) => {
+  if (cat.imageHomeFileId) return `${BACKEND_URL()}/api/files/${cat.imageHomeFileId}`;
+  if (cat.imageHomeUrl) {
+    if (/^https?:\/\//.test(cat.imageHomeUrl)) return cat.imageHomeUrl;
+    return `${BACKEND_URL()}${cat.imageHomeUrl.startsWith("/") ? "" : "/"}${cat.imageHomeUrl}`;
+  }
+  return categoryImageUrl(cat);
+};
+
 // Aktiv + qiyməti təyin olunmuş kateqoriyalar (hər birinin aktiv açılış sayı ilə)
 const getCampaignAnimals = async () => {
   const [cats, countMap] = await Promise.all([
@@ -50,9 +59,10 @@ const getCampaignAnimals = async () => {
         nameAz:      cat.nameAz,
         emoji:       cat.emoji || "🐑",
         image:       categoryImageUrl(cat),
+        imageHome:   categoryImageHomeUrl(cat),
         weightRange: (std.labelAz || "").split(" — ")[0].trim(),
         price:       std.price,
-        activeCount: countMap[String(cat._id)] || 0,  // bu heyvandan neçə aktiv açılış var
+        activeCount: countMap[String(cat._id)] || 0,
       };
     })
     .filter(Boolean);
@@ -306,6 +316,7 @@ exports.createCampaign = async (req, res) => {
         nameAz:      animal.nameAz,
         emoji:       animal.emoji || "🐑",
         image:       categoryImageUrl(animal),
+        imageHome:   categoryImageHomeUrl(animal),
         weightRange: (std.labelAz || "").split(" — ")[0].trim(),
         price:       totalAmount,
       },

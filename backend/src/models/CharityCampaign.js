@@ -27,6 +27,7 @@ const charityCampaignSchema = new mongoose.Schema(
       nameAz:      { type: String, required: true },
       emoji:       { type: String, default: "🐑" },
       image:       { type: String, default: "" },
+      imageHome:   { type: String, default: "" },
       weightRange: { type: String, default: "" },
       price:       { type: Number, required: true, min: 0 },
     },

@@ -89,7 +89,8 @@ function mapCompletedCampaign(c) {
   };
 }
 function mapHomeCampaign(c, minDonation) {
-  const img = (c.animal?.image?.startsWith?.("http") ? c.animal.image : null)
+  const img = (c.animal?.imageHome?.startsWith?.("http") ? c.animal.imageHome : null)
+    || (c.animal?.image?.startsWith?.("http") ? c.animal.image : null)
     || ANIMAL_IMG_FALLBACK[c.animal?.nameAz] || "/qoyun.png";
   return {
     campaignId: c._id,

@@ -115,8 +115,9 @@ router.get("/categories", categoryAdminController.listCategories);
 router.post(
   "/categories",
   categoryUpload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "video", maxCount: 1 },
+    { name: "image",     maxCount: 1 },
+    { name: "imageHome", maxCount: 1 },
+    { name: "video",     maxCount: 1 },
   ]),
   categoryAdminController.createCategory,
 );
@@ -125,8 +126,9 @@ router.post(
 router.put(
   "/categories/:categoryId",
   categoryUpload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "video", maxCount: 1 },
+    { name: "image",     maxCount: 1 },
+    { name: "imageHome", maxCount: 1 },
+    { name: "video",     maxCount: 1 },
   ]),
   categoryAdminController.updateCategory,
 );

@@ -68,10 +68,12 @@ const parseCategoryPayload = (body) => {
     weightRange: (body.weightRange || "").trim(),
     charityEnabled:   toBool(body.charityEnabled ?? false),
     charityWeightKey: (body.charityWeightKey || "").trim(),
-    imageUrl: (body.imageUrl || "").trim(),
-    videoUrl: (body.videoUrl || "").trim(),
-    imageFileId: body.imageFileId || undefined,
-    videoFileId: body.videoFileId || undefined,
+    imageUrl:     (body.imageUrl     || "").trim(),
+    imageHomeUrl: (body.imageHomeUrl || "").trim(),
+    videoUrl:     (body.videoUrl     || "").trim(),
+    imageFileId:     body.imageFileId     || undefined,
+    imageHomeFileId: body.imageHomeFileId || undefined,
+    videoFileId:     body.videoFileId     || undefined,
     pricePerShare: Number(body.pricePerShare) || 0,
     totalShares: Number(body.totalShares || 1),
     isActive: toBool(body.isActive),
@@ -112,6 +114,12 @@ const uploadMediaToGridFS = async (req, payload) => {
     const fileId = await uploadBuffer(f.buffer, f.originalname, f.mimetype);
     payload.imageFileId = fileId;
     payload.imageUrl = null;
+  }
+  if (req.files?.imageHome?.[0]) {
+    const f = req.files.imageHome[0];
+    const fileId = await uploadBuffer(f.buffer, f.originalname, f.mimetype);
+    payload.imageHomeFileId = fileId;
+    payload.imageHomeUrl = null;
   }
   if (req.files?.video?.[0]) {
     const f = req.files.video[0];
@@ -154,8 +162,9 @@ const ensureDefaultCategories = async () => {
 const withFixedUrls = (category, req) => {
   const obj = category.toObject ? category.toObject() : { ...category };
   obj.emoji = getAnimalEmoji(obj.type, obj.emoji);
-  if (obj.imageFileId) obj.imageUrl = fileIdToUrl(obj.imageFileId, req);
-  if (obj.videoFileId) obj.videoUrl = fileIdToUrl(obj.videoFileId, req);
+  if (obj.imageFileId)     obj.imageUrl     = fileIdToUrl(obj.imageFileId,     req);
+  if (obj.imageHomeFileId) obj.imageHomeUrl  = fileIdToUrl(obj.imageHomeFileId, req);
+  if (obj.videoFileId)     obj.videoUrl      = fileIdToUrl(obj.videoFileId,     req);
   return obj;
 };
 
