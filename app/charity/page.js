@@ -1169,7 +1169,7 @@ function NewOpeningModal({ onClose }) {
   const animal     = animals.find(a => String(a._id) === String(selAnimalId)) || null;
   const minPct     = settings.minOpenPercent || 30;
   const minDon     = settings.minDonation    || 10;
-  const minAmount  = animal ? Math.ceil(animal.price * minPct / 100) : 0;
+  const minAmount  = animal ? Math.min(Math.ceil(animal.price * minPct / 100), animal.price) : 0;
   const numAmount  = Number(amount || 0);
   const validAmt   = animal ? (numAmount >= minAmount && numAmount <= animal.price) : false;
   const remaining  = animal ? Math.max(animal.price - numAmount, 0) : 0;
@@ -1531,7 +1531,7 @@ function NewOpeningModal({ onClose }) {
                   </div>
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Ödəmək istədiyiniz məbləğ</label>
-                    <input type="number" min={minAmount} max={animal.price} value={amount}
+                    <input type="number" min={minAmount} max={animal.price} step={0.01} value={amount}
                       onChange={e => setAmount(e.target.value)}
                       className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-[#1a0f2e] focus:border-purple-400 focus:outline-none transition-colors" />
                     <div className={`mt-1 text-xs ${validAmt ? "text-[#7c6fa0]" : "text-rose-500"}`}>
