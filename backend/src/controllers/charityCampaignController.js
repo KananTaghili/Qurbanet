@@ -62,13 +62,15 @@ const getCampaignSettings = async () => {
   const s = await AppSettings.findOne({ singleton: "global" });
   return {
     minOpenPercent:      s?.campaignMinOpenPercent  ?? 30,
-    minDonation:         s?.campaignMinDonation     ?? 10,
+    minDonation:            s?.campaignMinDonation             ?? 10,
     allowAnonymous:      s?.campaignAllowAnonymous  !== false,
     allowGuest:          s?.campaignAllowGuest      !== false,
     guestNameRequired:   s?.campaignGuestNameRequired  === true,
     guestPhoneRequired:  s?.campaignGuestPhoneRequired === true,
-    onePerAnimal:        s?.campaignOnePerAnimal       !== false,  // limit aktiv?
-    maxPerAnimal:        s?.campaignMaxPerAnimal       ?? 1,       // hər heyvandan maksimum aktiv açılış
+    nearlyFullPercent:      s?.campaignNearlyFullPercent     ?? 90,
+    nearlyFullMinDonation:  s?.campaignNearlyFullMinDonation ?? 1,
+    onePerAnimal:           s?.campaignOnePerAnimal          !== false,
+    maxPerAnimal:           s?.campaignMaxPerAnimal          ?? 1,
   };
 };
 
@@ -352,9 +354,12 @@ exports.addDonation = async (req, res) => {
     const { donorName, donorPhone, isAnonymous, amount, note } = req.body;
     const parsedAmount = Number(amount);
 
-    const remaining = campaign.totalAmount - campaign.collectedAmount;
-    // Qalan məbləğ minimumdan azdırsa — minimum limit bypass olur (qalanı tam ödəmək olar)
-    const effectiveMin = Math.min(settings.minDonation, remaining);
+    const remaining      = campaign.totalAmount - campaign.collectedAmount;
+    const completionPct  = campaign.totalAmount > 0
+      ? (campaign.collectedAmount / campaign.totalAmount) * 100 : 0;
+    const isNearlyFull   = completionPct >= settings.nearlyFullPercent;
+    const baseMin        = isNearlyFull ? settings.nearlyFullMinDonation : settings.minDonation;
+    const effectiveMin   = Math.min(baseMin, remaining);
 
     if (parsedAmount < effectiveMin)
       return error(res, `Minimum ianə məbləği ${effectiveMin} AZN-dir`, 400);

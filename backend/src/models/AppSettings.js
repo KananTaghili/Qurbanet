@@ -87,8 +87,11 @@ const appSettingsSchema = new mongoose.Schema(
     campaignAllowGuest:      { type: Boolean, default: true },
     campaignGuestNameRequired:  { type: Boolean, default: false },
     campaignGuestPhoneRequired: { type: Boolean, default: false },
-    campaignOnePerAnimal:       { type: Boolean, default: true },  // heyvan başına açılış limiti aktiv?
-    campaignMaxPerAnimal:       { type: Number,  default: 1, min: 1 },  // hər heyvandan maksimum neçə aktiv açılış
+    campaignOnePerAnimal:          { type: Boolean, default: true },
+    campaignMaxPerAnimal:          { type: Number,  default: 1, min: 1 },
+    // Kampaniya demək olar tamamlandıqda (X% keçəndə) aşağı minimum tətbiq olunur
+    campaignNearlyFullPercent:     { type: Number, default: 90, min: 0.01, max: 100 },
+    campaignNearlyFullMinDonation: { type: Number, default: 1,  min: 0.01 },
 
     allowedAdminEmails: {
       type: [String],
