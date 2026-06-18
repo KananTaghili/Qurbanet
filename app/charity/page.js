@@ -290,8 +290,9 @@ function DonationModal({ animal, onClose }) {
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    const n = Number(amount);
-    if (!n || n < 1) return alert("Düzgün məbləğ daxil edin");
+    const n   = Number(amount);
+    const min = Number(animal.shareMin) || 0.01;
+    if (!n || n < min) return alert(`Minimum ianə məbləği ${min} AZN-dir`);
     setSubmitting(true);
     try {
       const r1 = await api.post(`/campaigns/${animal.campaignId}/donate`, { amount: n });
