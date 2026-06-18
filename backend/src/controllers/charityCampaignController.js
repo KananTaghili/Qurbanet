@@ -50,7 +50,7 @@ const getCampaignAnimals = async () => {
         nameAz:      cat.nameAz,
         emoji:       cat.emoji || "🐑",
         image:       categoryImageUrl(cat),
-        weightRange: std.labelAz,
+        weightRange: (std.labelAz || "").split(" — ")[0].trim(),
         price:       std.price,
         activeCount: countMap[String(cat._id)] || 0,  // bu heyvandan neçə aktiv açılış var
       };
@@ -306,7 +306,7 @@ exports.createCampaign = async (req, res) => {
         nameAz:      animal.nameAz,
         emoji:       animal.emoji || "🐑",
         image:       categoryImageUrl(animal),
-        weightRange: std.labelAz,
+        weightRange: (std.labelAz || "").split(" — ")[0].trim(),
         price:       totalAmount,
       },
       totalAmount,
