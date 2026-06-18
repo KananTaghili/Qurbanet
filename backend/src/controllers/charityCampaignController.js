@@ -257,7 +257,10 @@ exports.createCampaign = async (req, res) => {
     if (!std) return error(res, "Heyvanın qiyməti təyin edilməyib", 400);
 
     const totalAmount  = std.price;
-    const minOpening   = Math.ceil((totalAmount * settings.minOpenPercent) / 100);
+    const minOpening   = Math.min(
+      Math.ceil(Math.round(totalAmount * 100) * settings.minOpenPercent / 100) / 100,
+      totalAmount
+    );
     const parsedAmount = Number(amount);
 
     if (parsedAmount < minOpening)
