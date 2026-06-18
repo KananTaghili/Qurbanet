@@ -422,11 +422,10 @@ function DonationModal({ animal, onClose }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6"
       onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden"
-        style={{ maxHeight: "90vh" }}>
+      <div className="relative h-[560px] max-h-[calc(100vh-2rem)] w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#ede9fe] shrink-0"
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[#ede9fe] shrink-0"
           style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm shrink-0">
@@ -446,7 +445,7 @@ function DonationModal({ animal, onClose }) {
         </div>
 
         {/* Step bar */}
-        <div className="flex items-center justify-center gap-2 border-b border-[#f0ebff] px-6 py-3 shrink-0">
+        <div className="flex items-center justify-center gap-2 border-b border-[#f0ebff] px-5 py-2 shrink-0">
           {DONATE_STEPS.map((s, i) => (
             <div key={s} className="flex items-center gap-1.5">
               <div className={`flex items-center gap-1.5 text-xs font-semibold ${i === step ? "text-[#4b14bd]" : i < step ? "text-emerald-600" : "text-[#b0a0c8]"}`}>
@@ -461,12 +460,13 @@ function DonationModal({ animal, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3"
+          style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
 
           {/* Step 0: Məlumat */}
           {step === 0 && (
-            <div className="space-y-4">
-              <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-4">
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
                 <div className="grid grid-cols-3 gap-3 text-xs text-[#8a7ba7]">
                   <div className="flex items-center gap-1.5">
                     <Users size={12} className="text-purple-500 shrink-0" />
@@ -495,7 +495,7 @@ function DonationModal({ animal, onClose }) {
                   </div>
                 </div>
               </div>
-              <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">
+              <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-3">
                 <div>
                   <div className="text-sm font-bold text-[#241a4d]">Anonim ianə</div>
                   <div className="text-xs text-[#8a7ba7]">Adınız iştirakçılar siyahısında gizli görünsün</div>
@@ -508,17 +508,17 @@ function DonationModal({ animal, onClose }) {
 
           {/* Step 1: Ödəniş */}
           {step === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-[#241a4d]">İanə məbləği</label>
                 <input type="number" min={minAmt} max={maxAmt} value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-xl border border-[#d9cdfa] bg-[#fafafa] px-4 py-3 text-lg font-semibold text-[#241a4d] transition focus:border-[#5521c6] focus:outline-none" />
+                  className="w-full rounded-xl border border-[#d9cdfa] bg-[#fafafa] px-4 py-2.5 text-lg font-semibold text-[#241a4d] transition focus:border-[#5521c6] focus:outline-none" />
                 <div className={`mt-1 text-xs ${validAmt ? "text-[#8a7ba7]" : "text-rose-500"}`}>
                   Minimum {minAmt} AZN · Qalan: {animal.totalMin} AZN
                 </div>
               </div>
-              <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">
+              <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#8a7ba7]">İanə</span>
                   <span className="font-semibold text-[#241a4d]">{numAmt} AZN</span>
@@ -532,7 +532,7 @@ function DonationModal({ animal, onClose }) {
                 <label className="mb-1.5 block text-xs font-semibold text-[#241a4d]">Qeyd (istəyə bağlı)</label>
                 <textarea value={note} onChange={(e) => setNote(e.target.value)}
                   placeholder="İanə ilə bağlı qeyd..."
-                  rows={3}
+                  rows={2}
                   className="w-full resize-none rounded-xl border border-[#d9cdfa] bg-[#fafafa] px-4 py-2.5 text-sm text-[#241a4d] transition focus:border-[#5521c6] focus:outline-none placeholder:text-[#c4b5e0]" />
               </div>
             </div>
@@ -540,10 +540,10 @@ function DonationModal({ animal, onClose }) {
 
           {/* Step 2: Təsdiq */}
           {step === 2 && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {!isGuest ? (
                 /* Logged-in user: show account auto */
-                <div className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-purple-50/50 p-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
                   <div className="h-10 w-10 rounded-full bg-[#5521c6] flex items-center justify-center text-white font-bold text-sm shrink-0">
                     {(user?.name || "?")[0].toUpperCase()}
                   </div>
@@ -559,14 +559,14 @@ function DonationModal({ animal, onClose }) {
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <button onClick={() => setContinueMode("registered")}
-                      className={`rounded-2xl border-2 p-4 text-left transition ${continueMode === "registered" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}>
+                      className={`rounded-2xl border-2 p-3 text-left transition ${continueMode === "registered" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}>
                       <div className="font-bold text-[#241a4d] text-sm">Qeydiyyat ilə</div>
-                      <div className="mt-1 text-xs text-[#8a7ba7]">Hesabınıza daxil olaraq davam edin</div>
+                      <div className="mt-0.5 text-xs text-[#8a7ba7]">Hesabınıza daxil olaraq davam edin</div>
                     </button>
                     <button onClick={() => setContinueMode("guest")}
-                      className={`rounded-2xl border-2 p-4 text-left transition ${continueMode === "guest" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}>
+                      className={`rounded-2xl border-2 p-3 text-left transition ${continueMode === "guest" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}>
                       <div className="font-bold text-[#241a4d] text-sm">Qeydiyyatsız</div>
-                      <div className="mt-1 text-xs text-[#8a7ba7]">Ad soyad və nömrə ilə davam edin</div>
+                      <div className="mt-0.5 text-xs text-[#8a7ba7]">Ad soyad və nömrə ilə davam edin</div>
                     </button>
                   </div>
                   {continueMode === "guest" && (
@@ -589,13 +589,13 @@ function DonationModal({ animal, onClose }) {
               )}
 
               {anonymous && (
-                <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 text-[12px] font-semibold leading-relaxed text-amber-800">
+                <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3 text-[12px] font-semibold leading-relaxed text-amber-800">
                   Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
                 </div>
               )}
 
-              <div className="rounded-2xl border border-purple-100 p-4" style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
-                <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[#4b14bd]">
+              <div className="rounded-2xl border border-purple-100 p-3" style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
+                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#4b14bd]">
                   <Shield size={12} /> İanə xülasəsi
                 </div>
                 <div className="space-y-2 text-sm">
@@ -618,10 +618,10 @@ function DonationModal({ animal, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 border-t border-[#f0ebff] px-6 pb-6 pt-4 shrink-0">
+        <div className="flex gap-3 border-t border-[#f0ebff] px-5 pb-4 pt-3 shrink-0">
           {step > 0 && (
             <button onClick={() => setStep(s => s - 1)}
-              className="flex-1 rounded-xl border border-[#d9cdfa] py-3 text-sm font-semibold text-[#241a4d] hover:bg-[#f5f3ff] transition-colors">
+              className="flex-1 rounded-xl border border-[#d9cdfa] py-2.5 text-sm font-semibold text-[#241a4d] hover:bg-[#f5f3ff] transition-colors">
               Geri
             </button>
           )}
@@ -629,14 +629,14 @@ function DonationModal({ animal, onClose }) {
             <button
               onClick={() => { if (step === 1 && !validAmt) return; setStep(s => s + 1); }}
               disabled={step === 1 && !validAmt}
-              className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
               Davam et
             </button>
           ) : (
             <button onClick={handleSubmit}
               disabled={submitting || !canConfirm}
-              className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: submitting ? "#aaa" : "linear-gradient(135deg, #059669, #10b981)" }}>
               {submitting ? "Yönləndirilir..." : "İanəni təsdiqlə ✓"}
             </button>
