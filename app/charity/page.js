@@ -2363,6 +2363,15 @@ export default function CharityPage() {
     const params = new URLSearchParams(window.location.search);
     const cId = params.get("campaign");
     if (cId) setSelectedCampaignId(cId);
+
+    const onPop = () => {
+      const p = new URLSearchParams(window.location.search);
+      const id = p.get("campaign");
+      setSelectedCampaignId(id || null);
+      setPage("home");
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
 
   useEffect(() => {
@@ -2383,9 +2392,20 @@ export default function CharityPage() {
     ? SIDEBAR_NAV.filter(n => n.page !== "ianelerim")
     : SIDEBAR_NAV;
 
+  const openCampaign = (id) => {
+    setSelectedCampaignId(id);
+    const url = id ? `/charity?campaign=${id}` : "/charity";
+    window.history.pushState({}, "", url);
+  };
+
+  const closeCampaign = () => {
+    setSelectedCampaignId(null);
+    window.history.replaceState({}, "", "/charity");
+  };
+
   const setPageGuarded = (p) => {
     if (p === "ianelerim" && isGuest) return;
-    setSelectedCampaignId(null);
+    closeCampaign();
     setPage(p);
   };
 
@@ -2497,7 +2517,7 @@ export default function CharityPage() {
         {page === "home" && selectedCampaignId && (
           <CampaignDetailView
             campaignId={selectedCampaignId}
-            onBack={() => setSelectedCampaignId(null)}
+            onBack={closeCampaign}
           />
         )}
 
@@ -2603,7 +2623,7 @@ export default function CharityPage() {
                   {filtered.map(animal => (
                     <AnimalCard key={animal.campaignId || animal.type} animal={animal}
                       onDonate={setDonationTarget}
-                      onClick={() => setSelectedCampaignId(animal.campaignId)} />
+                      onClick={() => openCampaign(animal.campaignId)} />
                   ))}
                   {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
                     <NewOpeningPlaceholderCard key={`placeholder-${i}`} onOpen={() => setShowNewOpening(true)} />
