@@ -16,7 +16,7 @@ function ConfirmationContent() {
   useEffect(() => {
     if (!campaignId) { setLoading(false); return; }
     api.get(`/campaigns/${campaignId}`)
-      .then(r => setCampaign(r.data?.data?.campaign || null))
+      .then(r => setCampaign(r.data?.data || null))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [campaignId]);
@@ -53,10 +53,10 @@ function ConfirmationContent() {
               <Heart size={13} /> Kampaniya məlumatları
             </div>
             <div className="space-y-2.5 text-sm">
-              {campaign.animal?.name && (
+              {(campaign.animal?.nameAz || campaign.animal?.name) && (
                 <div className="flex justify-between">
                   <span className="text-[#7c6fa0]">Heyvan</span>
-                  <span className="font-semibold text-[#1a0f2e]">{campaign.animal.name}</span>
+                  <span className="font-semibold text-[#1a0f2e]">{campaign.animal.nameAz || campaign.animal.name}</span>
                 </div>
               )}
               <div className="flex justify-between">
