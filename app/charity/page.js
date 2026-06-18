@@ -11,7 +11,7 @@ import {
   ArrowRight, Play, CalendarDays, UsersRound, Share2,
   ArrowLeft, X, Wallet, Flag, Beef, Rabbit, BadgeIcon as CamelIcon,
   Coins, Menu, Shield, UserRoundCheck, PlusCircle, Scissors,
-  Truck, HandHeart, Mail, Phone, Lock,
+  Truck, HandHeart, Mail, Phone, Lock, BarChart3,
 } from "lucide-react";
 
 /* ─── Data ───────────────────────────────────────────────────── */
@@ -825,22 +825,22 @@ function NecePage() {
 
 const SERTLER_STATIC = [
   {
-    icon: "🐄",
+    icon: Beef,
     value: "Hər heyvan növünə 1 ədəd",
     label: "Hər heyvan tipi üçün yalnız 1 açılış ola bilər. Yeni açılış üçün müvafiq heyvan tipinə uyğun davam edən açılışın bitməsi lazımdır.",
   },
   {
-    icon: "👤",
+    icon: UserRoundCheck,
     value: "Yeni açılışa 1 nəfər",
     label: "Yeni açılışı yalnız bir nəfər edə bilər. Yeni açılış əlavə et səhifəsinə daxil olaraq aktiv görünən heyvan tipini seçib ilkin ödənişi etdikdən sonra açılış baş tutacaq.",
   },
   {
-    icon: "🔒",
+    icon: Lock,
     value: "Anonim açılış və ya ianə",
     label: "Əgər adınızın digər istifadəçilərə görünməsini istəmirsinizsə həm Anonim olaraq açılış edə bilərsiniz, həm də ianə verə bilərsiniz. Bu zaman qeydiyyat etməyə ehtiyac yoxdur.",
   },
   {
-    icon: "📄",
+    icon: FileText,
     value: "Şəxsi səhifə",
     label: "Əgər qeydiyyatdan keçmisinizsə əsas səhifədən İanələrim bölməsinə keçərək etdiyiniz açılış və ianə detalları haqqında ətraflı məlumat əldə edə bilərsiniz.",
   },
@@ -849,12 +849,12 @@ const SERTLER_STATIC = [
 function SertlerPage({ minDon = 10, minOpenPct = 30 }) {
   const sertler = [
     {
-      icon: "📊",
+      icon: BarChart3,
       value: `Yeni Açılış üçün minimum ${minOpenPct}%`,
       label: `Yeni ianə açılışı zamanı ümumi qurbanlıq məbləğinin minimum ${minOpenPct}%-ni açılış edən şəxs ödəməlidir.`,
     },
     {
-      icon: "💰",
+      icon: Coins,
       value: `İanə üçün minimum ${minDon} AZN`,
       label: `Əsas səhifədə göstərilən açılışı davam edən qurbanlıqlara ianə vermək üçün minimum ${minDon} AZN tələb olunur.`,
     },
@@ -865,17 +865,20 @@ function SertlerPage({ minDon = 10, minOpenPct = 30 }) {
       <h1 className="text-[#241a4d] mb-1 font-extrabold" style={{ fontSize: "1.35rem" }}>Şərtlərimiz</h1>
       <p className="text-gray-500 text-sm mb-6">Platforma qaydaları və istifadə şərtləri</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {sertler.map((s) => (
-          <div key={s.value} className="bg-white rounded-2xl p-5 border border-[#eee8f6] shadow-sm">
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-50 text-2xl">
-              {s.icon}
+        {sertler.map((s) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.value} className="bg-white rounded-2xl p-5 border border-[#eee8f6] shadow-sm">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-50">
+                <Icon size={22} className="text-purple-600" />
+              </div>
+              <div className="font-extrabold text-purple-700 mb-2 leading-tight" style={{ fontSize: "1rem" }}>
+                {s.value}
+              </div>
+              <div className="text-sm text-gray-500 leading-relaxed">{s.label}</div>
             </div>
-            <div className="font-extrabold text-purple-700 mb-2 leading-tight" style={{ fontSize: "1rem" }}>
-              {s.value}
-            </div>
-            <div className="text-sm text-gray-500 leading-relaxed">{s.label}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
