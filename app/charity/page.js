@@ -1520,7 +1520,7 @@ function TamamlanmisPage() {
 const NOM_STEPS = ["Heyvan növü", "Ödəniş", "Təsdiq"];
 
 function NewOpeningModal({ onClose }) {
-  const { isGuest, login } = useAuth();
+  const { isGuest, user, login } = useAuth();
 
   // campaign flow
   const [step,        setStep]        = useState(0);
@@ -1575,7 +1575,7 @@ function NewOpeningModal({ onClose }) {
   const numAmount  = Number(amount || 0);
   const validAmt   = animal ? (numAmount >= minAmount && numAmount <= animal.price) : false;
   const remaining  = animal ? Math.max(animal.price - numAmount, 0) : 0;
-  const finalValid = contMode === "registered" || (contMode === "guest" && name.trim() && guestLastName.trim());
+  const finalValid = !isGuest || contMode === "registered" || (contMode === "guest" && name.trim() && guestLastName.trim());
 
   const goNext = () => {
     if (step === 0 && (!animal || isAtLimit(animal))) return;
@@ -1586,19 +1586,20 @@ function NewOpeningModal({ onClose }) {
 
   const handleConfirm = async () => {
     if (!finalValid || !animal) return;
-    // If registered mode but user is still guest → show mini auth
-    if (contMode === "registered" && isGuest) {
+    // If registered mode but user is still a guest → show mini auth
+    if (isGuest && contMode === "registered") {
       setAuthPhase(true);
       return;
     }
     setSubmitting(true);
     try {
+      const isGuestMode = isGuest && contMode === "guest";
       const body = {
         animalId: animal._id,
         amount: numAmount,
         isAnonymous: isAnon,
         note: note || undefined,
-        ...(contMode === "guest" && !isAnon ? { openerName: `${name.trim()} ${guestLastName.trim()}`, openerPhone: phone } : {}),
+        ...(isGuestMode && !isAnon ? { openerName: `${name.trim()} ${guestLastName.trim()}`, openerPhone: phone } : {}),
       };
       const r1 = await api.post("/campaigns", body);
       const { campaignId, donationId } = r1.data.data;
@@ -1980,44 +1981,66 @@ function NewOpeningModal({ onClose }) {
               {/* Step 2 — Confirmation */}
               {!authPhase && step === 2 && animal && (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => setContMode("registered")}
-                      className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "registered" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
-                      <div className="font-bold text-[#1a0f2e]">Qeydiyyat ilə</div>
-                      <div className="mt-0.5 text-xs text-[#7c6fa0]">Hesabınıza daxil olaraq davam edin</div>
-                    </button>
-                    {settings.allowGuest !== false && (
-                    <button onClick={() => setContMode("guest")}
-                      className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
-                      <div className="font-bold text-[#1a0f2e]">Qeydiyyatsız</div>
-                      <div className="mt-0.5 text-xs text-[#7c6fa0]">Ad soyad ilə davam edin</div>
-                    </button>
-                    )}
-                  </div>
+                  {/* Logged-in: show account card directly */}
+                  {!isGuest ? (
+                    <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-3">
+                      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-purple-700">
+                        <Shield size={12} /> Aktiv hesab
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-violet-700 text-sm font-extrabold text-white">
+                          {(user?.name || "?").charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate font-bold text-[#1a0f2e]">{user?.name || "İstifadəçi"}</div>
+                          <div className="truncate text-xs text-[#7c6fa0]">{user?.phone || user?.email || ""}</div>
+                        </div>
+                        <span className="ml-auto shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Qeydiyyatlı</span>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Guest: show mode selector + form */
+                    <>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button onClick={() => setContMode("registered")}
+                          className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "registered" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                          <div className="font-bold text-[#1a0f2e]">Qeydiyyat ilə</div>
+                          <div className="mt-0.5 text-xs text-[#7c6fa0]">Hesabınıza daxil olaraq davam edin</div>
+                        </button>
+                        {settings.allowGuest !== false && (
+                          <button onClick={() => setContMode("guest")}
+                            className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                            <div className="font-bold text-[#1a0f2e]">Qeydiyyatsız</div>
+                            <div className="mt-0.5 text-xs text-[#7c6fa0]">Ad soyad ilə davam edin</div>
+                          </button>
+                        )}
+                      </div>
+                      {contMode === "guest" && (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Ad</label>
+                              <input value={name} onChange={e => setName(e.target.value)} placeholder="Adınız"
+                                className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Soyad</label>
+                              <input value={guestLastName} onChange={e => setGuestLastName(e.target.value)} placeholder="Soyadınız"
+                                className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Telefon</label>
+                            <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+994 XX XXX XX XX"
+                              className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                   {isAnon && (
                     <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3 text-[12px] font-semibold leading-relaxed text-amber-800">
                       Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
-                    </div>
-                  )}
-                  {contMode === "guest" && (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Ad</label>
-                          <input value={name} onChange={e => setName(e.target.value)} placeholder="Adınız"
-                            className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
-                        </div>
-                        <div>
-                          <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Soyad</label>
-                          <input value={guestLastName} onChange={e => setGuestLastName(e.target.value)} placeholder="Soyadınız"
-                            className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Telefon</label>
-                        <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+994 XX XXX XX XX"
-                          className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
-                      </div>
                     </div>
                   )}
                   <div className="rounded-2xl border border-purple-100 p-3"
