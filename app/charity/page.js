@@ -67,6 +67,7 @@ function mapMyCampaign(c) {
     organizer: c.iAmOpener ? "Siz açmısınız" : "Siz iştirak etmisiniz",
     participants: c.participantCount || 1,
     img, videoUrl: video?.url || null, iAmOpener: !!c.iAmOpener,
+    weightRange: c.animal?.weightRange || "",
     donations: c.donations || [],
   };
 }
@@ -85,6 +86,7 @@ function mapCompletedCampaign(c) {
     organizer: c.opener?.isAnonymous ? "Anonim" : (c.opener?.name || "—"),
     participants: c.participantCount || 0,
     img, videoUrl: video?.url || null,
+    weightRange: c.animal?.weightRange || "",
     donations: c.donations || [],
   };
 }
@@ -621,6 +623,12 @@ function DonationModal({ animal, onClose }) {
                     <span className="text-[#8a7ba7]">Heyvan</span>
                     <span className="font-semibold">{animal.type}</span>
                   </div>
+                  {animal.weightRange && (
+                    <div className="flex justify-between">
+                      <span className="text-[#8a7ba7]">Diri çəki</span>
+                      <span className="font-semibold">{animal.weightRange}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between border-t border-purple-100 pt-2">
                     <span className="font-bold text-[#241a4d]">Ödəniş</span>
                     <span className="font-bold text-[#5521c6]">{numAmt} AZN</span>
@@ -705,7 +713,13 @@ function IaneDetailPage({ item, onBack }) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 py-2">
               <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                <div className="text-[22px] font-black text-[#33245f] mb-6">{item.type}</div>
+                <div className="text-[22px] font-black text-[#33245f] mb-4">{item.type}</div>
+                {item.weightRange && (
+                  <>
+                    <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
+                    <div className="text-[13px] font-black text-[#33245f] mb-3">{item.weightRange}</div>
+                  </>
+                )}
                 <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
                 <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
                   <CalendarDays size={15} className="text-[#6840c6]" /> {item.startDate}
@@ -1936,7 +1950,7 @@ function NewOpeningModal({ onClose }) {
                               <b>{item.price.toLocaleString()} AZN</b>
                             </div>
                             <div className="rounded-lg bg-white/70 p-1.5">
-                              <span className="block text-[#7c6fa0]">Çəki</span>
+                              <span className="block text-[#7c6fa0]">Diri çəki</span>
                               <b>{item.weightRange || "—"}</b>
                             </div>
                           </div>
@@ -1966,7 +1980,7 @@ function NewOpeningModal({ onClose }) {
                           className="h-10 w-10 rounded-xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
                         <div>
                           <div className="font-bold text-[#1a0f2e]">{animal.nameAz} Qurbanı</div>
-                          <div className="text-xs text-[#7c6fa0]">{animal.weightRange} • {animal.price.toLocaleString()} AZN</div>
+                          <div className="text-xs text-[#7c6fa0]">Diri çəki: {animal.weightRange} • {animal.price.toLocaleString()} AZN</div>
                         </div>
                       </div>
                       <div className="text-right text-xs text-[#7c6fa0]">
@@ -2216,7 +2230,13 @@ function CampaignDetailView({ campaignId, onBack }) {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
               <div className="md:border-r border-[#e7e1f0] md:pr-6">
-                <div className="text-[23px] font-black text-[#33245f] mb-6">{campaign.animal?.nameAz || "Qurban"}</div>
+                <div className="text-[23px] font-black text-[#33245f] mb-4">{campaign.animal?.nameAz || "Qurban"}</div>
+                {campaign.animal?.weightRange && (
+                  <>
+                    <div className="mb-1 text-[11px] font-bold text-[#8b7dac]">Diri çəki</div>
+                    <div className="text-[14px] font-black text-[#33245f] mb-4">{campaign.animal.weightRange}</div>
+                  </>
+                )}
                 <div className="mb-2 text-[11px] font-bold text-[#8b7dac]">Açılış tarixi</div>
                 <div className="flex items-center gap-2 text-[14px] font-black text-[#33245f]">
                   <CalendarDays size={16} className="text-[#6840c6]" />
