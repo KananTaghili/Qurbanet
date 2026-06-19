@@ -34,7 +34,8 @@ const updateSettings = async (req, res) => {
   try {
     const settings = await getOrCreateSettings();
     const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, quickDateTodayEnabled, quickDateTomorrowEnabled,
-      campaignMinOpenPercent, campaignMinDonation, campaignAllowAnonymous, campaignAllowGuest, campaignGuestNameRequired, campaignGuestPhoneRequired, campaignOnePerAnimal, campaignMaxPerAnimal } = req.body;
+      campaignMinOpenPercent, campaignMinDonation, campaignAllowAnonymous, campaignAllowGuest, campaignGuestNameRequired, campaignGuestPhoneRequired, campaignOnePerAnimal, campaignMaxPerAnimal,
+      campaignNearlyFullPercent, campaignNearlyFullMinDonation } = req.body;
 
     if (Array.isArray(timeWindows)) {
       const valid = timeWindows.filter(
@@ -105,11 +106,19 @@ const updateSettings = async (req, res) => {
 
     if (campaignMinOpenPercent !== undefined) {
       const v = Number(campaignMinOpenPercent);
-      if (!Number.isNaN(v) && v >= 1 && v <= 100) settings.campaignMinOpenPercent = v;
+      if (!Number.isNaN(v) && v >= 0.01 && v <= 100) settings.campaignMinOpenPercent = v;
     }
     if (campaignMinDonation !== undefined) {
       const v = Number(campaignMinDonation);
-      if (!Number.isNaN(v) && v >= 1) settings.campaignMinDonation = v;
+      if (!Number.isNaN(v) && v >= 0.01) settings.campaignMinDonation = v;
+    }
+    if (campaignNearlyFullPercent !== undefined) {
+      const v = Number(campaignNearlyFullPercent);
+      if (!Number.isNaN(v) && v >= 0.01 && v <= 100) settings.campaignNearlyFullPercent = v;
+    }
+    if (campaignNearlyFullMinDonation !== undefined) {
+      const v = Number(campaignNearlyFullMinDonation);
+      if (!Number.isNaN(v) && v >= 0.01) settings.campaignNearlyFullMinDonation = v;
     }
     if (campaignAllowAnonymous  !== undefined) settings.campaignAllowAnonymous  = Boolean(campaignAllowAnonymous);
     if (campaignAllowGuest      !== undefined) settings.campaignAllowGuest      = Boolean(campaignAllowGuest);

@@ -267,8 +267,8 @@ const updateCategory = async (req, res) => {
     // Sync image URLs to all campaigns that reference this animal
     try {
       const fixedCat = withFixedUrls(category, req);
-      const newImage     = fixedCat.imageUrl    || "";
-      const newImageHome = fixedCat.imageHomeUrl || newImage;
+      const newImage     = fixedCat.imageUrl     || "";
+      const newImageHome = fixedCat.imageHomeUrl  || newImage;
       await CharityCampaign.updateMany(
         { "animal.id": category._id },
         { $set: { "animal.image": newImage, "animal.imageHome": newImageHome } },
