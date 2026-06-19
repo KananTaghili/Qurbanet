@@ -47,9 +47,9 @@ export default function IaneDetailPage({ item, onBack }) {
         {/* Main info card */}
         <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
           <div className="flex flex-col xl:flex-row">
-            <div className="xl:w-[260px] shrink-0 bg-[#f5f2ff]">
+            <div className="xl:w-[340px] shrink-0 bg-[#f5f2ff]">
               <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                className="h-[220px] xl:h-full w-full object-cover" />
+                className="h-[240px] xl:h-full w-full object-cover" />
             </div>
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
               <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-4">
@@ -97,7 +97,8 @@ export default function IaneDetailPage({ item, onBack }) {
                     <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
                     <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
                     <button onClick={() => setShowVideo(true)}
-                      className="flex w-full items-center justify-center gap-2 rounded-[6px] bg-[#1d4ed8] py-2 text-[12px] font-extrabold text-white hover:bg-[#1e40af] transition">
+                      className="flex w-full items-center justify-center gap-2 rounded-[6px] py-2 text-[12px] font-extrabold text-white transition hover:opacity-90"
+                      style={{ background: "#4b14bd" }}>
                       <Video size={14} /> Kəsim Videosu
                     </button>
                     <button onClick={handleShare}
@@ -225,33 +226,74 @@ export default function IaneDetailPage({ item, onBack }) {
         </div>
       </div>
 
-      {showVideo && item.videoUrl && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 backdrop-blur-sm"
-          style={{ backgroundColor: "rgba(10,4,30,0.72)" }}
-          onClick={() => setShowVideo(false)}>
-          <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-[#e7e1f0] px-5 py-3">
+      {showVideo && (
+        <div
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:px-4"
+          style={{ backgroundColor: "rgba(10,4,30,0.82)", backdropFilter: "blur(8px)" }}
+          onClick={() => setShowVideo(false)}
+        >
+          <div
+            className="w-full sm:max-w-2xl overflow-hidden rounded-t-3xl sm:rounded-2xl bg-[#0d0820] shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
-                  <Video size={16} strokeWidth={2} />
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl"
+                  style={{ background: "linear-gradient(135deg,#4b14bd,#7c3aed)" }}>
+                  <Video size={17} className="text-white" strokeWidth={2} />
                 </div>
-                <div className="text-[15px] font-black text-[#33245f]">{item.type} — Kəsim Videosu</div>
+                <div>
+                  <div className="text-[15px] font-black text-white leading-none">{item.type} — Kəsim Videosu</div>
+                  <div className="mt-1 text-[11px] font-medium text-white/50">Tamamlanmış qurban kəsimi</div>
+                </div>
               </div>
-              <button onClick={() => setShowVideo(false)}
-                className="grid h-8 w-8 place-items-center rounded-full bg-[#f3effe] text-[#4b14bd] hover:bg-[#e8deff] transition">
-                <X size={16} />
+              <button
+                onClick={() => setShowVideo(false)}
+                className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+              >
+                <X size={18} />
               </button>
             </div>
-            <div className="aspect-video bg-black">
-              <video src={item.videoUrl} controls autoPlay className="h-full w-full" style={{ display: "block" }}>
-                <source src={item.videoUrl} type="video/mp4" />
-              </video>
-            </div>
-            <div className="flex items-center gap-2.5 border-t border-[#e7e1f0] bg-[#fbfaff] px-5 py-3 text-[12px] font-semibold text-[#6e5b9b]">
-              <img src={item.img} alt={item.type} className="h-8 w-8 rounded-lg object-contain bg-purple-50" />
-              <span>{item.type}</span>
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">Tamamlandı</span>
+
+            {/* Video or placeholder */}
+            {item.videoUrl ? (
+              <div className="aspect-video bg-black">
+                <video
+                  src={item.videoUrl}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="h-full w-full"
+                  style={{ display: "block" }}
+                >
+                  <source src={item.videoUrl} type="video/mp4" />
+                </video>
+              </div>
+            ) : (
+              <div className="aspect-video bg-[#080514] flex flex-col items-center justify-center gap-4">
+                <div className="grid h-16 w-16 place-items-center rounded-full bg-white/5">
+                  <Video size={32} className="text-white/20" />
+                </div>
+                <div className="text-center">
+                  <div className="text-[14px] font-bold text-white/40">Video hələ yüklənməyib</div>
+                  <div className="mt-1 text-[12px] text-white/25">Kəsim tamamlandıqdan sonra əlavə ediləcək</div>
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="flex items-center gap-3 px-5 py-4 border-t border-white/5">
+              <img src={item.img} alt={item.type}
+                className="h-10 w-10 rounded-xl object-cover" style={{ background: "rgba(255,255,255,0.05)" }} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-bold text-white/80 truncate">{item.type} qurban · {item.startDate}</div>
+                <div className="text-[11px] text-white/40 mt-0.5">{item.participants} iştirakçı · {item.totalAmount} AZN</div>
+              </div>
+              <span className="shrink-0 rounded-full px-3 py-1 text-[11px] font-bold"
+                style={{ background: "rgba(52,211,153,0.15)", color: "#6ee7b7" }}>
+                Tamamlandı
+              </span>
             </div>
           </div>
         </div>

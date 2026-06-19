@@ -31,7 +31,7 @@ export default function TamamlanmisPage() {
 
   const handleShare = async (e, item) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/charity/tamamlanmis#${item.id}`;
+    const url = `${window.location.origin}/charity/completed#${item.id}`;
     try { await navigator.clipboard.writeText(url); } catch {
       const ta = document.createElement("textarea");
       ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";

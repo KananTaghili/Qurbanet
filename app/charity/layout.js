@@ -550,7 +550,7 @@ export default function CharityLayout({ children }) {
   const [showNewOpening, setShowNewOpening] = useState(false);
 
   const visibleNav = isGuest
-    ? SIDEBAR_NAV.filter(n => n.href !== "/charity/ianelerim")
+    ? SIDEBAR_NAV.filter(n => n.href !== "/charity/donations")
     : SIDEBAR_NAV;
 
   const isActive = (href) => {
