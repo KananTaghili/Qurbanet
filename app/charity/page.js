@@ -488,6 +488,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading]   = useState(true);
   const [showAll, setShowAll]   = useState(false);
+  const [copied, setCopied]     = useState(false);
 
   useEffect(() => {
     if (!campaignId) return;
@@ -497,6 +498,12 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [campaignId]);
+
+  const handleShare = async () => {
+    try { await navigator.clipboard.writeText(window.location.href); } catch {}
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (loading) return (
     <div className="flex-1 flex items-center justify-center bg-[#fbfaff]">
@@ -519,16 +526,22 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
   const otherDons    = paidDons.filter(d => !d.isOpener);
   const displayDons  = showAll ? otherDons : otherDons.slice(0, 10);
   const animalImg    = campaign.animal?.image || ANIMAL_IMG_FALLBACK[campaign.animal?.nameAz] || "/qoyun.png";
+  const fmtDonTime   = (d) => {
+    if (!d) return "—";
+    const dt = new Date(d);
+    return `${fmtDate(d)}  •  ${dt.toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" })}`;
+  };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff]">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-20 lg:pb-0">
+      {/* Header */}
       <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm sticky top-0 z-10">
         <button onClick={onBack}
-          className="flex h-9 shrink-0 items-center gap-2 rounded-xl border border-[#ded5ec] bg-white px-3 text-[13px] font-bold text-[#4b14bd] shadow-sm hover:bg-purple-50 transition">
+          className="flex h-9 shrink-0 items-center gap-2 rounded-xl border border-[#ded5ec] bg-white px-3 text-[13px] font-extrabold text-[#4b14bd] shadow-sm hover:bg-purple-50 transition">
           <ArrowLeft size={16} /> Geri qayıt
         </button>
-        <h1 className="flex-1 truncate text-[17px] font-black text-[#33245f]">
-          {isCompleted ? "Tamamlanmış açılış" : "İanəsi davam edən qurbanlıq"}
+        <h1 className="flex-1 truncate text-[16px] font-black tracking-[-.02em] text-[#33245f]">
+          {isCompleted ? `${fmtDate(campaign.createdAt)} — tamamlanmış açılış` : `${campaign.animal?.nameAz || "Qurban"} — ianə detalları`}
         </h1>
         {!isCompleted && onDonate && (
           <button onClick={() => onDonate({
@@ -544,137 +557,185 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
         )}
       </div>
 
-      <div className="p-3 md:p-4">
-        <div className="rounded-[10px] border border-[#e7e1f0] bg-white p-3 shadow-sm">
-          <div className="grid grid-cols-1 xl:grid-cols-[200px_1fr_190px] gap-4">
-            <img src={animalImg} alt={campaign.animal?.nameAz}
-              className="h-[180px] w-full xl:h-[210px] rounded-[7px] bg-purple-50 object-contain" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
-              <div className="md:border-r border-[#e7e1f0] md:pr-6">
-                <div className="text-[23px] font-black text-[#33245f] mb-4">{campaign.animal?.nameAz || "Qurban"}</div>
-                {campaign.animal?.weightRange && (
+      <div className="p-4 space-y-3">
+        {/* Main info card */}
+        <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
+          <div className="flex flex-col xl:flex-row">
+            {/* Animal image */}
+            <div className="xl:w-[340px] shrink-0 bg-[#f5f2ff]">
+              <img src={animalImg} alt={`${campaign.animal?.nameAz || "Qurban"} heyvanı`}
+                className="h-[240px] xl:h-full w-full object-cover" />
+            </div>
+            <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
+              {/* Stats grid */}
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-4">
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
+                  <div className="text-[22px] font-black text-[#33245f] mb-4">{campaign.animal?.nameAz || "Qurban"}</div>
+                  {campaign.animal?.weightRange && (
+                    <>
+                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
+                      <div className="text-[13px] font-black text-[#33245f] mb-3">{campaign.animal.weightRange}</div>
+                    </>
+                  )}
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
+                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
+                    <CalendarDays size={15} className="text-[#6840c6]" /> {fmtDate(campaign.createdAt)}
+                  </div>
+                </div>
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f] mb-5">
+                    <Coins size={20} className="text-[#5b22c7]" /> {campaign.totalAmount} AZN
+                  </div>
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f]">
+                    <Coins size={20} className="text-[#5b22c7]" /> {campaign.collectedAmount} AZN
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
+                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
+                    <Users size={20} className="text-[#5b22c7]" /> {campaign.participantCount} nəfər
+                  </div>
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Qalan məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
+                    <Coins size={20} className="text-[#5b22c7]" /> {Number((campaign.remainingAmount || 0).toFixed(2))} AZN
+                  </div>
+                </div>
+              </div>
+
+              {/* Status panel */}
+              <div className="xl:w-[210px] shrink-0 p-4 flex flex-col items-center justify-center gap-3 text-center">
+                {isCompleted ? (
                   <>
-                    <div className="mb-1 text-[11px] font-bold text-[#8b7dac]">Diri çəki</div>
-                    <div className="text-[14px] font-black text-[#33245f] mb-4">{campaign.animal.weightRange}</div>
+                    <div className="grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                      <CheckCircle size={32} />
+                    </div>
+                    <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
+                    <button onClick={handleShare}
+                      className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                      <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-[11px] font-bold text-[#6e5b9b]">Tamamlanma</div>
+                    <svg width="100" height="100" viewBox="0 0 108 108">
+                      <defs>
+                        <linearGradient id="camp-detail-ring-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%"   stopColor="#4513ad" />
+                          <stop offset="65%"  stopColor="#5d28cf" />
+                          <stop offset="100%" stopColor="#7b4cea" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="54" cy="54" r="42" fill="none" stroke="#e6dcff" strokeWidth="9" />
+                      <circle cx="54" cy="54" r="42" fill="none" stroke="url(#camp-detail-ring-grad)" strokeWidth="11"
+                        strokeLinecap="round"
+                        strokeDasharray={`${((campaign.percent || 0) / 100) * 2 * Math.PI * 42} ${(1 - (campaign.percent || 0) / 100) * 2 * Math.PI * 42}`}
+                        transform="rotate(90 54 54)" />
+                      <text x="54" y="61" textAnchor="middle" fontSize="22" fontWeight="900" fill="#4b14bd">
+                        {campaign.percent || 0}%
+                      </text>
+                    </svg>
+                    <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-black text-amber-700">Davam edir</span>
+                    <button onClick={handleShare}
+                      className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                      <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                    </button>
                   </>
                 )}
-                <div className="mb-2 text-[11px] font-bold text-[#8b7dac]">Açılış tarixi</div>
-                <div className="flex items-center gap-2 text-[14px] font-black text-[#33245f]">
-                  <CalendarDays size={16} className="text-[#6840c6]" /> {fmtDate(campaign.createdAt)}
-                </div>
               </div>
-              <div className="md:border-r border-[#e7e1f0] md:pr-6">
-                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">Ümumi məbləğ</div>
-                <div className="flex items-center gap-2 text-[18px] font-black text-[#33245f] mb-8">
-                  <Coins size={22} className="text-[#5b22c7]" />{campaign.totalAmount} AZN
-                </div>
-                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">Toplanan məbləğ</div>
-                <div className="flex items-center gap-2 text-[18px] font-black text-[#33245f]">
-                  <Coins size={22} className="text-[#5b22c7]" />{campaign.collectedAmount} AZN
-                </div>
-              </div>
-              <div>
-                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">İştirakçı sayı</div>
-                <div className="flex items-center gap-2 text-[15px] font-black text-[#33245f] mb-8">
-                  <Users size={20} className="text-[#5b22c7]" />{campaign.participantCount} nəfər
-                </div>
-                <div className="mb-2 text-[12px] font-bold text-[#8b7dac]">Qalan məbləğ</div>
-                <div className="flex items-center gap-2 text-[15px] font-black text-[#33245f]">
-                  <Coins size={20} className="text-[#5b22c7]" />{Number(campaign.remainingAmount.toFixed(2))} AZN
-                </div>
-              </div>
-            </div>
-            <div className="rounded-[8px] border border-[#dcd2ec] p-4 text-center flex flex-col items-center justify-center gap-3">
-              {isCompleted ? (
-                <>
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                    <CheckCircle size={28} />
-                  </div>
-                  <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
-                </>
-              ) : (
-                <>
-                  <div className="text-[12px] font-black text-[#6e5b9b]">Qurbanlıq statusu</div>
-                  <span className="rounded-[4px] bg-[#fff6dd] px-3 py-1.5 text-[12px] font-black text-[#f59a00]">Açılış davam edir</span>
-                  <DetailCircle percent={campaign.percent || 0} />
-                </>
-              )}
             </div>
           </div>
         </div>
 
+        {/* Opener row */}
         {openerDon && (
-          <>
-            <div className="mt-4 inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1.5 text-[11px] font-black text-white">Açan şəxs</div>
-            <div className="grid min-h-[64px] grid-cols-1 md:grid-cols-3 items-center rounded-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-5 py-4 shadow-sm gap-3 md:gap-0 mb-4">
+          <div>
+            <div className="inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1.5 text-[11px] font-black text-white">Açan şəxs</div>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] min-h-[60px] items-center gap-4 rounded-b-[8px] rounded-tr-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-5 py-3 shadow-[0_3px_10px_rgba(49,22,93,.04)]">
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-purple-200 text-sm font-black text-purple-800 shrink-0">
-                  {(openerDon.isAnonymous ? "A" : (openerDon.name || "?")[0]).toUpperCase()}
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-black text-sm"
+                  style={(() => { const c = avatarColor(openerDon.isAnonymous ? null : openerDon.name); return { backgroundColor: c.bg, color: c.text }; })()}>
+                  {openerDon.isAnonymous ? "AN" : initials(openerDon.name)}
                 </div>
                 <div>
                   <div className="text-[13px] font-black text-[#33245f]">
                     {openerDon.isAnonymous ? "Anonim" : openerDon.name}
-                    {!openerDon.isAnonymous && <span className="text-[#4b14bd] ml-1">●</span>}
+                    {!openerDon.isAnonymous && <span className="ml-1 text-[#4b14bd]">●</span>}
                   </div>
                   <div className="text-[12px] font-bold text-[#6f6290]">Açılış edən şəxs</div>
                 </div>
               </div>
-              <div className="text-center text-[20px] font-black text-[#24124f]">
-                {openerDon.amount} AZN<span className="ml-3 text-[13px] text-[#5b22c7]">({Math.round(openerDon.percent)}%)</span>
+              <div className="text-[20px] font-black text-[#24124f]">
+                {openerDon.amount} AZN
+                <span className="ml-2 text-[13px] font-bold text-[#5b22c7]">({Math.round(openerDon.percent)}%)</span>
               </div>
-              <div className="text-right text-[11px] font-bold leading-6 text-[#4f4075]">
-                {fmtDate(openerDon.paidAt)}<br />{fmtTime(openerDon.paidAt)}
+              <div className="text-[11px] font-bold text-[#4f4075] text-right whitespace-nowrap">
+                {fmtDate(openerDon.paidAt)}
               </div>
             </div>
-          </>
+          </div>
         )}
 
+        {/* Donors table */}
         {otherDons.length > 0 && (
-          <>
-            <h2 className="mb-3 text-[15px] font-black text-[#33245f]">Digər ödəniş edənlər ({otherDons.length} nəfər)</h2>
-            <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-sm overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left text-[11px] font-bold text-[#33245f]">
-                <thead className="bg-white text-[12px] text-[#8b7dac]">
-                  <tr className="border-b border-[#e7e1f0]">
-                    <th className="px-5 py-4">#</th><th className="px-4 py-4">Ad Soyad</th>
-                    <th className="px-4 py-4">Ödənilən məbləğ</th><th className="px-4 py-4">Faiz</th>
-                    <th className="px-4 py-4 text-right">Ödəniş tarixi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayDons.map((d, i) => (
-                    <tr key={d._id || i} className="border-b border-[#eee8f6] last:border-b-0">
-                      <td className="px-5 py-3 font-black">{i + 1}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="grid h-7 w-7 place-items-center rounded-full shrink-0 text-[9px] font-bold"
-                            style={(() => { const c = avatarColor(d.isAnonymous ? null : d.name); return { backgroundColor: c.bg, color: c.text }; })()}>
-                            {d.isAnonymous ? "AN" : initials(d.name)}
-                          </div>
-                          <span>{d.isAnonymous ? "Anonim" : d.name}{!d.isAnonymous && <span className="text-[#4b14bd] ml-1">●</span>}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 font-black">{d.amount} AZN</td>
-                      <td className="px-4 py-3 text-[#5b22c7]">{Math.round(d.percent)}%</td>
-                      <td className="px-4 py-3 text-right">{fmtDate(d.paidAt)}  •  {fmtTime(d.paidAt)}</td>
+          <div>
+            <h2 className="mb-3 text-[15px] font-black text-[#33245f]">
+              Digər ödəniş edənlər ({otherDons.length} nəfər)
+            </h2>
+            <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.04)]">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[540px] text-left text-[11px] font-bold text-[#33245f]">
+                  <thead>
+                    <tr className="border-b border-[#e7e1f0] bg-white text-[11px] text-[#8b7dac]">
+                      <th className="px-5 py-3.5">#</th>
+                      <th className="px-4 py-3.5">Ad Soyad</th>
+                      <th className="px-4 py-3.5">Ödənilən məbləğ</th>
+                      <th className="px-4 py-3.5">Faiz</th>
+                      <th className="px-4 py-3.5 text-right">Ödəniş tarixi</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              {otherDons.length > 10 && !showAll && (
+                  </thead>
+                  <tbody>
+                    {displayDons.map((d, i) => (
+                      <tr key={d._id || i} className="border-b border-[#eee8f6] last:border-b-0 hover:bg-purple-50/30 transition-colors">
+                        <td className="px-5 py-3 font-black">{i + 1}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[9px] font-bold"
+                              style={(() => { const c = avatarColor(d.isAnonymous ? null : d.name); return { backgroundColor: c.bg, color: c.text }; })()}>
+                              {d.isAnonymous ? "AN" : initials(d.name)}
+                            </div>
+                            <span>
+                              {d.isAnonymous ? "Anonim" : d.name}
+                              {!d.isAnonymous && <span className="ml-1 text-[#4b14bd]">●</span>}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-black">{d.amount} AZN</td>
+                        <td className="px-4 py-3 text-[#5b22c7]">{Math.round(d.percent)}%</td>
+                        <td className="px-4 py-3 text-right text-[#4f4075]">{fmtDonTime(d.paidAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {otherDons.length > 10 && (
                 <div className="flex justify-center py-4">
-                  <button onClick={() => setShowAll(true)}
-                    className="flex h-10 items-center gap-2 rounded-[6px] border border-[#c8b9eb] px-6 text-[13px] font-black text-[#5b22c7]">
-                    Daha çoxunu göstər <ChevronDown size={15} />
+                  <button onClick={() => setShowAll(v => !v)}
+                    className="flex h-10 items-center gap-2 rounded-[6px] border border-[#c8b9eb] px-6 text-[13px] font-black text-[#5b22c7] hover:bg-purple-50 transition">
+                    {showAll ? "Daha az göstər" : "Daha çoxunu göstər"}
+                    <ChevronDown size={16} className={`transition-transform ${showAll ? "rotate-180" : ""}`} />
                   </button>
                 </div>
               )}
             </div>
-          </>
+          </div>
         )}
 
         {otherDons.length === 0 && !openerDon && (
-          <div className="mt-4 rounded-2xl border border-dashed border-[#d8cdec] bg-white px-6 py-10 text-center text-sm text-[#77689c]">
+          <div className="rounded-2xl border border-dashed border-[#d8cdec] bg-white px-6 py-10 text-center text-sm text-[#77689c]">
             Hələ ödəniş edən yoxdur.
           </div>
         )}
