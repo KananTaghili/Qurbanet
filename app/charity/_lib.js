@@ -25,10 +25,10 @@ export const AVATAR_PALETTE = [
 
 export const SIDEBAR_NAV = [
   { icon: Home,        label: "Əsas Səhifə",  href: "/charity"             },
-  { icon: List,        label: "İanələrim",     href: "/charity/ianelerim"   },
-  { icon: CheckCircle, label: "Tamamlanmış",   href: "/charity/tamamlanmis" },
-  { icon: HelpCircle,  label: "Necə işləyir", href: "/charity/nece"        },
-  { icon: FileText,    label: "Şərtlərimiz",  href: "/charity/sertler"     },
+  { icon: List,        label: "İanələrim",     href: "/charity/donations"    },
+  { icon: CheckCircle, label: "Tamamlanmış",   href: "/charity/completed"    },
+  { icon: HelpCircle,  label: "Necə işləyir", href: "/charity/how-it-works"  },
+  { icon: FileText,    label: "Şərtlərimiz",  href: "/charity/terms"         },
 ];
 
 export const FEATURES = [

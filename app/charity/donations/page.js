@@ -87,7 +87,7 @@ function IanelerimContent() {
 
   const handleShare = (e, item) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/charity/ianelerim?detail=${item.id}`;
+    const url = `${window.location.origin}/charity/donations?detail=${item.id}`;
     if (navigator.share) {
       navigator.share({ title: `${item.type} qurban kampaniyasına qatıl!`, url }).catch(() => {});
     } else {
@@ -114,12 +114,12 @@ function IanelerimContent() {
 
   const openDetail = (item) => {
     setSelected(item);
-    router.push(`/charity/ianelerim?detail=${item.id}`, { scroll: false });
+    router.push(`/charity/donations?detail=${item.id}`, { scroll: false });
   };
 
   const closeDetail = () => {
     setSelected(null);
-    router.push("/charity/ianelerim", { scroll: false });
+    router.push("/charity/donations", { scroll: false });
   };
 
   if (isGuest) {

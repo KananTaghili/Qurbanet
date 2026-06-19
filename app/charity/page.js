@@ -795,7 +795,7 @@ function HomeContent() {
                 style={{ background: "#4b14bd" }}>
                 <Plus size={13} /> Yeni açılış et
               </button>
-              <Link href="/charity/nece"
+              <Link href="/charity/how-it-works"
                 className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
                 style={{ color: "#4b14bd", borderColor: "rgba(75,20,189,0.3)" }}>
                 <Play size={11} /> Necə işləyir?
@@ -817,7 +817,7 @@ function HomeContent() {
                   style={{ background: "#4b14bd" }}>
                   <Plus size={14} /> Yeni açılış et
                 </button>
-                <Link href="/charity/nece"
+                <Link href="/charity/how-it-works"
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
                   style={{ color: "#4b14bd", borderColor: "rgba(75,20,189,0.3)" }}>
                   <Play size={12} /> Necə işləyir?
