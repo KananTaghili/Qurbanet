@@ -1024,26 +1024,35 @@ function IanelerimPage() {
           const cfg = STATUS_CFG[item.status] || STATUS_CFG["Davam edir"];
           return (
             <div key={item.id} onClick={() => setSelected(item)}
-              className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md my-2">
               {/* Mobile layout */}
-              <div className="flex lg:hidden gap-3 p-2.5">
-                <img src={item.img} alt={item.type}
-                  className="w-[80px] self-stretch rounded-xl bg-purple-50 object-contain shrink-0" />
+              <div className="flex lg:hidden gap-3 p-3">
+                <div className="shrink-0 self-stretch w-[90px]">
+                  <img src={item.img} alt={item.type}
+                    className="h-full w-full rounded-xl bg-[#f5f2ff] object-contain" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-[15px] font-bold text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${cfg.badge}`}>{cfg.label}</span>
                   </div>
                   <div className="text-[11px] text-[#77689c] mb-1">{item.organizer}</div>
-                  <div className="grid grid-cols-3 gap-1.5 mb-1.5">
+                  {item.weightRange && (
+                    <div className="text-[10px] text-[#8778a8] mb-1.5">
+                      Diri çəki: <span className="font-semibold text-[#5b22c7]">{item.weightRange}</span>
+                    </div>
+                  )}
+                  <div className={`grid gap-1.5 mb-1.5 ${item.status === "Tamamlandı" ? "grid-cols-2" : "grid-cols-3"}`}>
                     <div>
                       <div className="text-[10px] text-[#8778a8]">İanəniz</div>
                       <div className="text-[12px] font-bold text-[#33245f]">{item.amount}</div>
                     </div>
-                    <div>
-                      <div className="text-[10px] text-[#8778a8]">Toplanan</div>
-                      <div className="text-[12px] font-bold text-[#33245f]">{item.collectedAmount}</div>
-                    </div>
+                    {item.status !== "Tamamlandı" && (
+                      <div>
+                        <div className="text-[10px] text-[#8778a8]">Toplanan</div>
+                        <div className="text-[12px] font-bold text-[#33245f]">{item.collectedAmount}</div>
+                      </div>
+                    )}
                     <div>
                       <div className="text-[10px] text-[#8778a8]">Ümumi</div>
                       <div className="text-[12px] font-bold text-[#33245f]">{item.totalAmount}</div>
@@ -1070,20 +1079,26 @@ function IanelerimPage() {
               </div>
 
               {/* Desktop layout */}
-              <div className="hidden lg:grid grid-cols-[155px_1fr_250px] min-h-[148px]">
-                <div className="p-4 pr-2">
+              <div className="hidden lg:grid grid-cols-[170px_1fr_250px] min-h-[156px]">
+                <div className="p-3 pr-2">
                   <img src={item.img} alt={item.type}
-                    className="h-[120px] w-full rounded-xl bg-purple-50 object-cover" />
+                    className="h-full w-full rounded-xl bg-[#f5f2ff] object-contain" />
                 </div>
                 <div className="px-4 py-4">
-                  <div className="mb-2.5 flex items-center gap-3">
+                  <div className="mb-2 flex items-center gap-3">
                     <h3 className="text-[18px] font-bold leading-none text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2.5 py-1 text-[11px] font-medium ${cfg.badge}`}>{cfg.label}</span>
                   </div>
-                  <div className="mb-3 flex items-center gap-2 text-[11px] text-[#77689c]">
+                  <div className="mb-1.5 flex items-center gap-2 text-[11px] text-[#77689c]">
                     <User size={13} className="text-[#7760bb]" />{item.organizer}
                   </div>
-                  <div className="mb-4 grid grid-cols-2 gap-4 max-w-[340px]">
+                  {item.weightRange && (
+                    <div className="mb-3 flex items-center gap-1.5 text-[11px] text-[#8778a8]">
+                      <Beef size={13} className="text-[#5b22c7]" />
+                      Diri çəki: <span className="font-semibold text-[#5b22c7]">{item.weightRange}</span>
+                    </div>
+                  )}
+                  <div className="mb-3.5 grid grid-cols-2 gap-4 max-w-[340px]">
                     <div>
                       <div className="text-[11px] text-[#8778a8]">Başlanma tarixi</div>
                       <div className="mt-0.5 text-[13px] font-semibold text-[#33245f]">{item.startDate}</div>
@@ -1094,9 +1109,11 @@ function IanelerimPage() {
                     </div>
                   </div>
                   <div className="flex items-end gap-5">
-                    <StatCell label="Sizin ianəniz"       value={item.amount}          />
-                    <StatCell label="Bu günə kimi ödənən" value={item.collectedAmount} />
-                    <StatCell label="Ümumi məbləğ"        value={item.totalAmount}     />
+                    <StatCell label="Sizin ianəniz" value={item.amount} />
+                    {item.status !== "Tamamlandı" && (
+                      <StatCell label="Bu günə kimi ödənən" value={item.collectedAmount} />
+                    )}
+                    <StatCell label="Ümumi məbləğ" value={item.totalAmount} />
                   </div>
                 </div>
                 <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5">
