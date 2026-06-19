@@ -59,7 +59,7 @@ function CircularProgress({ percent, status }) {
   const progress = (Math.min(percent, 100) / 100) * c;
   return (
     <div className="flex flex-col items-center gap-1">
-      <svg width="58" height="58" viewBox="0 0 76 76">
+      <svg width="72" height="72" viewBox="0 0 76 76">
         <circle cx="38" cy="38" r={r} fill="none" stroke={cfg.track} strokeWidth="7" />
         <circle cx="38" cy="38" r={r} fill="none" stroke={cfg.color} strokeWidth="7"
           strokeDasharray={c} strokeDashoffset={c - progress} strokeLinecap="round" transform="rotate(-90 38 38)" />
@@ -223,10 +223,9 @@ function IanelerimContent() {
                 <div className="flex" style={{ height: 120 }}>
                   <div className="flex-[2] relative bg-[#f5f2ff] rounded-tl-2xl overflow-hidden">
                     <img src={item.img} alt={item.type}
-                      className="absolute inset-0 w-full h-full object-contain p-3"
-                      style={{ mixBlendMode: "multiply" }} />
+                      className="absolute inset-0 w-full h-full object-cover" />
                   </div>
-                  <div className="flex-[1] flex flex-col items-center justify-center gap-1 border-l border-[#eee8f6] bg-white rounded-tr-2xl px-1">
+                  <div className="flex-[1] flex flex-col items-center justify-center gap-1 border-l border-[#eee8f6] bg-white rounded-tr-2xl">
                     <CircularProgress percent={item.progressPercent} status={item.status} />
                   </div>
                 </div>
