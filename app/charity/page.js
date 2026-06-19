@@ -496,21 +496,20 @@ function DonationModal({ animal, onClose }) {
           {step === 0 && (
             <div className="space-y-3">
               <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
-                <div className="grid grid-cols-3 gap-3 text-xs text-[#8a7ba7]">
+                <div className="flex flex-col gap-1.5 text-xs text-[#8a7ba7]">
                   <div className="flex items-center gap-1.5">
                     <User size={12} className="text-purple-500 shrink-0" />
-                    <span className="truncate">{animal.organizer}</span>
+                    <span className="line-clamp-1 font-medium">{animal.organizer}</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <CalendarDays
-                      size={12}
-                      className="text-purple-500 shrink-0"
-                    />
-                    <span>{animal.startTime}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Coins size={12} className="text-purple-500 shrink-0" />
-                    <span>Qalan: {animal.totalMin} AZN</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <CalendarDays size={12} className="text-purple-500 shrink-0" />
+                      <span>{animal.startTime}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Coins size={12} className="text-purple-500 shrink-0" />
+                      <span>Qalan: {animal.totalMin} AZN</span>
+                    </div>
                   </div>
                 </div>
                 <div className="mt-3">
