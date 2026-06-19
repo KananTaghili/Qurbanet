@@ -65,8 +65,8 @@ const SERVICES = [
   },
   {
     id: "xeyriyye",
-    title: "Kollektiv Qurban-Xeyriyyə Platforması",
-    desc: "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı xeyriyyə platformasına qoşulun.",
+    title: "Kollektiv Qurban",
+    desc: "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı kollektiv qurban platformasına qoşulun.",
     href: "/charity",
     disabled: false,
     icon: <IconHandshake cls="w-10 h-10 text-purple-700" />,

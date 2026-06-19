@@ -553,6 +553,148 @@ function PaymentSuccessModal({
   );
 }
 
+/* ─── Forgot Password Inline ─────────────────────────────────── */
+function ForgotPasswordInline({ onBack, onSuccess }) {
+  const [fpStep,   setFpStep]   = useState("id"); // "id" | "otp" | "reset"
+  const [fpMethod, setFpMethod] = useState("email");
+  const [fpInput,  setFpInput]  = useState("");
+  const [fpId,     setFpId]     = useState(""); // stored identifier
+  const [fpCode,   setFpCode]   = useState("");
+  const [fpNew,    setFpNew]    = useState("");
+  const [fpConf,   setFpConf]   = useState("");
+  const [fpLoading,setFpLoading]= useState(false);
+  const [fpError,  setFpError]  = useState("");
+
+  const fpPhoneFilter = (v) => v.replace(/[^\d\s+\-()]/g, "");
+  const fpPhoneOk = (v) => /^(\+994|0)(50|51|55|60|70|77|99)\d{7}$/.test(v.replace(/[\s\-()]/g, ""));
+
+  const handleSend = async () => {
+    setFpError("");
+    const val = fpInput.trim();
+    if (!val) return setFpError(fpMethod === "email" ? "Email ünvanını daxil edin" : "Telefon nömrəsini daxil edin");
+    if (fpMethod === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return setFpError("Email ünvanı düzgün deyil");
+    if (fpMethod === "phone" && !fpPhoneOk(val)) return setFpError("Düzgün AZ nömrəsi daxil edin (+994XXXXXXXXX)");
+    setFpLoading(true);
+    try {
+      const payload = fpMethod === "email" ? { email: val } : { phone: val };
+      await api.post("/auth/forgot-password", payload);
+      setFpId(val);
+      setFpStep("otp");
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      setFpError(err.response?.status === 404
+        ? "Bu hesab tapılmadı. Email və ya nömrəni yoxlayın."
+        : msg || "Xəta baş verdi. Yenidən cəhd edin.");
+    } finally { setFpLoading(false); }
+  };
+
+  const handleReset = async () => {
+    setFpError("");
+    if (!fpCode || fpCode.length < 4) return setFpError("Doğrulama kodunu tam daxil edin");
+    if (!fpNew || fpNew.length < 6) return setFpError("Yeni şifrə minimum 6 simvol olmalıdır");
+    if (fpNew !== fpConf) return setFpError("Şifrələr uyğun gəlmir");
+    setFpLoading(true);
+    try {
+      const payload = fpMethod === "email"
+        ? { email: fpId, code: fpCode, newPassword: fpNew }
+        : { phone: fpId, code: fpCode, newPassword: fpNew };
+      const res = await api.post("/auth/reset-password", payload);
+      const { token, user } = res.data.data;
+      await onSuccess(token, user);
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      setFpError(msg?.toLowerCase().includes("code") || msg?.toLowerCase().includes("kod")
+        ? "Kod yanlışdır və ya müddəti bitib. Yenidən kod alın."
+        : msg || "Şifrə yenilənə bilmədi.");
+      if (err.response?.status === 400) { setFpStep("otp"); setFpCode(""); }
+    } finally { setFpLoading(false); }
+  };
+
+  const inputCls = "w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#241a4d] outline-none focus:border-purple-400 transition-colors placeholder:text-[#c4b5e0]";
+
+  return (
+    <div className="flex flex-col gap-3">
+      <button onClick={onBack}
+        className="flex items-center gap-1.5 text-xs font-semibold text-[#8a7ba7] hover:text-[#241a4d] transition-colors self-start">
+        <ChevronDown size={13} className="rotate-90" /> Geri qayıt
+      </button>
+
+      <div className="text-sm font-bold text-[#241a4d]">Şifrəni bərpa et</div>
+      <div className="text-xs text-[#8a7ba7]">
+        {fpStep === "id" && "Qeydiyyatda istifadə etdiyiniz email və ya telefonu daxil edin."}
+        {fpStep === "otp" && <>Doğrulama kodu <b className="text-purple-700">{fpId}</b> ünvanına göndərildi.</>}
+        {fpStep === "reset" && "Yeni şifrənizi daxil edin."}
+      </div>
+
+      {fpStep === "id" && (
+        <>
+          <div className="flex gap-2">
+            {([["email", Mail, "Email"], ["phone", Phone, "Telefon"]]).map(([mt, Icon, label]) => (
+              <button key={mt} onClick={() => { setFpMethod(mt); setFpInput(""); setFpError(""); }}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 text-xs font-semibold transition-all ${fpMethod === mt ? "border-purple-500 bg-purple-50 text-purple-700" : "border-[#e8e4f4] text-[#8a7ba7] hover:border-purple-300"}`}>
+                <Icon size={13} /> {label}
+              </button>
+            ))}
+          </div>
+          <div className="relative">
+            {fpMethod === "email" ? <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" /> : <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />}
+            <input type={fpMethod === "email" ? "email" : "tel"} inputMode={fpMethod === "phone" ? "tel" : undefined}
+              placeholder={fpMethod === "email" ? "Email ünvanı" : "+994 50 000 00 00"}
+              value={fpInput}
+              onChange={e => { const v = fpMethod === "phone" ? fpPhoneFilter(e.target.value) : e.target.value; setFpInput(v); setFpError(""); }}
+              onKeyDown={e => e.key === "Enter" && handleSend()}
+              className={inputCls} autoFocus />
+          </div>
+          {fpError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{fpError}</p>}
+          <button onClick={handleSend} disabled={fpLoading}
+            className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+            style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+            {fpLoading ? "Göndərilir..." : "Kod göndər →"}
+          </button>
+        </>
+      )}
+
+      {fpStep === "otp" && (
+        <>
+          <input type="text" inputMode="numeric" maxLength={6} placeholder="• • • • • •"
+            value={fpCode} autoFocus
+            onChange={e => { setFpCode(e.target.value.replace(/\D/g, "")); setFpError(""); if (e.target.value.replace(/\D/g,"").length >= 4) setFpStep("reset"); }}
+            className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] px-3 py-3 text-xl text-center font-black tracking-[0.5em] text-[#241a4d] outline-none focus:border-purple-400 transition-colors" />
+          {fpError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{fpError}</p>}
+          <button onClick={() => { setFpStep("id"); setFpCode(""); setFpError(""); }}
+            className="text-xs font-semibold text-purple-600 hover:underline text-center">
+            Kodu yenidən göndər
+          </button>
+        </>
+      )}
+
+      {fpStep === "reset" && (
+        <>
+          <div className="relative">
+            <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+            <input type="password" placeholder="Yeni şifrə (min 6 simvol)" value={fpNew} autoFocus
+              onChange={e => { setFpNew(e.target.value); setFpError(""); }}
+              className={inputCls} />
+          </div>
+          <div className="relative">
+            <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+            <input type="password" placeholder="Şifrəni təsdiqlə" value={fpConf}
+              onChange={e => { setFpConf(e.target.value); setFpError(""); }}
+              onKeyDown={e => e.key === "Enter" && handleReset()}
+              className={inputCls} />
+          </div>
+          {fpError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{fpError}</p>}
+          <button onClick={handleReset} disabled={fpLoading}
+            className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+            style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
+            {fpLoading ? "Yadda saxlanır..." : "Şifrəni yenilə ✓"}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ─── Donation Modal ─────────────────────────────────────────── */
 const DONATE_STEPS = ["Məlumat", "Ödəniş", "Təsdiq"];
 
@@ -584,6 +726,7 @@ function DonationModal({ animal, onClose }) {
   const [authOtpSent,  setAuthOtpSent] = useState(false);
   const [authLoading,  setAuthLoading] = useState(false);
   const [authError,    setAuthError]   = useState("");
+  const [forgotPhase,  setForgotPhase] = useState(false);
 
   const minAmt = Number(animal.shareMin) || 0.01;
   const maxAmt = animal.remainingAmount != null ? animal.remainingAmount : 999999;
@@ -600,6 +743,7 @@ function DonationModal({ animal, onClose }) {
   const resetAuth = () => {
     setAuthOtpSent(false); setAuthOtp(""); setAuthError("");
     setAuthInput(""); setAuthPassword(""); setAuthRegFirst(""); setAuthRegLast("");
+    setForgotPhase(false);
   };
 
   const submitDonation = async (overrideUser) => {
@@ -769,7 +913,10 @@ function DonationModal({ animal, onClose }) {
           style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}
         >
           {/* ── Inline Auth Phase ── */}
-          {authPhase && (
+          {authPhase && forgotPhase && (
+            <ForgotPasswordInline onBack={() => setForgotPhase(false)} onSuccess={afterAuth} />
+          )}
+          {authPhase && !forgotPhase && (
             <div className="flex flex-col gap-3">
               <button onClick={() => { setAuthPhase(false); resetAuth(); }}
                 className="flex items-center gap-1.5 text-xs font-semibold text-[#8a7ba7] hover:text-[#241a4d] transition-colors self-start">
@@ -808,8 +955,8 @@ function DonationModal({ animal, onClose }) {
                   </div>
                   {authError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{authError}</p>}
                   <div className="flex justify-end">
-                    <a href="/auth/forgot-password" target="_blank" rel="noopener noreferrer"
-                      className="text-xs font-semibold text-purple-600 hover:underline">Şifrəmi unutdum</a>
+                    <button type="button" onClick={() => setForgotPhase(true)}
+                      className="text-xs font-semibold text-purple-600 hover:underline">Şifrəmi unutdum</button>
                   </div>
                   <button onClick={handleAuthLogin} disabled={authLoading}
                     className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
