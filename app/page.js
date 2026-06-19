@@ -227,11 +227,11 @@ function MobileServicesSection({ onPlay }) {
 
             {/* White overlay — left side readable */}
             <div className="absolute inset-0 z-10" style={{
-              background: "linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.95) 42%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 55%)",
+              background: "linear-gradient(to right, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.97) 36%, rgba(255,255,255,0.15) 46%, rgba(255,255,255,0) 52%)",
             }} />
 
             {/* Text — left side */}
-            <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between p-3 w-[52%]">
+            <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between p-3 w-[44%]">
               <div>
                 <h3 className={`text-[14px] font-bold ${s.titleColor} leading-tight mb-1`}>
                   {s.title}
