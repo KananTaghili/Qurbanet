@@ -701,12 +701,21 @@ export default function CharityLayout({ children }) {
               ))}
             </nav>
 
-            {/* Register button */}
+            {/* Bottom: user info or register */}
             <div className="px-4 pb-6 border-t border-white/10 pt-4">
-              <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-xl bg-white text-[#301586] text-[13px] font-semibold hover:bg-purple-50 transition-all">
-                Qeydiyyat
-              </Link>
+              {isGuest ? (
+                <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-xl bg-white text-[#301586] text-[13px] font-semibold hover:bg-purple-50 transition-all">
+                  Qeydiyyat
+                </Link>
+              ) : (
+                <div className="flex items-center gap-3 px-1">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[12px] font-bold text-white">
+                    {initials2(userFullName(user))}
+                  </div>
+                  <span className="text-[13px] font-semibold text-white/90 truncate">{userFullName(user)}</span>
+                </div>
+              )}
             </div>
           </div>
 
