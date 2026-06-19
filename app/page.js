@@ -162,9 +162,9 @@ function MobileHeader() {
             </div>
           </Link>
 
-          {/* Cart — RIGHT */}
+          {/* User — RIGHT */}
           <Link href="/auth/login" className="p-1.5 text-gray-700 shrink-0">
-            <ShoppingCart size={22} />
+            <User size={22} />
           </Link>
         </div>
       </div>
@@ -203,7 +203,7 @@ function MobileServicesSection({ onPlay }) {
       {SERVICES.map((s) => {
         const ytId = s.videoType === "youtube" ? s.videoUrl.split("/embed/")[1]?.split("?")[0] : null;
         const inner = (
-          <div key={s.id} className="relative rounded-2xl shadow-md overflow-hidden bg-black" style={{ height: 190 }}>
+          <div key={s.id} className="relative rounded-2xl shadow-md overflow-hidden bg-black" style={{ height: 220 }}>
             {/* Real video background */}
             {ytId ? (
               <iframe
@@ -236,7 +236,7 @@ function MobileServicesSection({ onPlay }) {
                 <h3 className={`text-[14px] font-bold ${s.titleColor} leading-tight mb-1`}>
                   {s.title}
                 </h3>
-                <p className="text-gray-600 text-[11px] leading-snug line-clamp-3">
+                <p className="text-gray-600 text-[11px] leading-snug">
                   {s.desc}
                 </p>
               </div>
@@ -292,10 +292,10 @@ function MobileServicesSection({ onPlay }) {
 function MobileBottomNav() {
   const [active, setActive] = useState(0);
   const items = [
-    { Icon: User,         label: "Haqqımızda" },
-    { Icon: ShoppingCart, label: "Xidmətlər" },
-    { Icon: Play,         label: "Necə işləyir?" },
-    { Icon: Phone,        label: "Əlaqə" },
+    { Icon: ShieldCheck, label: "Halal Kəsim" },
+    { Icon: Video,       label: "Video Hesabat" },
+    { Icon: Truck,       label: "Çatdırılma" },
+    { Icon: Heart,       label: "Şəffaf Xeyriyyə" },
   ];
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex items-stretch shadow-[0_-2px_12px_rgba(0,0,0,0.07)]">
