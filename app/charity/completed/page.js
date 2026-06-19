@@ -9,8 +9,8 @@ import IaneDetailPage from "../_IaneDetailPage";
 function CompletedStat({ label, value }) {
   return (
     <div className="min-w-[102px] border-r border-[#e7e1f0] pr-5 last:border-r-0 last:pr-0">
-      <div className="mb-1.5 text-[11px] font-semibold text-[#8778a8]">{label}</div>
-      <div className="text-[15px] font-extrabold leading-none text-[#33245f]">{value}</div>
+      <div className="mb-1.5 text-[12px] font-semibold text-[#8778a8]">{label}</div>
+      <div className="text-[16px] font-extrabold leading-none text-[#33245f]">{value}</div>
     </div>
   );
 }
@@ -91,7 +91,7 @@ export default function TamamlanmisPage() {
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
               role="button" tabIndex={0}
               className="group w-full cursor-pointer overflow-hidden rounded-[16px] border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
-              <div className="grid min-h-[160px] grid-cols-1 lg:grid-cols-[120px_240px_1fr_210px]">
+              <div className="grid min-h-[160px] grid-cols-1 lg:grid-cols-[130px_260px_1fr_210px]">
                 <div className="flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-4 lg:py-0">
                   <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
                     <span className="text-[#5b22c7] text-[16px] leading-none">•</span>
@@ -110,12 +110,12 @@ export default function TamamlanmisPage() {
                 <div className="flex flex-col justify-center px-5 py-4">
                   <div className="mb-2.5 flex items-center gap-3">
                     <img src={item.img} alt={item.type} className="lg:hidden h-[56px] w-[56px] rounded-[8px] object-contain bg-[#f8f5ff]" />
-                    <h3 className="text-[20px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
+                    <h3 className="text-[22px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
                   </div>
-                  <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] font-semibold text-[#77689c]">
-                    <User size={14} className="text-[#7760bb]" />
+                  <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-[#77689c]">
+                    <User size={15} className="text-[#7760bb]" />
                     <span>{item.organizer}</span>
-                    <span className="rounded-full bg-[#f1ecff] px-2.5 py-0.5 text-[11px] font-bold text-[#5622c6]">
+                    <span className="rounded-full bg-[#f1ecff] px-2.5 py-0.5 text-[12px] font-bold text-[#5622c6]">
                       {paidPct}% · {displayAmt} AZN ödədi
                     </span>
                   </div>
