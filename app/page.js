@@ -423,16 +423,20 @@ function DesktopServicesSection({ onPlay }) {
         {SERVICES.map((s) => {
           const ytId = s.videoType === "youtube" ? s.videoUrl.split("/embed/")[1]?.split("?")[0] : null;
           return (
-            <div key={s.id} className="bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col overflow-hidden">
-              <div className="px-5 pt-3 pb-2 flex flex-col items-center text-center gap-1.5">
-                {/* react-icon circle */}
+            <div key={s.id} className="relative pt-9">
+              {/* Floating icon — half above card */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
                 <div
-                  className={`w-[72px] h-[72px] rounded-full border-2 ${s.iconRing} flex items-center justify-center shadow-sm shrink-0`}
-                  style={{ boxShadow: `0 4px 16px ${s.serviceIconColor}25` }}
+                  className={`w-[72px] h-[72px] rounded-full border-2 bg-white ${s.iconRing} flex items-center justify-center shadow-md`}
+                  style={{ boxShadow: `0 4px 16px ${s.serviceIconColor}30` }}
                 >
                   <s.ServiceIcon size={38} color={s.serviceIconColor} />
                 </div>
-                <h3 className={`text-base font-bold ${s.titleColor} leading-tight text-center line-clamp-2`}>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col overflow-hidden">
+              <div className="px-5 pt-10 pb-2 flex flex-col items-center text-center gap-1.5">
+                <h3 className={`text-base font-bold ${s.titleColor} leading-tight text-center`}>
                   {s.title}
                 </h3>
               </div>
@@ -496,6 +500,7 @@ function DesktopServicesSection({ onPlay }) {
                     </button>
                   </Link>
                 )}
+              </div>
               </div>
             </div>
           );
