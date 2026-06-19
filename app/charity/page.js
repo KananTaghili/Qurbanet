@@ -7,7 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
 import {
   Home, List, CheckCircle, HelpCircle, FileText, Heart,
-  Plus, Bell, User, ChevronDown, Eye, Video, Users,
+  Plus, Bell, User, ChevronDown, ShieldCheck, Video, Users,
   ArrowRight, Play, CalendarDays, UsersRound, Share2, Copy, ChevronRight,
   ArrowLeft, X, Wallet, Flag, Beef, Rabbit, BadgeIcon as CamelIcon,
   Coins, Menu, Shield, UserRoundCheck, PlusCircle, Scissors,
@@ -24,10 +24,10 @@ const SIDEBAR_NAV = [
 ];
 
 const FEATURES = [
-  { icon: Eye,    title: "Tam şəffaflıq",       desc: "Hər addımı izləyə bilərsiniz" },
-  { icon: Video,  title: "Canlı izləmə",        desc: "Kəsim anını canlı izləyin"    },
-  { icon: Heart,  title: "Ehtiyac sahiblərinə", desc: "Birbaşa çatdırılır"           },
-  { icon: Users,  title: "Birlikdə xeyir",      desc: "Paylaş, birlikdə eylə"        },
+  { icon: ShieldCheck, title: "Tam şəffaflıq",       desc: "Hər addımı izləyə bilərsiniz" },
+  { icon: Video,       title: "Kəsim videosu",        desc: "Kəsimi canlı izləyin"          },
+  { icon: Heart,       title: "Ehtiyac sahiblərinə", desc: "Birbaşa çatdırılır"            },
+  { icon: Users,       title: "Birlikdə xeyir",      desc: "Kiçik məbləğlə böyük xeyir"   },
 ];
 
 const STATUS_CFG = {
@@ -2853,16 +2853,16 @@ export default function CharityPage() {
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mx-3 md:mx-6 mb-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mx-3 md:mx-6 mb-5">
               {FEATURES.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="bg-white rounded-2xl p-3 flex flex-col items-center gap-2 text-center border border-[#eee8f6] hover:shadow-md transition-all"
-                  style={{ boxShadow: "0 4px 18px rgba(54,27,99,0.02)" }}>
-                  <div className="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0"
+                <div key={title} className="bg-white rounded-2xl px-3 py-2.5 flex items-center gap-2.5 border border-[#eee8f6]"
+                  style={{ boxShadow: "0 4px 18px rgba(54,27,99,0.04)" }}>
+                  <div className="w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0"
                     style={{ backgroundColor: "rgba(75,20,189,0.08)" }}>
-                    <Icon size={16} style={{ color: "#4b14bd" }} />
+                    <Icon size={15} style={{ color: "#4b14bd" }} />
                   </div>
-                  <div>
-                    <div className="text-[12px] font-semibold text-[#241a4d] leading-tight">{title}</div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold text-[#241a4d] leading-tight">{title}</div>
                     <div className="text-[10px] mt-0.5 leading-snug" style={{ color: "#8a7ba7" }}>{desc}</div>
                   </div>
                 </div>
