@@ -35,7 +35,7 @@ export default function IaneDetailPage({ item, onBack }) {
       {/* Header */}
       <div className="flex items-center gap-4 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm">
         <button onClick={onBack}
-          className="flex h-9 items-center gap-2 rounded-xl border border-[#ded5ec] bg-white px-3 text-[13px] font-extrabold text-[#4b14bd] shadow-sm hover:bg-purple-50 transition">
+          className="flex h-9 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition">
           <ArrowLeft size={16} /> Geri qayıt
         </button>
         <h1 className="truncate text-[16px] font-black tracking-[-.02em] text-[#33245f]">
