@@ -105,7 +105,7 @@ export default function TamamlanmisPage() {
                 </div>
                 <div className="hidden lg:flex items-center justify-center p-4 pr-3">
                   <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                    className="h-[118px] w-full rounded-[10px] bg-[#f8f5ff] object-contain" />
+                    className="h-[118px] w-full rounded-[10px] bg-white object-contain" />
                 </div>
                 <div className="px-5 py-4">
                   <div className="mb-2.5 flex items-center gap-3">
@@ -127,8 +127,8 @@ export default function TamamlanmisPage() {
                 </div>
                 <div className="flex items-center justify-center border-t lg:border-t-0 lg:border-l border-[#e7e1f0] px-5 py-5 lg:py-4">
                   <div className="w-full max-w-[180px] space-y-2.5">
-                    <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-3 text-center">
-                      <CheckCircle size={26} className="mx-auto mb-1 text-emerald-500" strokeWidth={2} />
+                    <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-4 text-center">
+                      <CheckCircle size={30} className="mx-auto mb-1.5 text-emerald-500" strokeWidth={2} />
                       <div className="text-[11px] font-black text-emerald-600">Açılış tamamlanıb</div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
