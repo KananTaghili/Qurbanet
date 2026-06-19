@@ -1048,10 +1048,10 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                   </div>
                 ) : (
                   <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
-                    {/* Ring + status — left */}
-                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                    {/* Ring — left, larger */}
+                    <div className="flex flex-col items-center gap-1 shrink-0">
                       <div className="text-[11px] font-bold text-[#6e5b9b]">Tamamlanma</div>
-                      <svg width="86" height="86" viewBox="0 0 108 108">
+                      <svg width="110" height="110" viewBox="0 0 108 108">
                         <defs>
                           <linearGradient id="camp-detail-ring-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
                             <stop offset="0%" stopColor="#4513ad" />
@@ -1068,13 +1068,15 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                           {campaign.percent || 0}%
                         </text>
                       </svg>
-                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">Davam edir</span>
                     </div>
-                    {/* Share button — right */}
-                    <button onClick={handleShare}
-                      className="flex flex-1 xl:w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
-                      <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
-                    </button>
+                    {/* Right: status on top, share below */}
+                    <div className="flex flex-col items-start gap-2 flex-1 xl:items-center">
+                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">Davam edir</span>
+                      <button onClick={handleShare}
+                        className="flex items-center justify-center gap-1.5 rounded-[6px] border border-[#d9cff0] bg-white px-3 py-2 text-[11px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition w-full">
+                        <Share2 size={13} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
