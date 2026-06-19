@@ -553,6 +553,9 @@ function PaymentSuccessModal({
 /* ─── Donation Modal ─────────────────────────────────────────── */
 const DONATE_STEPS = ["Məlumat", "Ödəniş", "Təsdiq"];
 
+const isValidAzPhone = (v) => /^(\+994|0)(50|51|55|60|70|77|99)\d{7}$/.test(v.replace(/[\s\-()]/g, ""));
+const filterPhoneInput = (v) => v.replace(/[^\d\s+\-()]/g, "");
+
 function DonationModal({ animal, onClose }) {
   const { isGuest, user } = useAuth();
   const [step, setStep] = useState(0);
@@ -565,6 +568,7 @@ function DonationModal({ animal, onClose }) {
   );
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const minAmt = Number(animal.shareMin) || 0.01;
@@ -572,12 +576,13 @@ function DonationModal({ animal, onClose }) {
     animal.remainingAmount != null ? animal.remainingAmount : 999999;
   const numAmt = Number(amount) || 0;
   const validAmt = numAmt >= minAmt && numAmt <= maxAmt;
+  const phoneOk = guestPhone.trim() === "" || isValidAzPhone(guestPhone);
   const canConfirm = !isGuest
     ? true
     : continueMode === "registered"
       ? true
       : continueMode === "guest"
-        ? guestName.trim().length > 0 && guestPhone.trim().length > 0
+        ? guestName.trim().length > 0 && guestPhone.trim().length > 0 && isValidAzPhone(guestPhone)
         : false;
 
   const handleSubmit = async () => {
@@ -855,10 +860,20 @@ function DonationModal({ animal, onClose }) {
                         </label>
                         <input
                           value={guestPhone}
-                          onChange={(e) => setGuestPhone(e.target.value)}
-                          placeholder="+994 XX XXX XX XX"
-                          className="w-full rounded-xl border border-[#d9cdfa] bg-[#fafafa] px-4 py-2.5 text-sm focus:border-[#5521c6] focus:outline-none"
+                          inputMode="tel"
+                          onChange={(e) => {
+                            const v = filterPhoneInput(e.target.value);
+                            setGuestPhone(v);
+                            setPhoneError(v && !isValidAzPhone(v) ? "Düzgün AZ nömrəsi daxil edin (+994XXXXXXXXX)" : "");
+                          }}
+                          onBlur={() => {
+                            if (guestPhone && !isValidAzPhone(guestPhone))
+                              setPhoneError("Düzgün AZ nömrəsi daxil edin (+994XXXXXXXXX)");
+                          }}
+                          placeholder="+994 50 000 00 00"
+                          className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition-colors ${phoneError ? "border-rose-400 bg-rose-50 focus:border-rose-500" : "border-[#d9cdfa] bg-[#fafafa] focus:border-[#5521c6]"}`}
                         />
+                        {phoneError && <p className="mt-1 text-xs text-rose-500">{phoneError}</p>}
                       </div>
                     </div>
                   )}

@@ -297,9 +297,16 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                       {authMethod === "email"
                         ? <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
                         : <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />}
-                      <input type={authMethod === "email" ? "email" : "tel"}
+                      <input
+                        type={authMethod === "email" ? "email" : "tel"}
+                        inputMode={authMethod === "phone" ? "tel" : undefined}
                         placeholder={authMethod === "email" ? "Email ünvanı" : "+994 50 000 00 00"}
-                        value={authInput} onChange={e => setAuthInput(e.target.value)}
+                        value={authInput}
+                        onChange={e => {
+                          const v = authMethod === "phone" ? e.target.value.replace(/[^\d\s+\-()]/g, "") : e.target.value;
+                          setAuthInput(v);
+                          setAuthError("");
+                        }}
                         className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
                     </div>
                     <div className="relative">
@@ -339,9 +346,16 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                       {authMethod === "email"
                         ? <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
                         : <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />}
-                      <input type={authMethod === "email" ? "email" : "tel"}
+                      <input
+                        type={authMethod === "email" ? "email" : "tel"}
+                        inputMode={authMethod === "phone" ? "tel" : undefined}
                         placeholder={authMethod === "email" ? "Email ünvanı" : "+994 50 000 00 00"}
-                        value={authInput} onChange={e => setAuthInput(e.target.value)}
+                        value={authInput}
+                        onChange={e => {
+                          const v = authMethod === "phone" ? e.target.value.replace(/[^\d\s+\-()]/g, "") : e.target.value;
+                          setAuthInput(v);
+                          setAuthError("");
+                        }}
                         className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
                     </div>
                     <div className="relative">
@@ -539,8 +553,13 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                         </div>
                         <div>
                           <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Telefon</label>
-                          <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+994 XX XXX XX XX"
-                            className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none" />
+                          <input value={phone} inputMode="tel"
+                            onChange={e => setPhone(e.target.value.replace(/[^\d\s+\-()]/g, ""))}
+                            placeholder="+994 50 000 00 00"
+                            className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition-colors ${phone && !/^(\+994|0)(50|51|55|60|70|77|99)\d{7}$/.test(phone.replace(/[\s\-()]/g, "")) ? "border-rose-300 bg-rose-50 focus:border-rose-400" : "border-purple-100 bg-purple-50/30 focus:border-purple-400"}`} />
+                          {phone && !/^(\+994|0)(50|51|55|60|70|77|99)\d{7}$/.test(phone.replace(/[\s\-()]/g, "")) && (
+                            <p className="mt-1 text-xs text-rose-500">Düzgün AZ nömrəsi daxil edin (+994XXXXXXXXX)</p>
+                          )}
                         </div>
                       </div>
                     )}
