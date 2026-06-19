@@ -41,6 +41,27 @@ const AZ_MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqus
 const ANIMAL_IMG_FALLBACK = { "Dana":"/dana.png","Qoyun":"/qoyun.png","Qoç":"/qoc.png","Dəvə":"/deve.png" };
 const CAMPAIGN_STATUS_MAP = { collecting:"Davam edir", completed:"Tamamlandı", cancelled:"Ləğv olundu" };
 
+const AVATAR_PALETTE = [
+  { bg: "#ede9fe", text: "#5b21b6" },
+  { bg: "#dbeafe", text: "#1d4ed8" },
+  { bg: "#d1fae5", text: "#065f46" },
+  { bg: "#fef3c7", text: "#92400e" },
+  { bg: "#fce7f3", text: "#9d174d" },
+  { bg: "#ccfbf1", text: "#115e59" },
+  { bg: "#e0e7ff", text: "#3730a3" },
+  { bg: "#ffedd5", text: "#9a3412" },
+];
+function avatarColor(name) {
+  if (!name || name === "Anonim") return { bg: "#f1f5f9", text: "#64748b" };
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return AVATAR_PALETTE[Math.abs(h) % AVATAR_PALETTE.length];
+}
+function initials(name) {
+  if (!name || name === "Anonim") return "?";
+  return name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
+}
+
 function fmtDate(d) {
   if (!d) return "—";
   const dt = new Date(d);
@@ -422,7 +443,7 @@ function DonationModal({ animal, onClose }) {
   const handleSubmit = async () => {
     if (!canConfirm) return;
     setSubmitting(true);
-    const donorName  = !isGuest ? (user?.name || "") : guestName.trim();
+    const donorName  = !isGuest ? [user?.name, user?.lastName].filter(Boolean).join(" ").trim() : guestName.trim();
     const donorPhone = !isGuest ? (user?.phone || user?.email || "") : guestPhone.trim();
     try {
       const r1 = await api.post(`/campaigns/${animal.campaignId}/donate`, {
@@ -689,11 +710,6 @@ function IaneDetailPage({ item, onBack }) {
   const shown      = showAll ? otherDons : otherDons.slice(0, 5);
   const isCompleted = item.status === "Tamamlandı";
 
-  const initials = (name) => {
-    if (!name || name === "Anonim") return "?";
-    return name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
-  };
-
   const fmtDonTime = (d) => {
     if (!d) return "—";
     const dt = new Date(d);
@@ -719,9 +735,9 @@ function IaneDetailPage({ item, onBack }) {
         <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
           <div className="flex flex-col xl:flex-row">
             {/* Photo — full height, wide */}
-            <div className="xl:w-[300px] shrink-0 bg-[#f5f2ff]">
+            <div className="xl:w-[260px] shrink-0 bg-[#f5f2ff]">
               <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                className="h-[220px] xl:h-full w-full object-contain" />
+                className="h-[220px] xl:h-full w-full object-cover" />
             </div>
 
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
@@ -772,7 +788,7 @@ function IaneDetailPage({ item, onBack }) {
                   <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
                   <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
                   <button onClick={() => setShowVideo(true)}
-                    className="flex w-full items-center justify-center gap-2 rounded-[6px] bg-emerald-600 py-2 text-[12px] font-extrabold text-white hover:bg-emerald-700 transition">
+                    className="flex w-full items-center justify-center gap-2 rounded-[6px] bg-[#1d4ed8] py-2 text-[12px] font-extrabold text-white hover:bg-[#1e40af] transition">
                     <Video size={14} /> Kəsim Videosu
                   </button>
                   <button onClick={handleShare}
@@ -816,8 +832,9 @@ function IaneDetailPage({ item, onBack }) {
             <div className="inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1.5 text-[11px] font-black text-white">Açan şəxs</div>
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] min-h-[60px] items-center gap-4 rounded-b-[8px] rounded-tr-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-5 py-3 shadow-[0_3px_10px_rgba(49,22,93,.04)]">
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-purple-200 text-purple-700 font-black text-sm">
-                  {openerDon.isAnonymous ? "?" : initials(openerDon.name)}
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-black text-sm"
+                  style={(() => { const c = avatarColor(openerDon.isAnonymous ? null : openerDon.name); return { backgroundColor: c.bg, color: c.text }; })()}>
+                  {openerDon.isAnonymous ? "AN" : initials(openerDon.name)}
                 </div>
                 <div>
                   <div className="text-[13px] font-black text-[#33245f]">
@@ -868,7 +885,8 @@ function IaneDetailPage({ item, onBack }) {
                       <td className="px-5 py-3 font-black">{i + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[9px] font-bold ${d.isAnonymous ? "bg-slate-100 text-slate-500" : "bg-[#f0edf6] text-[#6f6290]"}`}>
+                          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[9px] font-bold"
+                            style={(() => { const c = avatarColor(d.isAnonymous ? null : d.name); return { backgroundColor: c.bg, color: c.text }; })()}>
                             {d.isAnonymous ? "AN" : initials(d.name)}
                           </div>
                           <span>
@@ -1029,9 +1047,9 @@ function IanelerimPage() {
               className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md my-2">
               {/* Mobile layout */}
               <div className="flex lg:hidden">
-                <div className="shrink-0 w-[100px]">
+                <div className="shrink-0 w-[110px]">
                   <img src={item.img} alt={item.type}
-                    className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-contain" />
+                    className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-cover" />
                 </div>
                 <div className="flex-1 min-w-0 p-3 pl-3">
                   <div className="flex items-center gap-2 mb-1">
@@ -1069,7 +1087,7 @@ function IanelerimPage() {
                       </button>
                       {item.status === "Tamamlandı" && item.videoUrl && (
                         <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
-                          className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 text-[11px] font-medium text-white">
+                          className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#1d4ed8] text-[11px] font-medium text-white">
                           <Video size={12} /> Kəsim Videosu
                         </button>
                       )}
@@ -1085,10 +1103,10 @@ function IanelerimPage() {
               </div>
 
               {/* Desktop layout */}
-              <div className="hidden lg:grid grid-cols-[180px_1fr_250px] min-h-[160px]">
+              <div className="hidden lg:grid grid-cols-[260px_1fr_250px] min-h-[160px]">
                 <div className="shrink-0">
                   <img src={item.img} alt={item.type}
-                    className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-contain" />
+                    className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-cover" />
                 </div>
                 <div className="px-5 py-4">
                   <div className="mb-2 flex items-center gap-3">
@@ -1131,7 +1149,7 @@ function IanelerimPage() {
                     </button>
                     {item.status === "Tamamlandı" && item.videoUrl && (
                       <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
-                        className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 text-[12px] font-medium text-white hover:bg-emerald-700 transition">
+                        className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg bg-[#1d4ed8] text-[12px] font-medium text-white hover:bg-[#1e40af] transition">
                         <Video size={14} /> Kəsim Videosu
                       </button>
                     )}
