@@ -91,7 +91,7 @@ export default function TamamlanmisPage() {
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
               role="button" tabIndex={0}
               className="group w-full cursor-pointer overflow-hidden rounded-[16px] border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
-              <div className="grid min-h-[150px] grid-cols-1 lg:grid-cols-[120px_150px_1fr_210px]">
+              <div className="grid min-h-[160px] grid-cols-1 lg:grid-cols-[120px_180px_1fr_210px]">
                 <div className="flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-4 lg:py-0">
                   <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
                     <span className="text-[#5b22c7] text-[16px] leading-none">•</span>
@@ -103,11 +103,11 @@ export default function TamamlanmisPage() {
                     {item.date.split(" ")[2]}
                   </div>
                 </div>
-                <div className="hidden lg:flex items-center justify-center p-4 pr-3">
+                <div className="hidden lg:flex items-stretch border-r border-[#e7e1f0]">
                   <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                    className="h-[118px] w-full rounded-[10px] bg-white object-contain" />
+                    className="h-full w-full bg-white object-contain p-4" />
                 </div>
-                <div className="px-5 py-4">
+                <div className="flex flex-col justify-center px-5 py-4">
                   <div className="mb-2.5 flex items-center gap-3">
                     <img src={item.img} alt={item.type} className="lg:hidden h-[56px] w-[56px] rounded-[8px] object-contain bg-[#f8f5ff]" />
                     <h3 className="text-[20px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
