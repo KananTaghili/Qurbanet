@@ -648,13 +648,21 @@ export default function CharityLayout({ children }) {
                 <Bell size={16} className="text-white" />
                 <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full ring-1 ring-[#301586]" />
               </button>
-              <button className="hidden sm:flex w-8 h-8 rounded-full items-center justify-center hover:bg-white/10 transition-colors">
-                <User size={16} className="text-white" />
-              </button>
-              <Link href="/auth/register"
-                className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#301586] text-[12px] font-semibold hover:bg-purple-50 transition-all shadow-sm">
-                Qeydiyyat <ChevronDown size={12} />
-              </Link>
+              {isGuest ? (
+                <Link href="/auth/register"
+                  className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#301586] text-[12px] font-semibold hover:bg-purple-50 transition-all shadow-sm">
+                  Qeydiyyat <ChevronDown size={12} />
+                </Link>
+              ) : (
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
+                    {initials2(userFullName(user))}
+                  </div>
+                  <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">
+                    {userFullName(user)}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
