@@ -83,6 +83,7 @@ export function mapMyCampaign(c) {
     endDate: c.status === "completed" ? fmtDate(c.completedAt) : "—",
     date: fmtDate(c.status === "completed" ? c.completedAt : c.createdAt),
     status: CAMPAIGN_STATUS_MAP[c.status] || "Davam edir",
+    createdAtRaw: c.createdAt || null,
     organizer: c.iAmOpener ? "Siz açmısınız" : "Siz iştirak etmisiniz",
     participants: c.participantCount || 1,
     img, videoUrl: video?.url || null, iAmOpener: !!c.iAmOpener,

@@ -151,13 +151,21 @@ function IanelerimContent() {
   if (selected) return <IaneDetailPage item={selected} onBack={closeDetail} />;
 
   const totalPaid = orders.reduce((s, o) => s + o.amountRaw, 0);
-  const filtered = orders.filter((item) => {
-    const tabMatch =
-      activeTab === "Hamısı" ||
-      (activeTab === "Açdığım açılışlar"         && item.iAmOpener === true) ||
-      (activeTab === "İştirak etdiyim açılışlar" && item.iAmOpener === false);
-    return tabMatch && (statusFilter === "Hamısı" || item.status === statusFilter);
-  });
+  const STATUS_PRIORITY = { "Davam edir": 0, "Ləğv olundu": 1, "Tamamlandı": 2 };
+  const filtered = orders
+    .filter((item) => {
+      const tabMatch =
+        activeTab === "Hamısı" ||
+        (activeTab === "Açdığım açılışlar"         && item.iAmOpener === true) ||
+        (activeTab === "İştirak etdiyim açılışlar" && item.iAmOpener === false);
+      return tabMatch && (statusFilter === "Hamısı" || item.status === statusFilter);
+    })
+    .sort((a, b) => {
+      const pa = STATUS_PRIORITY[a.status] ?? 1;
+      const pb = STATUS_PRIORITY[b.status] ?? 1;
+      if (pa !== pb) return pa - pb;
+      return new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0);
+    });
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-3 md:py-4 pb-20 lg:pb-4">
