@@ -8,7 +8,7 @@ import api from "../../lib/api";
 import {
   Home, List, CheckCircle, HelpCircle, FileText, Heart,
   Plus, Bell, User, ChevronDown, Eye, Video, Users,
-  ArrowRight, Play, CalendarDays, UsersRound, Share2, ChevronRight,
+  ArrowRight, Play, CalendarDays, UsersRound, Share2, Copy, ChevronRight,
   ArrowLeft, X, Wallet, Flag, Beef, Rabbit, BadgeIcon as CamelIcon,
   Coins, Menu, Shield, UserRoundCheck, PlusCircle, Scissors,
   Truck, HandHeart, Mail, Phone, Lock, BarChart3,
@@ -104,6 +104,8 @@ function mapHomeCampaign(c, minDonation) {
     organizer: c.opener?.isAnonymous ? "Anonim" : (c.opener?.name || "—"),
     participants: c.participantCount || 0,
     shareMin: String(minDonation || 10),
+    shareMinRaw: Number(minDonation || 10),
+    targetRaw: Number(c.totalAmount || 0),
     totalMin: fmtAmt(Math.max(0, c.totalAmount - c.collectedAmount)),
     totalMax: fmtAmt(c.totalAmount),
     startTime: fmtDate(c.createdAt),
@@ -207,12 +209,12 @@ function RingProgress({ percent, type, img }) {
 /* ─── Animal Card (home) ─────────────────────────────────────── */
 function AnimalCard({ animal, onDonate, onClick }) {
   const [copied, setCopied] = useState(false);
-  const toNum   = (v) => Number(String(v).replace(/[^0-9.]/g, ""));
-  const _target = toNum(animal.target);
-  const paidPct = _target > 0 ? Math.round((toNum(animal.shareMin) / _target) * 100) : 0;
+  const _target = animal.targetRaw || 0;
+  const paidPct = _target > 0 ? Math.round((animal.shareMinRaw / _target) * 100) : 0;
   const handleShare = async (e) => {
     if (e) e.stopPropagation();
-    try { await navigator.clipboard.writeText(window.location.href); } catch {}
+    const url = `${window.location.origin}/charity?campaign=${animal.campaignId}`;
+    try { await navigator.clipboard.writeText(url); } catch {}
     setCopied(true); setTimeout(() => setCopied(false), 2600);
   };
   return (
@@ -671,7 +673,15 @@ function DonationModal({ animal, onClose }) {
 
 /* ─── İanə Detail Page ───────────────────────────────────────── */
 function IaneDetailPage({ item, onBack }) {
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll]   = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  const [copied, setCopied]     = useState(false);
+
+  const handleShare = async () => {
+    try { await navigator.clipboard.writeText(window.location.href); } catch {}
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
 
   const donations  = item.donations || [];
   const openerDon  = donations.find(d => d.isOpener);
@@ -708,8 +718,10 @@ function IaneDetailPage({ item, onBack }) {
         {/* Main info card */}
         <div className="rounded-[10px] border border-[#e7e1f0] bg-white p-3 shadow-[0_4px_14px_rgba(49,22,93,.05)]">
           <div className="flex flex-col xl:grid xl:grid-cols-[190px_1fr_190px] gap-4">
-            <img src={item.img} alt={`${item.type} qurban heyvanı`}
-              className="h-[180px] xl:h-[200px] w-full rounded-[7px] bg-white object-contain" />
+            <div className="flex items-center justify-center h-[180px] xl:h-[200px] w-full rounded-2xl border-2 border-[#e0d8f5] bg-[#f5f2ff] shadow-sm p-3">
+              <img src={item.img} alt={`${item.type} qurban heyvanı`}
+                className="h-full w-full rounded-xl object-contain" />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 py-2">
               <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
@@ -730,10 +742,14 @@ function IaneDetailPage({ item, onBack }) {
                 <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f] mb-5">
                   <Coins size={20} className="text-[#5b22c7]" /> {item.totalAmount} AZN
                 </div>
-                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
-                <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f]">
-                  <Coins size={20} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
-                </div>
+                {!isCompleted && (
+                  <>
+                    <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
+                    <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f]">
+                      <Coins size={20} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
+                    </div>
+                  </>
+                )}
               </div>
               <div>
                 <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
@@ -747,10 +763,21 @@ function IaneDetailPage({ item, onBack }) {
             <div className="rounded-[8px] border border-[#dcd2ec] p-4 text-center flex flex-col items-center justify-center gap-3">
               {isCompleted ? (
                 <>
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                    <CheckCircle size={28} />
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                    <CheckCircle size={32} />
                   </div>
                   <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
+                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
+                  {item.videoUrl && (
+                    <button onClick={() => setShowVideo(true)}
+                      className="mt-1 flex w-full items-center justify-center gap-2 rounded-[6px] bg-emerald-600 py-2 text-[12px] font-extrabold text-white hover:bg-emerald-700 transition">
+                      <Video size={14} /> Kəsim Videosu
+                    </button>
+                  )}
+                  <button onClick={handleShare}
+                    className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                    <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                  </button>
                 </>
               ) : (
                 <>
@@ -772,11 +799,11 @@ function IaneDetailPage({ item, onBack }) {
                       {item.progressPercent}%
                     </text>
                   </svg>
+                  <span className={`rounded px-3 py-1.5 text-[11px] font-black ${STATUS_CFG[item.status]?.badge || "bg-purple-50 text-[#4b14bd]"}`}>
+                    {STATUS_CFG[item.status]?.label || item.status}
+                  </span>
                 </>
               )}
-              <span className={`rounded px-3 py-1.5 text-[11px] font-black ${STATUS_CFG[item.status]?.badge || "bg-purple-50 text-[#4b14bd]"}`}>
-                {STATUS_CFG[item.status]?.label || item.status}
-              </span>
             </div>
           </div>
         </div>
@@ -868,6 +895,38 @@ function IaneDetailPage({ item, onBack }) {
           </div>
         </div>
       </div>
+
+      {showVideo && item.videoUrl && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 backdrop-blur-sm"
+          style={{ backgroundColor: "rgba(10,4,30,0.72)" }}
+          onClick={() => setShowVideo(false)}>
+          <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-[#e7e1f0] px-5 py-3">
+              <div className="flex items-center gap-3">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <Video size={16} strokeWidth={2} />
+                </div>
+                <div className="text-[15px] font-black text-[#33245f]">{item.type} — Kəsim Videosu</div>
+              </div>
+              <button onClick={() => setShowVideo(false)}
+                className="grid h-8 w-8 place-items-center rounded-full bg-[#f3effe] text-[#4b14bd] hover:bg-[#e8deff] transition">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="aspect-video bg-black">
+              <video src={item.videoUrl} controls autoPlay className="h-full w-full" style={{ display: "block" }}>
+                <source src={item.videoUrl} type="video/mp4" />
+              </video>
+            </div>
+            <div className="flex items-center gap-2.5 border-t border-[#e7e1f0] bg-[#fbfaff] px-5 py-3 text-[12px] font-semibold text-[#6e5b9b]">
+              <img src={item.img} alt={item.type} className="h-8 w-8 rounded-lg object-contain bg-purple-50" />
+              <span>{item.type}</span>
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">Tamamlandı</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -881,6 +940,19 @@ function IanelerimPage() {
   const [statusFilter, setStatusFilter]   = useState("Hamısı");
   const [statusOpen, setStatusOpen]       = useState(false);
   const [videoTarget, setVideoTarget]     = useState(null);
+  const [copiedId, setCopiedId]           = useState(null);
+
+  const handleShare = (e, item) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/charity`;
+    if (navigator.share) {
+      navigator.share({ title: `${item.type} qurban kampaniyasına qatıl!`, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).catch(() => {});
+      setCopiedId(item.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
+  };
 
   useEffect(() => {
     api.get("/campaigns/my")
@@ -980,16 +1052,16 @@ function IanelerimPage() {
                   <div className="flex items-center gap-2">
                     <div className="scale-[0.78] origin-left shrink-0"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
                     <div className="flex flex-col gap-1 flex-1">
-                      <button onClick={(e) => { e.stopPropagation(); if (item.status === "Tamamlandı") setVideoTarget(item); }}
+                      <button onClick={(e) => { e.stopPropagation(); item.status === "Tamamlandı" ? setVideoTarget(item) : setSelected(item); }}
                         className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#4b14bd] text-[11px] font-medium text-white">
                         {item.status === "Tamamlandı"
                           ? <><Video size={12} /> Kəsim Videosu</>
                           : <><Users size={12} /> İştirakçılara bax</>}
                       </button>
                       {item.status !== "Ləğv olundu" && (
-                        <button onClick={(e) => e.stopPropagation()}
+                        <button onClick={(e) => handleShare(e, item)}
                           className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md border border-[#bcaee4] text-[11px] font-medium text-[#5b26c8]">
-                          <Share2 size={11} /> Paylaş
+                          <Share2 size={11} /> {copiedId === item.id ? "Kopyalandı!" : "Paylaş"}
                         </button>
                       )}
                     </div>
@@ -1030,16 +1102,16 @@ function IanelerimPage() {
                 <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5">
                   <div className="w-full max-w-[190px] space-y-2">
                     <div className="flex justify-center"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
-                    <button onClick={(e) => { e.stopPropagation(); if (item.status === "Tamamlandı") setVideoTarget(item); }}
+                    <button onClick={(e) => { e.stopPropagation(); item.status === "Tamamlandı" ? setVideoTarget(item) : setSelected(item); }}
                       className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg bg-[#4b14bd] text-[12px] font-medium text-white hover:bg-[#3d0aa8] transition">
                       {item.status === "Tamamlandı"
                         ? <><Video size={14} /> Kəsim Videosu</>
                         : <><Users size={14} /> İştirakçılara bax</>}
                     </button>
                     {item.status !== "Ləğv olundu" && (
-                      <button onClick={(e) => e.stopPropagation()}
+                      <button onClick={(e) => handleShare(e, item)}
                         className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg border border-[#bcaee4] text-[12px] font-medium text-[#5b26c8] hover:bg-purple-50 transition">
-                        <Share2 size={13} /> Dostlarınla Paylaş
+                        <Share2 size={13} /> {copiedId === item.id ? "Kopyalandı!" : "Dostlarınla Paylaş"}
                       </button>
                     )}
                   </div>
@@ -1207,8 +1279,8 @@ function NecePage() {
               {/* Card */}
               <div className="flex-1 rounded-2xl border border-[#ece6f5] bg-white p-4 shadow-[0_3px_10px_rgba(46,23,92,0.06)]">
                 {/* Step number badge */}
-                <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#f1ecff] px-2.5 py-0.5">
-                  <span className="text-[10px] font-black text-[#5b22c7]">Addım {i + 1}</span>
+                <div className="mb-2 inline-flex items-center justify-center rounded-full bg-[#f1ecff] h-6 w-6">
+                  <span className="text-[11px] font-black text-[#5b22c7]">{i + 1}</span>
                 </div>
                 <div className="text-[14px] font-extrabold leading-snug text-[#241a4d] mb-1.5">
                   {s.title}
@@ -1396,38 +1468,43 @@ function TamamlanmisPage() {
               tabIndex={0}
               className="group w-full cursor-pointer overflow-hidden rounded-[16px] border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]"
             >
-              <div className="grid min-h-[150px] grid-cols-1 lg:grid-cols-[132px_168px_1fr_250px]">
+              <div className="grid min-h-[150px] grid-cols-1 lg:grid-cols-[120px_150px_1fr_210px]">
                 {/* Date column */}
-                <div className="flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e7e1f0] bg-[#fbf9ff] px-5 py-4 lg:py-0">
-                  <div className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#8778a8]">
-                    <CalendarDays size={14} className="text-[#5b22c7]" />Tamamlanma tarixi
+                <div className="flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-4 lg:py-0">
+                  <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
+                    <span className="text-[#5b22c7] text-[16px] leading-none">•</span>
+                    Tamamlanma tarixi
                   </div>
-                  <div className="text-[16px] font-black leading-tight text-[#33245f]">{item.date}</div>
+                  <div className="text-[16px] font-black leading-snug text-[#33245f]">
+                    {item.date.split(" ").slice(0, 2).join(" ")}
+                    <br />
+                    {item.date.split(" ")[2]}
+                  </div>
                 </div>
 
                 {/* Animal image */}
-                <div className="relative p-4 pr-3 hidden lg:block">
+                <div className="hidden lg:flex items-center justify-center p-4 pr-3">
                   <img
                     src={item.img}
                     alt={`${item.type} qurban heyvanı`}
-                    className="h-[122px] w-full rounded-[9px] bg-white object-contain"
+                    className="h-[118px] w-full rounded-[10px] bg-[#f8f5ff] object-contain"
                   />
                 </div>
 
                 {/* Info */}
-                <div className="px-4 py-4">
-                  <div className="mb-3 flex items-center gap-3">
+                <div className="px-5 py-4">
+                  <div className="mb-2.5 flex items-center gap-3">
                     <img src={item.img} alt={item.type} className="lg:hidden h-[56px] w-[56px] rounded-[8px] object-contain bg-[#f8f5ff]" />
                     <h3 className="text-[20px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
                   </div>
-                  <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-bold text-[#77689c]">
-                    <User size={15} className="text-[#7760bb]" />
+                  <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] font-semibold text-[#77689c]">
+                    <User size={14} className="text-[#7760bb]" />
                     <span>{item.organizer}</span>
-                    <span className="rounded-full bg-[#f1ecff] px-2 py-0.5 text-[#5622c6]">
+                    <span className="rounded-full bg-[#f1ecff] px-2.5 py-0.5 text-[11px] font-bold text-[#5622c6]">
                       {paidPct}% · {item.amount} AZN ödədi
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-end gap-5">
+                  <div className="flex flex-wrap items-start gap-5">
                     <CompletedStat label="Açılış tarixi"  value={item.date} />
                     <CompletedStat label="Ümumi məbləğ"   value={`${item.totalAmount} AZN`} />
                     <CompletedStat label="İştirakçı sayı" value={`${item.participants} nəfər`} />
@@ -1435,29 +1512,31 @@ function TamamlanmisPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-center border-t lg:border-t-0 lg:border-l border-[#e7e1f0] px-5 py-5 lg:px-6 lg:py-4">
-                  <div className="w-full max-w-[176px] space-y-2">
-                    <div className="mx-auto max-w-[156px] rounded-[8px] bg-emerald-50 px-3 py-2 text-center">
-                      <CheckCircle size={22} className="mx-auto mb-1.5 text-emerald-600" />
-                      <div className="text-[11px] font-black text-emerald-700">Açılış tamamlanıb</div>
+                <div className="flex items-center justify-center border-t lg:border-t-0 lg:border-l border-[#e7e1f0] px-5 py-5 lg:py-4">
+                  <div className="w-full max-w-[180px] space-y-2.5">
+                    <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-3 text-center">
+                      <CheckCircle size={26} className="mx-auto mb-1 text-emerald-500" strokeWidth={2} />
+                      <div className="text-[11px] font-black text-emerald-600">Açılış tamamlanıb</div>
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); setSelected(item); }}
-                      className="flex h-[32px] w-full items-center justify-center gap-2 rounded-[5px] bg-[#4b14bd] text-[12px] font-extrabold text-white shadow-[0_5px_10px_rgba(75,20,189,.22)]"
+                      className="flex h-[34px] w-full items-center justify-center gap-2 rounded-[8px] bg-[#4b14bd] text-[12px] font-bold text-white transition hover:bg-[#3d0aa8]"
                     >
                       <Users size={15} />İştirakçılara bax
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
-                      className="flex h-[32px] w-full items-center justify-center gap-2 rounded-[5px] bg-emerald-600 text-[12px] font-extrabold text-white shadow-[0_4px_10px_rgba(5,150,105,.25)] transition hover:bg-emerald-700"
-                    >
-                      <Video size={14} />Kəsim Videosu
-                    </button>
+                    {item.videoUrl && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
+                        className="flex h-[34px] w-full items-center justify-center gap-2 rounded-[8px] bg-emerald-600 text-[12px] font-bold text-white transition hover:bg-emerald-700"
+                      >
+                        <Video size={14} />Kəsim Videosu
+                      </button>
+                    )}
                     <button
                       onClick={(e) => handleShare(e, item)}
-                      className="flex h-[32px] w-full items-center justify-center gap-2 rounded-[5px] border border-[#d9cff0] bg-white text-[12px] font-extrabold text-[#4b14bd] transition hover:bg-[#f6f1ff]"
+                      className="flex h-[34px] w-full items-center justify-center gap-2 rounded-[8px] border border-[#d9cff0] bg-white text-[12px] font-bold text-[#4b14bd] transition hover:bg-[#f6f1ff]"
                     >
-                      <Share2 size={14} />Dostlarınla paylaş
+                      <Copy size={13} />Dostlarınla paylaş
                     </button>
                   </div>
                 </div>
@@ -2175,7 +2254,7 @@ function DetailCircle({ percent }) {
   );
 }
 
-function CampaignDetailView({ campaignId, onBack }) {
+function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading]   = useState(true);
   const [showAll, setShowAll]   = useState(false);
@@ -2214,14 +2293,35 @@ function CampaignDetailView({ campaignId, onBack }) {
   return (
     <div className="flex-1 overflow-y-auto bg-[#fbfaff]">
       {/* Header */}
-      <div className="flex items-center gap-4 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm sticky top-0 z-10">
+      <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm sticky top-0 z-10">
         <button onClick={onBack}
-          className="flex h-9 items-center gap-2 rounded-xl border border-[#ded5ec] bg-white px-3 text-[13px] font-bold text-[#4b14bd] shadow-sm hover:bg-purple-50">
+          className="flex h-9 shrink-0 items-center gap-2 rounded-xl border border-[#ded5ec] bg-white px-3 text-[13px] font-bold text-[#4b14bd] shadow-sm hover:bg-purple-50 transition">
           <ArrowLeft size={16} /> Geri qayıt
         </button>
-        <h1 className="truncate text-[17px] font-black text-[#33245f]">
+        <h1 className="flex-1 truncate text-[17px] font-black text-[#33245f]">
           {isCompleted ? "Tamamlanmış açılış" : "İanəsi davam edən qurbanlıq"}
         </h1>
+        {!isCompleted && onDonate && (
+          <button
+            onClick={() => onDonate({
+              campaignId: campaign._id,
+              type: campaign.animal?.nameAz || "Qurban",
+              img: animalImg,
+              shareMin: String(minDon),
+              remainingAmount: campaign.remainingAmount,
+              targetRaw: campaign.totalAmount,
+              shareMinRaw: minDon,
+              collected: String(campaign.collectedAmount),
+              target: String(campaign.totalAmount),
+              totalMin: String(Math.max(0, campaign.totalAmount - campaign.collectedAmount)),
+              totalMax: String(campaign.totalAmount),
+              currency: "AZN",
+            })}
+            className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-4 text-[13px] font-bold text-white shadow-sm hover:bg-[#3d0aa8] transition"
+          >
+            <Heart size={15} /> İanə et
+          </button>
+        )}
       </div>
 
       <div className="p-3 md:p-4">
@@ -2456,6 +2556,7 @@ export default function CharityPage() {
   const setPageGuarded = (p) => {
     if (p === "ianelerim" && isGuest) return;
     closeCampaign();
+    setDonationTarget(null);
     setPage(p);
   };
 
@@ -2589,6 +2690,8 @@ export default function CharityPage() {
           <CampaignDetailView
             campaignId={selectedCampaignId}
             onBack={closeCampaign}
+            onDonate={setDonationTarget}
+            minDon={pageSettings.minDon}
           />
         )}
 
@@ -2629,7 +2732,7 @@ export default function CharityPage() {
                     <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
                   </h1>
                   <p className="text-gray-500 text-sm mb-5 leading-relaxed max-w-xs">
-                    Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənilənlik.
+                    Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənirlik.
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
                     <button onClick={() => setShowNewOpening(true)}
@@ -2697,7 +2800,7 @@ export default function CharityPage() {
                       onClick={() => openCampaign(animal.campaignId)} />
                   ))}
                   {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
-                    <NewOpeningPlaceholderCard key={`placeholder-${i}`} animal={missingAnimals[i] || null} onOpen={() => setShowNewOpening(true)} />
+                    <NewOpeningPlaceholderCard key={`placeholder-${i}`} animal={filter === "Bütün heyvanlar" ? (missingAnimals[i] || null) : null} onOpen={() => setShowNewOpening(true)} />
                   ))}
                 </div>
               )}
@@ -2706,15 +2809,15 @@ export default function CharityPage() {
             {/* Features */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mx-3 md:mx-6 mb-5">
               {FEATURES.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="bg-white rounded-2xl p-3 flex items-center gap-3 border border-[#eee8f6] hover:shadow-md transition-all"
+                <div key={title} className="bg-white rounded-2xl p-3 flex flex-col items-center gap-2 text-center border border-[#eee8f6] hover:shadow-md transition-all"
                   style={{ boxShadow: "0 4px 18px rgba(54,27,99,0.02)" }}>
                   <div className="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0"
                     style={{ backgroundColor: "rgba(75,20,189,0.08)" }}>
                     <Icon size={16} style={{ color: "#4b14bd" }} />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-[12px] font-semibold text-[#241a4d] leading-none truncate">{title}</div>
-                    <div className="text-[10px] mt-1 truncate" style={{ color: "#8a7ba7" }}>{desc}</div>
+                  <div>
+                    <div className="text-[12px] font-semibold text-[#241a4d] leading-tight">{title}</div>
+                    <div className="text-[10px] mt-0.5 leading-snug" style={{ color: "#8a7ba7" }}>{desc}</div>
                   </div>
                 </div>
               ))}

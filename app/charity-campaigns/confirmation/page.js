@@ -108,13 +108,13 @@ function ConfirmationContent() {
         {/* Action buttons */}
         <div className="space-y-3">
           <button
-            onClick={() => router.push("/charity")}
+            onClick={() => router.replace("/charity")}
             className="w-full rounded-xl py-3 text-sm font-bold text-white transition-all"
             style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
             Əsas səhifəyə qayıt
           </button>
           <button
-            onClick={() => router.push(`/charity?campaign=${campaignId}`)}
+            onClick={() => router.replace(`/charity?campaign=${campaignId}`)}
             className="w-full flex items-center justify-center gap-2 rounded-xl border border-purple-200 py-3 text-sm font-semibold text-purple-700 hover:bg-purple-50 transition-all">
             <ArrowLeft size={15} /> Kampaniyaya bax
           </button>

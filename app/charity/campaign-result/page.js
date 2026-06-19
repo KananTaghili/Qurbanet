@@ -38,12 +38,12 @@ function CampaignResultContent() {
                 🤲
               </div>
               <h1 className="text-2xl font-black text-white mb-1">
-                {isOpener ? "Açılış uğurlu oldu!" : "İanəniz qəbul edildi!"}
+                {isOpener ? "Açılış uğurlu oldu!" : "İanəniz təsdiqləndi!"}
               </h1>
               <p className="text-white/80 text-sm">
                 {isOpener
                   ? "Kollektiv qurban açılışınız başladı"
-                  : "Kollektiv qurbanınıza töhfəniz uğurla qeydə alındı"}
+                  : "Kollektiv qurbanlığa töhfəniz uğurla qeydə alındı"}
               </p>
             </div>
 
@@ -55,7 +55,7 @@ function CampaignResultContent() {
                     <img src={campaign.animal.image} alt={campaign.animal?.nameAz}
                       className="h-12 w-12 rounded-xl object-contain bg-white border border-purple-100 shrink-0" />
                   )}
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <div className="font-black text-[#33245f]">{campaign.animal?.nameAz} Qurbanı</div>
                     <div className="text-xs text-[#7c6fa0]">
                       {campaign.collectedAmount} / {campaign.totalAmount} AZN · {campaign.percent || 0}%
@@ -76,18 +76,18 @@ function CampaignResultContent() {
             <div className="px-6 pb-6 space-y-2">
               {campaignId && (
                 <button
-                  onClick={() => router.push(`/charity?campaign=${campaignId}`)}
+                  onClick={() => router.replace(`/charity?campaign=${campaignId}`)}
                   className="w-full rounded-2xl py-3 text-sm font-bold text-white transition hover:opacity-90"
                   style={{ background: "linear-gradient(135deg, #4513ad, #7c3aed)" }}
                 >
-                  Kampaniyanı izlə
+                  Qurbanlığı izlə
                 </button>
               )}
               <button
-                onClick={() => router.push('/charity')}
+                onClick={() => router.replace('/charity')}
                 className="w-full rounded-2xl border-2 border-purple-200 py-3 text-sm font-bold text-[#4b14bd] hover:bg-purple-50 transition"
               >
-                Xeyriyyə səhifəsinə qayıt
+                Əsas səhifəyə qayıt
               </button>
             </div>
           </div>
@@ -123,10 +123,10 @@ function CampaignResultContent() {
                 Yenidən cəhd et
               </button>
               <button
-                onClick={() => router.push('/charity')}
+                onClick={() => router.replace('/charity')}
                 className="w-full rounded-2xl border-2 border-purple-200 py-3 text-sm font-bold text-[#4b14bd] hover:bg-purple-50 transition"
               >
-                Xeyriyyə səhifəsinə qayıt
+                Əsas səhifəyə qayıt
               </button>
             </div>
           </div>
