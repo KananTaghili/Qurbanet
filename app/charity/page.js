@@ -584,10 +584,10 @@ function DonationModal({ animal, onClose }) {
                 /* Logged-in user: show account auto */
                 <div className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
                   <div className="h-10 w-10 rounded-full bg-[#5521c6] flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {(user?.name || "?")[0].toUpperCase()}
+                    {initials([user?.name, user?.lastName].filter(Boolean).join(" ") || "?")}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-sm font-bold text-[#241a4d] truncate">{user?.name}</div>
+                    <div className="text-sm font-bold text-[#241a4d] truncate">{[user?.name, user?.lastName].filter(Boolean).join(" ") || "İstifadəçi"}</div>
                     <div className="text-xs text-[#8a7ba7] truncate">{user?.phone || user?.email || "Qeydiyyatlı hesab"}</div>
                   </div>
                   <div className="ml-auto shrink-0 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
@@ -2147,10 +2147,10 @@ function NewOpeningModal({ onClose }) {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-violet-700 text-sm font-extrabold text-white">
-                          {(user?.name || "?").charAt(0).toUpperCase()}
+                          {initials([user?.name, user?.lastName].filter(Boolean).join(" ") || "?")}
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate font-bold text-[#1a0f2e]">{user?.name || "İstifadəçi"}</div>
+                          <div className="truncate font-bold text-[#1a0f2e]">{[user?.name, user?.lastName].filter(Boolean).join(" ") || "İstifadəçi"}</div>
                           <div className="truncate text-xs text-[#7c6fa0]">{user?.phone || user?.email || ""}</div>
                         </div>
                         <span className="ml-auto shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Qeydiyyatlı</span>
