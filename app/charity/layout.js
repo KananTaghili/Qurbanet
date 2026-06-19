@@ -31,6 +31,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   const [name,        setName]        = useState("");
   const [guestLastName, setGuestLastName] = useState("");
   const [phone,       setPhone]       = useState("");
+  const [noteExpanded, setNoteExpanded] = useState(false);
   const [submitting,  setSubmitting]  = useState(false);
   const [settingsData, setSettingsData] = useState(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
@@ -407,9 +408,20 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                   </div>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[#1a0f2e]">Qeyd</label>
-                  <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Açılışla bağlı qeyd..." rows={2}
-                    className="w-full resize-none rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-[#1a0f2e] placeholder:text-[#7c6fa0] focus:border-purple-400 focus:outline-none transition-colors" />
+                  <button type="button" onClick={() => setNoteExpanded(v => !v)}
+                    className="mb-1.5 flex w-full items-center justify-between">
+                    <span className="text-xs font-semibold text-[#1a0f2e]">Qeyd</span>
+                    <ChevronDown size={14} className={`text-[#7c6fa0] transition-transform duration-200 ${noteExpanded ? "rotate-180" : ""}`} />
+                  </button>
+                  {noteExpanded ? (
+                    <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Açılışla bağlı qeyd..." rows={4} autoFocus
+                      className="w-full resize-none rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-[#1a0f2e] placeholder:text-[#7c6fa0] focus:border-purple-400 focus:outline-none transition-colors" />
+                  ) : (
+                    <div onClick={() => setNoteExpanded(true)}
+                      className="w-full cursor-text rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-[#7c6fa0] line-clamp-2 min-h-[44px]">
+                      {note || "Açılışla bağlı qeyd..."}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
