@@ -574,12 +574,18 @@ function DonationModal({ animal, onClose }) {
   const validAmt = numAmt >= minAmt && numAmt <= maxAmt;
   const canConfirm = !isGuest
     ? true
-    : continueMode === "guest"
-      ? guestName.trim().length > 0 && guestPhone.trim().length > 0
-      : false;
+    : continueMode === "registered"
+      ? true
+      : continueMode === "guest"
+        ? guestName.trim().length > 0 && guestPhone.trim().length > 0
+        : false;
 
   const handleSubmit = async () => {
     if (!canConfirm) return;
+    if (isGuest && continueMode === "registered") {
+      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+      return;
+    }
     setSubmitting(true);
     const donorName = !isGuest
       ? [user?.name, user?.lastName].filter(Boolean).join(" ").trim()
@@ -940,10 +946,16 @@ function DonationModal({ animal, onClose }) {
               style={{
                 background: submitting
                   ? "#aaa"
-                  : "linear-gradient(135deg, #059669, #10b981)",
+                  : isGuest && continueMode === "registered"
+                    ? "linear-gradient(135deg, #5b21b6, #7c3aed)"
+                    : "linear-gradient(135deg, #059669, #10b981)",
               }}
             >
-              {submitting ? "Yönləndirilir..." : "İanəni təsdiqlə ✓"}
+              {submitting
+                ? "Yönləndirilir..."
+                : isGuest && continueMode === "registered"
+                  ? "Daxil ol →"
+                  : "İanəni təsdiqlə ✓"}
             </button>
           )}
         </div>
