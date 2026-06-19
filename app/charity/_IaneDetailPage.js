@@ -98,7 +98,7 @@ export default function IaneDetailPage({ item, onBack }) {
                     <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
                     <button onClick={() => setShowVideo(true)}
                       className="flex w-full items-center justify-center gap-2 rounded-[6px] py-2 text-[12px] font-extrabold text-white transition hover:opacity-90"
-                      style={{ background: "#241a4d" }}>
+                      style={{ background: "#301586" }}>
                       <Video size={14} /> Kəsim Videosu
                     </button>
                     <button onClick={handleShare}
