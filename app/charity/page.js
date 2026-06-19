@@ -1612,15 +1612,7 @@ function HomeContent() {
             <img
               src="/xeyriye_bg_image.jpg"
               alt="Xeyriyyə"
-              className="absolute right-0 top-0 h-full w-[65%] object-cover rounded-r-xl"
-              style={{ objectPosition: "left center" }}
-            />
-            <div
-              className="absolute inset-0 rounded-xl"
-              style={{
-                background:
-                  "linear-gradient(to right, #ddd6fe 0%, rgba(221,214,254,0.9) 10%, rgba(221,214,254,0.4) 20%, transparent 26%)",
-              }}
+              className="absolute inset-0 w-full h-full object-cover object-center rounded-xl"
             />
             <div className="relative z-10 p-5 flex flex-col justify-center min-h-[180px]">
               <h1 className="leading-tight mb-4 text-[#241a4d] text-[1.4rem] font-bold">
