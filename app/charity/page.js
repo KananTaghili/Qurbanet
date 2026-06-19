@@ -1619,7 +1619,7 @@ function HomeContent() {
               className="absolute inset-0 rounded-xl"
               style={{
                 background:
-                  "linear-gradient(to right, #ede9fe 0%, #ede9fe 28%, rgba(237,233,254,0.85) 48%, rgba(237,233,254,0.3) 66%, transparent 85%)",
+                  "linear-gradient(to right, #ddd6fe 0%, rgba(221,214,254,0.9) 10%, rgba(221,214,254,0.4) 20%, transparent 26%)",
               }}
             />
             <div className="relative z-10 p-5 flex flex-col justify-center min-h-[180px]">
