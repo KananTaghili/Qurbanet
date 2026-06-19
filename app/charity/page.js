@@ -1051,7 +1051,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                     {/* Ring — left, larger */}
                     <div className="flex flex-col items-center gap-1 shrink-0">
                       <div className="text-[11px] font-bold text-[#6e5b9b]">Tamamlanma</div>
-                      <svg width="110" height="110" viewBox="0 0 108 108">
+                      <svg width="130" height="130" viewBox="0 0 108 108">
                         <defs>
                           <linearGradient id="camp-detail-ring-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
                             <stop offset="0%" stopColor="#4513ad" />
@@ -1073,8 +1073,8 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                     <div className="flex flex-col items-start gap-2 flex-1 xl:items-center">
                       <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">Davam edir</span>
                       <button onClick={handleShare}
-                        className="flex items-center justify-center gap-1.5 rounded-[6px] border border-[#d9cff0] bg-white px-3 py-2 text-[11px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition w-full">
-                        <Share2 size={13} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                        className="flex items-center justify-center gap-1.5 rounded-[6px] border border-[#d9cff0] bg-white px-2 py-2 text-[10px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition w-fit max-w-[110px]">
+                        <Share2 size={12} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
                       </button>
                     </div>
                   </div>
