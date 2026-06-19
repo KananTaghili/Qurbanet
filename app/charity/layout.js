@@ -603,6 +603,11 @@ export default function CharityLayout({ children }) {
           <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-2.5 border-b border-purple-900/20 shrink-0"
             style={{ backgroundColor: "#301586" }}>
             <div className="flex items-center gap-2 min-w-0">
+              {/* Hamburger — LEFT (mobile only) */}
+              <button className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                <Menu size={18} className="text-white" />
+              </button>
               <Link href="/" className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
                 <ArrowLeft size={18} className="text-white" />
               </Link>
@@ -626,10 +631,6 @@ export default function CharityLayout({ children }) {
                 className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#301586] text-[12px] font-semibold hover:bg-purple-50 transition-all shadow-sm">
                 Qeydiyyat <ChevronDown size={12} />
               </Link>
-              <button className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                <Menu size={18} className="text-white" />
-              </button>
             </div>
           </div>
 
