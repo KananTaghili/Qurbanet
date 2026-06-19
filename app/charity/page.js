@@ -167,82 +167,41 @@ function RingProgressSmall({ percent, type, img }) {
   );
 }
 
-/* ─── Mini Ring (right 1/3 of card top) ─────────────────────── */
-function MiniRing({ percent }) {
-  const size = 64, r = 26;
-  const circ = 2 * Math.PI * r;
-  const p    = Math.max(0, Math.min(percent, 100));
-  const dash = (p / 100) * circ;
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <defs>
-        <linearGradient id="mini-ring-grad" x1="32" y1="58" x2="32" y2="6" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#4513ad" />
-          <stop offset="100%" stopColor="#7547e6" />
-        </linearGradient>
-      </defs>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#d9cdfa" strokeWidth="5" />
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="url(#mini-ring-grad)" strokeWidth="6"
-        strokeLinecap="round"
-        strokeDasharray={`${dash} ${circ - dash}`}
-        transform={`rotate(90 ${size/2} ${size/2})`} />
-      <text x={size/2} y={size/2 + 5} textAnchor="middle" fontSize="13" fontWeight="900" fill="#4b14bd">{p}%</text>
-    </svg>
-  );
-}
-
 /* ─── Animal Card ────────────────────────────────────────────── */
 function AnimalCard({ animal, onDonate, onClick }) {
+  const [copied, setCopied] = useState(false);
   return (
     <div
       onClick={onClick}
-      className="group flex flex-col overflow-hidden rounded-[18px] border border-[#eee8f6] bg-white cursor-pointer transition-all hover:-translate-y-1"
+      className="group flex flex-col overflow-hidden rounded-[18px] border border-[#eee8f6] bg-white px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1"
       style={{ boxShadow: "0 6px 20px rgba(54,27,99,.08)" }}
     >
-      {/* ── Top section: photo (2/3) + ring (1/3) ── */}
-      <div className="flex items-stretch" style={{ height: 130 }}>
-        {/* Animal photo — left 2/3 */}
-        <div className="flex-[2] relative bg-[#f8f5ff] overflow-hidden">
-          <img src={animal.img} alt={animal.type}
-            className="absolute inset-0 w-full h-full object-contain p-3"
-            style={{ mixBlendMode: "multiply" }} />
-        </div>
-
-        {/* Ring + % — right 1/3 */}
-        <div className="flex-[1] flex flex-col items-center justify-center gap-1 border-l border-[#eee8f6] bg-white px-1">
-          <MiniRing percent={animal.progressPercent} />
-        </div>
+      <h3 className="text-[14px] font-bold text-center text-[#241a4d] mb-1 leading-tight">{animal.type}</h3>
+      <RingProgressSmall percent={animal.progressPercent} type={animal.type} img={animal.img} />
+      <div className="mt-1 text-center text-[12px] font-semibold text-[#281d55]">
+        {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
       </div>
-
-      {/* ── Bottom section: name, amount, opener, button ── */}
-      <div className="px-3 pt-2.5 pb-3 flex flex-col gap-1.5">
-        {/* Name */}
-        <div className="text-[13px] font-bold text-[#241a4d] leading-tight">{animal.type}</div>
-
-        {/* Collected / Total */}
-        <div className="text-[11px] font-semibold text-[#281d55]">
-          {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
+      <div className="flex items-center gap-1.5 mt-3">
+        <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-purple-100 text-[9px] font-bold text-purple-700">
+          {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
         </div>
-
-        {/* Opener */}
-        <div className="flex items-center gap-1.5">
-          <div className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-purple-100 text-[8px] font-bold text-purple-700">
-            {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
-          </div>
-          <span className="text-[10px] font-medium line-clamp-2 leading-tight" style={{ color: "#342760" }}>
-            {animal.organizer}
-          </span>
-        </div>
-
-        {/* Donate button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
-          className="mt-0.5 w-full rounded-xl py-1.5 text-xs font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
-          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
-        >
-          İanə et →
-        </button>
+        <span className="text-[11px] font-medium leading-tight line-clamp-2" style={{ color: "#342760" }}>
+          {animal.organizer}
+        </span>
       </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
+        className="mt-3 w-full rounded-xl py-2 text-xs font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
+      >
+        İanə et →
+      </button>
+      {copied && (
+        <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#241a4d] px-5 py-3 text-center text-sm font-medium text-white"
+          style={{ boxShadow: "0 18px 44px rgba(36,26,77,.28)" }}>
+          Keçid kopyalandı
+        </div>
+      )}
     </div>
   );
 }
