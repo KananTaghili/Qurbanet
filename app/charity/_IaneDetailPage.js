@@ -227,32 +227,59 @@ export default function IaneDetailPage({ item, onBack }) {
       </div>
 
       {showVideo && item.videoUrl && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 backdrop-blur-sm"
-          style={{ backgroundColor: "rgba(10,4,30,0.72)" }}
-          onClick={() => setShowVideo(false)}>
-          <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-[#e7e1f0] px-5 py-3">
+        <div
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:px-4"
+          style={{ backgroundColor: "rgba(10,4,30,0.78)", backdropFilter: "blur(6px)" }}
+          onClick={() => setShowVideo(false)}
+        >
+          <div
+            className="w-full sm:max-w-2xl overflow-hidden rounded-t-3xl sm:rounded-2xl bg-[#0d0820] shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5">
               <div className="flex items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
-                  <Video size={16} strokeWidth={2} />
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10">
+                  <Video size={16} className="text-white" strokeWidth={2} />
                 </div>
-                <div className="text-[15px] font-black text-[#33245f]">{item.type} — Kəsim Videosu</div>
+                <div>
+                  <div className="text-[14px] font-black text-white leading-none">{item.type} — Kəsim Videosu</div>
+                  <div className="mt-0.5 text-[11px] font-medium text-white/50">Tamamlanmış qurban</div>
+                </div>
               </div>
-              <button onClick={() => setShowVideo(false)}
-                className="grid h-8 w-8 place-items-center rounded-full bg-[#f3effe] text-[#4b14bd] hover:bg-[#e8deff] transition">
-                <X size={16} />
+              <button
+                onClick={() => setShowVideo(false)}
+                className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+              >
+                <X size={18} />
               </button>
             </div>
+
+            {/* Video */}
             <div className="aspect-video bg-black">
-              <video src={item.videoUrl} controls autoPlay className="h-full w-full" style={{ display: "block" }}>
+              <video
+                src={item.videoUrl}
+                controls
+                autoPlay
+                playsInline
+                className="h-full w-full"
+                style={{ display: "block" }}
+              >
                 <source src={item.videoUrl} type="video/mp4" />
               </video>
             </div>
-            <div className="flex items-center gap-2.5 border-t border-[#e7e1f0] bg-[#fbfaff] px-5 py-3 text-[12px] font-semibold text-[#6e5b9b]">
-              <img src={item.img} alt={item.type} className="h-8 w-8 rounded-lg object-contain bg-purple-50" />
-              <span>{item.type}</span>
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">Tamamlandı</span>
+
+            {/* Footer */}
+            <div className="flex items-center gap-3 px-5 py-3.5">
+              <img src={item.img} alt={item.type}
+                className="h-9 w-9 rounded-xl object-cover bg-white/5" />
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-bold text-white/80 truncate">{item.type} qurban — {item.startDate}</div>
+                <div className="text-[11px] text-white/40">{item.participants} iştirakçı · {item.totalAmount} AZN</div>
+              </div>
+              <span className="shrink-0 rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-bold text-emerald-400">
+                Tamamlandı
+              </span>
             </div>
           </div>
         </div>
