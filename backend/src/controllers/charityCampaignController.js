@@ -633,3 +633,22 @@ exports.adminDeleteMedia = async (req, res) => {
     return error(res, "Xəta baş verdi", 500);
   }
 };
+
+exports.adminDeleteCampaign = async (req, res) => {
+  try {
+    const c = await CharityCampaign.findById(req.params.id);
+    if (!c) return error(res, "Tapılmadı", 404);
+
+    // Delete all media files from GridFS
+    if (c.media?.length) {
+      const { deleteFile } = require("../utils/gridfs");
+      await Promise.all(c.media.filter(m => m.fileId).map(m => deleteFile(m.fileId).catch(() => {})));
+    }
+
+    await c.deleteOne();
+    return success(res, null, "Kampaniya silindi");
+  } catch (err_) {
+    console.error(err_);
+    return error(res, "Xəta baş verdi", 500);
+  }
+};

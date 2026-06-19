@@ -254,6 +254,7 @@ router.get("/charity-campaigns/:id",                           charityCampaignCo
 router.put("/charity-campaigns/:id/status",                    charityCampaignController.adminUpdateStatus);
 router.post("/charity-campaigns/:id/media",                    upload.array("files", 10), charityCampaignController.adminAddMedia);
 router.delete("/charity-campaigns/:id/media/:mediaIndex",      charityCampaignController.adminDeleteMedia);
+router.delete("/charity-campaigns/:id",                        charityCampaignController.adminDeleteCampaign);
 
 // ─── Charity Orders ────────────────────────────────────────────────────────────
 router.get("/charity-orders",                              charityOrderController.listAdminCharityOrders);
