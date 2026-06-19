@@ -716,51 +716,54 @@ function IaneDetailPage({ item, onBack }) {
 
       <div className="p-4 space-y-3">
         {/* Main info card */}
-        <div className="rounded-[10px] border border-[#e7e1f0] bg-white p-3 shadow-[0_4px_14px_rgba(49,22,93,.05)]">
-          <div className="flex flex-col xl:grid xl:grid-cols-[190px_1fr_190px] gap-4">
-            <div className="flex items-center justify-center h-[180px] xl:h-[200px] w-full rounded-2xl border-2 border-[#e0d8f5] bg-[#f5f2ff] shadow-sm p-3">
+        <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
+          <div className="flex flex-col xl:flex-row">
+            {/* Photo — full height, wide */}
+            <div className="xl:w-[300px] shrink-0 bg-[#f5f2ff]">
               <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                className="h-full w-full rounded-xl object-contain" />
+                className="h-[220px] xl:h-full w-full object-contain" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 py-2">
-              <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                <div className="text-[22px] font-black text-[#33245f] mb-4">{item.type}</div>
-                {item.weightRange && (
-                  <>
-                    <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
-                    <div className="text-[13px] font-black text-[#33245f] mb-3">{item.weightRange}</div>
-                  </>
-                )}
-                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
-                <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
-                  <CalendarDays size={15} className="text-[#6840c6]" /> {item.startDate}
+            <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
+              {/* Info columns */}
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-4">
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
+                  <div className="text-[22px] font-black text-[#33245f] mb-4">{item.type}</div>
+                  {item.weightRange && (
+                    <>
+                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
+                      <div className="text-[13px] font-black text-[#33245f] mb-3">{item.weightRange}</div>
+                    </>
+                  )}
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
+                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
+                    <CalendarDays size={15} className="text-[#6840c6]" /> {item.startDate}
+                  </div>
+                </div>
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f] mb-5">
+                    <Coins size={20} className="text-[#5b22c7]" /> {item.totalAmount} AZN
+                  </div>
+                  {!isCompleted && (
+                    <>
+                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
+                      <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f]">
+                        <Coins size={20} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
+                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
+                    <Users size={20} className="text-[#5b22c7]" /> {item.participants} nəfər
+                  </div>
                 </div>
               </div>
-              <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
-                <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f] mb-5">
-                  <Coins size={20} className="text-[#5b22c7]" /> {item.totalAmount} AZN
-                </div>
-                {!isCompleted && (
-                  <>
-                    <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
-                    <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f]">
-                      <Coins size={20} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
-                    </div>
-                  </>
-                )}
-              </div>
-              <div>
-                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
-                <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
-                  <Users size={20} className="text-[#5b22c7]" /> {item.participants} nəfər
-                </div>
-              </div>
-            </div>
 
-            {/* Status panel */}
-            <div className="rounded-[8px] border border-[#dcd2ec] p-4 text-center flex flex-col items-center justify-center gap-3">
+              {/* Status panel */}
+              <div className="xl:w-[210px] shrink-0 p-4 flex flex-col items-center justify-center gap-3 text-center">
               {isCompleted ? (
                 <>
                   <div className="grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600">
@@ -768,12 +771,10 @@ function IaneDetailPage({ item, onBack }) {
                   </div>
                   <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
                   <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
-                  {item.videoUrl && (
-                    <button onClick={() => setShowVideo(true)}
-                      className="mt-1 flex w-full items-center justify-center gap-2 rounded-[6px] bg-emerald-600 py-2 text-[12px] font-extrabold text-white hover:bg-emerald-700 transition">
-                      <Video size={14} /> Kəsim Videosu
-                    </button>
-                  )}
+                  <button onClick={() => setShowVideo(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-[6px] bg-emerald-600 py-2 text-[12px] font-extrabold text-white hover:bg-emerald-700 transition">
+                    <Video size={14} /> Kəsim Videosu
+                  </button>
                   <button onClick={handleShare}
                     className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
                     <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
@@ -804,6 +805,7 @@ function IaneDetailPage({ item, onBack }) {
                   </span>
                 </>
               )}
+              </div>
             </div>
           </div>
         </div>
