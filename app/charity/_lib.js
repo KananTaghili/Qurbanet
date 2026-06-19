@@ -132,5 +132,6 @@ export function mapHomeCampaign(c, minDonation) {
     totalMax: fmtAmt(c.totalAmount),
     startTime: fmtDate(c.createdAt),
     img, remainingAmount: c.remainingAmount, status: c.status,
+    weightRange: c.animal?.weightRange || "",
   };
 }

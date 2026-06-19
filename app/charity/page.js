@@ -206,6 +206,72 @@ function AnimalCard({ animal, onDonate, onClick }) {
   );
 }
 
+/* ─── Desktop Animal Card (more data) ───────────────────────── */
+function DesktopAnimalCard({ animal, onDonate, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-[#eee8f6] bg-white cursor-pointer transition-all hover:-translate-y-1"
+      style={{ boxShadow: "0 6px 24px rgba(54,27,99,.09)" }}
+    >
+      {/* Photo */}
+      <div className="relative h-[180px] bg-[#f5f2ff] overflow-hidden">
+        <img src={animal.img} alt={animal.type}
+          className="absolute inset-0 w-full h-full object-contain p-4"
+          style={{ mixBlendMode: "multiply" }} />
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-col gap-2 px-4 py-3">
+        {/* Name + % */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-[16px] font-black text-[#241a4d]">{animal.type}</h3>
+          <span className="rounded-full px-2.5 py-0.5 text-[12px] font-black text-white"
+            style={{ background: "linear-gradient(135deg,#5b21b6,#7c3aed)" }}>
+            {animal.progressPercent}%
+          </span>
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-1.5 overflow-hidden rounded-full bg-purple-100">
+          <div className="h-full rounded-full transition-all"
+            style={{ width: `${animal.progressPercent}%`, background: "linear-gradient(90deg,#5b21b6,#7c3aed)" }} />
+        </div>
+
+        {/* Amounts */}
+        <div className="flex items-center justify-between text-[12px]">
+          <span className="font-semibold text-[#281d55]">{animal.collected} {animal.currency} <span className="text-[#8778a8]">yığılıb</span></span>
+          <span className="text-[#8778a8]">/ {animal.target} {animal.currency}</span>
+        </div>
+
+        {/* Weight if available */}
+        {animal.weightRange && (
+          <div className="text-[11px] text-[#8778a8]">
+            Diri çəki: <span className="font-semibold text-[#4b14bd]">{animal.weightRange}</span>
+          </div>
+        )}
+
+        {/* Opener */}
+        <div className="flex items-center gap-1.5 pt-0.5">
+          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-purple-100 text-[9px] font-bold text-purple-700">
+            {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
+          </div>
+          <span className="text-[11px] font-medium truncate" style={{ color: "#342760" }}>{animal.organizer}</span>
+        </div>
+
+        {/* Button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
+          className="mt-1 w-full rounded-xl py-2.5 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
+        >
+          İanə et →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ─── New Opening Placeholder Card ──────────────────────────── */
 function NewOpeningPlaceholderCard({ onOpen, animal }) {
   const animalImg = animal
@@ -1470,29 +1536,32 @@ function HomeContent() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-              {filtered.map((animal) => (
-                <AnimalCard
-                  key={animal.campaignId || animal.type}
-                  animal={animal}
-                  onDonate={setDonationTarget}
-                  onClick={() => openCampaign(animal.campaignId)}
-                />
-              ))}
-              {Array.from({ length: Math.max(0, 4 - filtered.length) }).map(
-                (_, i) => (
-                  <NewOpeningPlaceholderCard
-                    key={`placeholder-${i}`}
-                    animal={
-                      filter === "Bütün heyvanlar"
-                        ? missingAnimals[i] || null
-                        : null
-                    }
-                    onOpen={openNewCampaign}
-                  />
-                ),
-              )}
-            </div>
+            <>
+              {/* Mobile: compact 2-col */}
+              <div className="grid grid-cols-2 gap-3 lg:hidden">
+                {filtered.map((animal) => (
+                  <AnimalCard key={animal.campaignId || animal.type} animal={animal}
+                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
+                ))}
+                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
+                  <NewOpeningPlaceholderCard key={`placeholder-${i}`}
+                    animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
+                    onOpen={openNewCampaign} />
+                ))}
+              </div>
+              {/* Desktop: richer 3-4 col */}
+              <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filtered.map((animal) => (
+                  <DesktopAnimalCard key={animal.campaignId || animal.type} animal={animal}
+                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
+                ))}
+                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
+                  <NewOpeningPlaceholderCard key={`placeholder-${i}`}
+                    animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
+                    onOpen={openNewCampaign} />
+                ))}
+              </div>
+            </>
           )}
         </div>
 
