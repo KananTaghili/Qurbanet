@@ -548,8 +548,11 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
             campaignId: campaign._id, type: campaign.animal?.nameAz || "Qurban", img: animalImg,
             shareMin: String(minDon), remainingAmount: campaign.remainingAmount, targetRaw: campaign.totalAmount,
             shareMinRaw: minDon, collected: String(campaign.collectedAmount), target: String(campaign.totalAmount),
-            totalMin: String(Math.max(0, campaign.totalAmount - campaign.collectedAmount)),
+            totalMin: String(Number(Math.max(0, campaign.totalAmount - campaign.collectedAmount).toFixed(2))),
             totalMax: String(campaign.totalAmount), currency: "AZN",
+            organizer: campaign.opener?.isAnonymous ? "Anonim" : ([campaign.opener?.name, campaign.opener?.lastName].filter(Boolean).join(" ") || "—"),
+            startTime: fmtDate(campaign.createdAt),
+            progressPercent: campaign.percent || 0,
           })}
             className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-4 text-[13px] font-bold text-white shadow-sm hover:bg-[#3d0aa8] transition">
             <Heart size={15} /> İanə et
