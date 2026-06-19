@@ -1026,12 +1026,12 @@ function IanelerimPage() {
             <div key={item.id} onClick={() => setSelected(item)}
               className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md my-2">
               {/* Mobile layout */}
-              <div className="flex lg:hidden gap-3 p-3">
-                <div className="shrink-0 self-stretch w-[90px]">
+              <div className="flex lg:hidden">
+                <div className="shrink-0 w-[100px]">
                   <img src={item.img} alt={item.type}
-                    className="h-full w-full rounded-xl bg-[#f5f2ff] object-contain" />
+                    className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-contain" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 p-3 pl-3">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-[15px] font-bold text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${cfg.badge}`}>{cfg.label}</span>
@@ -1042,7 +1042,7 @@ function IanelerimPage() {
                       Diri çəki: <span className="font-semibold text-[#5b22c7]">{item.weightRange}</span>
                     </div>
                   )}
-                  <div className={`grid gap-1.5 mb-1.5 ${item.status === "Tamamlandı" ? "grid-cols-2" : "grid-cols-3"}`}>
+                  <div className={`grid gap-1.5 mb-2 ${item.status === "Tamamlandı" ? "grid-cols-2" : "grid-cols-3"}`}>
                     <div>
                       <div className="text-[10px] text-[#8778a8]">İanəniz</div>
                       <div className="text-[12px] font-bold text-[#33245f]">{item.amount}</div>
@@ -1061,12 +1061,16 @@ function IanelerimPage() {
                   <div className="flex items-center gap-2">
                     <div className="scale-[0.78] origin-left shrink-0"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
                     <div className="flex flex-col gap-1 flex-1">
-                      <button onClick={(e) => { e.stopPropagation(); item.status === "Tamamlandı" ? setVideoTarget(item) : setSelected(item); }}
+                      <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
                         className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#4b14bd] text-[11px] font-medium text-white">
-                        {item.status === "Tamamlandı"
-                          ? <><Video size={12} /> Kəsim Videosu</>
-                          : <><Users size={12} /> İştirakçılara bax</>}
+                        <Users size={12} /> İştirakçılara bax
                       </button>
+                      {item.status === "Tamamlandı" && item.videoUrl && (
+                        <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
+                          className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 text-[11px] font-medium text-white">
+                          <Video size={12} /> Kəsim Videosu
+                        </button>
+                      )}
                       {item.status !== "Ləğv olundu" && (
                         <button onClick={(e) => handleShare(e, item)}
                           className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md border border-[#bcaee4] text-[11px] font-medium text-[#5b26c8]">
@@ -1079,12 +1083,12 @@ function IanelerimPage() {
               </div>
 
               {/* Desktop layout */}
-              <div className="hidden lg:grid grid-cols-[170px_1fr_250px] min-h-[156px]">
-                <div className="p-3 pr-2">
+              <div className="hidden lg:grid grid-cols-[180px_1fr_250px] min-h-[160px]">
+                <div className="shrink-0">
                   <img src={item.img} alt={item.type}
-                    className="h-full w-full rounded-xl bg-[#f5f2ff] object-contain" />
+                    className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-contain" />
                 </div>
-                <div className="px-4 py-4">
+                <div className="px-5 py-4">
                   <div className="mb-2 flex items-center gap-3">
                     <h3 className="text-[18px] font-bold leading-none text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2.5 py-1 text-[11px] font-medium ${cfg.badge}`}>{cfg.label}</span>
@@ -1119,12 +1123,16 @@ function IanelerimPage() {
                 <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5">
                   <div className="w-full max-w-[190px] space-y-2">
                     <div className="flex justify-center"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
-                    <button onClick={(e) => { e.stopPropagation(); item.status === "Tamamlandı" ? setVideoTarget(item) : setSelected(item); }}
+                    <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
                       className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg bg-[#4b14bd] text-[12px] font-medium text-white hover:bg-[#3d0aa8] transition">
-                      {item.status === "Tamamlandı"
-                        ? <><Video size={14} /> Kəsim Videosu</>
-                        : <><Users size={14} /> İştirakçılara bax</>}
+                      <Users size={14} /> İştirakçılara bax
                     </button>
+                    {item.status === "Tamamlandı" && item.videoUrl && (
+                      <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
+                        className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 text-[12px] font-medium text-white hover:bg-emerald-700 transition">
+                        <Video size={14} /> Kəsim Videosu
+                      </button>
+                    )}
                     {item.status !== "Ləğv olundu" && (
                       <button onClick={(e) => handleShare(e, item)}
                         className="flex h-[32px] w-full items-center justify-center gap-2 rounded-lg border border-[#bcaee4] text-[12px] font-medium text-[#5b26c8] hover:bg-purple-50 transition">
