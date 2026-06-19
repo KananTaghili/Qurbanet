@@ -132,19 +132,49 @@ function RingProgress({ percent, type, img }) {
   );
 }
 
+/* ─── Ring Progress Small (compact 2-col cards) ──────────────── */
+function RingProgressSmall({ percent, type, img }) {
+  const size = 138, r = 58;
+  const circ = 2 * Math.PI * r;
+  const p    = Math.max(0, Math.min(percent, 100));
+  const dash = (p / 100) * circ;
+  const id   = `grad-sm-${type.replace(/[^a-zA-Z0-9]/g, "")}`;
+  return (
+    <div className="relative mx-auto" style={{ height: 158, width: "100%", maxWidth: 146 }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}
+        className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none">
+        <defs>
+          <linearGradient id={id} x1="69" y1="128" x2="69" y2="10" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stopColor="#4513ad" />
+            <stop offset="58%"  stopColor="#5f2bd1" />
+            <stop offset="100%" stopColor="#7547e6" />
+          </linearGradient>
+        </defs>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#d9cdfa" strokeWidth="6" strokeLinecap="round" opacity="0.9" />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`url(#${id})`} strokeWidth="8" strokeLinecap="round"
+          strokeDasharray={`${dash} ${circ-dash}`} strokeDashoffset="0" transform={`rotate(90 ${size/2} ${size/2})`} />
+      </svg>
+      <div className="absolute left-1/2 top-[14px] flex h-[110px] w-[110px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full"
+        style={{ backgroundColor: "#fbfaff" }}>
+        <img src={img} alt={type} className="max-h-[85%] max-w-[85%] object-contain" style={{ mixBlendMode: "multiply" }} />
+      </div>
+      <div className="absolute left-1/2 top-[120px] z-20 -translate-x-1/2 rounded-2xl px-4 py-1 leading-none text-white whitespace-nowrap"
+        style={{ backgroundColor: "#551dc7", boxShadow: "0 6px 12px rgba(85,29,199,.25)", border: "2px solid white",
+          fontSize: "16px", fontWeight: 900, letterSpacing: "-.04em" }}>
+        {p}%
+      </div>
+    </div>
+  );
+}
+
 /* ─── Animal Card ────────────────────────────────────────────── */
 function AnimalCard({ animal, onDonate, onClick }) {
   const [copied, setCopied] = useState(false);
-  const _target = animal.targetRaw || 0;
-  const paidPct =
-    _target > 0 ? Math.round((animal.shareMinRaw / _target) * 100) : 0;
 
   const handleShare = async (e) => {
     if (e) e.stopPropagation();
     const url = `${window.location.origin}/charity?campaign=${animal.campaignId}`;
-    try {
-      await navigator.clipboard.writeText(url);
-    } catch {}
+    try { await navigator.clipboard.writeText(url); } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 2600);
   };
@@ -152,147 +182,40 @@ function AnimalCard({ animal, onDonate, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group flex flex-col overflow-hidden rounded-[22px] border border-[#eee8f6] bg-white px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1"
-      style={{ boxShadow: "0 8px 28px rgba(54,27,99,.08)" }}
+      className="group flex flex-col overflow-hidden rounded-[18px] border border-[#eee8f6] bg-white px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1"
+      style={{ boxShadow: "0 6px 20px rgba(54,27,99,.08)" }}
     >
-      <div className="mb-2 flex items-start justify-between gap-3">
-        <h3 className="text-[20px] font-bold leading-none text-[#241a4d]">
-          {animal.type}
-        </h3>
-        <span className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-medium text-emerald-600">
-          Davam Edir
+      {/* Animal name */}
+      <h3 className="text-[14px] font-bold text-center text-[#241a4d] mb-1 leading-tight">{animal.type}</h3>
+
+      {/* Ring + photo + % */}
+      <RingProgressSmall percent={animal.progressPercent} type={animal.type} img={animal.img} />
+
+      {/* Collected / Total */}
+      <div className="mt-1 text-center text-[12px] font-semibold text-[#281d55]">
+        {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
+      </div>
+
+      {/* Opener */}
+      <div className="flex items-center gap-1.5 mt-3">
+        <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-purple-100 text-[9px] font-bold text-purple-700">
+          {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
+        </div>
+        <span className="truncate text-[11px] font-medium" style={{ color: "#342760" }}>
+          {animal.organizer}
         </span>
+        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#5521c6" }} />
       </div>
-      <RingProgress
-        percent={animal.progressPercent}
-        type={animal.type}
-        img={animal.img}
-      />
-      <div className="mt-1 text-center text-[13px] font-semibold text-[#281d55]">
-        {animal.collected} / {animal.target}{" "}
-        <span className="text-[#5521c6]">{animal.currency}</span>
-      </div>
-      <div
-        className="mt-4 grid grid-cols-2 gap-3 rounded-2xl p-3"
-        style={{ backgroundColor: "#f8f5ff" }}
+
+      {/* Donate button */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
+        className="mt-3 w-full rounded-xl py-2 text-xs font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
       >
-        <div className="flex items-center gap-2">
-          <span
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
-            style={{ color: "#5521c6" }}
-          >
-            <CalendarDays size={15} strokeWidth={2} />
-          </span>
-          <div className="text-[11px] font-medium text-[#241a4d]">
-            {animal.startTime}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
-            style={{ color: "#5521c6" }}
-          >
-            <UsersRound size={15} strokeWidth={2} />
-          </span>
-          <div className="text-[11px] font-medium text-[#241a4d]">
-            {animal.participants} iştirakçı
-          </div>
-        </div>
-      </div>
-      <div className="mt-4">
-        <div
-          className="mb-1.5 text-[11px] font-medium"
-          style={{ color: "#8a7ba7" }}
-        >
-          Açan şəxs
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-full bg-purple-100 text-[10px] font-semibold text-purple-700 shrink-0">
-            {animal.organizer
-              .split(" ")
-              .slice(0, 2)
-              .map((w) => w[0])
-              .join("")}
-          </div>
-          <div
-            className="truncate text-[12px] font-medium"
-            style={{ color: "#342760" }}
-          >
-            {animal.organizer}
-          </div>
-          <span
-            className="w-2 h-2 rounded-full shrink-0"
-            style={{ backgroundColor: "#5521c6" }}
-          />
-        </div>
-      </div>
-      <div className="mt-3">
-        <div
-          className="mb-1 text-[11px] font-medium"
-          style={{ color: "#8a7ba7" }}
-        >
-          Ödədiyi məbləğ
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[16px] font-bold text-[#241a4d]">
-            {animal.shareMin} {animal.currency}
-          </span>
-          <span
-            className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-medium"
-            style={{ color: "#5521c6" }}
-          >
-            {paidPct}%
-          </span>
-        </div>
-      </div>
-      <div className="mt-3 border-t border-[#eee8f6] pt-3 grid grid-cols-2 gap-3">
-        <div>
-          <div
-            className="mb-1 text-[11px] font-medium"
-            style={{ color: "#8a7ba7" }}
-          >
-            Qalan məbləğ
-          </div>
-          <div className="text-[17px] font-bold text-[#241a4d]">
-            {animal.totalMin}{" "}
-            <span className="text-[11px] font-normal">AZN</span>
-          </div>
-        </div>
-        <div>
-          <div
-            className="mb-1 text-[11px] font-medium"
-            style={{ color: "#8a7ba7" }}
-          >
-            Ümumi məbləğ
-          </div>
-          <div className="text-[17px] font-bold text-[#241a4d]">
-            {animal.totalMax}{" "}
-            <span className="text-[11px] font-normal">AZN</span>
-          </div>
-        </div>
-      </div>
-      <div className="mt-auto pt-3 flex flex-col gap-2">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleShare(e);
-          }}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-semibold transition-all hover:bg-white"
-          style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}
-        >
-          <Share2 size={13} strokeWidth={2} /> Dostlarını dəvət et
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDonate(animal);
-          }}
-          className="w-full rounded-xl py-2.5 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
-          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
-        >
-          İanə et →
-        </button>
-      </div>
+        İanə et →
+      </button>
+
       {copied && (
         <div
           className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#241a4d] px-5 py-3 text-center text-sm font-medium text-white"
@@ -1726,7 +1649,7 @@ function HomeContent() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
               {filtered.map((animal) => (
                 <AnimalCard
                   key={animal.campaignId || animal.type}
