@@ -353,14 +353,14 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                               <div className="text-[10px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
                             </div>
                           </div>
-                          <div className="mt-1 grid grid-cols-2 gap-1.5 text-xs">
-                            <div className="rounded-lg bg-white/70 p-1.5">
-                              <span className="block text-[#7c6fa0]">Qiymət</span>
-                              <b>{item.price.toLocaleString()} AZN</b>
+                          <div className="mt-1 flex flex-col gap-1 text-xs">
+                            <div className="flex items-center justify-between rounded-lg bg-white/70 px-2 py-1">
+                              <span className="text-[#7c6fa0]">Diri çəki</span>
+                              <b className="text-right">{item.weightRange || "—"}</b>
                             </div>
-                            <div className="rounded-lg bg-white/70 p-1.5">
-                              <span className="block text-[#7c6fa0]">Diri çəki</span>
-                              <b>{item.weightRange || "—"}</b>
+                            <div className="flex items-center justify-between rounded-lg bg-white/70 px-2 py-1">
+                              <span className="text-[#7c6fa0]">Qiymət</span>
+                              <b className="text-right">{item.price.toLocaleString()} AZN</b>
                             </div>
                           </div>
                         </button>
