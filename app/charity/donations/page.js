@@ -176,15 +176,15 @@ function IanelerimContent() {
       </div>
 
       <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div className="flex rounded-lg border border-[#e7e1f0] bg-white shadow-sm w-full sm:w-auto">
+        <div className="flex rounded-xl border border-[#e7e1f0] bg-white shadow-sm w-full sm:w-auto overflow-hidden p-1 gap-1">
           {[
             { full: TAB_OPTIONS[0], short: "Hamısı"   },
             { full: TAB_OPTIONS[1], short: "Açdığım"  },
             { full: TAB_OPTIONS[2], short: "İştirak"  },
-          ].map(({ full, short }, i) => (
+          ].map(({ full, short }) => (
             <button key={full} onClick={() => setActiveTab(full)}
-              className={`flex-1 h-[38px] px-2 text-[11px] font-medium transition ${i > 0 ? "border-l border-[#eee8f6]" : ""} ${
-                activeTab === full ? "bg-[#4b14bd] text-white" : "bg-white text-[#4c3b77] hover:bg-purple-50"
+              className={`flex-1 h-[34px] px-2 text-[11px] font-semibold rounded-lg transition ${
+                activeTab === full ? "bg-[#4b14bd] text-white shadow-sm" : "text-[#4c3b77] hover:bg-purple-50"
               }`}>
               <span className="sm:hidden">{short}</span>
               <span className="hidden sm:inline whitespace-nowrap">{full}</span>
