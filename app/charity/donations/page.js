@@ -58,14 +58,14 @@ function CircularProgress({ percent, status }) {
   }
   const progress = (Math.min(percent, 100) / 100) * c;
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <svg width="72" height="72" viewBox="0 0 76 76">
+    <div className="flex flex-col items-center gap-1">
+      <svg width="58" height="58" viewBox="0 0 76 76">
         <circle cx="38" cy="38" r={r} fill="none" stroke={cfg.track} strokeWidth="7" />
         <circle cx="38" cy="38" r={r} fill="none" stroke={cfg.color} strokeWidth="7"
           strokeDasharray={c} strokeDashoffset={c - progress} strokeLinecap="round" transform="rotate(-90 38 38)" />
         <text x="38" y="43" textAnchor="middle" fontSize="16" fontWeight="700" fill={cfg.color}>{percent}%</text>
       </svg>
-      <span className="text-[11px] font-medium text-[#4d3678]">Tamamlanma</span>
+      <span className="text-[9px] font-medium text-[#4d3678]">Tamamlanma</span>
     </div>
   );
 }
@@ -218,57 +218,68 @@ function IanelerimContent() {
             <div key={item.id} onClick={() => openDetail(item)}
               className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md my-2">
               {/* Mobile */}
-              <div className="flex lg:hidden">
-                <div className="shrink-0 w-[110px]">
-                  <img src={item.img} alt={item.type} className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-cover" />
+              <div className="flex lg:hidden flex-col">
+                {/* Top: photo (left 2/3) + ring (right 1/3) */}
+                <div className="flex" style={{ height: 120 }}>
+                  <div className="flex-[2] relative bg-[#f5f2ff] rounded-tl-2xl overflow-hidden">
+                    <img src={item.img} alt={item.type}
+                      className="absolute inset-0 w-full h-full object-contain p-3"
+                      style={{ mixBlendMode: "multiply" }} />
+                  </div>
+                  <div className="flex-[1] flex flex-col items-center justify-center gap-1 border-l border-[#eee8f6] bg-white rounded-tr-2xl px-1">
+                    <CircularProgress percent={item.progressPercent} status={item.status} />
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0 p-3 pl-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-[15px] font-bold text-[#33245f]">{item.type}</h3>
+
+                {/* Bottom: info + buttons */}
+                <div className="px-3 pt-2.5 pb-3 flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[14px] font-bold text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${cfg.badge}`}>{cfg.label}</span>
                   </div>
-                  <div className="text-[11px] text-[#77689c] mb-1">{item.organizer}</div>
+
+                  <div className="text-[10px] text-[#77689c] truncate">{item.organizer}</div>
+
                   {item.weightRange && (
-                    <div className="text-[10px] text-[#8778a8] mb-1.5">
+                    <div className="text-[10px] text-[#8778a8]">
                       Diri çəki: <span className="font-semibold text-[#5b22c7]">{item.weightRange}</span>
                     </div>
                   )}
-                  <div className={`grid gap-1.5 mb-2 ${item.status === "Tamamlandı" ? "grid-cols-2" : "grid-cols-3"}`}>
+
+                  <div className="grid grid-cols-3 gap-1 mt-0.5">
                     <div>
-                      <div className="text-[10px] text-[#8778a8]">İanəniz</div>
-                      <div className="text-[12px] font-bold text-[#33245f]">{item.amount}</div>
+                      <div className="text-[9px] text-[#8778a8]">İanəniz</div>
+                      <div className="text-[11px] font-bold text-[#33245f]">{item.amount}</div>
                     </div>
                     {item.status !== "Tamamlandı" && (
                       <div>
-                        <div className="text-[10px] text-[#8778a8]">Toplanan</div>
-                        <div className="text-[12px] font-bold text-[#33245f]">{item.collectedAmount}</div>
+                        <div className="text-[9px] text-[#8778a8]">Toplanan</div>
+                        <div className="text-[11px] font-bold text-[#33245f]">{item.collectedAmount}</div>
                       </div>
                     )}
-                    <div>
-                      <div className="text-[10px] text-[#8778a8]">Ümumi</div>
-                      <div className="text-[12px] font-bold text-[#33245f]">{item.totalAmount}</div>
+                    <div className={item.status === "Tamamlandı" ? "col-span-2" : ""}>
+                      <div className="text-[9px] text-[#8778a8]">Ümumi</div>
+                      <div className="text-[11px] font-bold text-[#33245f]">{item.totalAmount}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="scale-[0.78] origin-left shrink-0"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
-                    <div className="flex flex-col gap-1 flex-1">
-                      <button onClick={(e) => { e.stopPropagation(); openDetail(item); }}
-                        className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#4b14bd] text-[11px] font-medium text-white">
-                        <Users size={12} /> İştirakçılara bax
+
+                  <div className="flex gap-1.5 mt-0.5">
+                    <button onClick={(e) => { e.stopPropagation(); openDetail(item); }}
+                      className="flex flex-1 h-[30px] items-center justify-center gap-1.5 rounded-lg bg-[#4b14bd] text-[10px] font-medium text-white">
+                      <Users size={11} /> İştirakçılara bax
+                    </button>
+                    {item.status === "Tamamlandı" && item.videoUrl && (
+                      <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
+                        className="flex flex-1 h-[30px] items-center justify-center gap-1.5 rounded-lg bg-[#1d4ed8] text-[10px] font-medium text-white">
+                        <Video size={11} /> Video
                       </button>
-                      {item.status === "Tamamlandı" && item.videoUrl && (
-                        <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
-                          className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md bg-[#1d4ed8] text-[11px] font-medium text-white">
-                          <Video size={12} /> Kəsim Videosu
-                        </button>
-                      )}
-                      {item.status !== "Ləğv olundu" && (
-                        <button onClick={(e) => handleShare(e, item)}
-                          className="flex h-[28px] w-full items-center justify-center gap-1.5 rounded-md border border-[#bcaee4] text-[11px] font-medium text-[#5b26c8]">
-                          <Share2 size={11} /> {copiedId === item.id ? "Kopyalandı!" : "Paylaş"}
-                        </button>
-                      )}
-                    </div>
+                    )}
+                    {item.status !== "Ləğv olundu" && (
+                      <button onClick={(e) => handleShare(e, item)}
+                        className="flex h-[30px] items-center justify-center gap-1 rounded-lg border border-[#bcaee4] px-3 text-[10px] font-medium text-[#5b26c8]">
+                        <Share2 size={10} /> {copiedId === item.id ? "Kopyalandı!" : "Paylaş"}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
