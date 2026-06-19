@@ -141,45 +141,68 @@ function MobileHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
   return (
-    <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-      <div className="px-3">
-        <div className="flex items-center h-14 gap-2">
-          {/* Hamburger — LEFT */}
-          <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 text-gray-700 shrink-0">
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+    <>
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+        <div className="px-3">
+          <div className="flex items-center h-14 gap-2">
+            {/* Hamburger — LEFT */}
+            <button onClick={() => setMenuOpen(true)} className="p-1.5 text-gray-700 shrink-0">
+              <Menu size={22} />
+            </button>
 
-          {/* Logo — CENTER */}
-          <Link href="/" className="flex flex-1 items-center justify-center gap-2">
-            <Image src="/logo_test.png" alt="MeatBox Logo" width={36} height={36} className="object-contain" />
-            <div className="leading-none">
-              <div className="font-extrabold text-[18px] text-gray-900 tracking-tight leading-none">
-                MEAT<span className="text-red-700">BOX</span>.AZ
+            {/* Logo — CENTER */}
+            <Link href="/" className="flex flex-1 items-center justify-center gap-2">
+              <Image src="/logo_test.png" alt="MeatBox Logo" width={36} height={36} className="object-contain" />
+              <div className="leading-none">
+                <div className="font-extrabold text-[18px] text-gray-900 tracking-tight leading-none">
+                  MEAT<span className="text-red-700">BOX</span>.AZ
+                </div>
+                <div className="text-[10px] text-gray-500 font-medium mt-0.5">
+                  Qurbanlıq · Xeyriyyə · Təzə Ət
+                </div>
               </div>
-              <div className="text-[10px] text-gray-500 font-medium mt-0.5">
-                Qurbanlıq · Xeyriyyə · Təzə Ət
-              </div>
-            </div>
-          </Link>
+            </Link>
 
-          {/* User — RIGHT */}
-          <Link href="/auth/login" className="p-1.5 text-gray-700 shrink-0">
-            <User size={22} />
-          </Link>
+            {/* User — RIGHT */}
+            <Link href="/auth/login" className="p-1.5 text-gray-700 shrink-0">
+              <User size={22} />
+            </Link>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {menuOpen && (
-        <div className="border-t border-gray-100 bg-white flex flex-col py-1">
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 z-[60] bg-black/40 transition-opacity duration-300 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setMenuOpen(false)}
+      />
+
+      {/* Left drawer */}
+      <div className={`fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        {/* Drawer header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <Image src="/logo_test.png" alt="MeatBox Logo" width={28} height={28} className="object-contain" />
+            <span className="font-extrabold text-[15px] text-gray-900 tracking-tight">
+              MEAT<span className="text-red-700">BOX</span>.AZ
+            </span>
+          </div>
+          <button onClick={() => setMenuOpen(false)} className="p-1.5 text-gray-500 hover:text-gray-700">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Nav links */}
+        <div className="flex flex-col py-2 flex-1">
           {navLinks.map((link) => (
             <a key={link} href="#" onClick={() => setMenuOpen(false)}
-              className="px-5 py-3 text-[14px] font-medium text-gray-700 hover:text-green-700 hover:bg-gray-50 active:bg-gray-100">
+              className="px-5 py-4 text-[15px] font-medium text-gray-700 hover:text-green-700 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-50">
               {link}
             </a>
           ))}
         </div>
-      )}
-    </header>
+      </div>
+    </>
   );
 }
 
