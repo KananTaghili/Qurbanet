@@ -956,7 +956,8 @@ function HomeContent() {
             </div>
             <div className="relative w-[42%] shrink-0">
               <img src="/xeyriye_bg_image.jpg" alt="Xeyriyyə"
-                className="absolute inset-0 w-full h-full object-cover object-center rounded-r-xl" />
+                className="absolute inset-0 w-full h-full object-cover rounded-r-xl"
+                style={{ objectPosition: "20% center" }} />
               <div className="absolute inset-0 rounded-r-xl"
                 style={{ background: "linear-gradient(to right, #ede9fe 0%, rgba(237,233,254,0.6) 35%, transparent 70%)" }} />
             </div>
