@@ -423,7 +423,7 @@ function DesktopServicesSection({ onPlay }) {
         {SERVICES.map((s) => {
           const ytId = s.videoType === "youtube" ? s.videoUrl.split("/embed/")[1]?.split("?")[0] : null;
           return (
-            <div key={s.id} className="relative pt-9">
+            <div key={s.id} className="relative pt-9 h-full">
               {/* Floating icon — half above card */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
                 <div
@@ -434,7 +434,7 @@ function DesktopServicesSection({ onPlay }) {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col overflow-hidden">
+              <div className="bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col overflow-hidden h-full">
               <div className="px-5 pt-10 pb-2 flex flex-col items-center text-center gap-1.5">
                 <h3 className={`text-base font-bold ${s.titleColor} leading-tight text-center`}>
                   {s.title}
