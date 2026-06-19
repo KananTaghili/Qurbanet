@@ -1608,21 +1608,21 @@ function HomeContent() {
               transform: "translate(30%, -30%)",
             }}
           />
-          <div className="lg:hidden relative min-h-[140px]">
+          <div className="lg:hidden relative min-h-[180px]">
             <img
               src="/xeyriye_bg_image.jpg"
               alt="Xeyriyyə"
-              className="absolute right-0 top-0 h-full w-[55%] object-cover rounded-r-xl"
+              className="absolute right-0 top-0 h-full w-[65%] object-cover rounded-r-xl"
               style={{ objectPosition: "left center" }}
             />
             <div
               className="absolute inset-0 rounded-xl"
               style={{
                 background:
-                  "linear-gradient(to right, #ede9fe 0%, #ede9fe 42%, rgba(237,233,254,0.75) 58%, transparent 80%)",
+                  "linear-gradient(to right, #ede9fe 0%, #ede9fe 30%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.2) 68%, transparent 85%)",
               }}
             />
-            <div className="relative z-10 p-5 flex flex-col justify-center min-h-[140px]">
+            <div className="relative z-10 p-5 flex flex-col justify-center min-h-[180px]">
               <h1 className="leading-tight mb-4 text-[#241a4d] text-[1.4rem] font-bold">
                 Birlikdə qurban,
                 <br />
