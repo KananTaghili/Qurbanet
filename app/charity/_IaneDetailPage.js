@@ -47,9 +47,9 @@ export default function IaneDetailPage({ item, onBack }) {
         {/* Main info card */}
         <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
           <div className="flex flex-col xl:flex-row">
-            <div className="xl:w-[340px] shrink-0 bg-[#f5f2ff]">
+            <div className="xl:w-[260px] shrink-0 bg-[#f5f2ff]">
               <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                className="h-[240px] xl:h-full w-full object-cover" />
+                className="h-[180px] xl:h-full w-full object-cover" />
             </div>
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
               <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-4">
@@ -95,7 +95,6 @@ export default function IaneDetailPage({ item, onBack }) {
                       <CheckCircle size={32} />
                     </div>
                     <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
                     <button onClick={() => setShowVideo(true)}
                       className="flex w-full items-center justify-center gap-2 rounded-[6px] py-2 text-[12px] font-extrabold text-white transition hover:opacity-90"
                       style={{ background: "#4b14bd" }}>
