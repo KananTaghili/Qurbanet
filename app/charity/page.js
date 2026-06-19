@@ -233,6 +233,82 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
   );
 }
 
+/* ─── Payment Success Modal ──────────────────────────────────── */
+function PaymentSuccessModal({ campaignId, role, amount, onClose, onViewCampaign }) {
+  const [campaign, setCampaign] = useState(null);
+  const isOpener = role === "opener";
+
+  useEffect(() => {
+    if (!campaignId) return;
+    api.get(`/campaigns/${campaignId}`)
+      .then(r => setCampaign(r.data?.data || null))
+      .catch(() => {});
+  }, [campaignId]);
+
+  const animalImg = campaign?.animal?.image || ANIMAL_IMG_FALLBACK[campaign?.animal?.nameAz] || null;
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center px-4"
+      style={{ backgroundColor: "rgba(10,4,30,0.72)", backdropFilter: "blur(6px)" }}>
+      <div className="w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl">
+
+        {/* Hero */}
+        <div className="px-6 pt-8 pb-6 text-center"
+          style={{ background: "linear-gradient(135deg, #4513ad, #7c3aed)" }}>
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
+            <Heart size={38} className="text-white fill-white" />
+          </div>
+          <h1 className="text-[22px] font-black text-white leading-snug">
+            {isOpener ? "İanəniz açılışı təsdiqləndi" : "İanəniz təsdiqləndi"}
+          </h1>
+        </div>
+
+        {/* Campaign card */}
+        <div className="px-5 pt-5 pb-2 space-y-3">
+          {campaign && (
+            <div className="rounded-2xl bg-purple-50 border border-purple-100 p-3">
+              <div className="flex items-center gap-3">
+                {animalImg && (
+                  <img src={animalImg} alt={campaign.animal?.nameAz}
+                    className="h-12 w-12 rounded-xl object-cover bg-white border border-purple-100 shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="font-black text-[#33245f] truncate">{campaign.animal?.nameAz} Qurbanı</div>
+                  <div className="text-xs text-[#7c6fa0]">
+                    {campaign.collectedAmount} / {campaign.totalAmount} AZN · {campaign.percent || 0}%
+                  </div>
+                </div>
+              </div>
+              {amount && (
+                <div className="mt-3 pt-3 border-t border-purple-100 flex justify-between items-center">
+                  <span className="text-sm text-[#7c6fa0]">Ödənilən məbləğ</span>
+                  <span className="text-sm font-black text-[#4b14bd]">{amount} AZN</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="px-5 pt-3 pb-6 space-y-2">
+          {campaignId && (
+            <button onClick={onViewCampaign}
+              className="w-full rounded-2xl py-3 text-sm font-bold text-white transition hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #4513ad, #7c3aed)" }}>
+              Qurbanlığı izlə
+            </button>
+          )}
+          <button onClick={onClose}
+            className="w-full rounded-2xl border-2 border-purple-200 py-3 text-sm font-bold text-[#4b14bd] hover:bg-purple-50 transition">
+            Əsas səhifəyə qayıt
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 /* ─── Donation Modal ─────────────────────────────────────────── */
 const DONATE_STEPS = ["Məlumat", "Ödəniş", "Təsdiq"];
 
@@ -762,9 +838,21 @@ function HomeContent() {
   const [animalsLoading, setAnimalsLoading] = useState(true);
   const [pageSettings, setPageSettings] = useState({ minDon: 10, minOpenPct: 30 });
   const [paymentToast, setPaymentToast] = useState(null);
+  const [successModal, setSuccessModal] = useState(null); // { campaignId, role, amount }
 
   useEffect(() => {
-    const cId = searchParams.get("campaign");
+    const cId     = searchParams.get("campaign");
+    const done    = searchParams.get("paymentDone");
+    const role    = searchParams.get("role") || "donor";
+    const amount  = searchParams.get("amount") || "";
+
+    if (done === "1" && cId) {
+      setSuccessModal({ campaignId: cId, role, amount });
+      router.replace(`/charity?campaign=${cId}`, { scroll: false });
+      setSelectedCampaignId(cId);
+      return;
+    }
+
     if (cId) setSelectedCampaignId(cId);
 
     if (searchParams.get("payment") === "fail") {
@@ -819,6 +907,15 @@ function HomeContent() {
           minDon={pageSettings.minDon}
         />
         {donationTarget && <DonationModal animal={donationTarget} onClose={() => setDonationTarget(null)} />}
+        {successModal && (
+          <PaymentSuccessModal
+            campaignId={successModal.campaignId}
+            role={successModal.role}
+            amount={successModal.amount}
+            onClose={() => { setSuccessModal(null); closeCampaign(); }}
+            onViewCampaign={() => setSuccessModal(null)}
+          />
+        )}
       </>
     );
   }
