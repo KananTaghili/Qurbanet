@@ -357,81 +357,85 @@ function DesktopNewOpeningPlaceholderCard({ onOpen, animal }) {
     <div onClick={() => onOpen(animal?.nameAz)}
       className="group flex flex-col overflow-hidden rounded-[22px] border-2 border-dashed border-purple-200 bg-white/70 px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
       style={{ boxShadow: "0 8px 28px rgba(54,27,99,.04)" }}>
-      {/* Name + badge */}
+      {/* Name + badge — same structure as real card */}
       <div className="mb-2 flex items-start justify-between gap-3">
-        {animal
-          ? <h3 className="text-[20px] font-bold leading-none text-[#6b4fa0]">{animal.nameAz}</h3>
-          : <div className="h-5 w-20 rounded bg-purple-100/50" />}
+        <h3 className="text-[20px] font-bold leading-none text-purple-200">
+          {animal ? animal.nameAz : "—"}
+        </h3>
         <span className="rounded-lg bg-purple-50 px-2.5 py-1.5 text-[11px] font-medium text-purple-300 whitespace-nowrap shrink-0">Açılış yoxdur</span>
       </div>
-      {/* Ring placeholder */}
+      {/* Ring — same size as RingProgress, track only */}
       <div className="relative mx-auto mt-2" style={{ height: 218, width: "100%", maxWidth: 198 }}>
         <svg width="188" height="188" viewBox="0 0 188 188"
           className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none">
           <circle cx="94" cy="94" r="82" fill="none" stroke="#ede9fe" strokeWidth="7" strokeLinecap="round" opacity="0.9" />
         </svg>
-        <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
+        <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full"
+          style={{ backgroundColor: "#fbfaff" }}>
           {animalImg
-            ? <img src={animalImg} alt={animal?.nameAz} className="max-h-[85%] max-w-[85%] object-contain mix-blend-multiply opacity-35"
+            ? <img src={animalImg} alt={animal?.nameAz} className="max-h-[85%] max-w-[85%] object-contain opacity-35"
+                style={{ mixBlendMode: "multiply" }}
                 onError={e => { e.currentTarget.style.display = "none"; }} />
             : <Plus size={48} className="text-purple-200" strokeWidth={1.5} />}
         </div>
-        <div className="absolute left-1/2 top-[164px] z-20 -translate-x-1/2 rounded-2xl bg-[#ede9fe] px-6 py-1.5 leading-none text-purple-300 whitespace-nowrap"
-          style={{ fontSize: "22px", fontWeight: 900, border: "3px solid white" }}>—%</div>
+        <div className="absolute left-1/2 top-[164px] z-20 -translate-x-1/2 rounded-2xl px-6 py-1.5 leading-none whitespace-nowrap"
+          style={{ backgroundColor: "#ede9fe", border: "3px solid white", fontSize: "22px", fontWeight: 900, letterSpacing: "-.04em", color: "#c4b5e0" }}>
+          —%
+        </div>
       </div>
       {/* Amount */}
-      <div className="mt-1 text-center text-[13px] font-semibold text-purple-200">— / — AZN</div>
-      {/* Date + participants */}
+      <div className="mt-1 text-center text-[13px] font-semibold text-purple-200">— / — <span className="text-purple-200">AZN</span></div>
+      {/* Date + participants — same structure */}
       <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
         <div className="flex items-center gap-2">
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm text-purple-200">
             <CalendarDays size={15} strokeWidth={2} />
           </span>
-          <div className="h-3 w-16 rounded bg-purple-100/60" />
+          <div className="text-[11px] font-medium text-purple-200">— —</div>
         </div>
         <div className="flex items-center gap-2">
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm text-purple-200">
             <UsersRound size={15} strokeWidth={2} />
           </span>
-          <div className="h-3 w-12 rounded bg-purple-100/60" />
+          <div className="text-[11px] font-medium text-purple-200">— iştirakçı</div>
         </div>
       </div>
-      {/* Opener skeleton */}
+      {/* Opener — same structure */}
       <div className="mt-4">
         <div className="mb-1.5 text-[11px] font-medium text-purple-300">Açan şəxs</div>
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-full bg-purple-100/60 shrink-0" />
-          <div className="h-3 w-24 rounded bg-purple-100/50" />
+          <div className="grid h-7 w-7 place-items-center rounded-full bg-purple-100/60 text-xs font-semibold text-purple-200 shrink-0">—</div>
+          <div className="truncate text-[12px] font-medium text-purple-200">—</div>
           <span className="w-2 h-2 rounded-full bg-purple-200 shrink-0" />
         </div>
       </div>
-      {/* Ödədiyi məbləğ skeleton */}
+      {/* Ödədiyi məbləğ — same structure */}
       <div className="mt-3">
         <div className="mb-1 text-[11px] font-medium text-purple-300">Ödədiyi məbləğ</div>
         <div className="flex items-center gap-2">
-          <div className="h-5 w-16 rounded bg-purple-100/50" />
-          <div className="h-4 w-8 rounded-full bg-purple-100/50" />
+          <span className="text-[16px] font-bold text-purple-200">— AZN</span>
+          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-medium text-purple-200">—%</span>
         </div>
       </div>
-      {/* Qalan / Ümumi skeleton */}
+      {/* Qalan / Ümumi — same structure */}
       <div className="mt-3 border-t border-[#eee8f6] pt-3 grid grid-cols-2 gap-3">
         <div>
           <div className="mb-1 text-[11px] font-medium text-purple-300">Qalan məbləğ</div>
-          <div className="h-5 w-14 rounded bg-purple-100/50" />
+          <div className="text-[17px] font-bold text-purple-200">— <span className="text-[11px] font-normal">AZN</span></div>
         </div>
         <div>
           <div className="mb-1 text-[11px] font-medium text-purple-300">Ümumi məbləğ</div>
-          <div className="h-5 w-14 rounded bg-purple-100/50" />
+          <div className="text-[17px] font-bold text-purple-200">— <span className="text-[11px] font-normal">AZN</span></div>
         </div>
       </div>
-      {/* Share button placeholder (same position as real card) */}
+      {/* Share button — same structure, disabled */}
       <button disabled
         className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-purple-100 py-2.5 text-xs font-medium text-purple-200 bg-[#f7f3ff] cursor-not-allowed">
         <Share2 size={13} strokeWidth={2} /> İanəyə Dəvət Et
       </button>
       {/* CTA */}
       <button onClick={(e) => { e.stopPropagation(); onOpen(animal?.nameAz); }}
-        className="mt-2 w-full rounded-xl py-2 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition hover:opacity-90 active:scale-[0.98]"
+        className="mt-2 w-full rounded-xl py-2 text-xs font-medium text-white flex items-center justify-center gap-1.5 transition hover:opacity-90 active:scale-[0.98]"
         style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
         <Plus size={13} strokeWidth={2.6} /> Açılış et
       </button>
