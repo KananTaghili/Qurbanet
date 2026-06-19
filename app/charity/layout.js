@@ -566,7 +566,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
 
 /* ─── Layout ─────────────────────────────────────────────────── */
 export default function CharityLayout({ children }) {
-  const { isGuest } = useAuth();
+  const { isGuest, user } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNewOpening, setShowNewOpening] = useState(false);
