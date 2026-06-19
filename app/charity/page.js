@@ -348,6 +348,92 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
   );
 }
 
+/* ─── Desktop New Opening Placeholder Card ──────────────────── */
+function DesktopNewOpeningPlaceholderCard({ onOpen, animal }) {
+  const animalImg = animal
+    ? animal.imageHome || animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || null
+    : null;
+  return (
+    <div onClick={() => onOpen(animal?.nameAz)}
+      className="group flex flex-col overflow-hidden rounded-[22px] border-2 border-dashed border-purple-200 bg-white/70 px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
+      style={{ boxShadow: "0 8px 28px rgba(54,27,99,.04)" }}>
+      {/* Name + badge */}
+      <div className="mb-2 flex items-start justify-between gap-3">
+        {animal
+          ? <h3 className="text-[20px] font-bold leading-none text-[#6b4fa0]">{animal.nameAz}</h3>
+          : <div className="h-5 w-20 rounded bg-purple-100/50" />}
+        <span className="rounded-lg bg-purple-50 px-2.5 py-1.5 text-[11px] font-medium text-purple-300 whitespace-nowrap shrink-0">Açılış yoxdur</span>
+      </div>
+      {/* Ring placeholder */}
+      <div className="relative mx-auto mt-2" style={{ height: 218, width: "100%", maxWidth: 198 }}>
+        <svg width="188" height="188" viewBox="0 0 188 188"
+          className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none">
+          <circle cx="94" cy="94" r="82" fill="none" stroke="#ede9fe" strokeWidth="7" strokeLinecap="round" opacity="0.9" />
+        </svg>
+        <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
+          {animalImg
+            ? <img src={animalImg} alt={animal?.nameAz} className="max-h-[85%] max-w-[85%] object-contain mix-blend-multiply opacity-35"
+                onError={e => { e.currentTarget.style.display = "none"; }} />
+            : <Plus size={48} className="text-purple-200" strokeWidth={1.5} />}
+        </div>
+        <div className="absolute left-1/2 top-[164px] z-20 -translate-x-1/2 rounded-2xl bg-[#ede9fe] px-6 py-1.5 leading-none text-purple-300 whitespace-nowrap"
+          style={{ fontSize: "22px", fontWeight: 900, border: "3px solid white" }}>—%</div>
+      </div>
+      {/* Amount */}
+      <div className="mt-1 text-center text-[13px] font-semibold text-purple-200">— / — AZN</div>
+      {/* Date + participants */}
+      <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm text-purple-200">
+            <CalendarDays size={15} strokeWidth={2} />
+          </span>
+          <div className="h-3 w-16 rounded bg-purple-100/60" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm text-purple-200">
+            <UsersRound size={15} strokeWidth={2} />
+          </span>
+          <div className="h-3 w-12 rounded bg-purple-100/60" />
+        </div>
+      </div>
+      {/* Opener skeleton */}
+      <div className="mt-4">
+        <div className="mb-1.5 text-[11px] font-medium text-purple-300">Açan şəxs</div>
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-full bg-purple-100/60 shrink-0" />
+          <div className="h-3 w-24 rounded bg-purple-100/50" />
+          <span className="w-2 h-2 rounded-full bg-purple-200 shrink-0" />
+        </div>
+      </div>
+      {/* Ödədiyi məbləğ skeleton */}
+      <div className="mt-3">
+        <div className="mb-1 text-[11px] font-medium text-purple-300">Ödədiyi məbləğ</div>
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-16 rounded bg-purple-100/50" />
+          <div className="h-4 w-8 rounded-full bg-purple-100/50" />
+        </div>
+      </div>
+      {/* Qalan / Ümumi skeleton */}
+      <div className="mt-3 border-t border-[#eee8f6] pt-3 grid grid-cols-2 gap-3">
+        <div>
+          <div className="mb-1 text-[11px] font-medium text-purple-300">Qalan məbləğ</div>
+          <div className="h-5 w-14 rounded bg-purple-100/50" />
+        </div>
+        <div>
+          <div className="mb-1 text-[11px] font-medium text-purple-300">Ümumi məbləğ</div>
+          <div className="h-5 w-14 rounded bg-purple-100/50" />
+        </div>
+      </div>
+      {/* CTA */}
+      <button onClick={(e) => { e.stopPropagation(); onOpen(animal?.nameAz); }}
+        className="mt-3 w-full rounded-xl py-2.5 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition hover:opacity-90 active:scale-[0.98]"
+        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+        <Plus size={13} strokeWidth={2.6} /> Açılış et
+      </button>
+    </div>
+  );
+}
+
 /* ─── Payment Success Modal ──────────────────────────────────── */
 function PaymentSuccessModal({
   campaignId,
@@ -1573,7 +1659,7 @@ function HomeContent() {
                     onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
                 ))}
                 {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
-                  <NewOpeningPlaceholderCard key={`placeholder-${i}`}
+                  <DesktopNewOpeningPlaceholderCard key={`placeholder-${i}`}
                     animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
                     onOpen={openNewCampaign} />
                 ))}
