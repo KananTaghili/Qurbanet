@@ -138,27 +138,47 @@ function VideoModal({ video, onClose }) {
    MOBILE LAYOUT
 ═══════════════════════════════════════════════════════════════ */
 function MobileHeader() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-      <div className="px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 cursor-pointer">
-            <Image src="/logo_test.png" alt="MeatBox Logo" width={40} height={40} className="object-contain" />
+      <div className="px-3">
+        <div className="flex items-center h-14 gap-2">
+          {/* Hamburger — LEFT */}
+          <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 text-gray-700 shrink-0">
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+
+          {/* Logo — CENTER */}
+          <Link href="/" className="flex flex-1 items-center justify-center gap-2">
+            <Image src="/logo_test.png" alt="MeatBox Logo" width={36} height={36} className="object-contain" />
             <div className="leading-none">
-              <div className="font-extrabold text-xl text-gray-900 tracking-tight">
+              <div className="font-extrabold text-[18px] text-gray-900 tracking-tight leading-none">
                 MEAT<span className="text-red-700">BOX</span>.AZ
               </div>
-              <div className="text-[11px] text-gray-500 font-medium mt-0.5">
+              <div className="text-[10px] text-gray-500 font-medium mt-0.5">
                 Qurbanlıq · Xeyriyyə · Təzə Ət
               </div>
             </div>
           </Link>
 
-          <Link href="/auth/login" className="p-1 text-gray-700">
-            <User size={22} />
+          {/* Cart — RIGHT */}
+          <Link href="/auth/login" className="p-1.5 text-gray-700 shrink-0">
+            <ShoppingCart size={22} />
           </Link>
         </div>
       </div>
+
+      {menuOpen && (
+        <div className="border-t border-gray-100 bg-white flex flex-col py-1">
+          {navLinks.map((link) => (
+            <a key={link} href="#" onClick={() => setMenuOpen(false)}
+              className="px-5 py-3 text-[14px] font-medium text-gray-700 hover:text-green-700 hover:bg-gray-50 active:bg-gray-100">
+              {link}
+            </a>
+          ))}
+        </div>
+      )}
     </header>
   );
 }
@@ -211,9 +231,9 @@ function MobileServicesSection({ onPlay }) {
             }} />
 
             {/* Text — left side */}
-            <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between p-3 w-[45%]">
+            <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between p-3 w-[52%]">
               <div>
-                <h3 className={`text-[15px] font-bold ${s.titleColor} leading-tight line-clamp-2 mb-1`}>
+                <h3 className={`text-[14px] font-bold ${s.titleColor} leading-tight mb-1`}>
                   {s.title}
                 </h3>
                 <p className="text-gray-600 text-[11px] leading-snug line-clamp-3">
@@ -272,20 +292,29 @@ function MobileServicesSection({ onPlay }) {
 function MobileBottomNav() {
   const [active, setActive] = useState(0);
   const items = [
-    { icon: <User size={22} />,         label: "Haqqımızda" },
-    { icon: <ShoppingCart size={22} />, label: "Xidmətlər" },
-    { icon: <Play size={22} />,         label: "Necə işləyir?" },
-    { icon: <Phone size={22} />,        label: "Əlaqə" },
+    { Icon: User,         label: "Haqqımızda" },
+    { Icon: ShoppingCart, label: "Xidmətlər" },
+    { Icon: Play,         label: "Necə işləyir?" },
+    { Icon: Phone,        label: "Əlaqə" },
   ];
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex items-center justify-around px-1 py-2 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
-      {items.map((item, i) => (
-        <button key={item.label} onClick={() => setActive(i)}
-          className={`flex flex-col items-center gap-0.5 flex-1 py-1 transition-colors ${active === i ? "text-green-700" : "text-gray-400"}`}>
-          {item.icon}
-          <span className="text-[9px] font-medium leading-tight text-center">{item.label}</span>
-        </button>
-      ))}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex items-stretch shadow-[0_-2px_12px_rgba(0,0,0,0.07)]">
+      {items.map(({ Icon, label }, i) => {
+        const isActive = active === i;
+        return (
+          <button key={label} onClick={() => setActive(i)}
+            className="flex flex-col items-center justify-center gap-1 flex-1 py-2.5 relative transition-colors">
+            {isActive && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2.5px] bg-green-700 rounded-full" />
+            )}
+            <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8}
+              className={isActive ? "text-green-700" : "text-gray-400"} />
+            <span className={`text-[10px] leading-none font-${isActive ? "700" : "500"} ${isActive ? "text-green-700" : "text-gray-400"}`}>
+              {label}
+            </span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
