@@ -981,144 +981,101 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
               {/* Stats grid */}
               <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
+                {/* Col 1 — left on mobile: name, weight, date, participants */}
                 <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[22px] font-black text-[#33245f] mb-4">
+                  <div className="text-[18px] font-black text-[#33245f] mb-3">
                     {campaign.animal?.nameAz || "Qurban"}
                   </div>
                   {campaign.animal?.weightRange && (
                     <>
-                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1">
-                        Diri çəki
-                      </div>
-                      <div className="text-[13px] font-black text-[#33245f] mb-3">
-                        {campaign.animal.weightRange}
-                      </div>
+                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
+                      <div className="text-[13px] font-black text-[#33245f] mb-3">{campaign.animal.weightRange}</div>
                     </>
                   )}
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">
-                    Açılış tarixi
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
+                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f] mb-3">
+                    <CalendarDays size={14} className="text-[#6840c6]" /> {fmtDate(campaign.createdAt)}
                   </div>
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
                   <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
-                    <CalendarDays size={15} className="text-[#6840c6]" />{" "}
-                    {fmtDate(campaign.createdAt)}
+                    <Users size={14} className="text-[#5b22c7]" /> {campaign.participantCount} nəfər
                   </div>
                 </div>
+
+                {/* Col 2 — right on mobile: total, collected, remaining */}
                 <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">
-                    Ümumi məbləğ
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-3">
+                    <Coins size={16} className="text-[#5b22c7]" /> {campaign.totalAmount} AZN
                   </div>
-                  <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f] mb-5">
-                    <Coins size={20} className="text-[#5b22c7]" />{" "}
-                    {campaign.totalAmount} AZN
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-3">
+                    <Coins size={16} className="text-[#5b22c7]" /> {campaign.collectedAmount} AZN
                   </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">
-                    Toplanan məbləğ
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f]">
-                    <Coins size={20} className="text-[#5b22c7]" />{" "}
-                    {campaign.collectedAmount} AZN
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Qalan məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
+                    <Coins size={16} className="text-[#5b22c7]" /> {Number((campaign.remainingAmount || 0).toFixed(2))} AZN
                   </div>
                 </div>
-                <div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">
-                    İştirakçı sayı
-                  </div>
+
+                {/* Col 3 — desktop only (md+) */}
+                <div className="hidden md:block">
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
                   <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
-                    <Users size={20} className="text-[#5b22c7]" />{" "}
-                    {campaign.participantCount} nəfər
+                    <Users size={20} className="text-[#5b22c7]" /> {campaign.participantCount} nəfər
                   </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">
-                    Qalan məbləğ
-                  </div>
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Qalan məbləğ</div>
                   <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
-                    <Coins size={20} className="text-[#5b22c7]" />{" "}
-                    {Number((campaign.remainingAmount || 0).toFixed(2))} AZN
+                    <Coins size={20} className="text-[#5b22c7]" /> {Number((campaign.remainingAmount || 0).toFixed(2))} AZN
                   </div>
                 </div>
               </div>
 
               {/* Status panel */}
-              <div className="xl:w-[210px] shrink-0 p-4 flex flex-col items-center justify-center gap-3 text-center">
+              <div className="xl:w-[210px] shrink-0 p-4 border-t xl:border-t-0 xl:border-l border-[#e7e1f0]">
                 {isCompleted ? (
-                  <>
-                    <div className="grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                      <CheckCircle size={32} />
+                  <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
+                    <div className="flex flex-col items-center gap-2 shrink-0">
+                      <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                        <CheckCircle size={26} />
+                      </div>
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
                     </div>
-                    <div className="text-[15px] font-black text-emerald-700">
-                      Açılış tamamlanıb
-                    </div>
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700">
-                      Tamamlandı
-                    </span>
-                    <button
-                      onClick={handleShare}
-                      className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition"
-                    >
-                      <Share2 size={14} />{" "}
-                      {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                    <button onClick={handleShare}
+                      className="flex flex-1 xl:w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                      <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
                     </button>
-                  </>
+                  </div>
                 ) : (
-                  <>
-                    <div className="text-[11px] font-bold text-[#6e5b9b]">
-                      Tamamlanma
+                  <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
+                    {/* Ring + status — left */}
+                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                      <div className="text-[11px] font-bold text-[#6e5b9b]">Tamamlanma</div>
+                      <svg width="86" height="86" viewBox="0 0 108 108">
+                        <defs>
+                          <linearGradient id="camp-detail-ring-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stopColor="#4513ad" />
+                            <stop offset="65%" stopColor="#5d28cf" />
+                            <stop offset="100%" stopColor="#7b4cea" />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="54" cy="54" r="42" fill="none" stroke="#e6dcff" strokeWidth="9" />
+                        <circle cx="54" cy="54" r="42" fill="none" stroke="url(#camp-detail-ring-grad)" strokeWidth="11"
+                          strokeLinecap="round"
+                          strokeDasharray={`${((campaign.percent || 0) / 100) * 2 * Math.PI * 42} ${(1 - (campaign.percent || 0) / 100) * 2 * Math.PI * 42}`}
+                          transform="rotate(90 54 54)" />
+                        <text x="54" y="61" textAnchor="middle" fontSize="22" fontWeight="900" fill="#4b14bd">
+                          {campaign.percent || 0}%
+                        </text>
+                      </svg>
+                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">Davam edir</span>
                     </div>
-                    <svg width="100" height="100" viewBox="0 0 108 108">
-                      <defs>
-                        <linearGradient
-                          id="camp-detail-ring-grad"
-                          x1="54"
-                          y1="96"
-                          x2="54"
-                          y2="12"
-                          gradientUnits="userSpaceOnUse"
-                        >
-                          <stop offset="0%" stopColor="#4513ad" />
-                          <stop offset="65%" stopColor="#5d28cf" />
-                          <stop offset="100%" stopColor="#7b4cea" />
-                        </linearGradient>
-                      </defs>
-                      <circle
-                        cx="54"
-                        cy="54"
-                        r="42"
-                        fill="none"
-                        stroke="#e6dcff"
-                        strokeWidth="9"
-                      />
-                      <circle
-                        cx="54"
-                        cy="54"
-                        r="42"
-                        fill="none"
-                        stroke="url(#camp-detail-ring-grad)"
-                        strokeWidth="11"
-                        strokeLinecap="round"
-                        strokeDasharray={`${((campaign.percent || 0) / 100) * 2 * Math.PI * 42} ${(1 - (campaign.percent || 0) / 100) * 2 * Math.PI * 42}`}
-                        transform="rotate(90 54 54)"
-                      />
-                      <text
-                        x="54"
-                        y="61"
-                        textAnchor="middle"
-                        fontSize="22"
-                        fontWeight="900"
-                        fill="#4b14bd"
-                      >
-                        {campaign.percent || 0}%
-                      </text>
-                    </svg>
-                    <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-black text-amber-700">
-                      Davam edir
-                    </span>
-                    <button
-                      onClick={handleShare}
-                      className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition"
-                    >
-                      <Share2 size={14} />{" "}
-                      {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                    {/* Share button — right */}
+                    <button onClick={handleShare}
+                      className="flex flex-1 xl:w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                      <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
