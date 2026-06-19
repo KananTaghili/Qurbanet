@@ -843,22 +843,25 @@ function HomeContent() {
             <h2 className="font-semibold text-[#241a4d] text-base md:text-lg">Davam edən açılışlar</h2>
             <p className="text-gray-400 text-xs mt-0.5">İanə etmək üçün açılışa basın</p>
           </div>
-          <div className="relative">
-            <button onClick={() => setDropdownOpen(!dropdownOpen)}
+          <div className="relative" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDropdownOpen(false); }}>
+            <button onClick={() => setDropdownOpen(v => !v)}
               className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium bg-white border border-[#eee8f6] text-[#241a4d] hover:border-purple-300 transition-all">
               <span className="hidden sm:inline">{filter}</span>
               <span className="sm:hidden">Filtr</span>
               <ChevronDown size={13} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 top-full mt-1.5 bg-white rounded-xl border border-[#eee8f6] shadow-lg z-50 min-w-[160px] overflow-hidden">
-                {filterOptions.map(opt => (
-                  <button key={opt} onClick={() => { setFilter(opt); setDropdownOpen(false); }}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-purple-50 ${filter === opt ? "text-purple-700 font-semibold bg-purple-50" : "text-[#241a4d]"}`}>
-                    {opt}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                <div className="absolute right-0 top-full mt-1.5 bg-white rounded-xl border border-[#eee8f6] shadow-lg z-50 min-w-[160px] overflow-hidden">
+                  {filterOptions.map(opt => (
+                    <button key={opt} onClick={() => { setFilter(opt); setDropdownOpen(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-purple-50 ${filter === opt ? "text-purple-700 font-semibold bg-purple-50" : "text-[#241a4d]"}`}>
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
