@@ -353,7 +353,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                               <div className="text-[10px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
                             </div>
                           </div>
-                          <div className="mt-1 flex flex-col gap-1 text-xs">
+                          <div className="mt-1 flex flex-col gap-1 text-[10px]">
                             <div className="flex items-center justify-between rounded-lg bg-white/70 px-2 py-1">
                               <span className="text-[#7c6fa0]">Diri çəki</span>
                               <b className="text-right">{item.weightRange || "—"}</b>
