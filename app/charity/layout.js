@@ -32,6 +32,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   const [guestLastName, setGuestLastName] = useState("");
   const [phone,       setPhone]       = useState("");
   const [noteExpanded, setNoteExpanded] = useState(false);
+  const [anonExpanded, setAnonExpanded] = useState(false);
   const [submitting,  setSubmitting]  = useState(false);
   const [settingsData, setSettingsData] = useState(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
@@ -438,11 +439,11 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-violet-700 text-sm font-extrabold text-white">
                         {initials2(userFullName(user))}
                       </div>
-                      <div className="min-w-0">
-                        <div className="truncate font-bold text-[#1a0f2e]">{userFullName(user)}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="break-all font-bold text-[#1a0f2e] text-sm leading-tight">{userFullName(user)}</div>
                         <div className="truncate text-xs text-[#7c6fa0]">{user?.phone || user?.email || ""}</div>
                       </div>
-                      <span className="ml-auto shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Qeydiyyatlı</span>
+                      <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Qeydiyyatlı</span>
                     </div>
                   </div>
                 ) : (
@@ -485,8 +486,14 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                   </>
                 )}
                 {isAnon && (
-                  <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3 text-[12px] font-semibold leading-relaxed text-amber-800">
-                    Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
+                  <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
+                    <button type="button" onClick={() => setAnonExpanded(v => !v)}
+                      className="flex w-full items-start justify-between gap-2 text-left">
+                      <p className={`text-[12px] font-semibold leading-relaxed text-amber-800 ${anonExpanded ? "" : "line-clamp-2"}`}>
+                        Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
+                      </p>
+                      <ChevronDown size={14} className={`shrink-0 mt-0.5 text-amber-600 transition-transform duration-200 ${anonExpanded ? "rotate-180" : ""}`} />
+                    </button>
                   </div>
                 )}
                 <div className="rounded-2xl border border-purple-100 p-3"
