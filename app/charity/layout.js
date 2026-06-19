@@ -226,95 +226,119 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
 
             {/* Mini Auth Phase */}
             {authPhase && (
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-3">
+                {/* Back */}
                 <button onClick={() => { setAuthPhase(false); resetAuth(); }}
-                  className="flex items-center gap-1 text-xs text-[#7c6fa0] hover:text-[#1a0f2e] transition-colors self-start mb-0.5">
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#7c6fa0] hover:text-[#1a0f2e] transition-colors self-start">
                   <ChevronDown size={13} className="rotate-90" /> Geri qayıt
                 </button>
-                <div className="flex rounded-xl bg-[#f5f3ff] p-1 gap-1">
+
+                {/* Mode tabs */}
+                <div className="flex rounded-2xl bg-[#f0ecff] p-1 gap-1">
                   {[["login","Daxil ol"],["register","Qeydiyyat"]].map(([m, label]) => (
                     <button key={m} onClick={() => { setAuthMode(m); resetAuth(); }}
-                      className={`flex-1 rounded-lg py-1.5 text-xs font-bold transition-all ${authMode === m ? "bg-white shadow text-purple-700" : "text-[#7c6fa0]"}`}>
+                      className={`flex-1 rounded-xl py-2 text-sm font-bold transition-all ${authMode === m ? "bg-white shadow-sm text-purple-700" : "text-[#7c6fa0] hover:text-purple-600"}`}>
                       {label}
                     </button>
                   ))}
                 </div>
+
+                {/* Method tabs */}
                 <div className="flex gap-2">
                   {([["email", Mail, "Email"], ["phone", Phone, "Telefon"]]).map(([mt, Icon, label]) => (
                     <button key={mt} onClick={() => { setAuthMethod(mt); setAuthInput(""); setAuthError(""); }}
-                      className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border py-1.5 text-xs font-semibold transition-all ${authMethod === mt ? "border-purple-400 bg-purple-50 text-purple-700" : "border-slate-200 text-slate-500"}`}>
-                      <Icon size={13} />{label}
+                      className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 text-xs font-semibold transition-all ${authMethod === mt ? "border-purple-500 bg-purple-50 text-purple-700" : "border-[#e8e4f4] text-[#7c6fa0] hover:border-purple-300"}`}>
+                      <Icon size={13} /> {label}
                     </button>
                   ))}
                 </div>
-                <div className="flex flex-col gap-2" style={{ minHeight: "240px" }}>
-                  {authMode === "login" && (
-                    <>
-                      <div className="invisible select-none rounded-xl border border-transparent px-3 py-2.5 text-sm" aria-hidden>x</div>
-                      <div className="invisible select-none rounded-xl border border-transparent px-3 py-2.5 text-sm" aria-hidden>x</div>
-                      <input type={authMethod === "email" ? "email" : "tel"} placeholder={authMethod === "email" ? "Email" : "+994 50 000 00 00"}
+
+                {/* Login form */}
+                {authMode === "login" && (
+                  <div className="flex flex-col gap-2.5 mt-1">
+                    <div className="relative">
+                      {authMethod === "email"
+                        ? <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                        : <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />}
+                      <input type={authMethod === "email" ? "email" : "tel"}
+                        placeholder={authMethod === "email" ? "Email ünvanı" : "+994 50 000 00 00"}
                         value={authInput} onChange={e => setAuthInput(e.target.value)}
-                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
-                      <div className="relative">
-                        <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
-                        <input type="password" placeholder="Şifrə" value={authPassword} onChange={e => setAuthPassword(e.target.value)}
-                          onKeyDown={e => e.key === "Enter" && handleAuthLogin()}
-                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
-                      </div>
-                      {authError && <p className="text-xs text-red-500 -mt-0.5">{authError}</p>}
-                      <div className="flex justify-end -mt-0.5">
-                        <a href="/auth/forgot-password" target="_blank" rel="noopener noreferrer"
-                          className="text-xs text-purple-600 hover:text-purple-800 hover:underline transition-colors">
-                          Şifrəmi unutdum
-                        </a>
-                      </div>
-                      <button onClick={handleAuthLogin} disabled={authLoading}
-                        className="w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-60 transition-all mt-auto"
-                        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
-                        {authLoading ? "Giriş edilir..." : "Daxil ol"}
-                      </button>
-                    </>
-                  )}
-                  {authMode === "register" && !authOtpSent && (
-                    <>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input type="text" placeholder="Ad" value={authRegFirst} onChange={e => setAuthRegFirst(e.target.value)}
-                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
-                        <input type="text" placeholder="Soyad" value={authRegLast} onChange={e => setAuthRegLast(e.target.value)}
-                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
-                      </div>
-                      <input type={authMethod === "email" ? "email" : "tel"} placeholder={authMethod === "email" ? "Email" : "+994 50 000 00 00"}
+                        className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
+                    </div>
+                    <div className="relative">
+                      <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                      <input type="password" placeholder="Şifrə" value={authPassword}
+                        onChange={e => setAuthPassword(e.target.value)}
+                        onKeyDown={e => e.key === "Enter" && handleAuthLogin()}
+                        className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
+                    </div>
+                    {authError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{authError}</p>}
+                    <div className="flex justify-end">
+                      <a href="/auth/forgot-password" target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-semibold text-purple-600 hover:text-purple-800 hover:underline transition-colors">
+                        Şifrəmi unutdum
+                      </a>
+                    </div>
+                    <button onClick={handleAuthLogin} disabled={authLoading}
+                      className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                      style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                      {authLoading ? "Giriş edilir..." : "Daxil ol"}
+                    </button>
+                  </div>
+                )}
+
+                {/* Register form */}
+                {authMode === "register" && !authOtpSent && (
+                  <div className="flex flex-col gap-2.5 mt-1">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="text" placeholder="Ad" value={authRegFirst}
+                        onChange={e => setAuthRegFirst(e.target.value)}
+                        className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
+                      <input type="text" placeholder="Soyad" value={authRegLast}
+                        onChange={e => setAuthRegLast(e.target.value)}
+                        className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
+                    </div>
+                    <div className="relative">
+                      {authMethod === "email"
+                        ? <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                        : <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />}
+                      <input type={authMethod === "email" ? "email" : "tel"}
+                        placeholder={authMethod === "email" ? "Email ünvanı" : "+994 50 000 00 00"}
                         value={authInput} onChange={e => setAuthInput(e.target.value)}
-                        className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
-                      <div className="relative">
-                        <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
-                        <input type="password" placeholder="Şifrə (min 6 simvol)" value={authPassword} onChange={e => setAuthPassword(e.target.value)}
-                          onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
-                          className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
-                      </div>
-                      {authError && <p className="text-xs text-red-500 -mt-0.5">{authError}</p>}
-                      <button onClick={handleAuthSendOtp} disabled={authLoading}
-                        className="w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-60 transition-all mt-auto"
-                        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
-                        {authLoading ? "Göndərilir..." : "OTP kodu göndər"}
-                      </button>
-                    </>
-                  )}
-                </div>
+                        className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
+                    </div>
+                    <div className="relative">
+                      <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                      <input type="password" placeholder="Şifrə (min 6 simvol)" value={authPassword}
+                        onChange={e => setAuthPassword(e.target.value)}
+                        onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
+                        className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors placeholder:text-[#b0a4cc]" />
+                    </div>
+                    {authError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{authError}</p>}
+                    <button onClick={handleAuthSendOtp} disabled={authLoading}
+                      className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                      style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                      {authLoading ? "Göndərilir..." : "Kod göndər →"}
+                    </button>
+                  </div>
+                )}
+
+                {/* OTP verify */}
                 {authMode === "register" && authOtpSent && (
-                  <div className="flex flex-col gap-2">
-                    <p className="text-xs text-[#7c6fa0]">
-                      Kod <b>{authInput}</b> ünvanına göndərildi.{" "}
+                  <div className="flex flex-col gap-3 mt-1">
+                    <div className="rounded-xl bg-purple-50 border border-purple-100 px-3 py-2.5 text-xs text-[#7c6fa0]">
+                      Doğrulama kodu <b className="text-purple-700">{authInput}</b> ünvanına göndərildi.{" "}
                       <button onClick={() => { setAuthOtpSent(false); setAuthOtp(""); setAuthError(""); }}
-                        className="text-purple-600 underline">Dəyiş</button>
-                    </p>
-                    <input type="text" inputMode="numeric" maxLength={6} placeholder="6 rəqəmli OTP kodu"
-                      value={authOtp} autoFocus onChange={e => setAuthOtp(e.target.value.replace(/\D/g, ""))}
+                        className="text-purple-600 font-semibold underline">Dəyiş</button>
+                    </div>
+                    <input type="text" inputMode="numeric" maxLength={6} placeholder="• • • • • •"
+                      value={authOtp} autoFocus
+                      onChange={e => setAuthOtp(e.target.value.replace(/\D/g, ""))}
                       onKeyDown={e => e.key === "Enter" && handleAuthVerifyOtp()}
-                      className="w-full rounded-xl border border-purple-200 bg-[#f5f3ff] px-3 py-2.5 text-sm text-center font-bold tracking-[0.4em] text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
-                    {authError && <p className="text-xs text-red-500 -mt-0.5">{authError}</p>}
+                      className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] px-3 py-3 text-xl text-center font-black tracking-[0.5em] text-[#1a0f2e] outline-none focus:border-purple-400 transition-colors" />
+                    {authError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{authError}</p>}
                     <button onClick={handleAuthVerifyOtp} disabled={authLoading || authOtp.length < 4}
-                      className="w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                      className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
                       style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
                       {authLoading ? "Yoxlanılır..." : "Qeydiyyatı tamamla ✓"}
                     </button>
