@@ -191,7 +191,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative mx-auto flex h-[560px] max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+      <div className="relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl" style={{ maxHeight: "min(640px, calc(100vh - 2rem))" }}>
         <>
           <div className="flex items-center justify-between border-b border-purple-100 px-5 py-3 shrink-0"
             style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
