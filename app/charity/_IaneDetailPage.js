@@ -2,11 +2,11 @@
 import { useState } from "react";
 import {
   ArrowLeft, CalendarDays, Coins, Users, Share2, Video,
-  CheckCircle, X, ChevronDown,
+  CheckCircle, X, ChevronDown, Heart,
 } from "lucide-react";
 import { fmtDate, fmtTime, avatarColor, initials, STATUS_CFG } from "./_lib";
 
-export default function IaneDetailPage({ item, onBack }) {
+export default function IaneDetailPage({ item, onBack, onDonate }) {
   const [showAll, setShowAll]     = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [copied, setCopied]       = useState(false);
@@ -17,107 +17,134 @@ export default function IaneDetailPage({ item, onBack }) {
     window.setTimeout(() => setCopied(false), 2000);
   };
 
-  const donations  = item.donations || [];
-  const openerDon  = donations.find(d => d.isOpener);
-  const otherDons  = donations.filter(d => !d.isOpener);
-  const shown      = showAll ? otherDons : otherDons.slice(0, 5);
+  const donations   = item.donations || [];
+  const openerDon   = donations.find(d => d.isOpener);
+  const otherDons   = donations.filter(d => !d.isOpener);
+  const shown       = showAll ? otherDons : otherDons.slice(0, 5);
   const isCompleted = item.status === "Tamamlandı";
 
   const fmtDonTime = (d) => {
     if (!d) return "—";
     const dt = new Date(d);
-    const time = dt.toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" });
-    return `${fmtDate(d)}  •  ${time}`;
+    return `${fmtDate(d)}  •  ${dt.toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" })}`;
   };
+
+  const cfg = STATUS_CFG[item.status] || STATUS_CFG["Davam edir"];
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-20 lg:pb-0">
-      {/* Header */}
-      <div className="flex items-center gap-4 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm">
+
+      {/* ── Header ── */}
+      <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-purple-100 bg-white/80 px-4 md:px-6 py-3 backdrop-blur-sm">
         <button onClick={onBack}
-          className="flex h-9 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition">
+          className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition">
           <ArrowLeft size={16} /> Geri qayıt
         </button>
-        <h1 className="truncate text-[16px] font-black tracking-[-.02em] text-[#33245f]">
-          {isCompleted ? `${item.date} — tamamlanmış açılış` : `${item.type} — ianə detalları`}
+        <h1 className="flex-1 min-w-0 text-[15px] font-black tracking-[-.02em] text-[#33245f] line-clamp-1">
+          {item.type}
         </h1>
+        {!isCompleted && onDonate && (
+          <button onClick={() => onDonate(item)}
+            className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-4 text-[13px] font-bold text-white shadow-sm hover:bg-[#3d0aa8] transition">
+            <Heart size={15} /> İanə et
+          </button>
+        )}
       </div>
 
       <div className="p-4 space-y-3">
-        {/* Main info card */}
+
+        {/* ── Main info card ── */}
         <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
-          <div className="flex flex-col xl:flex-row">
-            <div className="xl:w-[260px] shrink-0 bg-[#f5f2ff]">
-              <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                className="h-[180px] xl:h-full w-full object-cover" />
-            </div>
-            <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-4">
-                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[22px] font-black text-[#33245f] mb-4">{item.type}</div>
-                  {item.weightRange && (
-                    <>
-                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
-                      <div className="text-[13px] font-black text-[#33245f] mb-3">{item.weightRange}</div>
-                    </>
-                  )}
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
-                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
-                    <CalendarDays size={15} className="text-[#6840c6]" /> {item.startDate}
-                  </div>
+
+          {/* Photo — full width */}
+          <div className="bg-[#f5f2ff]">
+            <img src={item.img} alt={`${item.type} qurban heyvanı`}
+              className="h-[200px] xl:h-[260px] w-full object-cover" />
+          </div>
+
+          <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
+
+            {/* Stats — 2 col on mobile */}
+            <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
+
+              {/* Col 1: name / weight / date / participants */}
+              <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
+                <div className="text-[18px] font-black text-[#33245f] mb-3">{item.type}</div>
+                {item.weightRange && (
+                  <>
+                    <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
+                    <div className="text-[13px] font-black text-[#33245f] mb-3">{item.weightRange}</div>
+                  </>
+                )}
+                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
+                <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f] mb-3">
+                  <CalendarDays size={14} className="text-[#6840c6]" /> {item.startDate}
                 </div>
-                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
-                  <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f] mb-5">
-                    <Coins size={20} className="text-[#5b22c7]" /> {item.totalAmount} AZN
-                  </div>
-                  {!isCompleted && (
-                    <>
-                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
-                      <div className="flex items-center gap-1.5 text-[17px] font-black text-[#33245f]">
-                        <Coins size={20} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
-                    <Users size={20} className="text-[#5b22c7]" /> {item.participants} nəfər
-                  </div>
+                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
+                <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
+                  <Users size={14} className="text-[#5b22c7]" /> {item.participants} nəfər
                 </div>
               </div>
 
-              <div className="xl:w-[210px] shrink-0 p-4 flex flex-col items-center justify-center gap-3 text-center">
-                {isCompleted ? (
-                  <>
-                    <div className="grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                      <CheckCircle size={32} />
+              {/* Col 2: total / collected */}
+              <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
+                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
+                <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-3">
+                  <Coins size={16} className="text-[#5b22c7]" /> {item.totalAmount} AZN
+                </div>
+                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
+                <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
+                  <Coins size={16} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
+                </div>
+              </div>
+
+              {/* Col 3 — desktop only */}
+              <div className="hidden md:block">
+                <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
+                <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
+                  <Users size={20} className="text-[#5b22c7]" /> {item.participants} nəfər
+                </div>
+              </div>
+            </div>
+
+            {/* Status panel */}
+            <div className="xl:w-[210px] shrink-0 p-4 border-t xl:border-t-0 xl:border-l border-[#e7e1f0]">
+              {isCompleted ? (
+                <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
+                  <div className="flex flex-col items-center gap-2 shrink-0">
+                    <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                      <CheckCircle size={26} />
                     </div>
-                    <div className="text-[15px] font-black text-emerald-700">Açılış tamamlanıb</div>
-                    <button onClick={() => setShowVideo(true)}
-                      className="flex w-full items-center justify-center gap-2 rounded-[6px] py-2 text-[12px] font-extrabold text-white transition hover:opacity-90"
-                      style={{ background: "#4b14bd" }}>
-                      <Video size={14} /> Kəsim Videosu
-                    </button>
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
+                  </div>
+                  <div className="flex flex-col gap-2 flex-1 xl:w-full">
+                    {item.videoUrl && (
+                      <button onClick={(e) => { e.stopPropagation(); setShowVideo(true); }}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 py-2 text-[12px] font-extrabold text-white hover:bg-emerald-700 transition">
+                        <Video size={14} /> Kəsim Videosu
+                      </button>
+                    )}
                     <button onClick={handleShare}
-                      className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
                       <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
                     </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-[11px] font-bold text-[#6e5b9b]">Tamamlanma</div>
-                    <svg width="100" height="100" viewBox="0 0 108 108">
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
+                  {/* Ring */}
+                  <div className="flex flex-col items-center gap-1 shrink-0">
+                    <div className="text-[11px] font-bold text-[#6e5b9b] mb-1">Tamamlanma</div>
+                    <svg width="130" height="130" viewBox="0 0 108 108">
                       <defs>
-                        <linearGradient id="detail-ring-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="iane-detail-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
                           <stop offset="0%"   stopColor="#4513ad" />
                           <stop offset="65%"  stopColor="#5d28cf" />
                           <stop offset="100%" stopColor="#7b4cea" />
                         </linearGradient>
                       </defs>
                       <circle cx="54" cy="54" r="42" fill="none" stroke="#e6dcff" strokeWidth="9" />
-                      <circle cx="54" cy="54" r="42" fill="none" stroke="url(#detail-ring-grad)" strokeWidth="11"
+                      <circle cx="54" cy="54" r="42" fill="none" stroke="url(#iane-detail-grad)" strokeWidth="11"
                         strokeLinecap="round"
                         strokeDasharray={`${(item.progressPercent / 100) * 2 * Math.PI * 42} ${(1 - item.progressPercent / 100) * 2 * Math.PI * 42}`}
                         transform="rotate(90 54 54)" />
@@ -125,17 +152,23 @@ export default function IaneDetailPage({ item, onBack }) {
                         {item.progressPercent}%
                       </text>
                     </svg>
-                    <span className={`rounded px-3 py-1.5 text-[11px] font-black ${STATUS_CFG[item.status]?.badge || "bg-purple-50 text-[#4b14bd]"}`}>
-                      {STATUS_CFG[item.status]?.label || item.status}
+                  </div>
+                  <div className="flex flex-col gap-2 shrink-0 xl:w-full">
+                    <span className={`rounded-lg px-3 py-1.5 text-[11px] font-black text-center ${cfg.badge}`}>
+                      {cfg.label || item.status}
                     </span>
-                  </>
-                )}
-              </div>
+                    <button onClick={handleShare}
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-[#d9cff0] bg-white px-3 py-1.5 text-[11px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition max-w-[120px]">
+                      <Share2 size={12} /> {copied ? "Kopyalandı!" : "Paylaş"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Opener row */}
+        {/* ── Opener row ── */}
         {openerDon && (
           <div>
             <div className="inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1.5 text-[11px] font-black text-white">Açan şəxs</div>
@@ -164,7 +197,7 @@ export default function IaneDetailPage({ item, onBack }) {
           </div>
         )}
 
-        {/* Donors table */}
+        {/* ── Donors table ── */}
         <div>
           <h2 className="mb-3 text-[15px] font-black text-[#33245f]">
             Digər ödəniş edənlər ({otherDons.length} nəfər)
@@ -225,17 +258,13 @@ export default function IaneDetailPage({ item, onBack }) {
         </div>
       </div>
 
+      {/* ── Video modal ── */}
       {showVideo && (
-        <div
-          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:px-4"
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:px-4"
           style={{ backgroundColor: "rgba(10,4,30,0.82)", backdropFilter: "blur(8px)" }}
-          onClick={() => setShowVideo(false)}
-        >
-          <div
-            className="w-full sm:max-w-2xl overflow-hidden rounded-t-3xl sm:rounded-2xl bg-[#0d0820] shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header */}
+          onClick={() => setShowVideo(false)}>
+          <div className="w-full sm:max-w-2xl overflow-hidden rounded-t-3xl sm:rounded-2xl bg-[#0d0820] shadow-2xl"
+            onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4">
               <div className="flex items-center gap-3">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl"
@@ -247,25 +276,14 @@ export default function IaneDetailPage({ item, onBack }) {
                   <div className="mt-1 text-[11px] font-medium text-white/50">Tamamlanmış qurban kəsimi</div>
                 </div>
               </div>
-              <button
-                onClick={() => setShowVideo(false)}
-                className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
-              >
+              <button onClick={() => setShowVideo(false)}
+                className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition">
                 <X size={18} />
               </button>
             </div>
-
-            {/* Video or placeholder */}
             {item.videoUrl ? (
               <div className="aspect-video bg-black">
-                <video
-                  src={item.videoUrl}
-                  controls
-                  autoPlay
-                  playsInline
-                  className="h-full w-full"
-                  style={{ display: "block" }}
-                >
+                <video src={item.videoUrl} controls autoPlay playsInline className="h-full w-full" style={{ display: "block" }}>
                   <source src={item.videoUrl} type="video/mp4" />
                 </video>
               </div>
@@ -280,19 +298,14 @@ export default function IaneDetailPage({ item, onBack }) {
                 </div>
               </div>
             )}
-
-            {/* Footer */}
             <div className="flex items-center gap-3 px-5 py-4 border-t border-white/5">
-              <img src={item.img} alt={item.type}
-                className="h-10 w-10 rounded-xl object-cover" style={{ background: "rgba(255,255,255,0.05)" }} />
+              <img src={item.img} alt={item.type} className="h-10 w-10 rounded-xl object-cover" style={{ background: "rgba(255,255,255,0.05)" }} />
               <div className="flex-1 min-w-0">
                 <div className="text-[13px] font-bold text-white/80 truncate">{item.type} qurban · {item.startDate}</div>
                 <div className="text-[11px] text-white/40 mt-0.5">{item.participants} iştirakçı · {item.totalAmount} AZN</div>
               </div>
               <span className="shrink-0 rounded-full px-3 py-1 text-[11px] font-bold"
-                style={{ background: "rgba(52,211,153,0.15)", color: "#6ee7b7" }}>
-                Tamamlandı
-              </span>
+                style={{ background: "rgba(52,211,153,0.15)", color: "#6ee7b7" }}>Tamamlandı</span>
             </div>
           </div>
         </div>
