@@ -942,58 +942,44 @@ function HomeContent() {
           style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 60%, #ddd6fe 100%)" }}>
           <div className="absolute top-0 right-0 w-48 md:w-72 h-48 md:h-72 rounded-full opacity-20"
             style={{ background: "radial-gradient(circle, #7c3aed, transparent)", transform: "translate(30%, -30%)" }} />
-          <div className="lg:hidden p-5">
-            <h1 className="leading-tight mb-3 text-[#241a4d] text-[1.4rem] font-bold">
-              Birlikdə qurban,<br />
-              <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
-            </h1>
-            <p className="text-gray-500 text-sm mb-4 leading-relaxed">
-              Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq. Tam şəffaflıq.
-            </p>
-            <div className="flex items-center gap-2 flex-wrap mb-4">
+          <div className="lg:hidden flex items-stretch min-h-[140px]">
+            <div className="flex-1 p-5 flex flex-col justify-center">
+              <h1 className="leading-tight mb-4 text-[#241a4d] text-[1.4rem] font-bold">
+                Birlikdə qurban,<br />
+                <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
+              </h1>
               <button onClick={openNewCampaign}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold active:scale-95 transition-all hover:opacity-90"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold active:scale-95 transition-all hover:opacity-90 self-start"
                 style={{ background: "#4b14bd" }}>
                 <Plus size={13} /> Yeni açılış et
               </button>
-              <Link href="/charity/how-it-works"
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
-                style={{ color: "#4b14bd", borderColor: "rgba(75,20,189,0.3)" }}>
-                <Play size={11} /> Necə işləyir?
-              </Link>
+            </div>
+            <div className="relative w-[42%] shrink-0">
+              <img src="/xeyriye_bg_image.jpg" alt="Xeyriyyə"
+                className="absolute inset-0 w-full h-full object-cover object-center rounded-r-xl" />
+              <div className="absolute inset-0 rounded-r-xl"
+                style={{ background: "linear-gradient(to right, #ede9fe 0%, rgba(237,233,254,0.6) 35%, transparent 70%)" }} />
             </div>
           </div>
           <div className="hidden lg:grid grid-cols-2 gap-6 items-stretch">
             <div className="pl-8 py-8 pr-2 flex flex-col justify-center">
-              <h1 className="leading-tight mb-3 text-[#241a4d]" style={{ fontSize: "1.75rem", fontWeight: 700 }}>
+              <h1 className="leading-tight mb-5 text-[#241a4d]" style={{ fontSize: "1.75rem", fontWeight: 700 }}>
                 Birlikdə qurban,<br />
                 <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
               </h1>
-              <p className="text-gray-500 text-sm mb-5 leading-relaxed max-w-xs">
-                Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənirlik.
-              </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <button onClick={openNewCampaign}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all"
                   style={{ background: "#4b14bd" }}>
                   <Plus size={14} /> Yeni açılış et
                 </button>
-                <Link href="/charity/how-it-works"
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border bg-white/70 hover:bg-white transition-all"
-                  style={{ color: "#4b14bd", borderColor: "rgba(75,20,189,0.3)" }}>
-                  <Play size={12} /> Necə işləyir?
-                </Link>
               </div>
-              <p className="text-gray-400 text-xs mt-3 flex items-center gap-1">
-                <ArrowRight size={11} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
-              </p>
             </div>
             <div className="relative min-h-[220px]">
-              <img src="/charity-hero.png" alt="Qurban heyvanları"
-                className="absolute inset-0 w-full h-full object-cover object-center rounded-r-2xl"
-                style={{ maskImage: "linear-gradient(to right, transparent 0%, black 25%)" }} />
+              <img src="/xeyriye_bg_image.jpg" alt="Xeyriyyə"
+                className="absolute inset-0 w-full h-full object-cover object-center rounded-r-2xl" />
               <div className="absolute inset-0 rounded-r-2xl"
-                style={{ background: "linear-gradient(to right, #ede9fe 0%, transparent 40%)" }} />
+                style={{ background: "linear-gradient(to right, #ede9fe 0%, rgba(237,233,254,0.7) 30%, transparent 65%)" }} />
             </div>
           </div>
         </div>
