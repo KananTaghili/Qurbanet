@@ -24,11 +24,11 @@ export const AVATAR_PALETTE = [
 ];
 
 export const SIDEBAR_NAV = [
-  { icon: Home,        label: "Əsas Səhifə",  href: "/charity"             },
-  { icon: List,        label: "İanələrim",     href: "/charity/donations"    },
-  { icon: CheckCircle, label: "Tamamlanmış",   href: "/charity/completed"    },
-  { icon: HelpCircle,  label: "Necə işləyir", href: "/charity/how-it-works"  },
-  { icon: FileText,    label: "Şərtlərimiz",  href: "/charity/terms"         },
+  { icon: Home,        label: "Əsas Səhifə",  short: "Ana Səhifə",  href: "/charity"             },
+  { icon: List,        label: "İanələrim",     short: "İanələrim",   href: "/charity/donations"    },
+  { icon: CheckCircle, label: "Tamamlanmış",   short: "Bitənlər",    href: "/charity/completed"    },
+  { icon: HelpCircle,  label: "Necə işləyir", short: "Necə işlər",  href: "/charity/how-it-works"  },
+  { icon: FileText,    label: "Şərtlərimiz",  short: "Şərtlər",     href: "/charity/terms"         },
 ];
 
 export const FEATURES = [

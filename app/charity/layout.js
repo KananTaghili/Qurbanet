@@ -689,13 +689,13 @@ export default function CharityLayout({ children }) {
 
         {/* Mobile Bottom Nav */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e7e1f0] bg-white flex">
-          {visibleNav.map(({ icon: Icon, label, href }) => (
+          {visibleNav.map(({ icon: Icon, label, short, href }) => (
             <Link key={href} href={href}
               className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
                 isActive(href) ? "text-[#4b14bd]" : "text-gray-400"
               }`}>
               <Icon size={20} strokeWidth={isActive(href) ? 2.2 : 1.8} />
-              <span className="text-[9px] font-medium leading-none truncate max-w-[52px]">{label}</span>
+              <span className="text-[9px] font-medium leading-none truncate max-w-[56px]">{short || label}</span>
             </Link>
           ))}
         </nav>
