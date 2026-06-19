@@ -131,20 +131,38 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
     }
   };
 
+  const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const isValidPhone = (v) => /^(\+994|0)(50|51|55|60|70|77|99)\d{7}$/.test(v.replace(/[\s\-()]/g, ""));
+  const validateInput = (val) => {
+    if (!val) return authMethod === "email" ? "Email ünvanını daxil edin" : "Telefon nömrəsini daxil edin";
+    if (authMethod === "email" && !isValidEmail(val)) return "Email ünvanı düzgün deyil (məs: ad@mail.com)";
+    if (authMethod === "phone" && !isValidPhone(val)) return "Telefon nömrəsi düzgün deyil (məs: +994501234567)";
+    return null;
+  };
+
   const handleAuthLogin = async () => {
     setAuthError("");
     const val = authInput.trim();
-    if (!val) return setAuthError("Email və ya telefon daxil edin");
-    if (!authPassword) return setAuthError("Şifrə daxil edin");
+    const inputErr = validateInput(val);
+    if (inputErr) return setAuthError(inputErr);
+    if (!authPassword) return setAuthError("Şifrəni daxil edin");
+    if (authPassword.length < 6) return setAuthError("Şifrə minimum 6 simvoldan ibarət olmalıdır");
     setAuthLoading(true);
     try {
-      const isEmail = val.includes("@");
+      const isEmail = authMethod === "email";
       const body = isEmail ? { email: val, password: authPassword } : { phone: val, password: authPassword };
       const res = await api.post("/auth/login-password", body);
       const { token, user: u } = res.data.data;
       await afterAuth(token, u);
     } catch (err) {
-      setAuthError(err.response?.data?.message || "Giriş uğursuz oldu");
+      const msg = err.response?.data?.message;
+      if (msg?.toLowerCase().includes("password") || msg?.toLowerCase().includes("şifrə")) {
+        setAuthError("Email və ya şifrə yanlışdır. Yenidən cəhd edin.");
+      } else if (msg?.toLowerCase().includes("not found") || msg?.toLowerCase().includes("tapılmadı")) {
+        setAuthError("Bu hesab tapılmadı. Əvvəlcə qeydiyyatdan keçin.");
+      } else {
+        setAuthError(msg || "Giriş uğursuz oldu. Yenidən cəhd edin.");
+      }
       setAuthLoading(false);
     }
   };
@@ -152,18 +170,29 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   const handleAuthSendOtp = async () => {
     setAuthError("");
     const val = authInput.trim();
-    if (!authRegFirst.trim()) return setAuthError("Adınızı daxil edin");
-    if (!authRegLast.trim())  return setAuthError("Soyadınızı daxil edin");
-    if (!val) return setAuthError("Email və ya telefon daxil edin");
-    if (!authPassword || authPassword.length < 6) return setAuthError("Şifrə minimum 6 simvol olmalıdır");
+    const first = authRegFirst.trim();
+    const last  = authRegLast.trim();
+    if (!first) return setAuthError("Adınızı daxil edin");
+    if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s]{2,}$/.test(first)) return setAuthError("Ad yalnız hərf ola bilər (min 2 simvol)");
+    if (!last) return setAuthError("Soyadınızı daxil edin");
+    if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s]{2,}$/.test(last)) return setAuthError("Soyad yalnız hərf ola bilər (min 2 simvol)");
+    const inputErr = validateInput(val);
+    if (inputErr) return setAuthError(inputErr);
+    if (!authPassword) return setAuthError("Şifrəni daxil edin");
+    if (authPassword.length < 6) return setAuthError("Şifrə minimum 6 simvoldan ibarət olmalıdır");
     setAuthLoading(true);
     try {
-      const isEmail = val.includes("@");
+      const isEmail = authMethod === "email";
       const body = isEmail ? { email: val, isRegister: true } : { phone: val, channel: "sms", isRegister: true };
       await api.post("/auth/send-otp", body);
       setAuthOtpSent(true);
     } catch (err) {
-      setAuthError(err.response?.data?.message || "OTP göndərilmədi");
+      const msg = err.response?.data?.message;
+      if (msg?.toLowerCase().includes("exist") || msg?.toLowerCase().includes("mövcud")) {
+        setAuthError("Bu email/telefon artıq qeydiyyatdan keçib. Daxil olmağa cəhd edin.");
+      } else {
+        setAuthError(msg || "Kod göndərilmədi. Bir az sonra yenidən cəhd edin.");
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -172,10 +201,11 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   const handleAuthVerifyOtp = async () => {
     setAuthError("");
     const val = authInput.trim();
-    if (authOtp.length < 4) return setAuthError("OTP kodu daxil edin");
+    if (!authOtp) return setAuthError("Doğrulama kodunu daxil edin");
+    if (authOtp.length < 4) return setAuthError("Doğrulama kodu ən azı 4 rəqəmdən ibarət olmalıdır");
     setAuthLoading(true);
     try {
-      const isEmail = val.includes("@");
+      const isEmail = authMethod === "email";
       const body = isEmail ? { email: val, code: authOtp, password: authPassword } : { phone: val, code: authOtp, password: authPassword };
       const res = await api.post("/auth/verify-otp", body);
       const { token, user: u } = res.data.data;
@@ -185,7 +215,14 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
       const finalUser  = pRes.data?.data?.user  || { ...u, name: fullName };
       await afterAuth(finalToken, finalUser);
     } catch (err) {
-      setAuthError(err.response?.data?.message || "Kod yanlışdır");
+      const msg = err.response?.data?.message;
+      if (msg?.toLowerCase().includes("expired") || msg?.toLowerCase().includes("müddəti")) {
+        setAuthError("Kodun müddəti bitib. Geri qayıdıb yeni kod göndərin.");
+      } else if (msg?.toLowerCase().includes("invalid") || msg?.toLowerCase().includes("yanlış")) {
+        setAuthError("Daxil etdiyiniz kod yanlışdır. Yenidən yoxlayın.");
+      } else {
+        setAuthError(msg || "Kod yanlışdır və ya müddəti bitib.");
+      }
       setAuthLoading(false);
     }
   };
