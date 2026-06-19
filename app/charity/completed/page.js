@@ -105,7 +105,7 @@ export default function TamamlanmisPage() {
                 </div>
                 <div className="hidden lg:flex items-stretch border-r border-[#e7e1f0]">
                   <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                    className="h-full w-full bg-white object-contain p-4" />
+                    className="h-full w-full bg-white object-cover" />
                 </div>
                 <div className="flex flex-col justify-center px-5 py-4">
                   <div className="mb-2.5 flex items-center gap-3">
