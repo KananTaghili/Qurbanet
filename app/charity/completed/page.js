@@ -83,9 +83,9 @@ export default function TamamlanmisPage() {
 
       <div className="space-y-3.5">
         {orders.map((item) => {
-          const paidPct = Math.round(
-            (Number(item.amount.replace(/[^\d]/g, "")) / Math.max(1, Number(item.totalAmount.replace(/[^\d]/g, "")))) * 100
-          );
+          const openerDon  = (item.donations || []).find(d => d.isOpener);
+          const paidPct    = openerDon ? Math.round(openerDon.percent || 0) : 0;
+          const displayAmt = openerDon ? openerDon.amount : item.amount;
           return (
             <div key={item.id} onClick={() => setSelected(item)}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
@@ -116,7 +116,7 @@ export default function TamamlanmisPage() {
                     <User size={14} className="text-[#7760bb]" />
                     <span>{item.organizer}</span>
                     <span className="rounded-full bg-[#f1ecff] px-2.5 py-0.5 text-[11px] font-bold text-[#5622c6]">
-                      {paidPct}% · {item.amount} AZN ödədi
+                      {paidPct}% · {displayAmt} AZN ödədi
                     </span>
                   </div>
                   <div className="flex flex-wrap items-start gap-5">

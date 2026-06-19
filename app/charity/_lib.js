@@ -103,7 +103,7 @@ export function mapCompletedCampaign(c) {
     progressPercent: 100,
     date: fmtDate(c.completedAt), startDate: fmtDate(c.createdAt), endDate: fmtDate(c.completedAt),
     status: "Tamamlandı",
-    organizer: c.opener?.isAnonymous ? "Anonim" : (c.opener?.name || "—"),
+    organizer: c.opener?.isAnonymous ? "Anonim" : ([c.opener?.name, c.opener?.lastName].filter(Boolean).join(" ") || "—"),
     participants: c.participantCount || 0,
     img, videoUrl: video?.url || null,
     weightRange: c.animal?.weightRange || "",
