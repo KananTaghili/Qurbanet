@@ -424,9 +424,14 @@ function DesktopNewOpeningPlaceholderCard({ onOpen, animal }) {
           <div className="h-5 w-14 rounded bg-purple-100/50" />
         </div>
       </div>
+      {/* Share button placeholder (same position as real card) */}
+      <button disabled
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-purple-100 py-2.5 text-xs font-medium text-purple-200 bg-[#f7f3ff] cursor-not-allowed">
+        <Share2 size={13} strokeWidth={2} /> İanəyə Dəvət Et
+      </button>
       {/* CTA */}
       <button onClick={(e) => { e.stopPropagation(); onOpen(animal?.nameAz); }}
-        className="mt-3 w-full rounded-xl py-2.5 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition hover:opacity-90 active:scale-[0.98]"
+        className="mt-2 w-full rounded-xl py-2 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition hover:opacity-90 active:scale-[0.98]"
         style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
         <Plus size={13} strokeWidth={2.6} /> Açılış et
       </button>
