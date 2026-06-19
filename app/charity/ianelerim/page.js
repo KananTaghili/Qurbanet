@@ -378,3 +378,15 @@ function IanelerimContent() {
     </div>
   );
 }
+
+export default function IanelerimPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 flex items-center justify-center bg-[#fbfaff]">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
+      </div>
+    }>
+      <IanelerimContent />
+    </Suspense>
+  );
+}
