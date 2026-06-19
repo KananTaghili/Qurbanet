@@ -1048,11 +1048,11 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                       </svg>
                     </div>
                     {/* Right: status on top, share below */}
-                    <div className="flex flex-col items-start gap-2 flex-1 xl:items-center">
-                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">Davam edir</span>
+                    <div className="flex flex-1 flex-col items-center gap-2 xl:w-full">
+                      <span className="w-full max-w-[130px] rounded-lg bg-amber-50 px-2.5 py-1.5 text-[11px] font-black text-center text-amber-700">Davam edir</span>
                       <button onClick={handleShare}
-                        className="flex items-center justify-center gap-1.5 rounded-[6px] border border-[#d9cff0] bg-white px-2 py-2 text-[10px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition w-fit max-w-[110px]">
-                        <Share2 size={12} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                        className="flex w-full max-w-[130px] items-center justify-center gap-1.5 rounded-lg border border-[#d9cff0] bg-white px-2 py-1.5 text-[10px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                        <Share2 size={12} /> {copied ? "Kopyalandı!" : "Paylaş"}
                       </button>
                     </div>
                   </div>

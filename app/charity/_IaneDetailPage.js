@@ -153,12 +153,12 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                       </text>
                     </svg>
                   </div>
-                  <div className="flex flex-col gap-2 shrink-0 xl:w-full">
-                    <span className={`rounded-lg px-3 py-1.5 text-[11px] font-black text-center ${cfg.badge}`}>
+                  <div className="flex flex-1 flex-col items-center gap-2 xl:w-full">
+                    <span className={`w-full max-w-[130px] rounded-lg px-3 py-1.5 text-[11px] font-black text-center ${cfg.badge}`}>
                       {cfg.label || item.status}
                     </span>
                     <button onClick={handleShare}
-                      className="flex items-center justify-center gap-1.5 rounded-lg border border-[#d9cff0] bg-white px-3 py-1.5 text-[11px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition max-w-[120px]">
+                      className="flex w-full max-w-[130px] items-center justify-center gap-1.5 rounded-lg border border-[#d9cff0] bg-white px-3 py-1.5 text-[11px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
                       <Share2 size={12} /> {copied ? "Kopyalandı!" : "Paylaş"}
                     </button>
                   </div>
