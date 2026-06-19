@@ -609,18 +609,19 @@ export default function CharityLayout({ children }) {
             <div className="flex items-center gap-2 min-w-0">
               {/* Hamburger — LEFT (mobile only) */}
               <button className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                onClick={() => setMobileMenuOpen(true)}>
                 <Menu size={18} className="text-white" />
               </button>
               <Link href="/" className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
                 <ArrowLeft size={18} className="text-white" />
               </Link>
-              <div className="flex items-center gap-2 lg:hidden">
-                <Image src="/logo_test.png" alt="meatbox.az" width={30} height={30}
-                  className="rounded-full object-contain bg-white shadow-sm shrink-0" />
+              <div className="flex items-center gap-2 lg:hidden shrink-0">
+                <Image src="/logo_test.png" alt="meatbox.az" width={28} height={28}
+                  className="rounded-full object-contain bg-white shadow-sm" />
               </div>
-              <span className="text-[13px] md:text-[16px] font-semibold text-white truncate">
-                Kollektiv Qurban-Xeyriyyə Platforması
+              <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1 min-w-0">
+                <span className="lg:hidden">Xeyriyyə Platforması</span>
+                <span className="hidden lg:inline">Kollektiv Qurban-Xeyriyyə Platforması</span>
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -638,26 +639,49 @@ export default function CharityLayout({ children }) {
             </div>
           </div>
 
-          {/* Mobile slide-down menu */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden shrink-0 border-b border-purple-900/30 py-2 px-3" style={{ backgroundColor: "#301586" }}>
+          {/* Mobile left drawer — backdrop */}
+          <div
+            className={`lg:hidden fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Mobile left drawer — panel */}
+          <div className={`lg:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+            style={{ backgroundColor: "#301586" }}>
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Image src="/logo_test.png" alt="meatbox.az" width={30} height={30}
+                  className="rounded-full object-contain bg-white shadow-sm" />
+                <span className="text-white font-semibold text-[14px]">meatbox.az</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Nav links */}
+            <nav className="flex-1 px-3 py-3 space-y-0.5">
               {visibleNav.map(({ icon: Icon, label, href }) => (
                 <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                    isActive(href) ? "bg-white/15 text-white font-semibold" : "text-purple-100/70"
+                  className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all ${
+                    isActive(href) ? "bg-white/15 text-white font-semibold" : "text-purple-100/70 hover:bg-white/10 hover:text-white"
                   }`}>
-                  <Icon size={15} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
+                  <Icon size={16} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
                   {label}
                 </Link>
               ))}
-              <div className="mt-2 pt-2 border-t border-white/10 flex items-center gap-3 px-3">
-                <Link href="/auth/register"
-                  className="flex items-center gap-1 px-4 py-2 rounded-lg bg-white text-[#301586] text-[12px] font-semibold">
-                  Qeydiyyat
-                </Link>
-              </div>
+            </nav>
+
+            {/* Register button */}
+            <div className="px-4 pb-6 border-t border-white/10 pt-4">
+              <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-xl bg-white text-[#301586] text-[13px] font-semibold hover:bg-purple-50 transition-all">
+                Qeydiyyat
+              </Link>
             </div>
-          )}
+          </div>
 
           {/* Page content */}
           {children}
