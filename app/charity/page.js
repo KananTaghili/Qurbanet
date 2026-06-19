@@ -379,6 +379,7 @@ function DonationModal({ animal, onClose }) {
   const { isGuest, user } = useAuth();
   const [step, setStep] = useState(0);
   const [anonymous, setAnonymous] = useState(false);
+  const [anonExpanded, setAnonExpanded] = useState(false);
   const [amount, setAmount] = useState(animal.shareMin || "10");
   const [note, setNote] = useState("");
   const [continueMode, setContinueMode] = useState(
@@ -680,13 +681,14 @@ function DonationModal({ animal, onClose }) {
                 </>
               )}
               {anonymous && (
-                <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3 text-[12px] font-semibold leading-relaxed text-amber-800">
-                  Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi
-                  məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq
-                  olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir.
-                  Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem
-                  təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur,
-                  üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
+                <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
+                  <button type="button" onClick={() => setAnonExpanded(v => !v)}
+                    className="flex w-full items-start justify-between gap-2 text-left">
+                    <p className={`text-[12px] font-semibold leading-relaxed text-amber-800 ${anonExpanded ? "" : "line-clamp-2"}`}>
+                      Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
+                    </p>
+                    <ChevronDown size={14} className={`shrink-0 mt-0.5 text-amber-600 transition-transform duration-200 ${anonExpanded ? "rotate-180" : ""}`} />
+                  </button>
                 </div>
               )}
               <div
