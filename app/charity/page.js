@@ -922,10 +922,10 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
         >
           <ArrowLeft size={16} /> Geri qayıt
         </button>
-        <h1 className="flex-1 truncate text-[16px] font-black tracking-[-.02em] text-[#33245f]">
+        <h1 className="flex-1 min-w-0 text-[15px] font-black tracking-[-.02em] text-[#33245f] line-clamp-1">
           {isCompleted
-            ? `${fmtDate(campaign.createdAt)} — tamamlanmış açılış`
-            : `${campaign.animal?.nameAz || "Qurban"} — ianə detalları`}
+            ? `${fmtDate(campaign.createdAt)} — tamamlandı`
+            : `${campaign.animal?.nameAz || "Qurban"}`}
         </h1>
         {!isCompleted && onDonate && (
           <button
@@ -980,7 +980,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
             </div>
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
               {/* Stats grid */}
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-4">
+              <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
                 <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
                   <div className="text-[22px] font-black text-[#33245f] mb-4">
                     {campaign.animal?.nameAz || "Qurban"}
