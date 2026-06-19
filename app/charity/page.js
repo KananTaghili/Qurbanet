@@ -235,7 +235,7 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
 
   return (
     <div
-      onClick={onOpen}
+      onClick={() => onOpen(animal?.nameAz)}
       className="flex flex-col overflow-hidden rounded-[18px] border-2 border-dashed border-purple-200 bg-white/70 px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
       style={{ boxShadow: "0 6px 20px rgba(54,27,99,.04)" }}
     >
@@ -276,7 +276,7 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
 
       {/* CTA */}
       <button
-        onClick={(e) => { e.stopPropagation(); onOpen(); }}
+        onClick={(e) => { e.stopPropagation(); onOpen(animal?.nameAz); }}
         className="mt-3 w-full rounded-xl py-2 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition hover:opacity-90 active:scale-[0.98]"
         style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
       >

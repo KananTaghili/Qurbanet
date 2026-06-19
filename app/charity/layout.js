@@ -20,7 +20,7 @@ const initials2 = (name) => (name || "?").split(" ").slice(0, 2).map(w => w[0]).
 /* ─── New Opening Modal ──────────────────────────────────────── */
 const NOM_STEPS = ["Heyvan növü", "Ödəniş", "Təsdiq"];
 
-function NewOpeningModal({ onClose }) {
+function NewOpeningModal({ onClose, preselectedAnimalName }) {
   const { isGuest, user, login } = useAuth();
   const [step,        setStep]        = useState(0);
   const [selAnimalId, setSelAnimalId] = useState(null);
@@ -54,7 +54,10 @@ function NewOpeningModal({ onClose }) {
         setSettingsData(d);
         if (d.animals?.length) {
           const mp = d.settings?.maxPerAnimal || 1;
-          const first = d.animals.find(a => (a.activeCount || 0) < mp) || d.animals[0];
+          const preselected = preselectedAnimalName
+            ? d.animals.find(a => a.nameAz === preselectedAnimalName && (a.activeCount || 0) < mp)
+            : null;
+          const first = preselected || d.animals.find(a => (a.activeCount || 0) < mp) || d.animals[0];
           setSelAnimalId(first._id);
         }
       })
@@ -548,6 +551,7 @@ export default function CharityLayout({ children }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNewOpening, setShowNewOpening] = useState(false);
+  const [preselectedAnimal, setPreselectedAnimal] = useState(null);
 
   const visibleNav = isGuest
     ? SIDEBAR_NAV.filter(n => n.href !== "/charity/donations")
@@ -559,7 +563,7 @@ export default function CharityLayout({ children }) {
   };
 
   return (
-    <CharityLayoutContext.Provider value={{ openNewCampaign: () => setShowNewOpening(true) }}>
+    <CharityLayoutContext.Provider value={{ openNewCampaign: (animalName) => { setPreselectedAnimal(animalName || null); setShowNewOpening(true); } }}>
       <div className="flex h-screen overflow-hidden bg-[#f7f5ff]">
 
         {/* Desktop Sidebar */}
@@ -673,7 +677,7 @@ export default function CharityLayout({ children }) {
         </nav>
       </div>
 
-      {showNewOpening && <NewOpeningModal onClose={() => setShowNewOpening(false)} />}
+      {showNewOpening && <NewOpeningModal preselectedAnimalName={preselectedAnimal} onClose={() => { setShowNewOpening(false); setPreselectedAnimal(null); }} />}
     </CharityLayoutContext.Provider>
   );
 }
