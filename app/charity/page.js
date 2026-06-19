@@ -201,10 +201,9 @@ function AnimalCard({ animal, onDonate, onClick }) {
         <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-purple-100 text-[9px] font-bold text-purple-700">
           {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
         </div>
-        <span className="truncate text-[11px] font-medium" style={{ color: "#342760" }}>
+        <span className="text-[11px] font-medium leading-tight line-clamp-2" style={{ color: "#342760" }}>
           {animal.organizer}
         </span>
-        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#5521c6" }} />
       </div>
 
       {/* Donate button */}
@@ -231,175 +230,58 @@ function AnimalCard({ animal, onDonate, onClick }) {
 /* ─── New Opening Placeholder Card ──────────────────────────── */
 function NewOpeningPlaceholderCard({ onOpen, animal }) {
   const animalImg = animal
-    ? animal.imageHome ||
-      animal.image ||
-      ANIMAL_IMG_FALLBACK[animal.nameAz] ||
-      null
+    ? animal.imageHome || animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || null
     : null;
 
   return (
     <div
       onClick={onOpen}
-      className="flex flex-col overflow-hidden rounded-[22px] border-2 border-dashed border-purple-200 bg-white/70 px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
-      style={{ boxShadow: "0 8px 28px rgba(54,27,99,.04)" }}
+      className="flex flex-col overflow-hidden rounded-[18px] border-2 border-dashed border-purple-200 bg-white/70 px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
+      style={{ boxShadow: "0 6px 20px rgba(54,27,99,.04)" }}
     >
-      <div className="mb-2 flex items-start justify-between gap-3">
-        {animal ? (
-          <div className="text-[17px] font-black leading-none tracking-[-.03em] text-[#6b4fa0]">
-            {animal.nameAz}
-          </div>
-        ) : (
-          <div className="h-[28px] w-20 rounded-lg bg-purple-100/50" />
-        )}
-        <div className="flex h-[26px] items-center rounded-full bg-purple-50 px-3 text-[11px] font-bold text-purple-300 whitespace-nowrap shrink-0">
-          Açılış yoxdur
-        </div>
+      {/* Name + badge */}
+      <div className="flex items-center justify-between gap-1 mb-1">
+        {animal
+          ? <span className="text-[14px] font-bold text-[#6b4fa0] leading-tight">{animal.nameAz}</span>
+          : <div className="h-4 w-14 rounded bg-purple-100/50" />}
+        <span className="text-[9px] font-bold text-purple-300 bg-purple-50 px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0">Açılış yoxdur</span>
       </div>
-      <div
-        className="relative mx-auto mt-2"
-        style={{ height: 218, width: "100%", maxWidth: 198 }}
-      >
-        <svg
-          width="188"
-          height="188"
-          viewBox="0 0 188 188"
-          className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none"
-        >
-          <circle
-            cx="94"
-            cy="94"
-            r="82"
-            fill="none"
-            stroke="#ede9fe"
-            strokeWidth="7"
-            strokeLinecap="round"
-          />
+
+      {/* Ring placeholder */}
+      <div className="relative mx-auto" style={{ height: 158, width: "100%", maxWidth: 146 }}>
+        <svg width="138" height="138" viewBox="0 0 138 138"
+          className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none">
+          <circle cx="69" cy="69" r="58" fill="none" stroke="#ede9fe" strokeWidth="6" strokeLinecap="round" />
         </svg>
-        <div className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
-          {animalImg ? (
-            <img
-              src={animalImg}
-              alt={animal.nameAz}
-              className="h-full w-full object-cover mix-blend-multiply opacity-40"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          ) : null}
-          <Plus
-            size={48}
-            className="text-purple-200"
-            strokeWidth={1.5}
-            style={{ display: animalImg ? "none" : "block" }}
-          />
+        <div className="absolute left-1/2 top-[14px] flex h-[110px] w-[110px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full bg-[#f8f5ff]">
+          {animalImg
+            ? <img src={animalImg} alt={animal.nameAz} className="max-h-[85%] max-w-[85%] object-contain mix-blend-multiply opacity-40"
+                onError={e => { e.currentTarget.style.display = "none"; }} />
+            : <Plus size={36} className="text-purple-200" strokeWidth={1.5} />}
         </div>
-        <div
-          className="absolute top-[164px] left-1/2 z-20 -translate-x-1/2 rounded-2xl bg-[#ede9fe] px-6 py-1.5 leading-none text-purple-300"
-          style={{
-            fontSize: "22px",
-            fontWeight: 900,
-            letterSpacing: "-.04em",
-            border: "3px solid white",
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-          }}
-        >
+        <div className="absolute left-1/2 top-[120px] z-20 -translate-x-1/2 rounded-2xl bg-[#ede9fe] px-4 py-1 leading-none text-purple-300 whitespace-nowrap"
+          style={{ fontSize: "16px", fontWeight: 900, border: "2px solid white" }}>
           —%
         </div>
       </div>
-      <div className="mt-0 text-center text-[12px] font-black tracking-[-.035em] text-purple-200">
-        — / — AZN
+
+      {/* Amount placeholder */}
+      <div className="text-center text-[12px] font-semibold text-purple-200 mt-1">— / — AZN</div>
+
+      {/* Opener placeholder */}
+      <div className="flex items-center gap-1.5 mt-3">
+        <div className="h-6 w-6 rounded-full bg-purple-100/60 shrink-0" />
+        <div className="h-3 w-20 rounded bg-purple-100/50" />
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-[#f8f5ff] p-3">
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white text-purple-200 shadow-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-          </span>
-          <div className="h-[12px] w-16 rounded bg-purple-100/60" />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white text-purple-200 shadow-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </span>
-          <div className="h-[12px] w-12 rounded bg-purple-100/60" />
-        </div>
-      </div>
-      <div className="mt-5">
-        <div className="mb-2 text-[11px] font-medium text-[#8a7ba7]">
-          Açan şəxs
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-purple-100/60 shrink-0" />
-          <div className="h-[12px] w-28 rounded bg-purple-100/50" />
-        </div>
-      </div>
-      <div className="mt-5">
-        <div className="mb-2 text-[11px] font-medium text-[#8a7ba7]">
-          Ödədiyi məbləğ
-        </div>
-        <div className="flex items-end gap-2">
-          <div className="h-[22px] w-20 rounded-lg bg-purple-100/50" />
-          <div className="h-[22px] w-12 rounded-full bg-purple-100/40" />
-        </div>
-      </div>
-      <div className="mt-4 border-t border-[#eee8f6] pt-4 grid grid-cols-2 gap-3">
-        <div>
-          <div className="mb-1 text-[11px] font-medium text-[#8a7ba7]">
-            Qalan məbləğ
-          </div>
-          <div className="h-[26px] w-16 rounded-lg bg-purple-100/50" />
-        </div>
-        <div>
-          <div className="mb-1 text-[11px] font-medium text-[#8a7ba7]">
-            Ümumi məbləğ
-          </div>
-          <div className="h-[26px] w-16 rounded-lg bg-purple-100/50" />
-        </div>
-      </div>
-      <div className="mt-auto pt-3 flex flex-col gap-2">
-        <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-purple-100 bg-[#f7f3ff] py-2.5 text-xs font-semibold text-purple-300">
-          <Share2 size={13} strokeWidth={2} /> Dostlarını dəvət et
-        </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpen();
-          }}
-          className="w-full rounded-xl py-2.5 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2"
-          style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
-        >
-          <Plus size={15} strokeWidth={2.6} /> Açılış et
-        </button>
-      </div>
+
+      {/* CTA */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onOpen(); }}
+        className="mt-3 w-full rounded-xl py-2 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition hover:opacity-90 active:scale-[0.98]"
+        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}
+      >
+        <Plus size={13} strokeWidth={2.6} /> Açılış et
+      </button>
     </div>
   );
 }
