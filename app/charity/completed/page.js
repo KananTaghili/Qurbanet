@@ -91,7 +91,7 @@ export default function TamamlanmisPage() {
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
               role="button" tabIndex={0}
               className="group w-full cursor-pointer overflow-hidden rounded-[16px] border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
-              <div className="grid min-h-[160px] grid-cols-1 lg:grid-cols-[120px_180px_1fr_210px]">
+              <div className="grid min-h-[160px] grid-cols-1 lg:grid-cols-[120px_240px_1fr_210px]">
                 <div className="flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-4 lg:py-0">
                   <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
                     <span className="text-[#5b22c7] text-[16px] leading-none">•</span>
