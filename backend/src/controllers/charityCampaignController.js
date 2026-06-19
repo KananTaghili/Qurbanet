@@ -464,7 +464,7 @@ exports.handleCampaignSuccess = async (campaignId, donationId) => {
 
   if (donation.paymentStatus === "paid") {
     const role = donation.isOpener ? "opener" : "donor";
-    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success` };
+    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success&amount=${donation.amount}` };
   }
 
   // get-status ilə yoxla
@@ -480,7 +480,7 @@ exports.handleCampaignSuccess = async (campaignId, donationId) => {
     await campaign.save();
 
     const role = donation.isOpener ? "opener" : "donor";
-    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success` };
+    return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success&amount=${donation.amount}` };
   }
 
   const msg = getAzPaymentErrorMessage(ep?.code, ep?.message) || "Ödəniş təsdiqlənmədi";
@@ -511,7 +511,7 @@ exports.handleCampaignError = async (campaignId, donationId) => {
         checkCompletion(campaign);
         await campaign.save();
         const role = donation.isOpener ? "opener" : "donor";
-        return `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success`;
+        return `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success&amount=${donation.amount}`;
       }
       donation.paymentStatus = "failed";
       await campaign.save();
