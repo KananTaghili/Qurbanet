@@ -1395,7 +1395,7 @@ function HomeContent() {
             </div>
             <div className="relative min-h-[220px]">
               <img
-                src="/xeyriye_bg_image.png"
+                src="/charity-hero.png"
                 alt="Xeyriyyə"
                 className="absolute inset-0 w-full h-full object-cover object-center rounded-r-2xl"
               />
