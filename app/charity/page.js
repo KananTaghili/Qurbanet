@@ -206,6 +206,89 @@ function AnimalCard({ animal, onDonate, onClick }) {
   );
 }
 
+/* ─── Desktop Animal Card (detailed long card) ──────────────── */
+function DesktopAnimalCard({ animal, onDonate, onClick }) {
+  const [copied, setCopied] = useState(false);
+  const toNum = (v) => Number(String(v).replace(/[^0-9.]/g, ""));
+  const paidPct = Math.round((toNum(animal.shareMin) / Math.max(toNum(animal.target), 1)) * 100);
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    try { await navigator.clipboard.writeText(window.location.href); } catch {}
+    setCopied(true); setTimeout(() => setCopied(false), 2600);
+  };
+  return (
+    <div onClick={onClick}
+      className="group flex flex-col overflow-hidden rounded-[22px] border border-[#eee8f6] bg-white px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1"
+      style={{ boxShadow: "0 8px 28px rgba(54,27,99,.08)" }}>
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <h3 className="text-[20px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
+        <span className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-medium text-emerald-600">Davam Edir</span>
+      </div>
+      <RingProgress percent={animal.progressPercent} type={animal.type} img={animal.img} />
+      <div className="mt-1 text-center text-[13px] font-semibold text-[#281d55]">
+        {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm" style={{ color: "#5521c6" }}>
+            <CalendarDays size={15} strokeWidth={2} />
+          </span>
+          <div className="text-[11px] font-medium text-[#241a4d]">{animal.startTime}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm" style={{ color: "#5521c6" }}>
+            <UsersRound size={15} strokeWidth={2} />
+          </span>
+          <div className="text-[11px] font-medium text-[#241a4d]">{animal.participants} iştirakçı</div>
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="mb-1.5 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Açan şəxs</div>
+        <div className="flex items-center gap-2">
+          <div className="grid h-7 w-7 place-items-center rounded-full bg-purple-100 text-xs font-semibold text-purple-700 shrink-0">
+            {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
+          </div>
+          <div className="truncate text-[12px] font-medium" style={{ color: "#342760" }}>{animal.organizer}</div>
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "#5521c6" }} />
+        </div>
+      </div>
+      <div className="mt-3">
+        <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Ödədiyi məbləğ</div>
+        <div className="flex items-center gap-2">
+          <span className="text-[16px] font-bold text-[#241a4d]">{animal.shareMin} {animal.currency}</span>
+          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-medium" style={{ color: "#5521c6" }}>{paidPct}%</span>
+        </div>
+      </div>
+      <div className="mt-3 border-t border-[#eee8f6] pt-3 grid grid-cols-2 gap-3">
+        <div>
+          <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Qalan məbləğ</div>
+          <div className="text-[17px] font-bold text-[#241a4d]">{animal.totalMin} <span className="text-[11px] font-normal">AZN</span></div>
+        </div>
+        <div>
+          <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Ümumi məbləğ</div>
+          <div className="text-[17px] font-bold text-[#241a4d]">{animal.totalMax} <span className="text-[11px] font-normal">AZN</span></div>
+        </div>
+      </div>
+      <button onClick={handleShare}
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-medium transition-all hover:bg-white"
+        style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}>
+        <Share2 size={13} strokeWidth={2} /> İanəyə Dəvət Et
+      </button>
+      <button onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
+        className="mt-2 w-full rounded-xl py-2 text-xs font-medium text-white transition hover:opacity-90 active:scale-[0.98]"
+        style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+        İanə et →
+      </button>
+      {copied && (
+        <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#241a4d] px-5 py-3 text-center text-sm font-medium text-white"
+          style={{ boxShadow: "0 18px 44px rgba(36,26,77,.28)" }}>
+          Səhifənin bağlantısı kopyalandı.
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── New Opening Placeholder Card ──────────────────────────── */
 function NewOpeningPlaceholderCard({ onOpen, animal }) {
   const animalImg = animal
@@ -1470,17 +1553,32 @@ function HomeContent() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-              {filtered.map((animal) => (
-                <AnimalCard key={animal.campaignId || animal.type} animal={animal}
-                  onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
-              ))}
-              {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
-                <NewOpeningPlaceholderCard key={`placeholder-${i}`}
-                  animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
-                  onOpen={openNewCampaign} />
-              ))}
-            </div>
+            <>
+              {/* Mobile: compact 2-col */}
+              <div className="grid grid-cols-2 gap-3 lg:hidden">
+                {filtered.map((animal) => (
+                  <AnimalCard key={animal.campaignId || animal.type} animal={animal}
+                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
+                ))}
+                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
+                  <NewOpeningPlaceholderCard key={`placeholder-${i}`}
+                    animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
+                    onOpen={openNewCampaign} />
+                ))}
+              </div>
+              {/* Desktop: detailed long card */}
+              <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filtered.map((animal) => (
+                  <DesktopAnimalCard key={animal.campaignId || animal.type} animal={animal}
+                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
+                ))}
+                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
+                  <NewOpeningPlaceholderCard key={`placeholder-${i}`}
+                    animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
+                    onOpen={openNewCampaign} />
+                ))}
+              </div>
+            </>
           )}
         </div>
 
