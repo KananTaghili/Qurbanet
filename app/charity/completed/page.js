@@ -86,30 +86,96 @@ export default function TamamlanmisPage() {
           const openerDon  = (item.donations || []).find(d => d.isOpener);
           const paidPct    = openerDon ? Math.round(openerDon.percent || 0) : 0;
           const displayAmt = openerDon ? openerDon.amount : item.amount;
+          const initials   = (item.organizer || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
           return (
             <div key={item.id} onClick={() => setSelected(item)}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
               role="button" tabIndex={0}
-              className="group w-full cursor-pointer overflow-hidden rounded-[16px] border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
-              <div className="grid min-h-[160px] grid-cols-1 lg:grid-cols-[130px_260px_1fr_210px]">
-                <div className="flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-4 lg:py-0">
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
+              className="group w-full cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
+
+              {/* ── Mobile layout ── */}
+              <div className="lg:hidden">
+                {/* Cover photo with gradient overlay */}
+                <div className="relative h-[150px] w-full overflow-hidden bg-[#f5f2ff]">
+                  <img src={item.img} alt={item.type}
+                    className="h-full w-full object-cover" />
+                  <div className="absolute inset-0"
+                    style={{ background: "linear-gradient(to top, rgba(20,8,60,0.75) 0%, rgba(20,8,60,0.1) 55%, transparent 100%)" }} />
+                  {/* Animal name + badge over photo */}
+                  <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-3 pb-2.5">
+                    <h3 className="text-[20px] font-black leading-none text-white drop-shadow">{item.type}</h3>
+                    <span className="flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-bold text-white shadow">
+                      <CheckCircle size={11} strokeWidth={2.5} /> Tamamlandı
+                    </span>
+                  </div>
+                </div>
+
+                {/* Info section */}
+                <div className="px-3 pt-3 pb-3 flex flex-col gap-2.5">
+
+                  {/* Opener row */}
+                  <div className="flex items-center gap-2">
+                    <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-purple-100 text-[10px] font-bold text-purple-700">
+                      {initials}
+                    </div>
+                    <span className="text-[12px] font-semibold text-[#33245f] truncate flex-1">{item.organizer}</span>
+                    <span className="shrink-0 rounded-full bg-[#f1ecff] px-2 py-0.5 text-[10px] font-bold text-[#5622c6]">
+                      {paidPct}% · {displayAmt} AZN
+                    </span>
+                  </div>
+
+                  {/* Stats 2-col */}
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <div className="rounded-xl bg-[#f8f6ff] px-2.5 py-2 col-span-1">
+                      <div className="text-[9px] font-semibold text-[#8778a8] mb-0.5">Tarix</div>
+                      <div className="text-[11px] font-bold text-[#33245f] leading-tight">{item.date}</div>
+                    </div>
+                    <div className="rounded-xl bg-[#f8f6ff] px-2.5 py-2 col-span-1">
+                      <div className="text-[9px] font-semibold text-[#8778a8] mb-0.5">İştirakçı</div>
+                      <div className="text-[11px] font-bold text-[#33245f]">{item.participants} nəfər</div>
+                    </div>
+                    <div className="rounded-xl bg-emerald-50 px-2.5 py-2 col-span-1">
+                      <div className="text-[9px] font-semibold text-emerald-600 mb-0.5">Məbləğ</div>
+                      <div className="text-[11px] font-bold text-emerald-700">{item.totalAmount} AZN</div>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex gap-1.5">
+                    <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
+                      className="flex flex-1 h-[32px] items-center justify-center gap-1.5 rounded-xl bg-[#4b14bd] text-[11px] font-bold text-white">
+                      <Users size={12} /> İştirakçılar
+                    </button>
+                    {item.videoUrl && (
+                      <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
+                        className="flex flex-1 h-[32px] items-center justify-center gap-1.5 rounded-xl bg-emerald-600 text-[11px] font-bold text-white">
+                        <Video size={12} /> Video
+                      </button>
+                    )}
+                    <button onClick={(e) => handleShare(e, item)}
+                      className="flex h-[32px] items-center justify-center gap-1 rounded-xl border border-[#d9cff0] bg-white px-3 text-[11px] font-bold text-[#4b14bd]">
+                      <Copy size={11} /> Paylaş
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Desktop layout (unchanged) ── */}
+              <div className="hidden lg:grid min-h-[160px] grid-cols-[130px_260px_1fr_210px]">
+                <div className="flex flex-col justify-center border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-4">
                   <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
                     <span className="text-[#5b22c7] text-[16px] leading-none">•</span>
                     Tamamlanma tarixi
                   </div>
                   <div className="text-[16px] font-black leading-snug text-[#33245f]">
-                    {item.date.split(" ").slice(0, 2).join(" ")}
-                    <br />
-                    {item.date.split(" ")[2]}
+                    {item.date.split(" ").slice(0, 2).join(" ")}<br />{item.date.split(" ")[2]}
                   </div>
                 </div>
-                <div className="hidden lg:flex items-stretch border-r border-[#e7e1f0]">
-                  <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                    className="h-full w-full bg-white object-cover" />
+                <div className="flex items-stretch border-r border-[#e7e1f0]">
+                  <img src={item.img} alt={`${item.type} qurban heyvanı`} className="h-full w-full bg-white object-cover" />
                 </div>
                 <div className="flex flex-col justify-center px-5 py-4">
                   <div className="mb-2.5 flex items-center gap-3">
-                    <img src={item.img} alt={item.type} className="lg:hidden h-[56px] w-[56px] rounded-[8px] object-contain bg-[#f8f5ff]" />
                     <h3 className="text-[22px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
                   </div>
                   <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-[#77689c]">
@@ -125,7 +191,7 @@ export default function TamamlanmisPage() {
                     <CompletedStat label="İştirakçı sayı" value={`${item.participants} nəfər`} />
                   </div>
                 </div>
-                <div className="flex items-center justify-center border-t lg:border-t-0 lg:border-l border-[#e7e1f0] px-5 py-5 lg:py-4">
+                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5 py-4">
                   <div className="w-full max-w-[180px] space-y-2.5">
                     <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-4 text-center">
                       <CheckCircle size={30} className="mx-auto mb-1.5 text-emerald-500" strokeWidth={2} />
@@ -148,6 +214,7 @@ export default function TamamlanmisPage() {
                   </div>
                 </div>
               </div>
+
             </div>
           );
         })}
