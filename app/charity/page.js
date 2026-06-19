@@ -24,6 +24,9 @@ import {
   Heart,
   CheckCircle,
   User,
+  Mail,
+  Phone,
+  Lock,
 } from "lucide-react";
 import { useCharityLayout } from "./_context";
 import {
@@ -557,26 +560,35 @@ const isValidAzPhone = (v) => /^(\+994|0)(50|51|55|60|70|77|99)\d{7}$/.test(v.re
 const filterPhoneInput = (v) => v.replace(/[^\d\s+\-()]/g, "");
 
 function DonationModal({ animal, onClose }) {
-  const { isGuest, user } = useAuth();
+  const { isGuest, user, login } = useAuth();
   const [step, setStep] = useState(0);
   const [anonymous, setAnonymous] = useState(false);
   const [anonExpanded, setAnonExpanded] = useState(false);
   const [amount, setAmount] = useState(animal.shareMin || "10");
   const [note, setNote] = useState("");
-  const [continueMode, setContinueMode] = useState(
-    !isGuest ? "registered" : "",
-  );
+  const [continueMode, setContinueMode] = useState(!isGuest ? "registered" : "");
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Inline auth states
+  const [authPhase,    setAuthPhase]   = useState(false);
+  const [authMode,     setAuthMode]    = useState("login");
+  const [authMethod,   setAuthMethod]  = useState("email");
+  const [authInput,    setAuthInput]   = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authRegFirst, setAuthRegFirst] = useState("");
+  const [authRegLast,  setAuthRegLast]  = useState("");
+  const [authOtp,      setAuthOtp]     = useState("");
+  const [authOtpSent,  setAuthOtpSent] = useState(false);
+  const [authLoading,  setAuthLoading] = useState(false);
+  const [authError,    setAuthError]   = useState("");
+
   const minAmt = Number(animal.shareMin) || 0.01;
-  const maxAmt =
-    animal.remainingAmount != null ? animal.remainingAmount : 999999;
+  const maxAmt = animal.remainingAmount != null ? animal.remainingAmount : 999999;
   const numAmt = Number(amount) || 0;
   const validAmt = numAmt >= minAmt && numAmt <= maxAmt;
-  const phoneOk = guestPhone.trim() === "" || isValidAzPhone(guestPhone);
   const canConfirm = !isGuest
     ? true
     : continueMode === "registered"
@@ -585,37 +597,113 @@ function DonationModal({ animal, onClose }) {
         ? guestName.trim().length > 0 && guestPhone.trim().length > 0 && isValidAzPhone(guestPhone)
         : false;
 
-  const handleSubmit = async () => {
-    if (!canConfirm) return;
-    if (isGuest && continueMode === "registered") {
-      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
-      return;
-    }
+  const resetAuth = () => {
+    setAuthOtpSent(false); setAuthOtp(""); setAuthError("");
+    setAuthInput(""); setAuthPassword(""); setAuthRegFirst(""); setAuthRegLast("");
+  };
+
+  const submitDonation = async (overrideUser) => {
     setSubmitting(true);
-    const donorName = !isGuest
-      ? [user?.name, user?.lastName].filter(Boolean).join(" ").trim()
-      : guestName.trim();
-    const donorPhone = !isGuest
-      ? user?.phone || user?.email || ""
-      : guestPhone.trim();
+    const u = overrideUser || user;
+    const donorName = [u?.name, u?.lastName].filter(Boolean).join(" ").trim() || guestName.trim();
+    const donorPhone = u?.phone || u?.email || guestPhone.trim();
     try {
       const r1 = await api.post(`/campaigns/${animal.campaignId}/donate`, {
-        amount: numAmt,
-        donorName,
-        donorPhone,
-        isAnonymous: anonymous,
-        note,
+        amount: numAmt, donorName, donorPhone, isAnonymous: anonymous, note,
       });
       const { donationId } = r1.data.data;
-      const r2 = await api.post(
-        `/campaigns/${animal.campaignId}/epoint/start`,
-        { donationId },
-      );
+      const r2 = await api.post(`/campaigns/${animal.campaignId}/epoint/start`, { donationId });
       window.location.href = r2.data.data.redirect_url;
     } catch (err) {
       alert(err.response?.data?.message || "Xəta baş verdi");
       setSubmitting(false);
     }
+  };
+
+  const afterAuth = async (token, u) => {
+    login(token, u);
+    setAuthPhase(false);
+    await submitDonation(u);
+  };
+
+  const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const validateInput = (val) => {
+    if (!val) return authMethod === "email" ? "Email ünvanını daxil edin" : "Telefon nömrəsini daxil edin";
+    if (authMethod === "email" && !isValidEmail(val)) return "Email ünvanı düzgün deyil (məs: ad@mail.com)";
+    if (authMethod === "phone" && !isValidAzPhone(val)) return "Telefon nömrəsi düzgün deyil (məs: +994501234567)";
+    return null;
+  };
+
+  const handleAuthLogin = async () => {
+    setAuthError("");
+    const val = authInput.trim();
+    const inputErr = validateInput(val);
+    if (inputErr) return setAuthError(inputErr);
+    if (!authPassword) return setAuthError("Şifrəni daxil edin");
+    if (authPassword.length < 6) return setAuthError("Şifrə minimum 6 simvoldan ibarət olmalıdır");
+    setAuthLoading(true);
+    try {
+      const isEmail = authMethod === "email";
+      const res = await api.post("/auth/login-password", isEmail ? { email: val, password: authPassword } : { phone: val, password: authPassword });
+      const { token, user: u } = res.data.data;
+      await afterAuth(token, u);
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      setAuthError(msg?.toLowerCase().includes("not found") || msg?.toLowerCase().includes("tapılmadı")
+        ? "Bu hesab tapılmadı. Əvvəlcə qeydiyyatdan keçin."
+        : "Email və ya şifrə yanlışdır. Yenidən cəhd edin.");
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAuthSendOtp = async () => {
+    setAuthError("");
+    const val = authInput.trim();
+    if (!authRegFirst.trim()) return setAuthError("Adınızı daxil edin");
+    if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s]{2,}$/.test(authRegFirst.trim())) return setAuthError("Ad yalnız hərf ola bilər (min 2 simvol)");
+    if (!authRegLast.trim()) return setAuthError("Soyadınızı daxil edin");
+    if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s]{2,}$/.test(authRegLast.trim())) return setAuthError("Soyad yalnız hərf ola bilər (min 2 simvol)");
+    const inputErr = validateInput(val);
+    if (inputErr) return setAuthError(inputErr);
+    if (!authPassword) return setAuthError("Şifrəni daxil edin");
+    if (authPassword.length < 6) return setAuthError("Şifrə minimum 6 simvoldan ibarət olmalıdır");
+    setAuthLoading(true);
+    try {
+      const isEmail = authMethod === "email";
+      await api.post("/auth/send-otp", isEmail ? { email: val, isRegister: true } : { phone: val, channel: "sms", isRegister: true });
+      setAuthOtpSent(true);
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      setAuthError(msg?.toLowerCase().includes("exist") || msg?.toLowerCase().includes("mövcud")
+        ? "Bu email/telefon artıq qeydiyyatdan keçib. Daxil olmağa cəhd edin."
+        : msg || "Kod göndərilmədi. Bir az sonra yenidən cəhd edin.");
+    } finally { setAuthLoading(false); }
+  };
+
+  const handleAuthVerifyOtp = async () => {
+    setAuthError("");
+    if (!authOtp) return setAuthError("Doğrulama kodunu daxil edin");
+    if (authOtp.length < 4) return setAuthError("Doğrulama kodu ən azı 4 rəqəmdən ibarət olmalıdır");
+    setAuthLoading(true);
+    try {
+      const val = authInput.trim();
+      const isEmail = authMethod === "email";
+      const res = await api.post("/auth/verify-otp", isEmail ? { email: val, code: authOtp, password: authPassword } : { phone: val, code: authOtp, password: authPassword });
+      const { token, user: u } = res.data.data;
+      const fullName = `${authRegFirst.trim()} ${authRegLast.trim()}`;
+      const pRes = await api.put("/auth/profile", { name: fullName }, { headers: { Authorization: `Bearer ${token}` } });
+      await afterAuth(pRes.data?.data?.token || token, pRes.data?.data?.user || { ...u, name: fullName });
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      setAuthError(msg?.toLowerCase().includes("expired") ? "Kodun müddəti bitib. Geri qayıdıb yeni kod göndərin." : "Daxil etdiyiniz kod yanlışdır.");
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!canConfirm) return;
+    if (isGuest && continueMode === "registered") { setAuthPhase(true); return; }
+    await submitDonation();
   };
 
   return (
@@ -678,12 +766,110 @@ function DonationModal({ animal, onClose }) {
 
         <div
           className="min-h-0 flex-1 overflow-y-auto px-5 py-3"
-          style={{
-            scrollbarWidth: "thin",
-            scrollbarColor: "#a78bfa transparent",
-          }}
+          style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}
         >
-          {step === 0 && (
+          {/* ── Inline Auth Phase ── */}
+          {authPhase && (
+            <div className="flex flex-col gap-3">
+              <button onClick={() => { setAuthPhase(false); resetAuth(); }}
+                className="flex items-center gap-1.5 text-xs font-semibold text-[#8a7ba7] hover:text-[#241a4d] transition-colors self-start">
+                <ChevronDown size={13} className="rotate-90" /> Geri qayıt
+              </button>
+              <div className="flex rounded-2xl bg-[#f0ecff] p-1 gap-1">
+                {[["login","Daxil ol"],["register","Qeydiyyat"]].map(([m, label]) => (
+                  <button key={m} onClick={() => { setAuthMode(m); resetAuth(); }}
+                    className={`flex-1 rounded-xl py-2 text-sm font-bold transition-all ${authMode === m ? "bg-white shadow-sm text-purple-700" : "text-[#8a7ba7] hover:text-purple-600"}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                {([["email", Mail, "Email"], ["phone", Phone, "Telefon"]]).map(([mt, Icon, label]) => (
+                  <button key={mt} onClick={() => { setAuthMethod(mt); setAuthInput(""); setAuthError(""); }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 text-xs font-semibold transition-all ${authMethod === mt ? "border-purple-500 bg-purple-50 text-purple-700" : "border-[#e8e4f4] text-[#8a7ba7] hover:border-purple-300"}`}>
+                    <Icon size={13} /> {label}
+                  </button>
+                ))}
+              </div>
+              {authMode === "login" && (
+                <div className="flex flex-col gap-2.5 mt-1">
+                  <div className="relative">
+                    {authMethod === "email" ? <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" /> : <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />}
+                    <input type={authMethod === "email" ? "email" : "tel"} inputMode={authMethod === "phone" ? "tel" : undefined}
+                      placeholder={authMethod === "email" ? "Email ünvanı" : "+994 50 000 00 00"}
+                      value={authInput} onChange={e => { const v = authMethod === "phone" ? e.target.value.replace(/[^\d\s+\-()]/g, "") : e.target.value; setAuthInput(v); setAuthError(""); }}
+                      className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#241a4d] outline-none focus:border-purple-400 transition-colors placeholder:text-[#c4b5e0]" />
+                  </div>
+                  <div className="relative">
+                    <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                    <input type="password" placeholder="Şifrə" value={authPassword}
+                      onChange={e => setAuthPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleAuthLogin()}
+                      className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#241a4d] outline-none focus:border-purple-400 transition-colors placeholder:text-[#c4b5e0]" />
+                  </div>
+                  {authError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{authError}</p>}
+                  <div className="flex justify-end">
+                    <a href="/auth/forgot-password" target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-semibold text-purple-600 hover:underline">Şifrəmi unutdum</a>
+                  </div>
+                  <button onClick={handleAuthLogin} disabled={authLoading}
+                    className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                    style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                    {authLoading ? "Giriş edilir..." : "Daxil ol"}
+                  </button>
+                </div>
+              )}
+              {authMode === "register" && !authOtpSent && (
+                <div className="flex flex-col gap-2.5 mt-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    <input type="text" placeholder="Ad" value={authRegFirst} onChange={e => { setAuthRegFirst(e.target.value); setAuthError(""); }}
+                      className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] px-3 py-2.5 text-sm text-[#241a4d] outline-none focus:border-purple-400 transition-colors placeholder:text-[#c4b5e0]" />
+                    <input type="text" placeholder="Soyad" value={authRegLast} onChange={e => { setAuthRegLast(e.target.value); setAuthError(""); }}
+                      className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] px-3 py-2.5 text-sm text-[#241a4d] outline-none focus:border-purple-400 transition-colors placeholder:text-[#c4b5e0]" />
+                  </div>
+                  <div className="relative">
+                    {authMethod === "email" ? <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" /> : <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />}
+                    <input type={authMethod === "email" ? "email" : "tel"} inputMode={authMethod === "phone" ? "tel" : undefined}
+                      placeholder={authMethod === "email" ? "Email ünvanı" : "+994 50 000 00 00"}
+                      value={authInput} onChange={e => { const v = authMethod === "phone" ? e.target.value.replace(/[^\d\s+\-()]/g, "") : e.target.value; setAuthInput(v); setAuthError(""); }}
+                      className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#241a4d] outline-none focus:border-purple-400 transition-colors placeholder:text-[#c4b5e0]" />
+                  </div>
+                  <div className="relative">
+                    <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                    <input type="password" placeholder="Şifrə (min 6 simvol)" value={authPassword}
+                      onChange={e => setAuthPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleAuthSendOtp()}
+                      className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] pl-9 pr-3 py-2.5 text-sm text-[#241a4d] outline-none focus:border-purple-400 transition-colors placeholder:text-[#c4b5e0]" />
+                  </div>
+                  {authError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{authError}</p>}
+                  <button onClick={handleAuthSendOtp} disabled={authLoading}
+                    className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                    style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
+                    {authLoading ? "Göndərilir..." : "Kod göndər →"}
+                  </button>
+                </div>
+              )}
+              {authMode === "register" && authOtpSent && (
+                <div className="flex flex-col gap-3 mt-1">
+                  <div className="rounded-xl bg-purple-50 border border-purple-100 px-3 py-2.5 text-xs text-[#8a7ba7]">
+                    Doğrulama kodu <b className="text-purple-700">{authInput}</b> ünvanına göndərildi.{" "}
+                    <button onClick={() => { setAuthOtpSent(false); setAuthOtp(""); setAuthError(""); }}
+                      className="text-purple-600 font-semibold underline">Dəyiş</button>
+                  </div>
+                  <input type="text" inputMode="numeric" maxLength={6} placeholder="• • • • • •"
+                    value={authOtp} autoFocus onChange={e => setAuthOtp(e.target.value.replace(/\D/g, ""))}
+                    onKeyDown={e => e.key === "Enter" && handleAuthVerifyOtp()}
+                    className="w-full rounded-xl border-2 border-[#e8e4f4] bg-[#f8f6ff] px-3 py-3 text-xl text-center font-black tracking-[0.5em] text-[#241a4d] outline-none focus:border-purple-400 transition-colors" />
+                  {authError && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{authError}</p>}
+                  <button onClick={handleAuthVerifyOtp} disabled={authLoading || authOtp.length < 4}
+                    className="w-full rounded-xl py-3 text-sm font-bold text-white disabled:opacity-60 transition-all"
+                    style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
+                    {authLoading ? "Yoxlanılır..." : "Qeydiyyatı tamamla ✓"}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!authPhase && step === 0 && (
             <div className="space-y-3">
               <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
                 <div className="flex flex-col gap-1.5 text-xs text-[#8a7ba7]">
@@ -743,7 +929,7 @@ function DonationModal({ animal, onClose }) {
             </div>
           )}
 
-          {step === 1 && (
+          {!authPhase && step === 1 && (
             <div className="space-y-3">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-[#241a4d]">
@@ -792,7 +978,7 @@ function DonationModal({ animal, onClose }) {
             </div>
           )}
 
-          {step === 2 && (
+          {!authPhase && step === 2 && (
             <div className="space-y-3">
               {!isGuest ? (
                 <div className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
@@ -930,7 +1116,7 @@ function DonationModal({ animal, onClose }) {
           )}
         </div>
 
-        <div className="flex gap-3 border-t border-[#f0ebff] px-5 pb-4 pt-3 shrink-0">
+        {!authPhase && <div className="flex gap-3 border-t border-[#f0ebff] px-5 pb-4 pt-3 shrink-0">
           {step > 0 && (
             <button
               onClick={() => setStep((s) => s - 1)}
@@ -973,7 +1159,7 @@ function DonationModal({ animal, onClose }) {
                   : "İanəni təsdiqlə ✓"}
             </button>
           )}
-        </div>
+        </div>}
       </div>
     </div>
   );
