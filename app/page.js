@@ -393,45 +393,6 @@ function Hero() {
           </div>
         </div>
 
-        {/* Feature badges with large icons */}
-        <div className="flex flex-wrap justify-center gap-8 text-lg text-gray-700">
-          {[
-            {
-              icon: (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="w-12 h-12 text-green-600 shrink-0">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ),
-              label: "Halal kəsim",
-            },
-            {
-              icon: (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="w-12 h-12 text-green-600 shrink-0">
-                  <rect x="2" y="6" width="14" height="12" rx="2" />
-                  <path d="M16 10l5-3v10l-5-3" />
-                </svg>
-              ),
-              label: "Video hesabat",
-            },
-            {
-              icon: (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="w-12 h-12 text-green-600 shrink-0">
-                  <rect x="1" y="3" width="15" height="13" rx="1" />
-                  <path d="M16 8h4l3 3v5h-7V8z" />
-                  <circle cx="5.5" cy="18.5" r="2.5" />
-                  <circle cx="18.5" cy="18.5" r="2.5" />
-                </svg>
-              ),
-              label: "Çatdırılma",
-            },
-          ].map(({ icon, label }) => (
-            <span key={label} className="flex items-center gap-3 font-medium text-lg">
-              {icon}
-              {label}
-            </span>
-          ))}
-        </div>
       </div>
     </section>
   );
