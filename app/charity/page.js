@@ -1610,7 +1610,7 @@ function HomeContent() {
           />
           <div className="lg:hidden relative min-h-[180px]">
             <img
-              src="/xeyriye_bg_image.jpg"
+              src="/xeyriye_bg_image.png"
               alt="Xeyriyyə"
               className="absolute inset-0 w-full h-full object-cover object-center rounded-xl"
             />
@@ -1651,7 +1651,7 @@ function HomeContent() {
             </div>
             <div className="relative min-h-[220px]">
               <img
-                src="/xeyriye_bg_image.jpg"
+                src="/xeyriye_bg_image.png"
                 alt="Xeyriyyə"
                 className="absolute inset-0 w-full h-full object-cover object-center rounded-r-2xl"
               />
