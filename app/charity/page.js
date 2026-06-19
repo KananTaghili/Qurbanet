@@ -314,7 +314,7 @@ function DonationModal({ animal, onClose }) {
             <div className="space-y-3">
               <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
                 <div className="grid grid-cols-3 gap-3 text-xs text-[#8a7ba7]">
-                  <div className="flex items-center gap-1.5"><Users size={12} className="text-purple-500 shrink-0" /><span className="truncate">{animal.organizer}</span></div>
+                  <div className="flex items-center gap-1.5"><User size={12} className="text-purple-500 shrink-0" /><span className="truncate">{animal.organizer}</span></div>
                   <div className="flex items-center gap-1.5"><CalendarDays size={12} className="text-purple-500 shrink-0" /><span>{animal.startTime}</span></div>
                   <div className="flex items-center gap-1.5"><Coins size={12} className="text-purple-500 shrink-0" /><span>Qalan: {animal.totalMin} AZN</span></div>
                 </div>
