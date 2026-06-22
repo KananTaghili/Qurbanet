@@ -41,7 +41,7 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
           <ArrowLeft size={16} /> Geri qayıt
         </button>
         <h1 className="flex-1 min-w-0 text-[15px] font-black tracking-[-.02em] text-[#33245f] line-clamp-1">
-          {item.type}
+          {isCompleted ? `${item.startDate} tarixində tamamlanmış açılış` : item.type}
         </h1>
         {!isCompleted && onDonate && (
           <button onClick={() => onDonate(item)}
@@ -82,9 +82,12 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                   <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f] mb-3">
                     <CalendarDays size={14} className="text-[#6840c6]" /> {item.startDate}
                   </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
-                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
-                    <Users size={14} className="text-[#5b22c7]" /> {item.participants} nəfər
+                  {/* İştirakçı sayı — mobile only (desktop shows in Col 3) */}
+                  <div className="md:hidden">
+                    <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
+                    <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
+                      <Users size={14} className="text-[#5b22c7]" /> {item.participants} nəfər
+                    </div>
                   </div>
                 </div>
 
@@ -94,10 +97,14 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                   <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-3">
                     <Coins size={16} className="text-[#5b22c7]" /> {item.totalAmount} AZN
                   </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
-                    <Coins size={16} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
-                  </div>
+                  {!isCompleted && (
+                    <>
+                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
+                      <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
+                        <Coins size={16} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Col 3 — desktop only */}
@@ -117,15 +124,13 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                       <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-emerald-600">
                         <CheckCircle size={26} />
                       </div>
-                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700">Açılış tamamlanıb</span>
                     </div>
                     <div className="flex flex-col gap-2 flex-1 xl:w-full">
-                      {item.videoUrl && (
-                        <button onClick={(e) => { e.stopPropagation(); setShowVideo(true); }}
-                          className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 py-2 text-[12px] font-extrabold text-white hover:bg-emerald-700 transition">
-                          <Video size={14} /> Kəsim Videosu
-                        </button>
-                      )}
+                      <button onClick={(e) => { e.stopPropagation(); setShowVideo(true); }}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#4b14bd] py-2 text-[12px] font-extrabold text-white hover:bg-[#3d0aa8] transition">
+                        <Video size={14} /> Kəsim videosu
+                      </button>
                       <button onClick={handleShare}
                         className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
                         <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
