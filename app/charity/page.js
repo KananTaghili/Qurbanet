@@ -470,6 +470,8 @@ function PaymentSuccessModal({
     ANIMAL_IMG_FALLBACK[campaign?.animal?.nameAz] ||
     null;
 
+  const displayAmount = amount || (typeof window !== "undefined" ? sessionStorage.getItem("_lastPaidAmount") || "" : "");
+
   return (
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center px-4"
@@ -511,18 +513,16 @@ function PaymentSuccessModal({
                   <div className="font-black text-[#33245f] truncate">
                     {campaign.animal?.nameAz} Qurbanı
                   </div>
-                  <div className="mt-1 text-[13px] font-bold text-[#4b14bd]">
-                    {Number(amount) > 0 ? (
-                      <>
-                        {amount} AZN
-                        {Number(campaign.totalAmount) > 0 && (
-                          <span className="ml-2 text-[#7c6fa0] font-semibold">
-                            · {Math.round((Number(amount) / Number(campaign.totalAmount)) * 100)}%
-                          </span>
-                        )}
-                      </>
-                    ) : "—"}
-                  </div>
+                  {displayAmount && (
+                    <div className="mt-1 text-[13px] font-bold text-[#4b14bd]">
+                      {displayAmount} AZN
+                      {Number(campaign.totalAmount) > 0 && (
+                        <span className="ml-2 text-[#7c6fa0] font-semibold">
+                          · {Math.round((Number(displayAmount) / Number(campaign.totalAmount)) * 100)}%
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1766,6 +1766,7 @@ function HomeContent() {
     const amount = searchParams.get("amount") || "";
 
     if (done === "1" && cId) {
+      if (amount) sessionStorage.setItem("_lastPaidAmount", amount);
       setSuccessModal({ campaignId: cId, role, amount });
       router.replace(`/charity?campaign=${cId}`, { scroll: false });
       setSelectedCampaignId(cId);
