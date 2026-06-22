@@ -653,23 +653,6 @@ export default function LandingPage() {
         <MobileHeader />
         <main className="flex-1">
           <MobileServicesSection onPlay={setActiveVideo} />
-          {/* Payment methods */}
-          <div className="px-4 pb-5 pt-1">
-            <p className="text-[11px] font-semibold text-gray-400 mb-2 text-center tracking-wide uppercase">Ödəniş üsulları</p>
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex items-center justify-center w-[56px] h-[36px] rounded-lg bg-[#1A1F71] shadow-sm">
-                <span className="text-white text-[15px] font-black italic tracking-widest">VISA</span>
-              </div>
-              <div className="flex items-center justify-center w-[56px] h-[36px] rounded-lg bg-white border border-gray-200 shadow-sm">
-                <span className="w-[22px] h-[22px] rounded-full bg-[#EB001B] inline-block shrink-0" />
-                <span className="w-[22px] h-[22px] rounded-full bg-[#F79E1B] inline-block -ml-[11px] shrink-0 opacity-90" />
-              </div>
-              <div className="flex items-center justify-center w-[56px] h-[36px] rounded-lg bg-white border border-gray-200 shadow-sm">
-                <span className="w-[22px] h-[22px] rounded-full bg-[#0099DF] inline-block shrink-0" />
-                <span className="w-[22px] h-[22px] rounded-full bg-[#CC0001] inline-block -ml-[11px] shrink-0 opacity-85" />
-              </div>
-            </div>
-          </div>
         </main>
         <MobileBottomNav />
       </div>
