@@ -33,7 +33,7 @@ const getSettings = async (req, res) => {
 const updateSettings = async (req, res) => {
   try {
     const settings = await getOrCreateSettings();
-    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, quickDateTodayEnabled, quickDateTomorrowEnabled,
+    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, enabledLanguages, quickDateTodayEnabled, quickDateTomorrowEnabled,
       campaignMinOpenPercent, campaignMinDonation, campaignAllowAnonymous, campaignAllowGuest, campaignGuestNameRequired, campaignGuestPhoneRequired, campaignOnePerAnimal, campaignMaxPerAnimal,
       campaignNearlyFullPercent, campaignNearlyFullMinDonation } = req.body;
 
@@ -94,6 +94,13 @@ const updateSettings = async (req, res) => {
 
     if (multiLanguageEnabled !== undefined) {
       settings.multiLanguageEnabled = Boolean(multiLanguageEnabled);
+    }
+
+    if (Array.isArray(enabledLanguages)) {
+      const valid = enabledLanguages.filter(l => ['az', 'en', 'ru'].includes(l));
+      if (!valid.includes('az')) valid.unshift('az');
+      settings.enabledLanguages = valid;
+      settings.multiLanguageEnabled = valid.length > 1;
     }
 
     if (quickDateTodayEnabled !== undefined) {
@@ -170,6 +177,7 @@ const getPublicSettings = async (req, res) => {
       singleAnimalMode: settings.singleAnimalMode === true,
       maxSlaughterDays: settings.maxSlaughterDays ?? 14,
       multiLanguageEnabled: settings.multiLanguageEnabled !== false,
+      enabledLanguages: settings.enabledLanguages?.length > 0 ? settings.enabledLanguages : ['az', 'en', 'ru'],
       quickDateTodayEnabled: settings.quickDateTodayEnabled !== false,
       quickDateTomorrowEnabled: settings.quickDateTomorrowEnabled !== false,
       campaignMinOpenPercent:  settings.campaignMinOpenPercent  ?? 30,

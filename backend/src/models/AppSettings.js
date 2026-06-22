@@ -80,6 +80,10 @@ const appSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    enabledLanguages: {
+      type: [String],
+      default: ['az', 'en', 'ru'],
+    },
     // ─── Xeyriyyə kampaniyası tənzimləmələri ───────────────────────────────
     campaignMinOpenPercent:  { type: Number, default: 30, min: 0.01, max: 100 },
     campaignMinDonation:     { type: Number, default: 10, min: 0.01 },

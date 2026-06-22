@@ -4,45 +4,50 @@ import api, { BASE_URL } from '../lib/api';
 
 const LANG_KEY = 'qurbanet_lang';
 
-export const LANGUAGES = [
+const ALL_LANGUAGES = [
   { code: 'az', label: 'AZ', name: 'Azərbaycan', dir: 'ltr' },
   { code: 'ru', label: 'RU', name: 'Русский',     dir: 'ltr' },
   { code: 'en', label: 'EN', name: 'English',      dir: 'ltr' },
 ];
+
+export { ALL_LANGUAGES as LANGUAGES };
 
 const LanguageContext = createContext({
   lang: 'az',
   setLang: () => {},
   dir: 'ltr',
   multiLanguageEnabled: true,
+  enabledLanguages: ['az', 'en', 'ru'],
+  availableLanguages: ALL_LANGUAGES,
 });
 
 export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState('az');
+  const [enabledLanguages, setEnabledLanguages] = useState(['az', 'en', 'ru']);
   const [multiLanguageEnabled, setMultiLanguageEnabled] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  const applySettings = useCallback((enabled) => {
-    setMultiLanguageEnabled(enabled);
-    if (!enabled) {
-      setLangState('az');
-    }
+  const applySettings = useCallback((codes) => {
+    const valid = codes?.length > 0 ? codes : ['az'];
+    setEnabledLanguages(valid);
+    setMultiLanguageEnabled(valid.length > 1);
+    if (!valid.includes('az')) valid.unshift('az');
   }, []);
 
   const fetchSettings = useCallback(async () => {
     try {
       const res = await api.get('/app-config/settings');
-      const enabled = res.data?.data?.multiLanguageEnabled !== false;
-      applySettings(enabled);
-      if (enabled) {
-        const saved = localStorage.getItem(LANG_KEY);
-        if (saved && LANGUAGES.find(l => l.code === saved)) {
-          setLangState(saved);
-        }
+      const codes = res.data?.data?.enabledLanguages || ['az', 'en', 'ru'];
+      applySettings(codes);
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved && codes.includes(saved)) {
+        setLangState(saved);
+      } else {
+        setLangState('az');
       }
     } catch (_) {
       const saved = localStorage.getItem(LANG_KEY);
-      if (saved && LANGUAGES.find(l => l.code === saved)) {
+      if (saved && ALL_LANGUAGES.find(l => l.code === saved)) {
         setLangState(saved);
       }
     } finally {
@@ -90,16 +95,16 @@ export function LanguageProvider({ children }) {
   }, [lang]);
 
   const setLang = (code) => {
-    if (!multiLanguageEnabled) return;
-    if (!LANGUAGES.find(l => l.code === code)) return;
+    if (!enabledLanguages.includes(code)) return;
     localStorage.setItem(LANG_KEY, code);
     setLangState(code);
   };
 
-  const dir = LANGUAGES.find(l => l.code === lang)?.dir || 'ltr';
+  const dir = ALL_LANGUAGES.find(l => l.code === lang)?.dir || 'ltr';
+  const availableLanguages = ALL_LANGUAGES.filter(l => enabledLanguages.includes(l.code));
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, dir, multiLanguageEnabled, isReady }}>
+    <LanguageContext.Provider value={{ lang, setLang, dir, multiLanguageEnabled, enabledLanguages, availableLanguages, isReady }}>
       {children}
     </LanguageContext.Provider>
   );

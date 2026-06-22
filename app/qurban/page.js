@@ -69,7 +69,7 @@ function PriceTag({ price, lang }) {
   );
 }
 
-function LanguageSelect({ lang, setLang }) {
+function LanguageSelect({ lang, setLang, availableLanguages }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -80,7 +80,8 @@ function LanguageSelect({ lang, setLang }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  const current = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
+  const langs = availableLanguages || LANGUAGES;
+  const current = langs.find((l) => l.code === lang) || langs[0];
 
   return (
     <div ref={ref} className="relative flex-shrink-0">
@@ -111,7 +112,7 @@ function LanguageSelect({ lang, setLang }) {
             minWidth: 90,
           }}
         >
-          {LANGUAGES.map((l) => (
+          {langs.map((l) => (
             <button
               key={l.code}
               onClick={() => { setLang(l.code); setOpen(false); }}
@@ -140,7 +141,7 @@ export default function QurbanPage() {
   const router = useRouter();
   const { user, isGuest, logout, isLoading } = useAuth();
   const { clearOrder } = useOrder();
-  const { lang, setLang, multiLanguageEnabled } = useLanguage();
+  const { lang, setLang, multiLanguageEnabled, availableLanguages } = useLanguage();
   const [animals, setAnimals] = useState([]);
   const [deliveryWindows, setDeliveryWindows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -257,7 +258,7 @@ export default function QurbanPage() {
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Language select (mobile) */}
-            {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} />}
+            {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} availableLanguages={availableLanguages} />}
 
             {!isGuest ? (
               /* ── Logged-in: avatar + name → dropdown modal ── */
@@ -460,7 +461,7 @@ export default function QurbanPage() {
               </span>
             </div>
           </div>
-          {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} />}
+          {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} availableLanguages={availableLanguages} />}
 
           {isGuest ? (
             <button
