@@ -40,8 +40,8 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
           className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition">
           <ArrowLeft size={16} /> Geri qayıt
         </button>
-        <h1 className="flex-1 min-w-0 text-[15px] font-black tracking-[-.02em] text-[#33245f] line-clamp-1">
-          {isCompleted ? `${item.startDate} tarixində tamamlanmış açılış` : item.type}
+        <h1 className="flex-1 min-w-0 text-[15px] font-black tracking-[-.02em] text-[#33245f] truncate">
+          {isCompleted ? `${item.type} · Tamamlandı` : item.type}
         </h1>
         {!isCompleted && onDonate && (
           <button onClick={() => onDonate(item)}
