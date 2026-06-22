@@ -455,7 +455,6 @@ function PaymentSuccessModal({
   onViewCampaign,
 }) {
   const [campaign, setCampaign] = useState(null);
-  const [displayAmount, setDisplayAmount] = useState(amount || "");
   const isOpener = role === "opener";
 
   useEffect(() => {
@@ -466,17 +465,15 @@ function PaymentSuccessModal({
       .catch(() => {});
   }, [campaignId]);
 
-  useEffect(() => {
-    if (!displayAmount) {
-      const stored = sessionStorage.getItem("_lastPaidAmount") || "";
-      if (stored) setDisplayAmount(stored);
-    }
-  }, []);
-
   const animalImg =
     campaign?.animal?.image ||
     ANIMAL_IMG_FALLBACK[campaign?.animal?.nameAz] ||
     null;
+
+  // Use URL/state amount if available; otherwise take the most recently paid donation from campaign
+  const paidDonations = (campaign?.donations || []).filter(d => d.paymentStatus === "paid");
+  const lastDonation  = paidDonations.sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt))[0];
+  const displayAmount = amount || sessionStorage.getItem("_lastPaidAmount") || String(lastDonation?.amount ?? "") || "";
 
   return (
     <div
