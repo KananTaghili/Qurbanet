@@ -32,7 +32,7 @@ export default function Sidebar() {
   }, []);
 
   const NAV = [
-    { href: "/qurban", Icon: Home, label: t(lang, 'home') },
+    { href: "/qurban", Icon: Home, label: t(lang, 'animalSelection') },
     { href: "/my-orders", Icon: ClipboardList, label: t(lang, 'myOrders') },
     { href: "/how-it-works", Icon: HelpCircle, label: t(lang, 'howItWorks') },
     { href: "/qurban-rules", Icon: BookOpen, label: t(lang, 'rules') },
