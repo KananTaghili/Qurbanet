@@ -383,7 +383,7 @@ function DesktopHeader() {
 function Hero() {
   return (
     <section className="relative h-[300px] md:h-[340px] flex items-center overflow-hidden">
-      <Image src="/home_image_test.jpg" alt="MeatBox hero" fill className="object-cover object-center" priority />
+      <Image src="/home_image_test_2.jpg" alt="MeatBox hero" fill className="object-cover object-center" priority />
 
       {/* Center white overlay */}
       <div className="absolute inset-0" style={{
