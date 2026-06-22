@@ -45,7 +45,7 @@ const FEATURES = [
     title: "Tam şəffaflıq",
     desc: "Hər addımı izləyə bilərsiniz",
   },
-  { icon: Video, title: "Kəsim videosu", desc: "Kəsimi canlı izləyin" },
+  { icon: Video, title: "Kəsim videosu", desc: "Kəsim videosunu izləyin" },
   { icon: Heart, title: "Ehtiyac sahiblərinə", desc: "Birbaşa çatdırılır" },
   { icon: Users, title: "Birlikdə xeyir", desc: "Kiçik məbləğlə böyük xeyir" },
 ];
