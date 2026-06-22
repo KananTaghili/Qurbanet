@@ -455,7 +455,12 @@ function PaymentSuccessModal({
   onViewCampaign,
 }) {
   const [campaign, setCampaign] = useState(null);
+  const [storedAmount, setStoredAmount] = useState("");
   const isOpener = role === "opener";
+
+  useEffect(() => {
+    try { setStoredAmount(sessionStorage.getItem("_lastPaidAmount") || ""); } catch (_) {}
+  }, []);
 
   useEffect(() => {
     if (!campaignId) return;
@@ -470,10 +475,10 @@ function PaymentSuccessModal({
     ANIMAL_IMG_FALLBACK[campaign?.animal?.nameAz] ||
     null;
 
-  // Use URL/state amount if available; otherwise take the most recently paid donation from campaign
-  const paidDonations = (campaign?.donations || []).filter(d => d.paymentStatus === "paid");
-  const lastDonation  = paidDonations.sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt))[0];
-  const displayAmount = amount || sessionStorage.getItem("_lastPaidAmount") || String(lastDonation?.amount ?? "") || "";
+  // API already returns only paid donations — no paymentStatus field to filter by
+  const donations = campaign?.donations || [];
+  const lastDonation = [...donations].sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt))[0];
+  const displayAmount = amount || storedAmount || String(lastDonation?.amount ?? "") || "";
 
   return (
     <div
