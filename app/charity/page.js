@@ -485,7 +485,7 @@ function PaymentSuccessModal({
           style={{ background: "linear-gradient(135deg, #4513ad, #7c3aed)" }}
         >
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
-            <span className="text-4xl">🤝</span>
+            <Heart size={38} className="text-white fill-white" />
           </div>
           <h1 className="text-[22px] font-black text-white leading-snug">
             İanəniz qəbul edildi!
@@ -511,17 +511,13 @@ function PaymentSuccessModal({
                   <div className="font-black text-[#33245f] truncate">
                     {campaign.animal?.nameAz} Qurbanı
                   </div>
-                  <div className="text-xs text-[#7c6fa0]">
-                    {campaign.collectedAmount} / {campaign.totalAmount} AZN · {campaign.percent || 0}%
-                  </div>
+                  {amount && campaign.totalAmount && (
+                    <div className="text-xs text-[#7c6fa0]">
+                      {amount} AZN · {Math.round((parseFloat(amount) / parseFloat(campaign.totalAmount)) * 100)}%
+                    </div>
+                  )}
                 </div>
               </div>
-              {amount && (
-                <div className="mt-3 pt-3 border-t border-purple-100 flex justify-between items-center">
-                  <span className="text-sm text-[#7c6fa0]">Ödənilən məbləğ</span>
-                  <span className="text-sm font-black text-[#4b14bd]">{amount} AZN</span>
-                </div>
-              )}
             </div>
           )}
 
@@ -529,7 +525,7 @@ function PaymentSuccessModal({
           <div className="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-4 text-center">
             <div className="text-xl mb-2">✅</div>
             <p className="text-[13px] font-semibold text-emerald-800 leading-relaxed">
-              Sədəqəniz Allah qatında qəbul olsun.<br />Allah sizdən razı olsun.
+              Sədəqəniz Allah qatında qəbul olsun!<br />Allah sizdən razı olsun!
             </p>
           </div>
         </div>
@@ -542,14 +538,14 @@ function PaymentSuccessModal({
               className="w-full rounded-2xl py-3 text-sm font-bold text-white transition hover:opacity-90"
               style={{ background: "linear-gradient(135deg, #4513ad, #7c3aed)" }}
             >
-              Kampaniyani izlə
+              Qurbanınızı izləyin
             </button>
           )}
           <button
             onClick={onClose}
             className="w-full rounded-2xl border-2 border-purple-200 py-3 text-sm font-bold text-[#4b14bd] hover:bg-purple-50 transition"
           >
-            Keyriyyə səhifəsinə qayıt
+            Əsas səhifəyə qayıt
           </button>
         </div>
       </div>
