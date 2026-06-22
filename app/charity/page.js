@@ -1395,7 +1395,6 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-<<<<<<< Updated upstream
   if (loading)
     return (
       <div className="flex-1 flex items-center justify-center bg-[#fbfaff]">
@@ -1415,22 +1414,6 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
         </button>
       </div>
     );
-=======
-  if (loading) return (
-    <div className="flex-1 flex items-center justify-center bg-[#fbfaff]">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
-    </div>
-  );
-  if (!campaign) return (
-    <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-[#fbfaff]">
-      <div className="text-[#4b14bd] text-4xl">⚠️</div>
-      <div className="text-[#33245f] font-bold">Kampaniya tapılmadı</div>
-      <button onClick={onBack} className="mt-2 flex items-center gap-2 rounded-xl bg-[#4b14bd] px-4 py-2 text-sm font-bold text-white hover:bg-[#3d0aa8] transition">
-        <ArrowLeft size={15} /> Geri qayıt
-      </button>
-    </div>
-  );
->>>>>>> Stashed changes
 
   const isCompleted = campaign.status === "completed";
   const paidDons = campaign.donations || [];
@@ -1451,15 +1434,10 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
     <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-20 lg:pb-0">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm sticky top-0 z-10">
-<<<<<<< Updated upstream
         <button
           onClick={onBack}
           className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition"
         >
-=======
-        <button onClick={onBack}
-          className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition">
->>>>>>> Stashed changes
           <ArrowLeft size={16} /> Geri qayıt
         </button>
         <h1 className="flex-1 min-w-0 text-[15px] font-black tracking-[-.02em] text-[#33245f] line-clamp-1">
