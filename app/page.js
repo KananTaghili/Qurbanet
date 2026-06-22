@@ -47,7 +47,7 @@ const SERVICES = [
   {
     id: "qurban",
     title: "Qurbanlıq Sifarişi",
-    desc: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Evdəkindən çıxmadan etibarlı xidmət.",
+    desc: "Qurbanlığınızı onlayn sifariş edin, kəsim prosesini video ilə izləyin, biz doğrayıb sizə çatdıraq.",
     href: "/qurban",
     disabled: false,
     icon: <IconKnife cls="w-10 h-10 text-green-700" />,
@@ -66,7 +66,7 @@ const SERVICES = [
   {
     id: "xeyriyye",
     title: "Kollektiv Qurban",
-    desc: "Birlikdə qurban kəsdirik, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı kollektiv qurban platformasına qoşulun.",
+    desc: "Birlikdə qurban kəsdirib, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı kollektiv qurban platformasına qoşulun.",
     href: "/charity",
     disabled: false,
     icon: <IconHandshake cls="w-10 h-10 text-purple-700" />,
@@ -85,7 +85,7 @@ const SERVICES = [
   {
     id: "et",
     title: "Ət Sifarişi",
-    desc: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdırırıq.",
+    desc: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin. Biz qapınıza çatdıraq.",
     href: "#",
     disabled: true,
     icon: <IconMeat cls="w-10 h-10 text-red-700" />,
@@ -313,7 +313,6 @@ function MobileServicesSection({ onPlay }) {
 }
 
 function MobileBottomNav() {
-  const [active, setActive] = useState(0);
   const items = [
     { Icon: ShieldCheck, label: "Halal Kəsim" },
     { Icon: Video,       label: "Video Hesabat" },
@@ -322,22 +321,15 @@ function MobileBottomNav() {
   ];
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex items-stretch shadow-[0_-2px_12px_rgba(0,0,0,0.07)]">
-      {items.map(({ Icon, label }, i) => {
-        const isActive = active === i;
-        return (
-          <button key={label} onClick={() => setActive(i)}
-            className="flex flex-col items-center justify-center gap-1 flex-1 py-2.5 relative transition-colors">
-            {isActive && (
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2.5px] bg-green-700 rounded-full" />
-            )}
-            <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8}
-              className={isActive ? "text-green-700" : "text-gray-400"} />
-            <span className={`text-[10px] leading-none font-${isActive ? "700" : "500"} ${isActive ? "text-green-700" : "text-gray-400"}`}>
-              {label}
-            </span>
-          </button>
-        );
-      })}
+      {items.map(({ Icon, label }) => (
+        <button key={label}
+          className="flex flex-col items-center justify-center gap-1 flex-1 py-2.5 relative">
+          <Icon size={22} strokeWidth={1.8} className="text-gray-400" />
+          <span className="text-[10px] leading-none font-500 text-gray-400">
+            {label}
+          </span>
+        </button>
+      ))}
     </nav>
   );
 }
