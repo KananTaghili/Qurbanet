@@ -612,15 +612,23 @@ function Footer() {
           <div className="md:flex-1">
             <p className="text-gray-900 font-semibold mb-4 text-sm">Ödəniş üsulları</p>
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="bg-[#1A1F71] text-white text-[10px] font-bold px-3 py-1 rounded-md italic tracking-wider flex items-center justify-center w-[50px] h-[32px]">VISA</span>
-              <span className="relative flex items-center justify-center rounded-md w-[50px] h-[32px] bg-gray-900">
-                <span className="w-5 h-5 rounded-full bg-[#EB001B] inline-block" />
-                <span className="w-5 h-5 rounded-full bg-[#F79E1B] inline-block -ml-2.5 opacity-90" />
-              </span>
-              <span className="relative flex items-center justify-center rounded-md w-[50px] h-[32px] bg-gray-900">
-                <span className="w-5 h-5 rounded-full bg-[#E31837] inline-block" />
-                <span className="w-5 h-5 rounded-full bg-[#0094D9] inline-block -ml-2.5 opacity-90" />
-              </span>
+              {/* VISA */}
+              <div className="flex items-center justify-center w-[58px] h-[36px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="text-[#1A1F71] text-[13px] font-black italic tracking-widest">VISA</span>
+              </div>
+              {/* Mastercard */}
+              <div className="flex items-center justify-center w-[58px] h-[36px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="w-[18px] h-[18px] rounded-full bg-[#EB001B] inline-block shrink-0" />
+                <span className="w-[18px] h-[18px] rounded-full bg-[#F79E1B] inline-block -ml-[9px] shrink-0 opacity-90" />
+              </div>
+              {/* UnionPay */}
+              <div className="flex items-center justify-center w-[58px] h-[36px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="text-[#E31837] text-[8px] font-black leading-none tracking-tight text-center">UNION<br/>PAY</span>
+              </div>
+              {/* ePoint */}
+              <div className="flex items-center justify-center w-[58px] h-[36px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="text-[#00A86B] text-[10px] font-black tracking-tight">e<span className="text-gray-800">Point</span></span>
+              </div>
             </div>
           </div>
         </div>
@@ -648,6 +656,25 @@ export default function LandingPage() {
         <MobileHeader />
         <main className="flex-1">
           <MobileServicesSection onPlay={setActiveVideo} />
+          {/* Payment methods */}
+          <div className="px-4 pb-5 pt-1">
+            <p className="text-[11px] font-semibold text-gray-400 mb-2 text-center tracking-wide uppercase">Ödəniş üsulları</p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center w-[52px] h-[32px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="text-[#1A1F71] text-[12px] font-black italic tracking-widest">VISA</span>
+              </div>
+              <div className="flex items-center justify-center w-[52px] h-[32px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="w-[16px] h-[16px] rounded-full bg-[#EB001B] inline-block shrink-0" />
+                <span className="w-[16px] h-[16px] rounded-full bg-[#F79E1B] inline-block -ml-[8px] shrink-0 opacity-90" />
+              </div>
+              <div className="flex items-center justify-center w-[52px] h-[32px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="text-[#E31837] text-[7px] font-black leading-none tracking-tight text-center">UNION<br/>PAY</span>
+              </div>
+              <div className="flex items-center justify-center w-[52px] h-[32px] rounded-lg bg-white border border-gray-200 shadow-sm">
+                <span className="text-[#00A86B] text-[9px] font-black tracking-tight">e<span className="text-gray-800">Point</span></span>
+              </div>
+            </div>
+          </div>
         </main>
         <MobileBottomNav />
       </div>
