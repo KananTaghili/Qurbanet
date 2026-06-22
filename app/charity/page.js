@@ -1395,6 +1395,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+<<<<<<< Updated upstream
   if (loading)
     return (
       <div className="flex-1 flex items-center justify-center bg-[#fbfaff]">
@@ -1414,6 +1415,22 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
         </button>
       </div>
     );
+=======
+  if (loading) return (
+    <div className="flex-1 flex items-center justify-center bg-[#fbfaff]">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#4b14bd] border-t-transparent" />
+    </div>
+  );
+  if (!campaign) return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-[#fbfaff]">
+      <div className="text-[#4b14bd] text-4xl">⚠️</div>
+      <div className="text-[#33245f] font-bold">Kampaniya tapılmadı</div>
+      <button onClick={onBack} className="mt-2 flex items-center gap-2 rounded-xl bg-[#4b14bd] px-4 py-2 text-sm font-bold text-white hover:bg-[#3d0aa8] transition">
+        <ArrowLeft size={15} /> Geri qayıt
+      </button>
+    </div>
+  );
+>>>>>>> Stashed changes
 
   const isCompleted = campaign.status === "completed";
   const paidDons = campaign.donations || [];
@@ -1434,10 +1451,15 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
     <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-20 lg:pb-0">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm sticky top-0 z-10">
+<<<<<<< Updated upstream
         <button
           onClick={onBack}
           className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition"
         >
+=======
+        <button onClick={onBack}
+          className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition">
+>>>>>>> Stashed changes
           <ArrowLeft size={16} /> Geri qayıt
         </button>
         <h1 className="flex-1 min-w-0 text-[15px] font-black tracking-[-.02em] text-[#33245f] line-clamp-1">
@@ -1914,13 +1936,16 @@ function HomeContent() {
           <div className="hidden lg:grid grid-cols-2 gap-6 items-stretch">
             <div className="pl-8 py-8 pr-2 flex flex-col justify-center">
               <h1
-                className="leading-tight mb-5 text-[#241a4d]"
+                className="leading-tight mb-3 text-[#241a4d]"
                 style={{ fontSize: "1.75rem", fontWeight: 700 }}
               >
                 Birlikdə qurban,
                 <br />
                 <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
               </h1>
+              <p className="text-gray-500 text-sm mb-5 leading-relaxed max-w-xs">
+                Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənirlik.
+              </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={openNewCampaign}
@@ -1930,6 +1955,9 @@ function HomeContent() {
                   <Plus size={14} /> Yeni açılış et
                 </button>
               </div>
+              <p className="text-gray-400 text-xs mt-3 flex items-center gap-1">
+                <ArrowRight size={11} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
+              </p>
             </div>
             <div className="relative min-h-[220px]">
               <img
