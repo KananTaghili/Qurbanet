@@ -455,6 +455,7 @@ function PaymentSuccessModal({
   onViewCampaign,
 }) {
   const [campaign, setCampaign] = useState(null);
+  const [displayAmount, setDisplayAmount] = useState(amount || "");
   const isOpener = role === "opener";
 
   useEffect(() => {
@@ -465,12 +466,17 @@ function PaymentSuccessModal({
       .catch(() => {});
   }, [campaignId]);
 
+  useEffect(() => {
+    if (!displayAmount) {
+      const stored = sessionStorage.getItem("_lastPaidAmount") || "";
+      if (stored) setDisplayAmount(stored);
+    }
+  }, []);
+
   const animalImg =
     campaign?.animal?.image ||
     ANIMAL_IMG_FALLBACK[campaign?.animal?.nameAz] ||
     null;
-
-  const displayAmount = amount || (typeof window !== "undefined" ? sessionStorage.getItem("_lastPaidAmount") || "" : "");
 
   return (
     <div
