@@ -511,11 +511,18 @@ function PaymentSuccessModal({
                   <div className="font-black text-[#33245f] truncate">
                     {campaign.animal?.nameAz} Qurbanı
                   </div>
-                  {amount && campaign.totalAmount && (
-                    <div className="text-xs text-[#7c6fa0]">
-                      {amount} AZN · {Math.round((parseFloat(amount) / parseFloat(campaign.totalAmount)) * 100)}%
-                    </div>
-                  )}
+                  <div className="mt-1 text-[13px] font-bold text-[#4b14bd]">
+                    {Number(amount) > 0 ? (
+                      <>
+                        {amount} AZN
+                        {Number(campaign.totalAmount) > 0 && (
+                          <span className="ml-2 text-[#7c6fa0] font-semibold">
+                            · {Math.round((Number(amount) / Number(campaign.totalAmount)) * 100)}%
+                          </span>
+                        )}
+                      </>
+                    ) : "—"}
+                  </div>
                 </div>
               </div>
             </div>
