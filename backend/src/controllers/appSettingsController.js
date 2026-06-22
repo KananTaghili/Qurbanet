@@ -100,6 +100,7 @@ const updateSettings = async (req, res) => {
       const valid = enabledLanguages.filter(l => ['az', 'en', 'ru'].includes(l));
       if (!valid.includes('az')) valid.unshift('az');
       settings.enabledLanguages = valid;
+      settings.markModified('enabledLanguages');
       settings.multiLanguageEnabled = valid.length > 1;
     }
 
@@ -177,7 +178,9 @@ const getPublicSettings = async (req, res) => {
       singleAnimalMode: settings.singleAnimalMode === true,
       maxSlaughterDays: settings.maxSlaughterDays ?? 14,
       multiLanguageEnabled: settings.multiLanguageEnabled !== false,
-      enabledLanguages: settings.enabledLanguages?.length > 0 ? settings.enabledLanguages : ['az', 'en', 'ru'],
+      enabledLanguages: (settings.enabledLanguages && settings.enabledLanguages.length > 0)
+        ? settings.enabledLanguages.toObject ? settings.enabledLanguages.toObject() : [...settings.enabledLanguages]
+        : ['az', 'en', 'ru'],
       quickDateTodayEnabled: settings.quickDateTodayEnabled !== false,
       quickDateTomorrowEnabled: settings.quickDateTomorrowEnabled !== false,
       campaignMinOpenPercent:  settings.campaignMinOpenPercent  ?? 30,
