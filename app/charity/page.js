@@ -1991,8 +1991,7 @@ function HomeContent() {
               onClick={() => setDropdownOpen((v) => !v)}
               className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium bg-white border border-[#eee8f6] text-[#241a4d] hover:border-purple-300 transition-all"
             >
-              <span className="hidden sm:inline">{filter}</span>
-              <span className="sm:hidden">Filtr</span>
+              <span>{filter}</span>
               <ChevronDown
                 size={13}
                 className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
