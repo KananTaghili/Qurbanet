@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { useLanguage, LANGUAGES } from "../context/LanguageContext";
+import { useLanguage } from "../context/LanguageContext";
 import { t } from "../lib/i18n";
 import api from "../lib/api";
 import {
@@ -22,7 +22,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isGuest, logout } = useAuth();
-  const { lang, setLang, multiLanguageEnabled } = useLanguage();
+  const { lang } = useLanguage();
   const [charityEnabled, setCharityEnabled] = useState(false);
 
   useEffect(() => {
@@ -83,25 +83,6 @@ export default function Sidebar() {
           </div>
         </Link>
 
-        {/* Language switcher */}
-        {multiLanguageEnabled && (
-          <div className="flex gap-1 mt-2 flex-wrap">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                className="text-[11px] font-bold px-2 py-0.5 rounded-lg transition-all cursor-pointer border-none"
-                style={{
-                  background: lang === l.code ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
-                  color: lang === l.code ? '#fff' : 'rgba(255,255,255,0.5)',
-                }}
-                title={l.name}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ── Nav ── */}

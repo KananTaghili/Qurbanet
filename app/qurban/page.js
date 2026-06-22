@@ -69,34 +69,69 @@ function PriceTag({ price, lang }) {
   );
 }
 
-function LanguageSelect({ lang, setLang, dark }) {
+function LanguageSelect({ lang, setLang }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const current = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
+
   return (
-    <div className="relative flex-shrink-0">
-      <Globe
-        size={13}
-        className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none"
-        style={{ color: dark ? "rgba(255,255,255,0.7)" : BRAND }}
-      />
-      <select
-        value={lang}
-        onChange={(e) => setLang(e.target.value)}
-        className="appearance-none pl-6 pr-5 py-1 text-[11px] font-bold rounded-lg border-none outline-none cursor-pointer transition-all"
+    <div ref={ref} className="relative flex-shrink-0">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 h-8 px-2.5 rounded-xl cursor-pointer border-none transition-all"
         style={{
-          background: dark ? "rgba(255,255,255,0.15)" : "var(--primary-surface)",
-          color: dark ? "#fff" : BRAND,
+          background: open ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.13)",
+          border: "1px solid rgba(255,255,255,0.18)",
         }}
       >
-        {LANGUAGES.map((l) => (
-          <option key={l.code} value={l.code} style={{ color: "#000", background: "#fff" }}>
-            {l.label}
-          </option>
-        ))}
-      </select>
-      <ChevronRight
-        size={10}
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none"
-        style={{ color: dark ? "rgba(255,255,255,0.7)" : BRAND }}
-      />
+        <Globe size={12} style={{ color: "rgba(255,255,255,0.75)" }} />
+        <span className="text-[12px] font-bold text-white">{current.label}</span>
+        <ChevronRight
+          size={10}
+          className={`transition-transform duration-200 ${open ? "rotate-[270deg]" : "rotate-90"}`}
+          style={{ color: "rgba(255,255,255,0.6)" }}
+        />
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-1.5 rounded-xl overflow-hidden z-50 py-1"
+          style={{
+            background: "#1a3a1e",
+            border: "1px solid rgba(255,255,255,0.15)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+            minWidth: 90,
+          }}
+        >
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => { setLang(l.code); setOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 cursor-pointer border-none transition-all text-left"
+              style={{
+                background: l.code === lang ? "rgba(255,255,255,0.12)" : "transparent",
+                color: l.code === lang ? "#86efac" : "rgba(255,255,255,0.75)",
+              }}
+              onMouseEnter={(e) => { if (l.code !== lang) e.currentTarget.style.background = "rgba(255,255,255,0.07)"; }}
+              onMouseLeave={(e) => { if (l.code !== lang) e.currentTarget.style.background = "transparent"; }}
+            >
+              <span className="text-[12px] font-bold">{l.label}</span>
+              <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>{l.name}</span>
+              {l.code === lang && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#86efac" }} />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -222,7 +257,7 @@ export default function QurbanPage() {
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Language select (mobile) */}
-            {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
+            {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} />}
 
             {!isGuest ? (
               /* ── Logged-in: avatar + name → dropdown modal ── */
@@ -425,7 +460,7 @@ export default function QurbanPage() {
               </span>
             </div>
           </div>
-          {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
+          {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} />}
 
           {isGuest ? (
             <button
