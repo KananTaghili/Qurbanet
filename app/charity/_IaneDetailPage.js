@@ -288,11 +288,19 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                 <X size={18} />
               </button>
             </div>
-            {item.videoUrl ? (
-              <div className="aspect-video bg-black">
-                <video src={item.videoUrl} controls autoPlay playsInline className="h-full w-full" style={{ display: "block" }}>
-                  <source src={item.videoUrl} type="video/mp4" />
-                </video>
+            {(item.media?.length > 0) ? (
+              <div className="flex flex-col gap-0">
+                {item.media.map((m, i) =>
+                  m.type === "video" ? (
+                    <div key={i} className="aspect-video bg-black">
+                      <video src={m.url} controls autoPlay={i === 0} playsInline className="h-full w-full" style={{ display: "block" }}>
+                        <source src={m.url} type="video/mp4" />
+                      </video>
+                    </div>
+                  ) : (
+                    <img key={i} src={m.url} alt={`Kəsim ${i + 1}`} className="w-full object-cover max-h-72" />
+                  )
+                )}
               </div>
             ) : (
               <div className="aspect-video bg-[#080514] flex flex-col items-center justify-center gap-4">
@@ -300,7 +308,7 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                   <Video size={32} className="text-white/20" />
                 </div>
                 <div className="text-center">
-                  <div className="text-[14px] font-bold text-white/40">Video hələ yüklənməyib</div>
+                  <div className="text-[14px] font-bold text-white/40">Media hələ yüklənməyib</div>
                   <div className="mt-1 text-[12px] text-white/25">Kəsim tamamlandıqdan sonra əlavə ediləcək</div>
                 </div>
               </div>

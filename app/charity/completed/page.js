@@ -241,10 +241,24 @@ export default function TamamlanmisPage() {
                 <X size={16} />
               </button>
             </div>
-            <div className="relative bg-black aspect-video">
-              <video controls autoPlay className="h-full w-full" poster={videoTarget.img} style={{ display: "block" }}>
-                <source src={videoTarget.videoUrl || "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"} type="video/mp4" />
-              </video>
+            <div className="flex flex-col gap-0">
+              {(videoTarget.media?.length > 0) ? videoTarget.media.map((m, i) =>
+                m.type === "video" ? (
+                  <div key={i} className="relative bg-black aspect-video">
+                    <video controls autoPlay={i === 0} className="h-full w-full" style={{ display: "block" }}>
+                      <source src={m.url} type="video/mp4" />
+                    </video>
+                  </div>
+                ) : (
+                  <img key={i} src={m.url} alt={`Kəsim ${i + 1}`} className="w-full object-cover max-h-72" />
+                )
+              ) : (
+                <div className="relative bg-black aspect-video">
+                  <video controls autoPlay className="h-full w-full" poster={videoTarget.img} style={{ display: "block" }}>
+                    <source src={videoTarget.videoUrl || ""} type="video/mp4" />
+                  </video>
+                </div>
+              )}
             </div>
             <div className="flex items-center justify-between gap-4 border-t border-[#e7e1f0] bg-[#fbfaff] px-5 py-3">
               <div className="flex items-center gap-2.5 text-[12px] font-semibold text-[#6e5b9b]">
