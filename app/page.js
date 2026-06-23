@@ -178,10 +178,10 @@ function MobileHeader() {
               </Link>
             ) : (
               <Link href="/settings" className="flex items-center gap-1.5 shrink-0 px-1">
-                <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white text-xs font-extrabold flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white font-extrabold flex-shrink-0" style={{ fontSize: 11, letterSpacing: '1.5px' }}>
                   {initials}
                 </div>
-                <span className="text-[12px] font-bold text-gray-800 max-w-[64px] truncate leading-tight">
+                <span className="text-[12px] font-bold text-gray-800 max-w-[90px] truncate leading-tight">
                   {displayName}
                 </span>
               </Link>
@@ -400,10 +400,10 @@ function DesktopHeader() {
                   onClick={() => setUserMenuOpen((v) => !v)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white text-xs font-extrabold flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white font-extrabold flex-shrink-0" style={{ fontSize: 11, letterSpacing: '1.5px' }}>
                     {initials}
                   </div>
-                  <span className="text-sm font-bold text-gray-800 max-w-[120px] truncate">
+                  <span className="text-sm font-bold text-gray-800 max-w-[160px] truncate">
                     {displayName}
                   </span>
                 </button>
