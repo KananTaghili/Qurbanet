@@ -132,53 +132,53 @@ export default function RegisterPage() {
           <ArrowLeft size={18} />
         </Link>
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 460, margin: "0 auto", width: "100%", textAlign: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 420, margin: "0 auto", width: "100%", textAlign: "center" }}>
           {/* Logo */}
-          <div style={{ width: 192, height: 192, display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible" }}>
-            <Image src="/meatbox_icon.png" alt="MEATBOX.AZ loqosu" width={220} height={220} style={{ objectFit: "contain", transform: "scale(1.15)" }} />
+          <div style={{ width: 140, height: 140, display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible" }}>
+            <Image src="/meatbox_icon.png" alt="MEATBOX.AZ loqosu" width={160} height={160} style={{ objectFit: "contain" }} />
           </div>
 
           {/* Brand title */}
-          <h1 style={{ marginTop: 20, fontSize: "clamp(2.2rem,3.5vw,3.8rem)", fontWeight: 800, lineHeight: 1, letterSpacing: "-0.045em", color: "#fff" }}>
+          <h1 style={{ marginTop: 10, fontSize: "clamp(1.8rem,2.8vw,3rem)", fontWeight: 800, lineHeight: 1, letterSpacing: "-0.045em", color: "#fff" }}>
             MEAT<span style={{ color: "#ff1236" }}>BOX</span>
           </h1>
-          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, fontSize: "clamp(0.75rem,0.85vw,0.9rem)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.28em", color: "rgba(255,255,255,0.8)" }}>
+          <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: "clamp(0.65rem,0.75vw,0.8rem)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.25em", color: "rgba(255,255,255,0.8)" }}>
             <span>Etibarlı</span>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#7c2dca", display: "inline-block" }} />
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#7c2dca", display: "inline-block" }} />
             <span>Halal</span>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#24b34b", display: "inline-block" }} />
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#24b34b", display: "inline-block" }} />
             <span>Sürətli</span>
           </div>
 
           {/* Feature cards */}
-          <div style={{ marginTop: 36, display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
+          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
             {features.map(({ title, text, icon, iconWrap }) => (
               <div key={title} style={{
-                display: "flex", alignItems: "center", gap: 14,
-                borderRadius: 20, border: "1px solid rgba(255,255,255,0.12)",
+                display: "flex", alignItems: "center", gap: 12,
+                borderRadius: 16, border: "1px solid rgba(255,255,255,0.12)",
                 background: "rgba(255,255,255,0.075)",
-                padding: "12px 16px",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 12px 40px rgba(0,0,0,0.15)",
+                padding: "10px 14px",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 24px rgba(0,0,0,0.12)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
               }}>
-                <div style={{ width: 48, height: 48, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 28px rgba(0,0,0,0.14)", ...iconWrap }}>
-                  <Image src={icon} alt={title} width={28} height={28} style={{ objectFit: "contain" }} />
+                <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", ...iconWrap }}>
+                  <Image src={icon} alt={title} width={22} height={22} style={{ objectFit: "contain" }} />
                 </div>
                 <div style={{ flex: 1, textAlign: "left" }}>
-                  <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-0.02em" }}>{title}</div>
-                  <div style={{ marginTop: 2, fontSize: 13, color: "rgba(255,255,255,0.75)" }}>{text}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.02em" }}>{title}</div>
+                  <div style={{ marginTop: 1, fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{text}</div>
                 </div>
-                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.7)" }}>
-                  <ArrowRight size={16} />
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.7)" }}>
+                  <ArrowRight size={14} />
                 </div>
               </div>
             ))}
           </div>
 
           {/* Footer tagline */}
-          <div style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.22em", color: "#fff" }}>
-            <ShieldCheck size={16} />
+          <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.2em", color: "#fff" }}>
+            <ShieldCheck size={14} />
             <span>Təmiz ət</span>
             <span style={{ color: "#7c2dca" }}>•</span>
             <span>Təmiz niyyət</span>
@@ -192,20 +192,6 @@ export default function RegisterPage() {
       <section style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
         className="min-h-screen lg:min-h-0 lg:h-screen"
       >
-        {/* Mobile back button */}
-        <Link
-          href="/"
-          className="lg:hidden"
-          style={{
-            position: "absolute", top: 16, left: 16,
-            width: 36, height: 36, borderRadius: 12,
-            background: "rgba(255,255,255,0.15)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff",
-          }}
-        >
-          <ArrowLeft size={18} />
-        </Link>
 
         <div style={{
           width: "100%",

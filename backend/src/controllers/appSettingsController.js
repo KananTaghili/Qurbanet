@@ -92,7 +92,13 @@ const updateSettings = async (req, res) => {
       if (!Number.isNaN(days) && days >= 1) settings.maxSlaughterDays = Math.floor(days);
     }
 
-    if (multiLanguageEnabled !== undefined) {
+    if (Array.isArray(enabledLanguages)) {
+      const valid = enabledLanguages.filter(l => ['az', 'en', 'ru'].includes(l));
+      if (!valid.includes('az')) valid.unshift('az');
+      settings.enabledLanguages = valid;
+      settings.markModified('enabledLanguages');
+      settings.multiLanguageEnabled = valid.length > 1;
+    } else if (multiLanguageEnabled !== undefined) {
       settings.multiLanguageEnabled = Boolean(multiLanguageEnabled);
     }
 
