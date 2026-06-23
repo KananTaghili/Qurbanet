@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, Phone, Mail, KeyRound, ArrowLeft, ArrowRight, Leaf, Heart, Star } from "lucide-react";
+import { Eye, EyeOff, Phone, Mail, KeyRound, ArrowLeft, ArrowRight } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
@@ -177,15 +177,8 @@ export default function LoginPage() {
 
           {/* Footer tagline */}
           <div style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
-            {[
-              { icon: <Leaf size={14} />, label: "Təmiz ət" },
-              { icon: <Heart size={14} />, label: "Təmiz niyyət" },
-              { icon: <Star size={14} />, label: "Təmiz xidmət" },
-            ].map(({ icon, label }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ color: "rgba(255,255,255,0.75)", display: "flex" }}>{icon}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
-              </div>
+            {["Təmiz ət", "Təmiz niyyət", "Təmiz xidmət"].map((label) => (
+              <span key={label} style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
             ))}
           </div>
         </div>
