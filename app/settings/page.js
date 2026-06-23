@@ -61,14 +61,13 @@ function PwInput({ value, onChange, placeholder, show, onToggle, name, autoCompl
 }
 
 /* ── Card shell ───────────────────────────────────── */
-function Card({ children, stretch }) {
+function Card({ children }) {
   return (
     <div style={{
       background: "#fff", borderRadius: 18,
       border: "1px solid #f0f0f0",
       boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
       overflow: "hidden",
-      ...(stretch ? { display: "flex", flexDirection: "column", flex: 1 } : {}),
     }}>
       {children}
     </div>
@@ -112,7 +111,7 @@ function InfoRow({ icon: Icon, label, value }) {
 }
 
 /* ── Account card ────────────────────────────────── */
-function AccountCard({ user, updateUser, stretch }) {
+function AccountCard({ user, updateUser }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user.name || "");
   const [lastName, setLastName] = useState(user.lastName || "");
@@ -141,7 +140,7 @@ function AccountCard({ user, updateUser, stretch }) {
   const handleCancel = () => { setName(user.name || ""); setLastName(user.lastName || ""); setError(""); setEditing(false); };
 
   return (
-    <Card stretch={stretch}>
+    <Card>
       <CardHead
         icon={User} title="Hesab məlumatları" sub="Ad, soyad, əlaqə"
         action={!editing && (
@@ -207,7 +206,7 @@ function AccountCard({ user, updateUser, stretch }) {
 }
 
 /* ── Password card ───────────────────────────────── */
-function PasswordCard({ stretch }) {
+function PasswordCard() {
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -235,7 +234,7 @@ function PasswordCard({ stretch }) {
   };
 
   return (
-    <Card stretch={stretch}>
+    <Card>
       <CardHead icon={Shield} title="Şifrəni dəyiş" sub="Güclü şifrə istifadə edin" />
       <form onSubmit={handleSubmit} autoComplete="off" style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
         {[
@@ -362,15 +361,13 @@ export default function SettingsPage() {
           </div>
 
           {/* ── Desktop: 2-col ── */}
-          <div className="settings-desktop" style={{ gap: 16, alignItems: "stretch" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14, height: "100%" }}>
-              <div style={{ flex: 1, minHeight: 0, overflow: "auto", borderRadius: 18 }}>
-                <AccountCard user={user} updateUser={updateUser} />
-              </div>
+          <div className="settings-desktop" style={{ gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <AccountCard user={user} updateUser={updateUser} />
               <LogoutBtn onLogout={handleLogout} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <PasswordCard stretch />
+            <div>
+              <PasswordCard />
             </div>
           </div>
 
