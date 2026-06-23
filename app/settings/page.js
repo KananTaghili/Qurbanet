@@ -61,13 +61,14 @@ function PwInput({ value, onChange, placeholder, show, onToggle, name, autoCompl
 }
 
 /* ── Card shell ───────────────────────────────────── */
-function Card({ children }) {
+function Card({ children, stretch }) {
   return (
     <div style={{
       background: "#fff", borderRadius: 18,
       border: "1px solid #f0f0f0",
       boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
       overflow: "hidden",
+      ...(stretch ? { display: "flex", flexDirection: "column", flex: 1 } : {}),
     }}>
       {children}
     </div>
@@ -206,7 +207,7 @@ function AccountCard({ user, updateUser }) {
 }
 
 /* ── Password card ───────────────────────────────── */
-function PasswordCard() {
+function PasswordCard({ stretch }) {
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -234,7 +235,7 @@ function PasswordCard() {
   };
 
   return (
-    <Card>
+    <Card stretch={stretch}>
       <CardHead icon={Shield} title="Şifrəni dəyiş" sub="Güclü şifrə istifadə edin" />
       <form onSubmit={handleSubmit} autoComplete="off" style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
         {[
@@ -361,13 +362,13 @@ export default function SettingsPage() {
           </div>
 
           {/* ── Desktop: 2-col ── */}
-          <div className="settings-desktop" style={{ gap: 16 }}>
+          <div className="settings-desktop" style={{ gap: 16, alignItems: "stretch" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <AccountCard user={user} updateUser={updateUser} />
               <LogoutBtn onLogout={handleLogout} />
             </div>
-            <div>
-              <PasswordCard />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <PasswordCard stretch />
             </div>
           </div>
 
