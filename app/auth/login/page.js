@@ -141,8 +141,18 @@ export default function LoginPage() {
             <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={200} height={154} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
           </div>
 
+          {/* Slogan below logo */}
+          <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+              <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.75)" }}>{t}</span>
+                {i < 2 && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.5)", display: "inline-block" }} />}
+              </span>
+            ))}
+          </div>
+
           {/* Feature cards */}
-          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
             {features.map(({ title, text, icon, iconWrap }) => (
               <div key={title} style={{
                 display: "flex", alignItems: "center", gap: 12,
@@ -165,12 +175,9 @@ export default function LoginPage() {
           </div>
 
           {/* Footer tagline */}
-          <div style={{ marginTop: 16, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
-              <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.75)" }}>{t}</span>
-                {i < 2 && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.5)", display: "inline-block" }} />}
-              </span>
+          <div style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
+            {["Təmiz ət", "Təmiz niyyət", "Təmiz xidmət"].map((label) => (
+              <span key={label} style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
             ))}
           </div>
         </div>
