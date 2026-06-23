@@ -363,8 +363,10 @@ export default function SettingsPage() {
 
           {/* ── Desktop: 2-col ── */}
           <div className="settings-desktop" style={{ gap: 16, alignItems: "stretch" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <AccountCard user={user} updateUser={updateUser} stretch />
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, height: "100%" }}>
+              <div style={{ flex: 1, minHeight: 0, overflow: "auto", borderRadius: 18 }}>
+                <AccountCard user={user} updateUser={updateUser} />
+              </div>
               <LogoutBtn onLogout={handleLogout} />
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
