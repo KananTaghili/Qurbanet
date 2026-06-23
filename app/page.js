@@ -146,7 +146,7 @@ function MobileHeader() {
   const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
 
   const displayName = !isGuest ? [user?.name, user?.lastName].filter(Boolean).join(" ") : null;
-  const initials = user?.name?.[0]?.toUpperCase() || "";
+  const initials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "";
 
   return (
     <>
@@ -364,7 +364,7 @@ function DesktopHeader() {
   const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
 
   const displayName = !isGuest ? [user?.name, user?.lastName].filter(Boolean).join(" ") : null;
-  const initials = user?.name?.[0]?.toUpperCase() || "";
+  const initials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "";
 
   const handleLogout = async () => {
     setUserMenuOpen(false);
