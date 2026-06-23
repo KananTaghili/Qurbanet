@@ -187,8 +187,8 @@ export default function OtpPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 420, margin: '0 auto', width: '100%', textAlign: 'center' }}>
             {/* Logo (includes MEATBOX text) */}
-            <div style={{ width: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={260} height={200} style={{ objectFit: 'contain', width: '100%', height: 'auto' }} />
+            <div style={{ width: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={200} height={154} style={{ objectFit: 'contain', width: '100%', height: 'auto' }} />
             </div>
 
             {/* Slogan */}
