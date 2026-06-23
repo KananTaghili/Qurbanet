@@ -188,8 +188,8 @@ export default function LoginPage() {
         className="min-h-screen lg:min-h-0 lg:h-screen"
       >
         {/* Mobile branding — above card, hidden on desktop */}
-        <div className="flex lg:hidden flex-col items-center">
-          <div style={{ width: 160 }}>
+        <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
+          <div className="auth-mobile-logo" style={{ width: 160 }}>
             <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ" width={160} height={123} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
           </div>
           <div style={{ marginTop: 8, display: "flex", gap: 6, alignItems: "center" }}>
@@ -372,6 +372,13 @@ export default function LoginPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @media (min-width: 1024px) {
           .auth-grid-cols { grid-template-columns: 1.22fr 0.78fr !important; }
+        }
+        @media (max-height: 720px) and (max-width: 1023px) {
+          .auth-mobile-logo { width: 110px !important; }
+          .auth-mobile-brand { gap: 4px !important; }
+        }
+        @media (max-height: 620px) and (max-width: 1023px) {
+          .auth-mobile-brand { display: none !important; }
         }
       `}</style>
     </main>
