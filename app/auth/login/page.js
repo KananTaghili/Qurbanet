@@ -184,9 +184,23 @@ export default function LoginPage() {
       </section>
 
       {/* Right panel — form */}
-      <section style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px", gap: 20 }}
         className="min-h-screen lg:min-h-0 lg:h-screen"
       >
+        {/* Mobile branding — above card, hidden on desktop */}
+        <div className="flex lg:hidden flex-col items-center">
+          <div style={{ width: 160 }}>
+            <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ" width={160} height={123} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
+          </div>
+          <div style={{ marginTop: 8, display: "flex", gap: 6, alignItems: "center" }}>
+            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+              <span key={t} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.85)" }}>{t}</span>
+                {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.5)", display: "inline-block" }} />}
+              </span>
+            ))}
+          </div>
+        </div>
 
         <div style={{
           width: "100%",
