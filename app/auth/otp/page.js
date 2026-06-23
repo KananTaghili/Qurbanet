@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
 
@@ -140,73 +141,130 @@ export default function OtpPage() {
   };
 
   const subtitle = identifierType === 'email'
-    ? 'unvanina gonderilen 4 rəqəmli kodu daxil edin.'
-    : 'nomresine gonderilen 4 rəqəmli kodu daxil edin.';
+    ? 'ünvanına göndərilən 4 rəqəmli kodu daxil edin.'
+    : 'nömrəsinə göndərilən 4 rəqəmli kodu daxil edin.';
 
   return (
     <>
       <main
-        style={{ minHeight: '100vh', background: '#241331', display: 'grid', gridTemplateColumns: '1fr', fontFamily: "'Manrope', sans-serif", position: 'relative' }}
+        style={{
+          minHeight: '100vh',
+          background: '#241331',
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          fontFamily: "'Manrope', sans-serif",
+          position: 'relative',
+          overflow: 'hidden',
+        }}
         className="lg:grid lg:h-screen auth-grid-cols-otp"
       >
+        {/* Background */}
         <Image
           src="/auth_bg.jpg"
           alt=""
           fill
-          style={{ objectFit: 'cover', objectPosition: 'center', opacity: 0.45, zIndex: 0 }}
+          style={{ objectFit: 'cover', objectPosition: 'center', opacity: 0.55, zIndex: 0 }}
           priority
         />
 
-        <div
-          className="hidden lg:flex flex-col items-center justify-center px-10"
-          style={{ position: 'relative', zIndex: 1 }}
+        {/* ── Left panel (desktop only) ── */}
+        <section
+          className="hidden lg:flex flex-col justify-center px-[6vw] py-[4vh] min-h-screen"
+          style={{ position: 'relative', zIndex: 1, color: '#fff' }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28, textAlign: 'center' }}>
-            <div style={{ width: 88, height: 88, borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.35)', border: '2px solid rgba(255,255,255,0.18)', flexShrink: 0 }}>
-              <Image src="/meatbox_icon.png" alt="MeatBox" width={88} height={88} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <Link
+            href="/"
+            style={{
+              position: 'absolute', top: 20, left: 20,
+              width: 36, height: 36, borderRadius: 12,
+              background: 'rgba(255,255,255,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff',
+            }}
+          >
+            <ArrowLeft size={18} />
+          </Link>
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 420, margin: '0 auto', width: '100%', textAlign: 'center' }}>
+            {/* Logo — no border, like login/register */}
+            <div style={{ width: 140, height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
+              <Image src="/meatbox_icon.png" alt="MEATBOX.AZ loqosu" width={160} height={160} style={{ objectFit: 'contain' }} />
             </div>
-            <div>
-              <div style={{ fontSize: 48, fontWeight: 900, color: '#fff', letterSpacing: '-1px', lineHeight: 1, fontStyle: 'italic' }}>
-                Meat<span style={{ color: '#f20b32' }}>Box</span>
-              </div>
-              <div style={{ fontSize: 15, marginTop: 10, color: 'rgba(255,255,255,0.62)', lineHeight: 1.5, maxWidth: 220 }}>
-                Premium ət çatdırılması platforması
-              </div>
+
+            {/* Brand title */}
+            <h1 style={{ marginTop: 10, fontSize: 'clamp(1.8rem,2.8vw,3rem)', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.045em', color: '#fff' }}>
+              MEAT<span style={{ color: '#ff1236' }}>BOX</span>
+            </h1>
+            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, fontSize: 'clamp(0.65rem,0.75vw,0.8rem)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.25em', color: 'rgba(255,255,255,0.8)' }}>
+              <span>Etibarlı</span>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', display: 'inline-block', opacity: 0.6 }} />
+              <span>Halal</span>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', display: 'inline-block', opacity: 0.6 }} />
+              <span>Sürətli</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+
+            <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap' }}>
               {['Təmiz ət', 'Təmiz niyyət', 'Təmiz xidmət'].map((label) => (
                 <span key={label} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{label}</span>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
-          <div style={{ background: '#fff', borderRadius: 24, padding: '36px 32px', width: '100%', maxWidth: 400, boxShadow: '0 24px 64px rgba(0,0,0,0.22)', position: 'relative' }}>
+        {/* ── Right panel — form ── */}
+        <section
+          style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          className="min-h-screen lg:min-h-0 lg:h-screen"
+        >
+          <div style={{
+            width: '100%',
+            maxWidth: 380,
+            borderRadius: 20,
+            border: '1px solid rgba(255,255,255,0.6)',
+            background: 'rgba(255,255,255,0.97)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            boxShadow: '0 24px 90px rgba(15,23,42,0.16)',
+            padding: '24px 28px 28px',
+            fontFamily: "'Manrope', sans-serif",
+          }}>
 
-            <button
-              type="button"
-              onClick={handleBack}
-              style={{ position: 'absolute', top: 20, left: 20, width: 36, height: 36, borderRadius: 12, background: '#f5f5f7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#241331' }}
-              aria-label="Geri qayıt"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
-
-            <div className="flex lg:hidden" style={{ justifyContent: 'center', marginBottom: 20, marginTop: 8 }}>
-              <div style={{ width: 52, height: 52, borderRadius: 14, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}>
-                <Image src="/meatbox_icon.png" alt="MeatBox" width={52} height={52} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {/* ── Mobile branding (hidden on desktop) ── */}
+            <div className="flex lg:hidden" style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
+                <Image src="/meatbox_icon.png" alt="MEATBOX" width={72} height={72} style={{ objectFit: 'contain' }} />
+              </div>
+              <div style={{ marginTop: 6, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em', color: '#111827' }}>
+                MEAT<span style={{ color: '#ff1236' }}>BOX</span>
               </div>
             </div>
 
-            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#111827', marginBottom: 6 }}>Kodu daxil edin</h2>
-            <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 24, lineHeight: 1.5 }}>
+            {/* ── Back + Title row ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <button
+                type="button"
+                onClick={handleBack}
+                style={{
+                  width: 34, height: 34, borderRadius: 10,
+                  background: '#f5f5f7', border: 'none',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#241331', flexShrink: 0,
+                }}
+                aria-label="Geri qayıt"
+              >
+                <ArrowLeft size={17} strokeWidth={2.5} />
+              </button>
+              <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.04em', color: '#111827', margin: 0 }}>
+                Kodu daxil edin
+              </h2>
+            </div>
+
+            <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 20, lineHeight: 1.55, paddingLeft: 44 }}>
               <strong style={{ color: '#241331' }}>{identifier}</strong>{' '}{subtitle}
             </p>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* OTP inputs */}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }} onPaste={handlePaste}>
                 {code.map((d, i) => (
                   <input
@@ -218,14 +276,16 @@ export default function OtpPage() {
                     value={d}
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
+                    autoComplete="one-time-code"
                     style={{
-                      width: 64, height: 68, textAlign: 'center', fontSize: 26, fontWeight: 700,
+                      width: 60, height: 64, textAlign: 'center', fontSize: 24, fontWeight: 700,
                       border: d ? '2px solid #c8102e' : '2px solid #e5e7eb',
                       borderRadius: 14, outline: 'none',
                       background: d ? '#fff5f5' : '#f9fafb',
                       color: d ? '#c8102e' : '#111827',
                       transition: 'border-color 0.15s, background 0.15s',
                       fontFamily: 'inherit',
+                      flexShrink: 0,
                     }}
                     autoFocus={i === 0}
                   />
@@ -235,48 +295,56 @@ export default function OtpPage() {
               {!isLogin && (
                 <>
                   <div>
-                    <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6, display: 'block' }}>Ad *</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Ad *</label>
                     <input
                       ref={nameRef}
                       type="text"
+                      name="given-name"
+                      autoComplete="given-name"
                       value={name}
                       onChange={(e) => { setName(e.target.value); setError(''); }}
                       placeholder="Məsələn: Əli"
                       autoCapitalize="words"
                       maxLength={60}
-                      style={{ width: '100%', height: 48, border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
+                      style={{ width: '100%', height: 44, border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                     />
                   </div>
+
                   <div>
-                    <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6, display: 'block' }}>Soyad</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Soyad</label>
                     <input
                       type="text"
+                      name="family-name"
+                      autoComplete="family-name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Məsələn: Hüseynov"
                       autoCapitalize="words"
                       maxLength={60}
-                      style={{ width: '100%', height: 48, border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
+                      style={{ width: '100%', height: 44, border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                     />
                   </div>
+
                   <div>
-                    <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6, display: 'block' }}>Şifrə *</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Şifrə *</label>
                     <div style={{ position: 'relative' }}>
                       <input
                         ref={passwordRef}
                         type={showPassword ? 'text' : 'password'}
+                        name="new-password"
+                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => { setPassword(e.target.value); setError(''); }}
                         placeholder="Ən az 6 simvol"
                         maxLength={128}
-                        style={{ width: '100%', height: 48, border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '0 44px 0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
+                        style={{ width: '100%', height: 44, border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 44px 0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center' }}
+                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center', padding: 0 }}
                       >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                       </button>
                     </div>
                   </div>
@@ -284,7 +352,7 @@ export default function OtpPage() {
               )}
 
               {error && (
-                <div style={{ background: '#fef2f2', color: '#b91c1c', fontSize: 13, fontWeight: 600, padding: '12px 16px', borderRadius: 12 }}>
+                <div style={{ background: '#fef2f2', color: '#b91c1c', fontSize: 12, fontWeight: 600, padding: '10px 14px', borderRadius: 10 }}>
                   {error}
                 </div>
               )}
@@ -299,11 +367,19 @@ export default function OtpPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{ width: '100%', height: 50, borderRadius: 14, background: loading ? '#e5e7eb' : '#c8102e', color: '#fff', fontSize: 15, fontWeight: 800, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s' }}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    height: 44, width: '100%', borderRadius: 14, border: 'none',
+                    background: loading ? '#9ca3af' : '#f20b32',
+                    color: '#fff', fontSize: 14, fontWeight: 800,
+                    boxShadow: loading ? 'none' : '0 10px 20px rgba(242,11,50,0.15)',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    fontFamily: 'inherit',
+                  }}
                 >
                   {loading ? (
                     <>
-                      <span style={{ width: 16, height: 16, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                      <span style={{ width: 15, height: 15, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
                       Yoxlanılır...
                     </>
                   ) : 'Təsdiq et'}
@@ -313,13 +389,13 @@ export default function OtpPage() {
               <button
                 type="button"
                 onClick={() => router.push(isLogin ? '/auth/login' : '/auth/register')}
-                style={{ width: '100%', textAlign: 'center', fontSize: 13, color: '#6b7280', padding: '4px 0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ width: '100%', textAlign: 'center', fontSize: 12, color: '#6b7280', padding: '2px 0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {identifierType === 'email' ? '← Email ünvanını dəyiş' : '← Telefon nömrəsini dəyiş'}
               </button>
             </form>
           </div>
-        </div>
+        </section>
       </main>
 
       <style>{`
@@ -331,6 +407,3 @@ export default function OtpPage() {
     </>
   );
 }
-
-
-
