@@ -293,16 +293,15 @@ export default function ForgotPasswordPage() {
                 <form onSubmit={handleSend} className="flex flex-col gap-4">
                   {mode === "phone" ? (
                     <div>
-                      <label className="text-sm font-semibold text-text-primary mb-2 block">Telefon Nömrəsi *</label>
-                      <div className="flex items-center gap-2 bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 focus-within:border-primary focus-within:bg-surface transition-all">
-                        <span className="text-2xl flex-shrink-0">🇦🇿</span>
-                        <span className="text-text-secondary font-semibold text-sm flex-shrink-0">+994</span>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Telefon Nömrəsi *</label>
+                      <div style={{ display: "flex", overflow: "hidden", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff" }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 12px", borderRight: "1px solid #e5e7eb", fontSize: 13, fontWeight: 800, color: "#c8102e", whiteSpace: "nowrap", flexShrink: 0 }}>AZ +994</span>
                         <input
                           type="tel"
                           value={phone}
                           onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
                           placeholder="50 123 45 67"
-                          className="flex-1 bg-transparent text-[17px] text-text-primary outline-none font-semibold tracking-wider"
+                          style={{ height: 44, flex: 1, background: "transparent", border: "none", outline: "none", padding: "0 14px", fontSize: 15, fontWeight: 500, color: "#111827", fontFamily: "inherit" }}
                           autoFocus
                           inputMode="numeric"
                         />

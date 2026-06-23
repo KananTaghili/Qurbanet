@@ -247,13 +247,13 @@ export default function RegisterPage() {
               <label style={{ display: "block" }}>
                 <span style={{ display: "block", marginBottom: 2, fontSize: 12, fontWeight: 800, color: "#1f2937" }}>Telefon nömrəsi</span>
                 <div style={{ display: "flex", overflow: "hidden", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff" }}>
-                  <span style={{ display: "flex", minWidth: 56, alignItems: "center", justifyContent: "center", borderRight: "1px solid #e5e7eb", fontSize: 12, fontWeight: 800, color: "#c8102e" }}>AZ</span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 12px", borderRight: "1px solid #e5e7eb", fontSize: 13, fontWeight: 800, color: "#c8102e", whiteSpace: "nowrap", flexShrink: 0 }}>AZ +994</span>
                   <input
                     type="tel"
                     value={phone}
                     onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
-                    placeholder="+994   50 123 45 67"
-                    style={{ height: 40, flex: 1, background: "transparent", border: "none", outline: "none", padding: "0 20px", fontSize: 14, fontWeight: 500, color: "#374151", fontFamily: "inherit" }}
+                    placeholder="50 123 45 67"
+                    style={{ height: 40, flex: 1, background: "transparent", border: "none", outline: "none", padding: "0 14px", fontSize: 14, fontWeight: 500, color: "#374151", fontFamily: "inherit" }}
                     autoFocus
                     inputMode="numeric"
                   />
