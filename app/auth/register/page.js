@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, ArrowRight, ArrowLeft, MessageSquare } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
 const formatPhone = (val) => {
@@ -37,6 +38,7 @@ const features = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { isGuest, isLoading: authLoading } = useAuth();
   const [mode, setMode] = useState("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -45,6 +47,10 @@ export default function RegisterPage() {
   const abortRef = useRef(null);
 
   useEffect(() => () => { abortRef.current?.abort(); }, []);
+
+  useEffect(() => {
+    if (!authLoading && !isGuest) router.replace("/");
+  }, [authLoading, isGuest, router]);
 
   const switchMode = (m) => { setMode(m); setError(""); setPhone(""); setEmail(""); };
 

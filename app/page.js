@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X, ArrowRight, Play, ShieldCheck, Video, Truck, Heart, Phone, Mail, User, Menu, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, ArrowRight, Play, ShieldCheck, Video, Truck, Heart, Phone, Mail, User, Menu, ShoppingCart, LogOut } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { PiKnife } from "react-icons/pi";
 import { TbMeat, TbHeartHandshake } from "react-icons/tb";
@@ -139,7 +141,13 @@ function VideoModal({ video, onClose }) {
 ═══════════════════════════════════════════════════════════════ */
 function MobileHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, isGuest, logout } = useAuth();
+  const router = useRouter();
   const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
+
+  const displayName = !isGuest ? [user?.name, user?.lastName].filter(Boolean).join(" ") : null;
+  const initials = user?.name?.[0]?.toUpperCase() || "";
+
   return (
     <>
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
@@ -164,9 +172,20 @@ function MobileHeader() {
             </Link>
 
             {/* User — RIGHT */}
-            <Link href="/auth/login" className="p-1.5 text-gray-700 shrink-0">
-              <User size={22} />
-            </Link>
+            {isGuest ? (
+              <Link href="/auth/login" className="p-1.5 text-gray-700 shrink-0">
+                <User size={22} />
+              </Link>
+            ) : (
+              <Link href="/settings" className="flex items-center gap-1.5 shrink-0 px-1">
+                <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white text-xs font-extrabold flex-shrink-0">
+                  {initials}
+                </div>
+                <span className="text-[12px] font-bold text-gray-800 max-w-[64px] truncate leading-tight">
+                  {displayName}
+                </span>
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -339,7 +358,20 @@ function MobileBottomNav() {
 ═══════════════════════════════════════════════════════════════ */
 function DesktopHeader() {
   const [open, setOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { user, isGuest, logout } = useAuth();
+  const router = useRouter();
   const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
+
+  const displayName = !isGuest ? [user?.name, user?.lastName].filter(Boolean).join(" ") : null;
+  const initials = user?.name?.[0]?.toUpperCase() || "";
+
+  const handleLogout = async () => {
+    setUserMenuOpen(false);
+    await logout();
+    router.push("/");
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto px-4">
@@ -357,10 +389,50 @@ function DesktopHeader() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/auth/login" className="flex items-center gap-1.5 text-sm font-medium text-white bg-green-700 hover:bg-green-800 px-4 py-2 rounded-xl transition-colors">
-              <User size={14} strokeWidth={2.5} />
-              Daxil ol
-            </Link>
+            {isGuest ? (
+              <Link href="/auth/login" className="flex items-center gap-1.5 text-sm font-medium text-white bg-green-700 hover:bg-green-800 px-4 py-2 rounded-xl transition-colors">
+                <User size={14} strokeWidth={2.5} />
+                Daxil ol
+              </Link>
+            ) : (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white text-xs font-extrabold flex-shrink-0">
+                    {initials}
+                  </div>
+                  <span className="text-sm font-bold text-gray-800 max-w-[120px] truncate">
+                    {displayName}
+                  </span>
+                </button>
+
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 min-w-[180px] py-1 overflow-hidden">
+                      <Link
+                        href="/settings"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <User size={15} className="text-gray-500" />
+                        Hesabım
+                      </Link>
+                      <div className="h-px bg-gray-100 mx-3" />
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors border-none bg-transparent cursor-pointer"
+                      >
+                        <LogOut size={15} />
+                        Çıxış
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           <button className="md:hidden p-2 text-gray-700" onClick={() => setOpen(!open)}>

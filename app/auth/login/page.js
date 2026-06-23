@@ -38,7 +38,7 @@ const features = [
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isGuest, isLoading: authLoading } = useAuth();
   const [mode, setMode] = useState("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -49,6 +49,10 @@ export default function LoginPage() {
   const abortRef = useRef(null);
 
   useEffect(() => () => { abortRef.current?.abort(); }, []);
+
+  useEffect(() => {
+    if (!authLoading && !isGuest) router.replace("/");
+  }, [authLoading, isGuest, router]);
 
   const switchMode = (m) => { setMode(m); setError(""); setPhone(""); setEmail(""); };
 
