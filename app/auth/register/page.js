@@ -4,10 +4,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, ArrowRight, ArrowLeft, MessageSquare, Leaf, Heart, Star } from "lucide-react";
-
-const LeafIcon = () => <Leaf size={15} />;
-const HeartIcon = () => <Heart size={15} />;
-const StarIcon = () => <Star size={15} />;
 import api from "../../../lib/api";
 
 const formatPhone = (val) => {
@@ -181,15 +177,15 @@ export default function RegisterPage() {
           </div>
 
           {/* Footer tagline */}
-          <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
+          <div style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
             {[
-              { icon: <LeafIcon />, label: "Təmiz ət" },
-              { icon: <HeartIcon />, label: "Təmiz niyyət" },
-              { icon: <StarIcon />, label: "Təmiz xidmət" },
+              { icon: <Leaf size={14} />, label: "Təmiz ət" },
+              { icon: <Heart size={14} />, label: "Təmiz niyyət" },
+              { icon: <Star size={14} />, label: "Təmiz xidmət" },
             ].map(({ icon, label }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 14px", borderRadius: 12, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <span style={{ color: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", flexShrink: 0 }}>{icon}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", letterSpacing: "0.05em", textTransform: "uppercase" }}>{label}</span>
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ color: "rgba(255,255,255,0.75)", display: "flex" }}>{icon}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
               </div>
             ))}
           </div>
