@@ -136,21 +136,9 @@ export default function LoginPage() {
         </Link>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 420, margin: "0 auto", width: "100%", textAlign: "center" }}>
-          {/* Logo */}
-          <div style={{ width: 140, height: 140, display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible" }}>
-            <Image src="/meatbox_icon.png" alt="MEATBOX.AZ loqosu" width={160} height={160} style={{ objectFit: "contain" }} />
-          </div>
-
-          {/* Brand title */}
-          <h1 style={{ marginTop: 10, fontSize: "clamp(1.8rem,2.8vw,3rem)", fontWeight: 800, lineHeight: 1, letterSpacing: "-0.045em", color: "#fff" }}>
-            MEAT<span style={{ color: "#ff1236" }}>BOX</span>
-          </h1>
-          <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: "clamp(0.65rem,0.75vw,0.8rem)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.25em", color: "rgba(255,255,255,0.8)" }}>
-            <span>Etibarlı</span>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block", opacity: 0.6 }} />
-            <span>Halal</span>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block", opacity: 0.6 }} />
-            <span>Sürətli</span>
+          {/* Logo (includes MEATBOX text) */}
+          <div style={{ width: 260, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={260} height={200} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
           </div>
 
           {/* Feature cards */}
