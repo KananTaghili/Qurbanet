@@ -169,9 +169,6 @@ export default function RegisterPage() {
                   <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.02em" }}>{title}</div>
                   <div style={{ marginTop: 1, fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{text}</div>
                 </div>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.7)" }}>
-                  <ArrowRight size={14} />
-                </div>
               </div>
             ))}
           </div>
