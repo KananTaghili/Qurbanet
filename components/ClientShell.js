@@ -8,7 +8,7 @@ import Topbar from "./Topbar";
 
 export default function ClientShell({ children }) {
   const pathname = usePathname();
-  const isLanding = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/charity");
+  const isLanding = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/charity") || pathname.startsWith("/settings");
   const isHome = pathname === "/qurban";
   const { isLoading: authLoading } = useAuth();
   const { isReady: settingsReady } = useLanguage();
