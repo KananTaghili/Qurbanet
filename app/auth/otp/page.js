@@ -1,5 +1,5 @@
-'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
+﻿'use client';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Eye, EyeOff } from 'lucide-react';
@@ -47,7 +47,6 @@ export default function OtpPage() {
       inputs.current[i + 1]?.focus();
     } else if (digit && i === 3) {
       if (isLogin) {
-        // Auto-submit on last digit for login
         handleSubmit(null, next.join(''));
       } else {
         nameRef.current?.focus();
@@ -141,63 +140,73 @@ export default function OtpPage() {
   };
 
   const subtitle = identifierType === 'email'
-    ? `ünvanına göndərilən 4 rəqəmli kodu daxil edin.`
-    : `nömrəsinə göndərilən 4 rəqəmli kodu daxil edin.`;
+    ? 'unvanina gonderilen 4 rəqəmli kodu daxil edin.'
+    : 'nomresine gonderilen 4 rəqəmli kodu daxil edin.';
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="flex-1 flex flex-col lg:flex-row">
+    <>
+      <main
+        style={{ minHeight: '100vh', background: '#241331', display: 'grid', gridTemplateColumns: '1fr', fontFamily: "'Manrope', sans-serif", position: 'relative' }}
+        className="lg:grid lg:h-screen auth-grid-cols-otp"
+      >
+        <Image
+          src="/auth_bg.jpg"
+          alt=""
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center', opacity: 0.45, zIndex: 0 }}
+          priority
+        />
 
-        {/* ── Brand panel ── */}
         <div
-          className="relative flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
-          style={{ background: 'linear-gradient(160deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)' }}
+          className="hidden lg:flex flex-col items-center justify-center px-10"
+          style={{ position: 'relative', zIndex: 1 }}
         >
-          <button
-            type="button"
-            onClick={handleBack}
-            className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
-            style={{ background: 'rgba(255,255,255,0.18)', color: '#fff' }}
-            aria-label="Geri qayıt"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
-
-          <div className="flex flex-col items-center gap-5 text-center animate-fade-up">
-            <div
-              className="w-24 h-24 lg:w-32 lg:h-32 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.25)' }}
-            >
-              <Image src="/logo_test.png" alt="QurbanEt" width={128} height={128} className="w-full h-full object-cover" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28, textAlign: 'center' }}>
+            <div style={{ width: 88, height: 88, borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.35)', border: '2px solid rgba(255,255,255,0.18)', flexShrink: 0 }}>
+              <Image src="/meatbox_icon.png" alt="MeatBox" width={88} height={88} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-
             <div>
-              <div className="text-4xl lg:text-5xl font-black text-white italic leading-none">
-                Qurban<span style={{ color: '#86efac' }}>Et</span>
+              <div style={{ fontSize: 48, fontWeight: 900, color: '#fff', letterSpacing: '-1px', lineHeight: 1, fontStyle: 'italic' }}>
+                Meat<span style={{ color: '#f20b32' }}>Box</span>
               </div>
-              <div className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                İlahi qurbanınızı etibarla kəsdirin
+              <div style={{ fontSize: 15, marginTop: 10, color: 'rgba(255,255,255,0.62)', lineHeight: 1.5, maxWidth: 220 }}>
+                Premium ət çatdırılması platforması
               </div>
             </div>
-
-            <div className="text-[10px] font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              ETİBARLI · HALAL · SÜRƏTLİ
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {['Təmiz ət', 'Təmiz niyyət', 'Təmiz xidmət'].map((label) => (
+                <span key={label} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{label}</span>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* ── Form panel ── */}
-        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10 bg-surface">
-          <div className="w-full max-w-sm animate-fade-up">
-            <h2 className="text-2xl font-black text-text-primary mb-1">Kodu daxil edin</h2>
-            <p className="text-sm text-text-secondary mb-6 leading-5">
-              <strong>{identifier}</strong>{' '}{subtitle}
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+          <div style={{ background: '#fff', borderRadius: 24, padding: '36px 32px', width: '100%', maxWidth: 400, boxShadow: '0 24px 64px rgba(0,0,0,0.22)', position: 'relative' }}>
+
+            <button
+              type="button"
+              onClick={handleBack}
+              style={{ position: 'absolute', top: 20, left: 20, width: 36, height: 36, borderRadius: 12, background: '#f5f5f7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#241331' }}
+              aria-label="Geri qayıt"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <div className="flex lg:hidden" style={{ justifyContent: 'center', marginBottom: 20, marginTop: 8 }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}>
+                <Image src="/meatbox_icon.png" alt="MeatBox" width={52} height={52} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            </div>
+
+            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#111827', marginBottom: 6 }}>Kodu daxil edin</h2>
+            <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 24, lineHeight: 1.5 }}>
+              <strong style={{ color: '#241331' }}>{identifier}</strong>{' '}{subtitle}
             </p>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {/* 4-digit code boxes */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }} onPaste={handlePaste}>
                 {code.map((d, i) => (
                   <input
@@ -210,11 +219,11 @@ export default function OtpPage() {
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
                     style={{
-                      width: 64, height: 72, textAlign: 'center', fontSize: 28, fontWeight: 700,
-                      border: `2px solid ${d ? '#1B5E20' : '#E0E0E0'}`,
-                      borderRadius: 16, outline: 'none',
-                      background: d ? '#E8F5E9' : '#F8F9FA',
-                      color: d ? '#1B5E20' : '#111827',
+                      width: 64, height: 68, textAlign: 'center', fontSize: 26, fontWeight: 700,
+                      border: d ? '2px solid #c8102e' : '2px solid #e5e7eb',
+                      borderRadius: 14, outline: 'none',
+                      background: d ? '#fff5f5' : '#f9fafb',
+                      color: d ? '#c8102e' : '#111827',
                       transition: 'border-color 0.15s, background 0.15s',
                       fontFamily: 'inherit',
                     }}
@@ -223,52 +232,49 @@ export default function OtpPage() {
                 ))}
               </div>
 
-              {/* Register-only fields: name, surname, password */}
               {!isLogin && (
                 <>
                   <div>
-                    <label className="text-sm font-semibold text-text-primary mb-2 block">Ad *</label>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6, display: 'block' }}>Ad *</label>
                     <input
                       ref={nameRef}
                       type="text"
                       value={name}
                       onChange={(e) => { setName(e.target.value); setError(''); }}
                       placeholder="Məsələn: Əli"
-                      className="field-input"
                       autoCapitalize="words"
                       maxLength={60}
+                      style={{ width: '100%', height: 48, border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                     />
                   </div>
-
                   <div>
-                    <label className="text-sm font-semibold text-text-primary mb-2 block">Soyad</label>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6, display: 'block' }}>Soyad</label>
                     <input
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Məsələn: Hüseynov"
-                      className="field-input"
                       autoCapitalize="words"
                       maxLength={60}
+                      style={{ width: '100%', height: 48, border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                     />
                   </div>
-
                   <div>
-                    <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrə *</label>
-                    <div className="relative">
+                    <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6, display: 'block' }}>Şifrə *</label>
+                    <div style={{ position: 'relative' }}>
                       <input
                         ref={passwordRef}
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => { setPassword(e.target.value); setError(''); }}
                         placeholder="Ən az 6 simvol"
-                        className="field-input pr-10"
                         maxLength={128}
+                        style={{ width: '100%', height: 48, border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '0 44px 0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                        style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center' }}
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -278,25 +284,28 @@ export default function OtpPage() {
               )}
 
               {error && (
-                <div className="bg-red-50 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
+                <div style={{ background: '#fef2f2', color: '#b91c1c', fontSize: 13, fontWeight: 600, padding: '12px 16px', borderRadius: 12 }}>
                   {error}
                 </div>
               )}
 
-              {/* Login: show spinner while auto-submitting, or manual button */}
               {isLogin ? (
                 loading && (
-                  <div className="flex justify-center py-2">
-                    <span className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
+                    <span style={{ width: 28, height: 28, border: '3px solid #c8102e', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
                   </div>
                 )
               ) : (
-                <button type="submit" className="btn-primary" disabled={loading}>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{ width: '100%', height: 50, borderRadius: 14, background: loading ? '#e5e7eb' : '#c8102e', color: '#fff', fontSize: 15, fontWeight: 800, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s' }}
+                >
                   {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <>
+                      <span style={{ width: 16, height: 16, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
                       Yoxlanılır...
-                    </span>
+                    </>
                   ) : 'Təsdiq et'}
                 </button>
               )}
@@ -304,14 +313,24 @@ export default function OtpPage() {
               <button
                 type="button"
                 onClick={() => router.push(isLogin ? '/auth/login' : '/auth/register')}
-                className="w-full text-center text-sm text-text-secondary py-1 hover:text-primary transition-colors"
+                style={{ width: '100%', textAlign: 'center', fontSize: 13, color: '#6b7280', padding: '4px 0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
               >
-                ← {identifierType === 'email' ? 'Email ünvanını dəyiş' : 'Telefon nömrəsini dəyiş'}
+                {identifierType === 'email' ? '← Email ünvanını dəyiş' : '← Telefon nömrəsini dəyiş'}
               </button>
             </form>
           </div>
         </div>
-      </div>
-    </div>
+      </main>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (min-width: 1024px) {
+          .auth-grid-cols-otp { grid-template-columns: 1.22fr 0.78fr !important; }
+        }
+      `}</style>
+    </>
   );
 }
+
+
+
