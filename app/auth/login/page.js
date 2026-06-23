@@ -3,7 +3,11 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, Phone, Mail, KeyRound, ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Phone, Mail, KeyRound, ArrowLeft, ArrowRight, Leaf, Heart, Star } from "lucide-react";
+
+const LeafIcon = () => <Leaf size={15} />;
+const HeartIcon = () => <Heart size={15} />;
+const StarIcon = () => <Star size={15} />;
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
@@ -143,9 +147,9 @@ export default function LoginPage() {
           </h1>
           <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: "clamp(0.65rem,0.75vw,0.8rem)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.25em", color: "rgba(255,255,255,0.8)" }}>
             <span>Etibarlı</span>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#7c2dca", display: "inline-block" }} />
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block", opacity: 0.6 }} />
             <span>Halal</span>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#24b34b", display: "inline-block" }} />
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block", opacity: 0.6 }} />
             <span>Sürətli</span>
           </div>
 
@@ -176,13 +180,17 @@ export default function LoginPage() {
           </div>
 
           {/* Footer tagline */}
-          <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.2em", color: "#fff" }}>
-            <ShieldCheck size={14} />
-            <span>Təmiz ət</span>
-            <span style={{ color: "#7c2dca" }}>•</span>
-            <span>Təmiz niyyət</span>
-            <span style={{ color: "#ef1234" }}>•</span>
-            <span>Təmiz xidmət</span>
+          <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
+            {[
+              { icon: <LeafIcon />, label: "Təmiz ət" },
+              { icon: <HeartIcon />, label: "Təmiz niyyət" },
+              { icon: <StarIcon />, label: "Təmiz xidmət" },
+            ].map(({ icon, label }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 14px", borderRadius: 12, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <span style={{ color: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", flexShrink: 0 }}>{icon}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", letterSpacing: "0.05em", textTransform: "uppercase" }}>{label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -206,7 +214,7 @@ export default function LoginPage() {
         }}>
           {/* Heading */}
           <div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.045em", color: "#111827", margin: 0 }}>Xoş gəlmisiniz 👋</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.045em", color: "#111827", margin: 0 }}>Xoş gəlmisiniz</h2>
             <p style={{ marginTop: 4, fontSize: 12, color: "#6b7280" }}>Hesabınıza daxil olun və sifarişlərinizi idarə edin.</p>
           </div>
 
