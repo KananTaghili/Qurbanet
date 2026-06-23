@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Lock, User, Eye, EyeOff, Phone, Mail,
   CheckCircle, AlertCircle, LogOut, Pencil, X, ArrowLeft, Shield,
@@ -321,10 +322,8 @@ export default function SettingsPage() {
           <button onClick={() => router.back()} style={{ width: 36, height: 36, borderRadius: 10, background: "#f5f5f7", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#374151", flexShrink: 0 }}>
             <ArrowLeft size={18} strokeWidth={2.5} />
           </button>
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <span style={{ fontSize: 24, fontWeight: 900, letterSpacing: "-0.05em", color: "#111827", lineHeight: 1 }}>
-              MEAT<span style={{ color: RED }}>BOX</span><span style={{ color: "#9ca3af", fontSize: 16 }}>.AZ</span>
-            </span>
+          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+            <Image src="/meatbox logo right black.png" alt="MEATBOX.AZ" width={160} height={44} style={{ objectFit: "contain", height: 36, width: "auto" }} />
           </Link>
           <div style={{ width: 36 }} />
         </div>
@@ -358,10 +357,6 @@ export default function SettingsPage() {
               <div style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", marginTop: 3 }}>
                 {user.phone || user.email}
               </div>
-            </div>
-            <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "6px 12px", flexShrink: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.08em" }}>HESAB</div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>Aktiv</div>
             </div>
           </div>
 
