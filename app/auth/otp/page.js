@@ -191,6 +191,15 @@ export default function OtpPage() {
               <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={260} height={200} style={{ objectFit: 'contain', width: '100%', height: 'auto' }} />
             </div>
 
+            {/* Slogan */}
+            <div style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {['ETİBARLI', 'HALAL', 'SÜRƏTLİ'].map((t, i) => (
+                <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.75)' }}>{t}</span>
+                  {i < 2 && <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', display: 'inline-block' }} />}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
 

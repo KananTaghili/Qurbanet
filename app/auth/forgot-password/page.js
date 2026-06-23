@@ -223,16 +223,10 @@ export default function ForgotPasswordPage() {
         </button>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 420, margin: "0 auto", width: "100%", textAlign: "center" }}>
-          <div style={{ width: 140, height: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Image src="/meatbox_icon.png" alt="MEATBOX.AZ" width={160} height={160} style={{ objectFit: "contain" }} />
+          <div style={{ width: 260, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={260} height={200} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
           </div>
-          <h1 style={{ marginTop: 10, fontSize: "clamp(1.8rem,2.8vw,3rem)", fontWeight: 800, lineHeight: 1, letterSpacing: "-0.045em", color: "#fff" }}>
-            MEAT<span style={{ color: "#ff1236" }}>BOX</span>
-          </h1>
-          <div style={{ marginTop: 10, fontSize: 14, fontWeight: 600, lineHeight: 1.6, color: "rgba(255,255,255,0.9)" }}>
-            Şifrənizi bərpa edin
-          </div>
-          <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ marginTop: 16, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
             {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
               <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.75)" }}>{t}</span>
