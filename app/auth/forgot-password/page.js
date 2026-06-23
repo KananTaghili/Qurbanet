@@ -183,13 +183,26 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="flex-1 flex flex-col lg:flex-row">
+    <div style={{ minHeight: "100vh", overflow: "hidden", background: "#241331", fontFamily: "'Manrope', sans-serif", position: "relative" }}>
+      {/* Background image */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <Image
+          src="/auth_bg.jpg"
+          alt="Arxa fon"
+          fill
+          style={{ objectFit: "cover", objectPosition: "center", opacity: 0.55 }}
+          priority
+        />
+      </div>
+
+      <div style={{ position: "relative", zIndex: 1, minHeight: "100vh", display: "flex", flexDirection: "column" }}
+        className="lg:flex-row"
+      >
 
         {/* ── Brand panel ── */}
         <div
-          className="relative flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
-          style={{ background: "linear-gradient(160deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)" }}
+          className="hidden lg:flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
+          style={{ color: "#fff" }}
         >
           <button
             type="button"
@@ -203,37 +216,48 @@ export default function ForgotPasswordPage() {
             </svg>
           </button>
 
-          <div className="flex flex-col items-center gap-5 text-center animate-fade-up">
-            <div
-              className="w-24 h-24 lg:w-32 lg:h-32 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0"
-              style={{ background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.25)" }}
-            >
-              <Image src="/logo_test.png" alt="QurbanEt" width={128} height={128} className="w-full h-full object-cover" />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20, textAlign: "center", maxWidth: 380 }}>
+            <div style={{ width: 160, height: 160, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Image src="/meatbox_icon.png" alt="MEATBOX.AZ" width={185} height={185} style={{ objectFit: "contain", transform: "scale(1.15)" }} />
             </div>
             <div>
-              <div className="text-4xl lg:text-5xl font-black text-white italic leading-none">
-                Qurban<span style={{ color: "#86efac" }}>Et</span>
+              <div style={{ fontSize: 52, fontWeight: 800, color: "#fff", lineHeight: 1, letterSpacing: "-0.045em" }}>
+                MEAT<span style={{ color: "#ff1236" }}>BOX</span>
               </div>
-              <div className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto" style={{ color: "rgba(255,255,255,0.65)" }}>
+              <div style={{ fontSize: 14, marginTop: 12, lineHeight: 1.6, maxWidth: 220, margin: "12px auto 0", color: "rgba(255,255,255,0.65)" }}>
                 Şifrənizi bərpa edin
               </div>
             </div>
-            <div className="text-[10px] font-bold tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>
-              ETİBARLI · HALAL · SÜRƏTLİ
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+              {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+                <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{t}</span>
+                  {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.25)", display: "inline-block" }} />}
+                </span>
+              ))}
             </div>
           </div>
         </div>
 
         {/* ── Form panel ── */}
-        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10 bg-surface">
-          <div className="w-full max-w-sm animate-fade-up">
+        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10" style={{ background: "transparent" }}>
+          <div className="w-full max-w-sm animate-fade-up" style={{
+            background: "rgba(255,255,255,0.97)",
+            borderRadius: 20,
+            border: "1px solid rgba(255,255,255,0.6)",
+            boxShadow: "0 24px 90px rgba(15,23,42,0.16)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            padding: "28px 32px",
+            fontFamily: "'Manrope', sans-serif",
+          }}>
 
             {/* Step 1 — Identifier */}
             {step === "identifier" && (
               <>
                 <div className="flex items-center gap-2.5 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-primary-surface flex items-center justify-center">
-                    <KeyRound size={20} className="text-primary" />
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff1f3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <KeyRound size={20} style={{ color: "#c8102e" }} />
                   </div>
                   <h2 className="text-2xl font-black text-text-primary">Şifrəni Sıfırla</h2>
                 </div>
@@ -242,18 +266,18 @@ export default function ForgotPasswordPage() {
                 </p>
 
                 {/* Mode toggle */}
-                <div className="flex bg-surface-alt rounded-2xl p-1 mb-5 gap-1">
+                <div style={{ display: "flex", background: "#f3f4f6", borderRadius: 16, padding: 4, marginBottom: 20, gap: 4 }}>
                   <button
                     type="button"
                     onClick={() => { setMode("phone"); setError(""); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === "phone" ? "bg-surface shadow-sm text-primary" : "text-text-secondary"}`}
+                    style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 0", borderRadius: 10, fontSize: 13, fontWeight: 600, border: mode === "phone" ? "1px solid #ef9caf" : "1px solid transparent", background: mode === "phone" ? "#fff" : "transparent", color: mode === "phone" ? "#c8102e" : "#6b7280", boxShadow: mode === "phone" ? "0 1px 4px rgba(0,0,0,0.08)" : "none", cursor: "pointer", fontFamily: "inherit" }}
                   >
                     <Phone size={15} /> Telefon
                   </button>
                   <button
                     type="button"
                     onClick={() => { setMode("email"); setError(""); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === "email" ? "bg-surface shadow-sm text-primary" : "text-text-secondary"}`}
+                    style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 0", borderRadius: 10, fontSize: 13, fontWeight: 600, border: mode === "email" ? "1px solid #ef9caf" : "1px solid transparent", background: mode === "email" ? "#fff" : "transparent", color: mode === "email" ? "#c8102e" : "#6b7280", boxShadow: mode === "email" ? "0 1px 4px rgba(0,0,0,0.08)" : "none", cursor: "pointer", fontFamily: "inherit" }}
                   >
                     <Mail size={15} /> Email
                   </button>
@@ -297,9 +321,20 @@ export default function ForgotPasswordPage() {
 
                   <ErrorBox msg={error} />
 
-                  <button type="submit" className="btn-primary" disabled={sending}>
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    style={{
+                      width: "100%", padding: "14px 0", borderRadius: 14, border: "none",
+                      background: sending ? "#9CA3AF" : "#f20b32", color: "#fff",
+                      fontSize: 15, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      boxShadow: sending ? "none" : "0 4px 14px rgba(242,11,50,0.3)",
+                      fontFamily: "inherit",
+                    }}
+                  >
                     {sending
-                      ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Göndərilir...</span>
+                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Göndərilir...</span>
                       : "Kod göndər"}
                   </button>
 
@@ -314,8 +349,8 @@ export default function ForgotPasswordPage() {
             {step === "otp" && (
               <>
                 <div className="flex items-center gap-2.5 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-primary-surface flex items-center justify-center">
-                    <KeyRound size={20} className="text-primary" />
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff1f3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <KeyRound size={20} style={{ color: "#c8102e" }} />
                   </div>
                   <h2 className="text-2xl font-black text-text-primary">Kodu daxil edin</h2>
                 </div>
@@ -335,7 +370,7 @@ export default function ForgotPasswordPage() {
                         value={d}
                         onChange={(e) => handleOtpChange(i, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(i, e)}
-                        className={`w-14 h-14 text-center text-2xl font-bold border-2 rounded-2xl focus:outline-none transition-all ${d ? "border-primary bg-primary-surface text-primary" : "border-border bg-surface-alt text-text-primary"} focus:border-primary`}
+                        style={{ width: 56, height: 56, textAlign: "center", fontSize: 24, fontWeight: 700, borderWidth: 2, borderStyle: "solid", borderRadius: 16, outline: "none", transition: "all 0.15s", borderColor: d ? "#c8102e" : "#e5e7eb", background: d ? "#fff1f3" : "#f8f9fb", color: d ? "#c8102e" : "#111827", fontFamily: "inherit" }}
                       />
                     ))}
                   </div>
@@ -346,7 +381,7 @@ export default function ForgotPasswordPage() {
                     type="button"
                     onClick={handleResend}
                     disabled={resendTimer > 0 || sending}
-                    className={`text-sm font-semibold transition-colors text-center ${resendTimer > 0 ? "text-text-muted cursor-not-allowed" : "text-primary hover:text-primary-dark cursor-pointer"}`}
+                    style={{ fontSize: 13, fontWeight: 600, textAlign: "center", background: "none", border: "none", padding: 0, fontFamily: "inherit", cursor: resendTimer > 0 ? "not-allowed" : "pointer", color: resendTimer > 0 ? "#9ca3af" : "#c8102e" }}
                   >
                     {resendTimer > 0 ? `Yenidən göndər (${resendTimer}s)` : "Kodu yenidən göndər"}
                   </button>
@@ -354,7 +389,7 @@ export default function ForgotPasswordPage() {
                   <button
                     type="button"
                     onClick={() => { setStep("identifier"); setError(""); setCode(["", "", "", ""]); }}
-                    className="text-sm text-text-secondary hover:text-primary transition-colors text-center"
+                    style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}
                   >
                     ← Geri qayıt
                   </button>
@@ -366,8 +401,8 @@ export default function ForgotPasswordPage() {
             {step === "reset" && (
               <>
                 <div className="flex items-center gap-2.5 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-primary-surface flex items-center justify-center">
-                    <KeyRound size={20} className="text-primary" />
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff1f3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <KeyRound size={20} style={{ color: "#c8102e" }} />
                   </div>
                   <h2 className="text-2xl font-black text-text-primary">Yeni Şifrə</h2>
                 </div>
@@ -382,7 +417,7 @@ export default function ForgotPasswordPage() {
                         value={newPassword}
                         onChange={(e) => { setNewPassword(e.target.value); setError(""); }}
                         placeholder="Ən az 6 simvol"
-                        className="field-input pr-10"
+                        style={{ width: "100%", boxSizing: "border-box", border: "1.5px solid #e5e7eb", borderRadius: 12, padding: "12px 44px 12px 14px", fontSize: 15, color: "#111827", background: "#f9fafb", outline: "none", fontFamily: "inherit" }}
                         maxLength={128}
                         autoFocus
                       />
@@ -400,7 +435,7 @@ export default function ForgotPasswordPage() {
                         value={confirmPassword}
                         onChange={(e) => { setConfirmPassword(e.target.value); setError(""); }}
                         placeholder="Şifrənizi yenidən daxil edin"
-                        className="field-input pr-10"
+                        style={{ width: "100%", boxSizing: "border-box", border: "1.5px solid #e5e7eb", borderRadius: 12, padding: "12px 44px 12px 14px", fontSize: 15, color: "#111827", background: "#f9fafb", outline: "none", fontFamily: "inherit" }}
                         maxLength={128}
                       />
                       <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary">
@@ -411,9 +446,20 @@ export default function ForgotPasswordPage() {
 
                   <ErrorBox msg={error} />
 
-                  <button type="submit" className="btn-primary" disabled={resetting}>
+                  <button
+                    type="submit"
+                    disabled={resetting}
+                    style={{
+                      width: "100%", padding: "14px 0", borderRadius: 14, border: "none",
+                      background: resetting ? "#9CA3AF" : "#f20b32", color: "#fff",
+                      fontSize: 15, fontWeight: 700, cursor: resetting ? "not-allowed" : "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      boxShadow: resetting ? "none" : "0 4px 14px rgba(242,11,50,0.3)",
+                      fontFamily: "inherit",
+                    }}
+                  >
                     {resetting
-                      ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Yadda saxlanır...</span>
+                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yadda saxlanır...</span>
                       : "Şifrəni Yenilə"}
                   </button>
 
@@ -427,6 +473,7 @@ export default function ForgotPasswordPage() {
           </div>
         </div>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
