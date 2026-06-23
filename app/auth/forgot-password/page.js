@@ -183,7 +183,13 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", overflow: "hidden", background: "#241331", fontFamily: "'Manrope', sans-serif", position: "relative" }}>
+    <main style={{
+      minHeight: "100vh", overflow: "hidden", background: "#241331",
+      fontFamily: "'Manrope', sans-serif", color: "#111827", position: "relative",
+      display: "grid", gridTemplateColumns: "1fr",
+    }}
+      className="lg:grid lg:h-screen auth-grid-cols"
+    >
       {/* Background image */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <Image
@@ -195,62 +201,63 @@ export default function ForgotPasswordPage() {
         />
       </div>
 
-      <div style={{ position: "relative", zIndex: 1, minHeight: "100vh", display: "flex", flexDirection: "column" }}
-        className="lg:flex-row"
+      {/* ── Brand panel ── */}
+      <section style={{ position: "relative", zIndex: 1, color: "#fff" }}
+        className="hidden lg:flex flex-col justify-center px-[6vw] py-[4vh] min-h-screen"
       >
-
-        {/* ── Brand panel ── */}
-        <div
-          className="hidden lg:flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
-          style={{ color: "#fff" }}
+        <button
+          type="button"
+          onClick={() => router.push("/auth/login")}
+          style={{
+            position: "absolute", top: 20, left: 20,
+            width: 36, height: 36, borderRadius: 12,
+            background: "rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff", border: "none", cursor: "pointer",
+          }}
+          aria-label="Geri qayıt"
         >
-          <button
-            type="button"
-            onClick={() => router.push("/auth/login")}
-            className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
-            style={{ background: "rgba(255,255,255,0.18)", color: "#fff" }}
-            aria-label="Geri qayıt"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
 
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20, textAlign: "center", maxWidth: 380 }}>
-            <div style={{ width: 160, height: 160, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Image src="/meatbox_icon.png" alt="MEATBOX.AZ" width={185} height={185} style={{ objectFit: "contain", transform: "scale(1.15)" }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 52, fontWeight: 800, color: "#fff", lineHeight: 1, letterSpacing: "-0.045em" }}>
-                MEAT<span style={{ color: "#ff1236" }}>BOX</span>
-              </div>
-              <div style={{ fontSize: 14, marginTop: 12, lineHeight: 1.6, maxWidth: 220, margin: "12px auto 0", color: "rgba(255,255,255,0.65)" }}>
-                Şifrənizi bərpa edin
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-              {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
-                <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{t}</span>
-                  {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.25)", display: "inline-block" }} />}
-                </span>
-              ))}
-            </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 420, margin: "0 auto", width: "100%", textAlign: "center" }}>
+          <div style={{ width: 140, height: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Image src="/meatbox_icon.png" alt="MEATBOX.AZ" width={160} height={160} style={{ objectFit: "contain" }} />
+          </div>
+          <h1 style={{ marginTop: 10, fontSize: "clamp(1.8rem,2.8vw,3rem)", fontWeight: 800, lineHeight: 1, letterSpacing: "-0.045em", color: "#fff" }}>
+            MEAT<span style={{ color: "#ff1236" }}>BOX</span>
+          </h1>
+          <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.65)" }}>
+            Şifrənizi bərpa edin
+          </div>
+          <div style={{ marginTop: 14, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+              <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{t}</span>
+                {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.25)", display: "inline-block" }} />}
+              </span>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* ── Form panel ── */}
-        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10" style={{ background: "transparent" }}>
-          <div className="w-full max-w-sm animate-fade-up" style={{
-            background: "rgba(255,255,255,0.97)",
-            borderRadius: 20,
-            border: "1px solid rgba(255,255,255,0.6)",
-            boxShadow: "0 24px 90px rgba(15,23,42,0.16)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            padding: "28px 32px",
-            fontFamily: "'Manrope', sans-serif",
-          }}>
+      {/* ── Form panel ── */}
+      <section style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+        className="min-h-screen lg:min-h-0 lg:h-screen"
+      >
+        <div style={{
+          width: "100%", maxWidth: 365,
+          borderRadius: 20,
+          border: "1px solid rgba(255,255,255,0.6)",
+          background: "rgba(255,255,255,0.97)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          boxShadow: "0 24px 90px rgba(15,23,42,0.16)",
+          padding: "28px 32px",
+          fontFamily: "'Manrope', sans-serif",
+        }}>
 
             {/* Step 1 — Identifier */}
             {step === "identifier" && (
@@ -463,17 +470,22 @@ export default function ForgotPasswordPage() {
                       : "Şifrəni Yenilə"}
                   </button>
 
-                  <button type="button" onClick={() => router.push("/auth/login")} className="text-sm text-text-secondary hover:text-primary transition-colors text-center">
+                  <button type="button" onClick={() => router.push("/auth/login")} style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}>
                     ← Daxil ol
                   </button>
                 </form>
               </>
             )}
 
-          </div>
         </div>
-      </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
+      </section>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (min-width: 1024px) {
+          .auth-grid-cols { grid-template-columns: 1.22fr 0.78fr !important; }
+        }
+      `}</style>
+    </main>
   );
 }
