@@ -112,7 +112,7 @@ function InfoRow({ icon: Icon, label, value }) {
 }
 
 /* ── Account card ────────────────────────────────── */
-function AccountCard({ user, updateUser }) {
+function AccountCard({ user, updateUser, stretch }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user.name || "");
   const [lastName, setLastName] = useState(user.lastName || "");
@@ -141,7 +141,7 @@ function AccountCard({ user, updateUser }) {
   const handleCancel = () => { setName(user.name || ""); setLastName(user.lastName || ""); setError(""); setEditing(false); };
 
   return (
-    <Card>
+    <Card stretch={stretch}>
       <CardHead
         icon={User} title="Hesab məlumatları" sub="Ad, soyad, əlaqə"
         action={!editing && (
@@ -158,6 +158,8 @@ function AccountCard({ user, updateUser }) {
 
       {editing ? (
         <form onSubmit={handleSave} style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {user.phone && <InfoRow icon={Phone} label="Telefon" value={user.phone} />}
+          {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
           <div>
             <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6 }}>Ad *</label>
             <input
@@ -178,8 +180,6 @@ function AccountCard({ user, updateUser }) {
               onBlur={e => e.target.style.borderColor = "#e5e7eb"}
             />
           </div>
-          {user.phone && <InfoRow icon={Phone} label="Telefon" value={user.phone} />}
-          {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
           {error && <Alert type="error" msg={error} />}
           <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
             <button type="button" onClick={handleCancel} style={{ flex: 1, height: 44, borderRadius: 12, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit" }}>
@@ -364,7 +364,7 @@ export default function SettingsPage() {
           {/* ── Desktop: 2-col ── */}
           <div className="settings-desktop" style={{ gap: 16, alignItems: "stretch" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <AccountCard user={user} updateUser={updateUser} />
+              <AccountCard user={user} updateUser={updateUser} stretch />
               <LogoutBtn onLogout={handleLogout} />
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
