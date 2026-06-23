@@ -417,73 +417,76 @@ export default function SettingsPage() {
       {/* ── Sticky header ── */}
       <header style={{
         position: "sticky", top: 0, zIndex: 50,
-        background: "rgba(255,255,255,0.95)",
+        background: "rgba(255,255,255,0.97)",
         backdropFilter: "blur(12px)",
         borderBottom: "1px solid #f1f5f9",
         boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
       }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 16px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 20px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <button
             onClick={() => router.back()}
             style={{
-              width: 34, height: 34, borderRadius: 10,
+              width: 36, height: 36, borderRadius: 10,
               background: "#f5f5f7", border: "none",
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               color: "#374151", flexShrink: 0,
             }}
           >
-            <ArrowLeft size={17} strokeWidth={2.5} />
+            <ArrowLeft size={18} strokeWidth={2.5} />
           </button>
 
           <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
-            <span style={{ fontSize: 17, fontWeight: 900, letterSpacing: "-0.04em", color: "#111827" }}>
-              MEAT<span style={{ color: "#c8102e" }}>BOX</span><span style={{ color: "#9ca3af", fontSize: 13 }}>.AZ</span>
+            <span style={{ fontSize: 26, fontWeight: 900, letterSpacing: "-0.05em", color: "#111827", lineHeight: 1 }}>
+              MEAT<span style={{ color: "#c8102e" }}>BOX</span><span style={{ color: "#9ca3af", fontSize: 18 }}>.AZ</span>
             </span>
           </Link>
 
-          <div style={{ width: 34 }} />
+          <div style={{ width: 36 }} />
         </div>
       </header>
 
-      <main style={{ background: "#f8fafc", minHeight: "calc(100vh - 56px)", fontFamily: "'Manrope', sans-serif" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 16px 48px" }}>
+      <main style={{ background: "#f8fafc", height: "calc(100vh - 60px)", overflow: "hidden", fontFamily: "'Manrope', sans-serif" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "20px 20px", height: "100%", display: "flex", flexDirection: "column" }}>
 
           {/* ── Profile hero ── */}
           <div style={{
             background: "linear-gradient(135deg, #c8102e 0%, #9b0a22 100%)",
-            borderRadius: 20,
-            padding: "24px 20px",
-            marginBottom: 24,
-            display: "flex", alignItems: "center", gap: 16,
-            boxShadow: "0 8px 28px rgba(200,16,46,0.22)",
+            borderRadius: 16,
+            padding: "16px 20px",
+            marginBottom: 16,
+            display: "flex", alignItems: "center", gap: 14,
+            boxShadow: "0 6px 20px rgba(200,16,46,0.22)",
+            flexShrink: 0,
           }}>
             <div style={{
-              width: 60, height: 60, borderRadius: "50%",
+              width: 52, height: 52, borderRadius: "50%",
               background: "rgba(255,255,255,0.2)",
               border: "2px solid rgba(255,255,255,0.35)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 20, fontWeight: 900, color: "#fff",
+              fontSize: 17, fontWeight: 900, color: "#fff",
               letterSpacing: "2px", flexShrink: 0,
             }}>
               {initials}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {fullName}
               </div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", marginTop: 3 }}>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", marginTop: 2 }}>
                 {user.phone || user.email}
               </div>
             </div>
           </div>
 
           {/* ── Desktop: 2-column ── */}
-          <div className="hidden md:grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="hidden md:grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 14, flex: 1, overflow: "hidden" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, overflow: "auto" }}>
               <AccountCard user={user} updateUser={updateUser} />
               <LogoutBtn onLogout={handleLogout} />
             </div>
-            <PasswordCard />
+            <div style={{ overflow: "auto" }}>
+              <PasswordCard />
+            </div>
           </div>
 
           {/* ── Mobile: tabs ── */}
