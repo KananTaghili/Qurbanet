@@ -280,7 +280,7 @@ export default function HomePage() {
         {/* ── Footer ── */}
         <footer className="hp-footer grid gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-center">
           <div>
-            <Image src="/mb_logo_footer.png" alt="MeatBox footer loqo" width={200} height={56} style={{ objectFit: "contain", objectPosition: "left", height: 56, width: "auto" }} />
+            <Image src="/mb_logo_footer.png" alt="MeatBox footer loqo" width={160} height={40} style={{ objectFit: "contain", objectPosition: "left", height: 40, width: "auto" }} />
           </div>
           <div>
             <h4 className="font-bold">Linklər</h4>
