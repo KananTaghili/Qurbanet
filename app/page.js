@@ -106,7 +106,7 @@ function UserMenu({ user, onLogout }) {
         <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0 }}>
           {initials}
         </div>
-        <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{user?.name}</span>
+        <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{[user?.name, user?.lastName].filter(Boolean).join(" ")}</span>
       </button>
 
       {open && (
