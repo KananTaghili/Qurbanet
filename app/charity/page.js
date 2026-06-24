@@ -1388,7 +1388,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
   return (
     <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-20 lg:pb-0">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-3.5 backdrop-blur-sm sticky top-0 z-10">
+      <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-2 backdrop-blur-sm sticky top-0 z-10">
         <button
           onClick={onBack}
           className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition"
@@ -1561,7 +1561,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
             <div className="inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1.5 text-[11px] font-black text-white">
               Açan şəxs
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] min-h-[60px] items-center gap-4 rounded-b-[8px] rounded-tr-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-5 py-3 shadow-[0_3px_10px_rgba(49,22,93,.04)]">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] min-h-[44px] items-center gap-3 rounded-b-[8px] rounded-tr-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-4 py-2 shadow-[0_3px_10px_rgba(49,22,93,.04)]">
               <div className="flex items-center gap-3">
                 <div
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-black text-sm"
@@ -1602,7 +1602,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
         {/* Donors table */}
         {otherDons.length > 0 && (
           <div>
-            <h2 className="mb-3 text-[15px] font-black text-[#33245f]">
+            <h2 className="mb-1.5 text-[13px] font-black text-[#33245f]">
               Digər ödəniş edənlər ({otherDons.length} nəfər)
             </h2>
             <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.04)]">
@@ -1610,11 +1610,11 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                 <table className="w-full min-w-[540px] text-left text-[11px] font-bold text-[#33245f]">
                   <thead>
                     <tr className="border-b border-[#e7e1f0] bg-white text-[11px] text-[#8b7dac]">
-                      <th className="px-5 py-3.5">#</th>
-                      <th className="px-4 py-3.5">Ad Soyad</th>
-                      <th className="px-4 py-3.5">Ödənilən məbləğ</th>
-                      <th className="px-4 py-3.5">Faiz</th>
-                      <th className="px-4 py-3.5 text-right">Ödəniş tarixi</th>
+                      <th className="px-4 py-2">#</th>
+                      <th className="px-3 py-2">Ad Soyad</th>
+                      <th className="px-3 py-2">Ödənilən məbləğ</th>
+                      <th className="px-3 py-2">Faiz</th>
+                      <th className="px-3 py-2 text-right">Ödəniş tarixi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1623,8 +1623,8 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                         key={d._id || i}
                         className="border-b border-[#eee8f6] last:border-b-0 hover:bg-purple-50/30 transition-colors"
                       >
-                        <td className="px-5 py-3 font-black">{i + 1}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2 font-black">{i + 1}</td>
+                        <td className="px-3 py-2">
                           <div className="flex items-center gap-2.5">
                             <div
                               className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[9px] font-bold"
@@ -1645,11 +1645,11 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 font-black">{d.amount} AZN</td>
-                        <td className="px-4 py-3 text-[#5b22c7]">
+                        <td className="px-3 py-2 font-black">{d.amount} AZN</td>
+                        <td className="px-3 py-2 text-[#5b22c7]">
                           {Math.round(d.percent)}%
                         </td>
-                        <td className="px-4 py-3 text-right text-[#4f4075]">
+                        <td className="px-3 py-2 text-right text-[#4f4075]">
                           {fmtDonTime(d.paidAt)}
                         </td>
                       </tr>
