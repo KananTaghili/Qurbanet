@@ -11,11 +11,15 @@ import {
 
 function KnifeIcon({ className = "" }) {
   return (
-    <svg viewBox="0 0 64 64" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M45 5c5 10 3 22-5 30L20 55" />
-      <path d="M39 35l18 18" />
-      <path d="M15 59l9-9" />
-      <path d="M43 7l-4 25" />
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {/* blade spine + tip */}
+      <path d="M20 5 C21 3 23 4 22 5 L10 17" />
+      {/* blade edge */}
+      <path d="M20 5 L9 16" />
+      {/* heel */}
+      <path d="M9 16 L10 17" />
+      {/* handle */}
+      <path d="M9 16 L6 13 L3 18 Q2.5 20 4 21 L7 21 Q8.5 21 9 19 L10 17" />
     </svg>
   );
 }
