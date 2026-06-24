@@ -12,14 +12,8 @@ import {
 function KnifeIcon({ className = "" }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      {/* blade spine + tip */}
-      <path d="M20 5 C21 3 23 4 22 5 L10 17" />
-      {/* blade edge */}
-      <path d="M20 5 L9 16" />
-      {/* heel */}
-      <path d="M9 16 L10 17" />
-      {/* handle */}
-      <path d="M9 16 L6 13 L3 18 Q2.5 20 4 21 L7 21 Q8.5 21 9 19 L10 17" />
+      {/* full knife silhouette — blade tip upper-right, handle lower-left */}
+      <path d="M21 3 C22 2 23 3 21 5 L10 16 Q8 18 6 20 Q4 22 5.5 22.5 Q7 23 8.5 21.5 L12 18 C15 14 18 9 21 3 Z" />
     </svg>
   );
 }
