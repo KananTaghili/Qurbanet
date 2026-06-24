@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, LogOut, Bell,
+  ArrowLeft, Menu, X, Beef, ClipboardList, LogOut, Bell, HelpCircle, BookOpen,
 } from "lucide-react";
 
 const GREEN = "#1c5e20";
@@ -13,6 +13,8 @@ const GREEN = "#1c5e20";
 const SIDEBAR_NAV = [
   { icon: Beef,          label: "Heyvan Seçimi", short: "Seçim",      href: "/qurban" },
   { icon: ClipboardList, label: "Sifarişlərim",  short: "Sifarişlər", href: "/my-orders" },
+  { icon: HelpCircle,    label: "Necə işləyir",  short: "Necə",       href: "/how-it-works" },
+  { icon: BookOpen,      label: "Qaydalar",       short: "Qaydalar",   href: "/qurban-rules" },
 ];
 
 function fullName(u) { return [u?.name, u?.lastName].filter(Boolean).join(" "); }
