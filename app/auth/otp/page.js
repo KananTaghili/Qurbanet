@@ -402,7 +402,7 @@ export default function OtpPage() {
             </form>
           </div>
         </section>
-      </main>
+      </div>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -424,7 +424,6 @@ export default function OtpPage() {
           .auth-mobile-brand { display: none !important; }
         }
       `}</style>
-      </div>
       </main>
     </>
   );
