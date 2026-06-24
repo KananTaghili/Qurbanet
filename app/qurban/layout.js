@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, LogOut, Bell, HelpCircle, BookOpen,
+  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 
@@ -65,25 +65,6 @@ export default function QurbanLayout({ children }) {
               </Link>
             ))}
           </nav>
-          {!isGuest && (
-            <div className="mx-3 mb-3">
-              <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
-                <div className="px-3 py-1.5 flex items-center gap-2">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-[10px] font-bold text-white">
-                    {initials(user)}
-                  </div>
-                  <span className="truncate text-[12px] font-semibold text-white/90">{fullName(user)}</span>
-                </div>
-                <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
-                <div className="px-2 pb-2 pt-1.5">
-                  <button onClick={() => logout()}
-                    className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold text-white/80 hover:text-white active:scale-95 transition-all"
-                    style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
-                    <LogOut size={12} strokeWidth={2.5} /> Çıxış
-                  </button>
-                </div>
-              </div>
-            </div>
           )}
         </aside>
 
