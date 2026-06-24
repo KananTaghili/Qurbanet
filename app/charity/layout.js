@@ -833,7 +833,7 @@ export default function CharityLayout({ children }) {
           <div className="mx-3 mb-5">
             <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg, #2e1065 0%, #1e0a4a 100%)", border: "1px solid rgba(139,92,246,0.25)" }}>
               {/* Top — slogan */}
-              <div className="px-4 pt-4 pb-3 flex items-start gap-2.5">
+              <div className="px-4 pt-3 pb-2 flex items-start gap-2.5">
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(167,139,250,0.15)" }}>
                   <Heart size={15} style={{ color: "#f9a8d4" }} />
                 </div>
@@ -845,7 +845,7 @@ export default function CharityLayout({ children }) {
               {/* Divider */}
               <div className="mx-4 h-px" style={{ background: "rgba(139,92,246,0.2)" }} />
               {/* Bottom — CTA button */}
-              <div className="p-3">
+              <div className="px-3 pb-3 pt-2">
                 <button onClick={() => setShowNewOpening(true)}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white active:scale-95 transition-all"
                   style={{ background: "#4c1d95", boxShadow: "0 4px 16px rgba(76,29,149,0.5)" }}>
