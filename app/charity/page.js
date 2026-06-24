@@ -810,13 +810,13 @@ export function DonationModal({ animal, onClose }) {
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative h-[560px] max-h-[calc(100vh-2rem)] w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         <div
-          className="flex items-center justify-between px-5 py-3 border-b border-[#ede9fe] shrink-0"
+          className="flex items-center justify-between px-4 py-2 border-b border-[#ede9fe] shrink-0"
           style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}
         >
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-purple-100 bg-white shadow-sm shrink-0">
               <img
                 src={animal.img}
                 alt={animal.type}
@@ -843,7 +843,7 @@ export function DonationModal({ animal, onClose }) {
           </button>
         </div>
 
-        <div className="flex items-center justify-center gap-2 border-b border-[#f0ebff] px-5 py-2 shrink-0">
+        <div className="flex items-center justify-center gap-2 border-b border-[#f0ebff] px-4 py-1.5 shrink-0">
           {DONATE_STEPS.map((s, i) => (
             <div key={s} className="flex items-center gap-1.5">
               <div
@@ -864,7 +864,7 @@ export function DonationModal({ animal, onClose }) {
         </div>
 
         <div
-          className="min-h-0 flex-1 overflow-y-auto px-5 py-3"
+          className="min-h-0 flex-1 overflow-y-auto px-4 py-2"
           style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}
         >
           {/* ── Inline Auth Phase ── */}
@@ -972,9 +972,9 @@ export function DonationModal({ animal, onClose }) {
           )}
 
           {!authPhase && step === 0 && (
-            <div className="space-y-3">
-              <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
-                <div className="flex flex-col gap-1.5 text-xs text-[#8a7ba7]">
+            <div className="space-y-2">
+              <div className="rounded-xl border border-purple-100 bg-purple-50/50 p-2.5">
+                <div className="flex flex-col gap-1 text-xs text-[#8a7ba7]">
                   <div className="flex items-center gap-1.5">
                     <User size={12} className="text-purple-500 shrink-0" />
                     <span className="line-clamp-1 font-medium">{animal.organizer}</span>
@@ -990,7 +990,7 @@ export function DonationModal({ animal, onClose }) {
                     </div>
                   </div>
                 </div>
-                <div className="mt-3">
+                <div className="mt-2">
                   <div className="mb-1 flex justify-between text-xs text-[#8a7ba7]">
                     <span>Toplanıb</span>
                     <span>{animal.progressPercent}%</span>
@@ -1012,7 +1012,7 @@ export function DonationModal({ animal, onClose }) {
                   </div>
                 </div>
               </div>
-              <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-3">
+              <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#e5e7eb] bg-[#fafafa] p-2">
                 <div>
                   <div className="text-sm font-bold text-[#241a4d]">
                     Anonim ianə
@@ -1032,9 +1032,9 @@ export function DonationModal({ animal, onClose }) {
           )}
 
           {!authPhase && step === 1 && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#241a4d]">
+                <label className="mb-1 block text-xs font-semibold text-[#241a4d]">
                   İanə məbləği
                 </label>
                 <input
@@ -1051,14 +1051,14 @@ export function DonationModal({ animal, onClose }) {
                   Minimum {minAmt} AZN · Qalan: {animal.totalMin} AZN
                 </div>
               </div>
-              <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-3">
+              <div className="rounded-xl border border-[#e5e7eb] bg-[#fafafa] p-2.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#8a7ba7]">İanə</span>
                   <span className="font-semibold text-[#241a4d]">
                     {numAmt} AZN
                   </span>
                 </div>
-                <div className="mt-2 flex justify-between border-t border-[#e5e7eb] pt-2">
+                <div className="mt-1.5 flex justify-between border-t border-[#e5e7eb] pt-1.5">
                   <span className="font-bold text-[#241a4d]">Cəmi ödəniş</span>
                   <span className="text-base font-bold text-[#5521c6]">
                     {numAmt} AZN
@@ -1066,7 +1066,7 @@ export function DonationModal({ animal, onClose }) {
                 </div>
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#241a4d]">
+                <label className="mb-1 block text-xs font-semibold text-[#241a4d]">
                   Qeyd (istəyə bağlı)
                 </label>
                 <textarea
@@ -1081,9 +1081,9 @@ export function DonationModal({ animal, onClose }) {
           )}
 
           {!authPhase && step === 2 && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {!isGuest ? (
-                <div className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-purple-50/50 p-3">
+                <div className="flex items-center gap-3 rounded-xl border border-purple-100 bg-purple-50/50 p-2.5">
                   <div className="h-10 w-10 rounded-full bg-[#5521c6] flex items-center justify-center text-white font-bold text-sm shrink-0">
                     {initials(
                       [user?.name, user?.lastName].filter(Boolean).join(" ") ||
@@ -1105,10 +1105,10 @@ export function DonationModal({ animal, onClose }) {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setContinueMode("registered")}
-                      className={`rounded-2xl border-2 p-3 text-left transition ${continueMode === "registered" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}
+                      className={`rounded-xl border-2 p-2 text-left transition ${continueMode === "registered" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}
                     >
                       <div className="font-bold text-[#241a4d] text-sm">
                         Qeydiyyat ilə
@@ -1119,7 +1119,7 @@ export function DonationModal({ animal, onClose }) {
                     </button>
                     <button
                       onClick={() => setContinueMode("guest")}
-                      className={`rounded-2xl border-2 p-3 text-left transition ${continueMode === "guest" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}
+                      className={`rounded-xl border-2 p-2 text-left transition ${continueMode === "guest" ? "border-[#5521c6] bg-purple-50" : "border-[#e5e7eb] hover:border-purple-200"}`}
                     >
                       <div className="font-bold text-[#241a4d] text-sm">
                         Qeydiyyatsız
@@ -1179,12 +1179,12 @@ export function DonationModal({ animal, onClose }) {
                 </div>
               )}
               <div
-                className="rounded-2xl border border-purple-100 p-3"
+                className="rounded-xl border border-purple-100 p-2.5"
                 style={{
                   background: "linear-gradient(135deg, #f5f3ff, #ede9fe)",
                 }}
               >
-                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#4b14bd]">
+                <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#4b14bd]">
                   <Shield size={12} /> İanə xülasəsi
                 </div>
                 <div className="space-y-2 text-sm">
@@ -1218,7 +1218,7 @@ export function DonationModal({ animal, onClose }) {
           )}
         </div>
 
-        {!authPhase && <div className="flex gap-3 border-t border-[#f0ebff] px-5 pb-4 pt-3 shrink-0">
+        {!authPhase && <div className="flex gap-3 border-t border-[#f0ebff] px-4 pb-3 pt-2 shrink-0">
           {step > 0 && (
             <button
               onClick={() => setStep((s) => s - 1)}
