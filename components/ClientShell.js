@@ -1,6 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import Sidebar from "./Sidebar";
@@ -14,6 +15,14 @@ export default function ClientShell({ children }) {
   const { isReady: settingsReady } = useLanguage();
 
   const appReady = !authLoading && settingsReady;
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    if (appReady) {
+      const t = setTimeout(() => setShowSplash(false), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [appReady]);
 
   return (
     <>
@@ -27,11 +36,11 @@ export default function ClientShell({ children }) {
         alignItems: "center",
         justifyContent: "center",
         background: "#0d0d0d",
-        opacity: appReady ? 0 : 1,
-        visibility: appReady ? "hidden" : "visible",
-        pointerEvents: appReady ? "none" : "auto",
-        WebkitTransition: appReady ? "opacity 0.5s ease, visibility 0.5s ease" : "none",
-        transition: appReady ? "opacity 0.5s ease, visibility 0.5s ease" : "none",
+        opacity: showSplash ? 1 : 0,
+        visibility: showSplash ? "visible" : "hidden",
+        pointerEvents: showSplash ? "auto" : "none",
+        WebkitTransition: "opacity 0.6s ease, visibility 0.6s ease",
+        transition: "opacity 0.6s ease, visibility 0.6s ease",
         overflow: "hidden",
       }}>
 
@@ -147,9 +156,9 @@ export default function ClientShell({ children }) {
       {isLanding ? (
         <div
           style={{
-            opacity: appReady ? 1 : 0,
-            WebkitTransition: appReady ? "opacity 0.4s ease" : "none",
-            transition: appReady ? "opacity 0.4s ease" : "none",
+            opacity: showSplash ? 0 : 1,
+            WebkitTransition: "opacity 0.5s ease",
+            transition: "opacity 0.5s ease",
           }}
         >
           {children}
@@ -158,9 +167,9 @@ export default function ClientShell({ children }) {
         <div
           className={`app-root${isHome ? " home-mode" : ""}`}
           style={{
-            opacity: appReady ? 1 : 0,
-            WebkitTransition: appReady ? "opacity 0.4s ease" : "none",
-            transition: appReady ? "opacity 0.4s ease" : "none",
+            opacity: showSplash ? 0 : 1,
+            WebkitTransition: "opacity 0.5s ease",
+            transition: "opacity 0.5s ease",
           }}
         >
           <Sidebar />
