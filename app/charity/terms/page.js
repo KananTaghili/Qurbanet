@@ -62,21 +62,21 @@ export default function SertlerPage() {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-5 pb-20 lg:pb-5">
-      <h1 className="text-[#241a4d] mb-1 font-extrabold" style={{ fontSize: "1.35rem" }}>Şərtlərimiz</h1>
-      <p className="text-gray-500 text-sm mb-6">Platforma qaydaları və istifadə şərtləri</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="flex-1 overflow-y-auto px-4 py-2 pb-20 lg:pb-3">
+      <h1 className="text-[#241a4d] mb-0.5 font-extrabold text-[18px]">Şərtlərimiz</h1>
+      <p className="text-gray-500 text-[12px] mb-3">Platforma qaydaları və istifadə şərtləri</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {sertler.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.value} className="bg-white rounded-2xl p-5 border border-[#eee8f6] shadow-sm">
-              <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-2xl ${s.color.bg}`}>
-                <Icon size={22} className={s.color.icon} />
+            <div key={s.value} className="bg-white rounded-xl px-4 py-3 border border-[#eee8f6] shadow-sm flex gap-3 items-start">
+              <div className={`mt-0.5 shrink-0 flex h-9 w-9 items-center justify-center rounded-xl ${s.color.bg}`}>
+                <Icon size={18} className={s.color.icon} />
               </div>
-              <div className={`font-extrabold mb-2 leading-tight ${s.color.title}`} style={{ fontSize: "1rem" }}>
-                {s.value}
+              <div className="min-w-0">
+                <div className={`font-extrabold text-[13px] leading-snug mb-0.5 ${s.color.title}`}>{s.value}</div>
+                <div className="text-[12px] text-gray-500 leading-relaxed">{s.label}</div>
               </div>
-              <div className="text-sm text-gray-500 leading-relaxed">{s.label}</div>
             </div>
           );
         })}
