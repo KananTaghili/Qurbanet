@@ -284,9 +284,9 @@ export default function HomePage() {
                 src="/mb_logo_bottom.png"
                 alt="MEATBOX loqosu"
                 width={220} height={176}
-                className="mx-auto h-24 w-36 object-contain drop-shadow-2xl md:h-36 md:w-44"
+                className="mx-auto h-20 w-28 object-contain drop-shadow-2xl md:h-28 md:w-36"
               />
-              <div className="mt-2 flex items-center justify-center gap-2 text-white font-extrabold italic tracking-widest text-[13px] md:text-[15px] uppercase" style={{ fontStyle: "italic", letterSpacing: "0.18em" }}>
+              <div className="mt-1 flex items-center justify-center gap-2 text-white font-extrabold italic tracking-widest text-[11px] md:text-[13px] uppercase" style={{ fontStyle: "italic", letterSpacing: "0.18em" }}>
                 <span>ETİBARLI</span>
                 <span className="text-white opacity-70 text-lg leading-none">•</span>
                 <span>HALAL</span>
