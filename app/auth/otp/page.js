@@ -212,7 +212,7 @@ export default function OtpPage() {
 
         {/* ── Right panel — form ── */}
         <section
-          style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', gap: 20 }}
+          style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', gap: 12 }}
           className="h-full overflow-y-auto"
         >
           {/* Mobile branding — above card, hidden on desktop */}
@@ -239,7 +239,7 @@ export default function OtpPage() {
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             boxShadow: '0 24px 90px rgba(15,23,42,0.16)',
-            padding: '24px 28px 28px',
+            padding: '18px 24px 22px',
             fontFamily: "'Manrope', sans-serif",
           }}>
 
@@ -263,11 +263,11 @@ export default function OtpPage() {
               </h2>
             </div>
 
-            <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 20, lineHeight: 1.55, paddingLeft: 44 }}>
+            <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 12, lineHeight: 1.55, paddingLeft: 44 }}>
               <strong style={{ color: '#241331' }}>{identifier}</strong>{' '}{subtitle}
             </p>
 
-            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {/* OTP inputs */}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }} onPaste={handlePaste}>
                 {code.map((d, i) => (
@@ -282,7 +282,7 @@ export default function OtpPage() {
                     onKeyDown={(e) => handleKeyDown(i, e)}
                     autoComplete="one-time-code"
                     style={{
-                      width: 60, height: 64, textAlign: 'center', fontSize: 24, fontWeight: 700,
+                      width: 48, height: 52, textAlign: 'center', fontSize: 20, fontWeight: 700,
                       border: d ? '2px solid #c8102e' : '2px solid #e5e7eb',
                       borderRadius: 14, outline: 'none',
                       background: d ? '#fff5f5' : '#f9fafb',
