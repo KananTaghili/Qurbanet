@@ -23,7 +23,7 @@ const features = [
     iconWrap: { border: "2px solid #b9f7cf", background: "#eafbf0" },
   },
   {
-    title: "Kollektiv Qurban-Xeyriyyə",
+    title: "Kollektiv Qurban",
     text: "Dini qaydalara uyğun",
     icon: "/icon_charity.png",
     iconWrap: { border: "2px solid #e7d2ff", background: "#f6edff" },
