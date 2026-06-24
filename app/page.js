@@ -278,9 +278,9 @@ export default function HomePage() {
         </section>
 
         {/* ── Footer ── */}
-        <footer className="hp-footer grid gap-8 border-t border-white/10 bg-[#140807] px-8 py-8 text-white md:grid-cols-4 md:px-12">
+        <footer className="hp-footer grid gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-center">
           <div>
-            <Image src="/mb_logo_right_white.png" alt="MeatBox footer loqo" width={208} height={48} style={{ objectFit: "contain", objectPosition: "left", height: 48, width: "auto" }} />
+            <Image src="/mb_logo_right_white.png" alt="MeatBox footer loqo" width={160} height={36} style={{ objectFit: "contain", objectPosition: "left", height: 36, width: "auto" }} />
             <div className="mt-2"><Slogan compact /></div>
           </div>
           <div>
