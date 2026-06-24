@@ -8,19 +8,22 @@ import {
   ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
   HeartHandshake, Beef,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
 
-/* ── KnifeIcon SVG ─────────────────────────────────────── */
 function KnifeIcon({ className = "" }) {
   return (
-    <svg viewBox="0 0 64 64" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M45 5c5 10 3 22-5 30L20 55" />
-      <path d="M39 35l18 18" />
-      <path d="M15 59l9-9" />
-      <path d="M43 7l-4 25" />
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+      {/* blade */}
+      <path d="M21.5 2.5 C22.3 1.7 23.5 2.5 22.8 3.5 L11 15.3 L8.7 13 Z" />
+      {/* bolster */}
+      <path d="M7.3 12 L9.7 9.7 L12 12 L9.7 14.3 Z" transform="rotate(-45 9.7 12)" />
+      {/* handle */}
+      <path d="M2.5 18.5 C1.8 17.8 2 16.5 3 15.8 L7 12.5 L9.5 15 L6.2 19 C5.5 20 3.2 19.2 2.5 18.5 Z" />
     </svg>
   );
 }
+import { useAuth } from "../context/AuthContext";
+
+/* ── KnifeIcon SVG ─────────────────────────────────────── */
 
 /* ── Slogan ────────────────────────────────────────────── */
 function Slogan({ compact = false }) {
