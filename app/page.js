@@ -145,7 +145,7 @@ function UserMenu({ user, onLogout }) {
         onClick={() => setOpen(v => !v)}
         style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0 }}
       >
-        <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0 }}>
+        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0 }}>
           {initials}
         </div>
         <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{[user?.name, user?.lastName].filter(Boolean).join(" ")}</span>
@@ -237,7 +237,7 @@ export default function HomePage() {
         {/* ── Header ── */}
         <header className="flex items-center justify-between bg-white px-6 py-1.5 text-neutral-950 md:px-10">
           <div className="hp-logo">
-            <Image src="/meatbox logo right black.png" alt="MeatBox" width={160} height={36} style={{ objectFit: "contain", objectPosition: "left", height: 36, width: "auto" }} priority />
+            <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
           </div>
 
           <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
