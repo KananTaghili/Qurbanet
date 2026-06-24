@@ -19,7 +19,7 @@ export default function ClientShell({ children }) {
 
   useEffect(() => {
     if (appReady) {
-      const t = setTimeout(() => setShowSplash(false), 2000);
+      const t = setTimeout(() => setShowSplash(false), 1500);
       return () => clearTimeout(t);
     }
   }, [appReady]);
