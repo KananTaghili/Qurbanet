@@ -332,6 +332,7 @@ export default function HomePage() {
               <Link href="/haqqimizda" className="hover:text-white transition-colors">Haqqımızda</Link>
               <Link href="/xidmetler" className="hover:text-white transition-colors">Xidmətlər</Link>
               <Link href="/nece-isleyir" className="hover:text-white transition-colors">Necə işləyir?</Link>
+              <Link href="/elaqe" className="hover:text-white transition-colors">Əlaqə</Link>
             </div>
           </div>
           <div>
