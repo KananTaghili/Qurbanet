@@ -6,17 +6,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
-  HeartHandshake, Beef,
+  HeartHandshake, Beef, PocketKnife,
 } from "lucide-react";
-
-function KnifeIcon({ className = "" }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      {/* full knife silhouette — blade tip upper-right, handle lower-left */}
-      <path d="M21 3 C22 2 23 3 21 5 L10 16 Q8 18 6 20 Q4 22 5.5 22.5 Q7 23 8.5 21.5 L12 18 C15 14 18 9 21 3 Z" />
-    </svg>
-  );
-}
 import { useAuth } from "../context/AuthContext";
 
 /* ── KnifeIcon SVG ─────────────────────────────────────── */
@@ -53,7 +44,7 @@ function PaymentLogos() {
 
 /* ── Service card ──────────────────────────────────────── */
 const cards = [
-  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: KnifeIcon, button: "SİFARİŞ ET" },
+  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PocketKnife, button: "SİFARİŞ ET" },
   { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL" },
   { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef, button: "MƏHSULLARA BAX" },
 ];
