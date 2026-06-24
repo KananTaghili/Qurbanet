@@ -58,7 +58,8 @@ function ServiceCard({ item, idx = 0 }) {
   const { text, border, bg } = colorMap[item.color];
   const Icon = item.Icon;
   return (
-    <div className="hp-card card-hover-root relative mt-9 transition-transform duration-300" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
+    <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
+      <div className="card-hover-root relative transition-transform duration-300 ease-out">
       {/* Icon — half outside top */}
       <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
         <div className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white shadow-md ${text} ${border}`}>
@@ -83,6 +84,7 @@ function ServiceCard({ item, idx = 0 }) {
         {item.button}<ArrowRight className="h-5 w-5" />
       </button>
       </article>
+      </div>
     </div>
   );
 }
