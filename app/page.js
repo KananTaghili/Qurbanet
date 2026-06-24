@@ -6,8 +6,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
-  HeartHandshake, Beef, PocketKnife,
+  HeartHandshake, Beef,
 } from "lucide-react";
+import { PiKnife } from "react-icons/pi";
 import { useAuth } from "../context/AuthContext";
 
 /* ── KnifeIcon SVG ─────────────────────────────────────── */
@@ -44,7 +45,7 @@ function PaymentLogos() {
 
 /* ── Service card ──────────────────────────────────────── */
 const cards = [
-  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PocketKnife, button: "SİFARİŞ ET" },
+  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnife, button: "SİFARİŞ ET" },
   { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL" },
   { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef, button: "MƏHSULLARA BAX" },
 ];
@@ -137,7 +138,7 @@ export default function HomePage() {
   const handleLogout = async () => { await logout(); router.push("/"); };
 
   const whyItems = [
-    [PocketKnife, "Halal Kəsim",       "Dini qaydalara uyğun peşəkar kəsim"],
+    [PiKnife, "Halal Kəsim",       "Dini qaydalara uyğun peşəkar kəsim"],
     [Video,     "Video Hesabat",      "Kəsim prosesini addım-addım izləyin"],
     [Truck,     "Çatdırılma",         "Sürətli və etibarlı çatdırılma"],
     [HeartHandshake, "Şəffaf Xeyriyyə", "Hesabatlı və şəffaf paylaşım"],
