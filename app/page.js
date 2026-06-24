@@ -276,17 +276,13 @@ export default function HomePage() {
         )}
 
         {/* ── Hero ── */}
-        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-8 pt-4 md:px-12 md:pb-12 md:pt-5">
-          <Image src="/mb_hero_bg.jpg" alt="Hero fon" fill style={{ objectFit: "cover" }} priority />
-          <div className="relative mx-auto max-w-3xl text-center">
-            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-8 py-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
-              <Image
-                src="/mb_logo_right_slogan.png"
-                alt="MEATBOX loqosu"
-                width={480} height={160}
-                className="mx-auto h-20 w-72 object-contain drop-shadow-2xl md:h-28 md:w-96"
-              />
-            </div>
+        <div className="hp-hero relative h-[220px] md:h-[260px] flex items-center overflow-hidden">
+          <Image src="/home_image_test_2.jpg" alt="MeatBox hero" fill className="object-cover object-center" priority />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 80% at 50% 52%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.88) 42%, rgba(255,255,255,0.4) 60%, rgba(255,255,255,0) 75%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 75%, rgba(255,255,255,0.85) 90%, #ffffff 100%)" }} />
+          <div className="relative z-10 w-full flex flex-col items-center text-center">
+            <Image src="/mb_logo_bottom.png" alt="MeatBox Logo" width={90} height={90} className="object-contain drop-shadow-lg" />
+            <Slogan />
           </div>
         </div>
 
