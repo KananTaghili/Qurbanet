@@ -806,11 +806,11 @@ export default function CharityLayout({ children }) {
 
   return (
     <CharityLayoutContext.Provider value={{ openNewCampaign: (animalName) => { setPreselectedAnimal(animalName || null); setShowNewOpening(true); } }}>
-      <main className="min-h-screen bg-background p-3 font-sans text-foreground md:p-7">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex min-h-[calc(100vh-24px)] md:min-h-[calc(100vh-56px)]">
+      <main className="bg-background p-3 font-sans text-foreground md:p-7" style={{ height: "100dvh" }}>
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex" style={{ height: "calc(100dvh - 24px)" }}>
 
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex w-56 shrink-0 flex-col sticky top-0 h-screen overflow-hidden" style={{ backgroundColor: "#301586" }}>
+        <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden" style={{ backgroundColor: "#301586" }}>
           {/* Back arrow — very top of sidebar */}
           <div className="px-4 pb-1" style={{ paddingTop: 14 }}>
             <Link href="/" className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/25 bg-white/10 text-white shadow hover:bg-white/20 transition-colors">
@@ -862,7 +862,7 @@ export default function CharityLayout({ children }) {
         <div className="flex-1 flex flex-col min-w-0">
 
           {/* TopBar */}
-          <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-2.5 border-b border-purple-900/20 shrink-0 sticky top-0 z-50"
+          <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-2.5 border-b border-purple-900/20 shrink-0"
             style={{ backgroundColor: "#301586" }}>
             <div className="flex items-center gap-2 min-w-0">
               {/* Hamburger — mobile only */}
@@ -958,7 +958,9 @@ export default function CharityLayout({ children }) {
           </div>
 
           {/* Page content */}
+          <div className="flex-1 overflow-y-auto">
           {children}
+          </div>
         </div>
 
         {/* Mobile Bottom Nav */}
