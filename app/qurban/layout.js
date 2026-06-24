@@ -65,7 +65,6 @@ export default function QurbanLayout({ children }) {
               </Link>
             ))}
           </nav>
-          )}
         </aside>
 
         {/* ── Main area ── */}
