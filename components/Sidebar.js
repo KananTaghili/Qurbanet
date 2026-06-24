@@ -57,32 +57,16 @@ export default function Sidebar() {
     >
       {/* ── Logo ── */}
       <div className="px-3 lg:px-4 pt-4 lg:pt-5 pb-3 lg:pb-4 flex-shrink-0">
-        <Link
-          href="/qurban"
-          className="flex items-center gap-2.5 lg:gap-3 no-underline"
-        >
-          <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl overflow-hidden flex-shrink-0 border border-white/20">
-            <Image
-              src="/logo_test.png"
-              alt="QurbanEt"
-              width={44}
-              height={44}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="min-w-0">
-            <div className="text-lg lg:text-xl font-black text-white italic leading-tight truncate">
-              Qurban<span style={{ color: "#86efac" }}>Et</span>
-            </div>
-            <div
-              className="text-[8px] lg:text-[9px] font-semibold tracking-widest mt-0.5 truncate"
-              style={{ color: "rgba(255,255,255,0.5)" }}
-            >
-              ETİBARLI · HALAL · SÜRƏTLİ
-            </div>
-          </div>
+        <Link href="/qurban" className="flex items-center justify-center no-underline">
+          <Image
+            src="/mb_logo_bottom_slogan.png"
+            alt="MeatBox"
+            width={200}
+            height={120}
+            style={{ width: "100%", height: "auto", objectFit: "contain" }}
+            priority
+          />
         </Link>
-
       </div>
 
       {/* ── Nav ── */}
