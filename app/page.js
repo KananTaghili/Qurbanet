@@ -90,7 +90,8 @@ function ServiceCard({ item, idx = 0, onPlay }) {
       </div>
 
       <article
-        className="rounded-2xl border border-border bg-white pt-3 pb-3 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+        className="rounded-2xl bg-white pt-3 pb-3 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+        style={{ border: "1.5px solid #e8e2db" }}
       >
       <h3 className={`text-left text-xl font-extrabold leading-6 pr-20 ${text}`}>{item.title}</h3>
       <div className="relative mt-2 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
