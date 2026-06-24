@@ -29,7 +29,7 @@ function UserMenu({ user, onLogout }) {
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button onClick={() => setOpen(v => !v)} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-        <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px" }}>
+        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0 }}>
           {initials}
         </div>
         <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
@@ -37,7 +37,7 @@ function UserMenu({ user, onLogout }) {
         </span>
       </button>
       {open && (
-        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", padding: "6px", minWidth: 180, zIndex: 100 }}>
+        <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.18)", padding: "6px", minWidth: 180, zIndex: 9999 }}>
           <button onClick={() => { setOpen(false); router.push("/settings"); }}
             style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#374151" }}
             onMouseEnter={e => e.currentTarget.style.background = "#f9fafb"}
@@ -91,9 +91,9 @@ export default function SiteLayout({ children }) {
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
 
         {/* Header */}
-        <header className="flex items-center justify-between bg-white px-6 py-2.5 text-neutral-950 md:px-10">
+        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10" style={{ height: 56, position: "relative", zIndex: 50 }}>
           <Link href="/">
-            <Image src="/meatbox logo right black.png" alt="MeatBox" width={208} height={48} style={{ objectFit: "contain", objectPosition: "left", height: 48, width: "auto" }} priority />
+            <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
           </Link>
 
           <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
