@@ -18,83 +18,69 @@ export default function ClientShell({ children }) {
   return (
     <>
       {/* Splash */}
-      <div
-        style={{
-          position: "fixed",
-          top: 0, left: 0, right: 0, bottom: 0,
-          zIndex: 99999,
+      <div style={{
+        position: "fixed",
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 99999,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#c0150f",
+        opacity: appReady ? 0 : 1,
+        visibility: appReady ? "hidden" : "visible",
+        pointerEvents: appReady ? "none" : "auto",
+        WebkitTransition: appReady ? "opacity 0.45s ease, visibility 0.45s ease" : "none",
+        transition: appReady ? "opacity 0.45s ease, visibility 0.45s ease" : "none",
+      }}>
+        {/* Logo */}
+        <div style={{
+          WebkitAnimation: "mbFadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both",
+          animation: "mbFadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          gap: 24,
-          background: "linear-gradient(160deg, #1a0303 0%, #2d0a0a 50%, #1a0303 100%)",
-          opacity: appReady ? 0 : 1,
-          visibility: appReady ? "hidden" : "visible",
-          pointerEvents: appReady ? "none" : "auto",
-          WebkitTransition: appReady ? "opacity 0.4s ease, visibility 0.4s ease" : "none",
-          transition: appReady ? "opacity 0.4s ease, visibility 0.4s ease" : "none",
-        }}
-      >
-        {/* Logo */}
-        <div style={{
-          WebkitAnimation: "mbPulse 1.8s ease-in-out infinite",
-          animation: "mbPulse 1.8s ease-in-out infinite",
+          gap: 20,
         }}>
-          <div style={{
-            width: 110,
-            height: 110,
-            borderRadius: 28,
-            overflow: "hidden",
-            boxShadow: "0 0 40px rgba(220,20,20,0.5), 0 8px 32px rgba(0,0,0,0.4)",
-            border: "2px solid rgba(220,20,20,0.4)",
-          }}>
-            <Image
-              src="/mb_logo_bottom.png"
-              alt="MeatBox"
-              width={110}
-              height={110}
-              style={{ width: "100%", height: "100%", objectFit: "contain", background: "#1a0303" }}
-              priority
-            />
-          </div>
-        </div>
-
-        {/* Brand name */}
-        <div style={{ textAlign: "center" }}>
-          <div style={{
-            fontSize: 34,
-            fontWeight: 900,
-            color: "#fff",
-            letterSpacing: "-0.5px",
-            lineHeight: 1,
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-          }}>
-            MEAT<span style={{ color: "#dc2626" }}>BOX</span>
-          </div>
-          <div style={{
+          <Image
+            src="/mb_logo_bottom.png"
+            alt="MeatBox"
+            width={130}
+            height={130}
+            style={{ objectFit: "contain", filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.3))" }}
+            priority
+          />
+          <p style={{
+            margin: 0,
             fontSize: 11,
-            color: "rgba(255,255,255,0.5)",
             fontWeight: 700,
             fontStyle: "italic",
-            marginTop: 8,
-            letterSpacing: "0.18em",
+            letterSpacing: "0.2em",
+            color: "rgba(255,255,255,0.75)",
             fontFamily: "'Plus Jakarta Sans', sans-serif",
           }}>
             ETİBARLI &nbsp;·&nbsp; HALAL &nbsp;·&nbsp; SÜRƏTLİ
-          </div>
+          </p>
         </div>
 
-        {/* Spinner */}
+        {/* Loading bar */}
         <div style={{
-          width: 32,
-          height: 32,
-          borderRadius: "50%",
-          border: "3px solid rgba(255,255,255,0.1)",
-          borderTopColor: "#dc2626",
-          WebkitAnimation: "spin 0.8s linear infinite",
-          animation: "spin 0.8s linear infinite",
-        }} />
+          position: "absolute",
+          bottom: 48,
+          width: 120,
+          height: 3,
+          borderRadius: 99,
+          background: "rgba(255,255,255,0.2)",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            height: "100%",
+            borderRadius: 99,
+            background: "#fff",
+            WebkitAnimation: "mbBar 1.2s ease-in-out infinite",
+            animation: "mbBar 1.2s ease-in-out infinite",
+          }} />
+        </div>
       </div>
 
       {/* App */}
@@ -128,10 +114,10 @@ export default function ClientShell({ children }) {
       )}
 
       <style>{`
-        @-webkit-keyframes spin { to { -webkit-transform: rotate(360deg); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @-webkit-keyframes mbPulse { 0%,100% { -webkit-transform: scale(1); opacity:1; } 50% { -webkit-transform: scale(1.06); opacity:0.9; } }
-        @keyframes mbPulse { 0%,100% { transform: scale(1); opacity:1; } 50% { transform: scale(1.06); opacity:0.9; } }
+        @-webkit-keyframes mbFadeUp { from { opacity:0; -webkit-transform:translateY(18px); } to { opacity:1; -webkit-transform:translateY(0); } }
+        @keyframes mbFadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+        @-webkit-keyframes mbBar { 0% { width:0%; margin-left:0; } 60% { width:100%; margin-left:0; } 100% { width:0%; margin-left:100%; } }
+        @keyframes mbBar { 0% { width:0%; margin-left:0; } 60% { width:100%; margin-left:0; } 100% { width:0%; margin-left:100%; } }
       `}</style>
     </>
   );
