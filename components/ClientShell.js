@@ -26,60 +26,120 @@ export default function ClientShell({ children }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#c0150f",
+        background: "#0d0d0d",
         opacity: appReady ? 0 : 1,
         visibility: appReady ? "hidden" : "visible",
         pointerEvents: appReady ? "none" : "auto",
-        WebkitTransition: appReady ? "opacity 0.45s ease, visibility 0.45s ease" : "none",
-        transition: appReady ? "opacity 0.45s ease, visibility 0.45s ease" : "none",
+        WebkitTransition: appReady ? "opacity 0.5s ease, visibility 0.5s ease" : "none",
+        transition: appReady ? "opacity 0.5s ease, visibility 0.5s ease" : "none",
+        overflow: "hidden",
       }}>
-        {/* Logo */}
+
+        {/* Glow behind logo */}
         <div style={{
-          WebkitAnimation: "mbFadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both",
-          animation: "mbFadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both",
+          position: "absolute",
+          width: 320,
+          height: 320,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(220,38,38,0.18) 0%, transparent 70%)",
+          WebkitAnimation: "mbGlow 2.4s ease-in-out infinite",
+          animation: "mbGlow 2.4s ease-in-out infinite",
+        }} />
+
+        {/* Logo + text group */}
+        <div style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 20,
+          gap: 0,
+          position: "relative",
+          zIndex: 1,
         }}>
-          <Image
-            src="/mb_logo_bottom.png"
-            alt="MeatBox"
-            width={130}
-            height={130}
-            style={{ objectFit: "contain", filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.3))" }}
-            priority
-          />
+
+          {/* App icon */}
+          <div style={{
+            WebkitAnimation: "mbScaleIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both",
+            animation: "mbScaleIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both",
+          }}>
+            <Image
+              src="/meatbox_icon.png"
+              alt="MeatBox"
+              width={96}
+              height={96}
+              style={{ objectFit: "contain", borderRadius: 22, display: "block" }}
+              priority
+            />
+          </div>
+
+          {/* MEATBOX wordmark */}
+          <div style={{
+            marginTop: 22,
+            WebkitAnimation: "mbFadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.3s both",
+            animation: "mbFadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.3s both",
+          }}>
+            <span style={{
+              fontSize: 38,
+              fontWeight: 900,
+              color: "#fff",
+              letterSpacing: 1,
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              lineHeight: 1,
+            }}>MEAT</span><span style={{
+              fontSize: 38,
+              fontWeight: 900,
+              color: "#dc2626",
+              letterSpacing: 1,
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              lineHeight: 1,
+            }}>BOX</span>
+          </div>
+
+          {/* Divider */}
+          <div style={{
+            marginTop: 14,
+            width: 40,
+            height: 2,
+            borderRadius: 99,
+            background: "#dc2626",
+            WebkitAnimation: "mbFadeUp 0.5s ease 0.5s both",
+            animation: "mbFadeUp 0.5s ease 0.5s both",
+          }} />
+
+          {/* Slogan */}
           <p style={{
-            margin: 0,
-            fontSize: 11,
-            fontWeight: 700,
+            margin: "12px 0 0",
+            fontSize: 10.5,
+            fontWeight: 600,
             fontStyle: "italic",
-            letterSpacing: "0.2em",
-            color: "rgba(255,255,255,0.75)",
+            letterSpacing: "0.22em",
+            color: "rgba(255,255,255,0.4)",
             fontFamily: "'Plus Jakarta Sans', sans-serif",
+            WebkitAnimation: "mbFadeUp 0.5s ease 0.65s both",
+            animation: "mbFadeUp 0.5s ease 0.65s both",
           }}>
             ETİBARLI &nbsp;·&nbsp; HALAL &nbsp;·&nbsp; SÜRƏTLİ
           </p>
         </div>
 
-        {/* Loading bar */}
+        {/* Bottom loading dots */}
         <div style={{
           position: "absolute",
-          bottom: 48,
-          width: 120,
-          height: 3,
-          borderRadius: 99,
-          background: "rgba(255,255,255,0.2)",
-          overflow: "hidden",
+          bottom: 52,
+          display: "flex",
+          gap: 8,
+          WebkitAnimation: "mbFadeUp 0.4s ease 0.8s both",
+          animation: "mbFadeUp 0.4s ease 0.8s both",
         }}>
-          <div style={{
-            height: "100%",
-            borderRadius: 99,
-            background: "#fff",
-            WebkitAnimation: "mbBar 1.2s ease-in-out infinite",
-            animation: "mbBar 1.2s ease-in-out infinite",
-          }} />
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: "#dc2626",
+              WebkitAnimation: `mbDot 1.2s ease-in-out ${i * 0.2}s infinite`,
+              animation: `mbDot 1.2s ease-in-out ${i * 0.2}s infinite`,
+            }} />
+          ))}
         </div>
       </div>
 
@@ -114,10 +174,14 @@ export default function ClientShell({ children }) {
       )}
 
       <style>{`
-        @-webkit-keyframes mbFadeUp { from { opacity:0; -webkit-transform:translateY(18px); } to { opacity:1; -webkit-transform:translateY(0); } }
-        @keyframes mbFadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-        @-webkit-keyframes mbBar { 0% { width:0%; margin-left:0; } 60% { width:100%; margin-left:0; } 100% { width:0%; margin-left:100%; } }
-        @keyframes mbBar { 0% { width:0%; margin-left:0; } 60% { width:100%; margin-left:0; } 100% { width:0%; margin-left:100%; } }
+        @keyframes mbScaleIn { from { opacity:0; transform:scale(0.6); } to { opacity:1; transform:scale(1); } }
+        @-webkit-keyframes mbScaleIn { from { opacity:0; -webkit-transform:scale(0.6); } to { opacity:1; -webkit-transform:scale(1); } }
+        @keyframes mbFadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        @-webkit-keyframes mbFadeUp { from { opacity:0; -webkit-transform:translateY(14px); } to { opacity:1; -webkit-transform:translateY(0); } }
+        @keyframes mbGlow { 0%,100% { opacity:0.6; transform:scale(1); } 50% { opacity:1; transform:scale(1.15); } }
+        @-webkit-keyframes mbGlow { 0%,100% { opacity:0.6; -webkit-transform:scale(1); } 50% { opacity:1; -webkit-transform:scale(1.15); } }
+        @keyframes mbDot { 0%,100% { opacity:0.25; transform:scale(0.75); } 50% { opacity:1; transform:scale(1); } }
+        @-webkit-keyframes mbDot { 0%,100% { opacity:0.25; -webkit-transform:scale(0.75); } 50% { opacity:1; -webkit-transform:scale(1); } }
       `}</style>
     </>
   );
