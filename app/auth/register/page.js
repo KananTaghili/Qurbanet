@@ -46,7 +46,10 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isExiting, setIsExiting] = useState(false);
   const abortRef = useRef(null);
+
+  const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
 
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
@@ -209,7 +212,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div style={{
+        <div className={`auth-card${isExiting ? " auth-card-out" : ""}`} style={{
           width: "100%",
           maxWidth: 365,
           borderRadius: 20,
@@ -225,8 +228,10 @@ export default function RegisterPage() {
           <div>
             <button
               type="button"
-              onClick={() => router.push("/auth/login")}
-              style={{ display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 8, fontSize: 12, fontWeight: 700, color: "#6b7280", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}
+              onClick={() => navigate("/auth/login")}
+              style={{ display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 8, fontSize: 12, fontWeight: 700, color: "#6b7280", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0, transition: "opacity 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.opacity = "0.6"}
+              onMouseLeave={e => e.currentTarget.style.opacity = "1"}
             >
               <ArrowLeft size={14} /> Geri qayıt
             </button>
@@ -263,7 +268,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
             {/* Phone / Email */}
             {mode === "phone" ? (
-              <label style={{ display: "block" }}>
+              <label key="phone" className="auth-tab-field" style={{ display: "block" }}>
                 <span style={{ display: "block", marginBottom: 2, fontSize: 12, fontWeight: 800, color: "#1f2937" }}>Telefon nömrəsi</span>
                 <div style={{ display: "flex", overflow: "hidden", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 12px", borderRight: "1px solid #e5e7eb", fontSize: 13, fontWeight: 800, color: "#c8102e", whiteSpace: "nowrap", flexShrink: 0 }}>AZ +994</span>
@@ -280,7 +285,7 @@ export default function RegisterPage() {
                 <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, marginLeft: 4 }}>Nömrənizə doğrulama kodu göndəriləcək</p>
               </label>
             ) : (
-              <label style={{ display: "block" }}>
+              <label key="email" className="auth-tab-field" style={{ display: "block" }}>
                 <span style={{ display: "block", marginBottom: 2, fontSize: 12, fontWeight: 800, color: "#1f2937" }}>Email ünvanı</span>
                 <div style={{ display: "flex", alignItems: "center", overflow: "hidden", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: "0 12px" }}>
                   <Mail size={16} color="#9ca3af" style={{ flexShrink: 0 }} />
@@ -318,6 +323,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
+              className="auth-btn-primary"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 height: 40, width: "100%", borderRadius: 14, border: "none",
@@ -350,24 +356,47 @@ export default function RegisterPage() {
             </div>
 
             {/* Login link */}
-            <Link
-              href="/auth/login"
+            <button
+              type="button"
+              onClick={() => navigate("/auth/login")}
+              className="auth-btn-outline"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
-                height: 40, borderRadius: 14, border: "1.5px solid #e5e7eb",
+                height: 40, width: "100%", borderRadius: 14, border: "1.5px solid #e5e7eb",
                 background: "#fff", color: "#111827",
-                fontSize: 14, fontWeight: 800, textDecoration: "none",
-                fontFamily: "inherit",
+                fontSize: 14, fontWeight: 800,
+                fontFamily: "inherit", cursor: "pointer",
               }}
             >
               Daxil ol
-            </Link>
+            </button>
           </form>
         </div>
       </section>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes authCardIn {
+          from { opacity: 0; transform: translateY(28px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+        @keyframes authCardOut {
+          from { opacity: 1; transform: translateY(0)    scale(1); }
+          to   { opacity: 0; transform: translateY(-18px) scale(0.97); }
+        }
+        @keyframes authTabField {
+          from { opacity: 0; transform: translateX(14px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .auth-card { animation: authCardIn 0.38s cubic-bezier(0.34,1.4,0.64,1) both; }
+        .auth-card-out { animation: authCardOut 0.24s ease-in both !important; }
+        .auth-tab-field { animation: authTabField 0.22s ease both; }
+        .auth-btn-primary { transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease; }
+        .auth-btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 16px 32px rgba(242,11,50,0.28) !important; }
+        .auth-btn-primary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        .auth-btn-outline { transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease; }
+        .auth-btn-outline:hover { background: #f9fafb !important; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important; }
+        .auth-btn-outline:active { transform: translateY(0) scale(0.98); }
         @media (min-width: 1024px) {
           .auth-grid-cols { grid-template-columns: 1.22fr 0.78fr !important; }
         }

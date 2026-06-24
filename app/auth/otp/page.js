@@ -17,7 +17,10 @@ export default function OtpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isExiting, setIsExiting] = useState(false);
   const [identifier, setIdentifier] = useState('');
+
+  const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
   const [identifierType, setIdentifierType] = useState('phone');
   const [isLogin, setIsLogin] = useState(false);
   const inputs = useRef([]);
@@ -80,7 +83,7 @@ export default function OtpPage() {
 
   const handleBack = () => {
     clearOtpSession();
-    router.push(isLogin ? '/auth/login' : '/auth/register');
+    navigate(isLogin ? '/auth/login' : '/auth/register');
   };
 
   const handleSubmit = async (e, autoCode) => {
@@ -224,7 +227,7 @@ export default function OtpPage() {
             </div>
           </div>
 
-          <div style={{
+          <div className={`auth-card${isExiting ? ' auth-card-out' : ''}`} style={{
             width: '100%',
             maxWidth: 380,
             borderRadius: 20,
@@ -365,6 +368,7 @@ export default function OtpPage() {
                 <button
                   type="submit"
                   disabled={loading}
+                  className="auth-btn-primary"
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     height: 44, width: '100%', borderRadius: 14, border: 'none',
@@ -386,8 +390,10 @@ export default function OtpPage() {
 
               <button
                 type="button"
-                onClick={() => router.push(isLogin ? '/auth/login' : '/auth/register')}
-                style={{ width: '100%', textAlign: 'center', fontSize: 12, color: '#6b7280', padding: '2px 0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+                onClick={() => { clearOtpSession(); navigate(isLogin ? '/auth/login' : '/auth/register'); }}
+                style={{ width: '100%', textAlign: 'center', fontSize: 12, color: '#6b7280', padding: '2px 0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.opacity = '0.6'}
+                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
               >
                 {identifierType === 'email' ? '← Email ünvanını dəyiş' : '← Telefon nömrəsini dəyiş'}
               </button>
@@ -398,6 +404,13 @@ export default function OtpPage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes authCardIn { from { opacity:0; transform:translateY(28px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes authCardOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-18px) scale(0.97); } }
+        .auth-card { animation: authCardIn 0.38s cubic-bezier(0.34,1.4,0.64,1) both; }
+        .auth-card-out { animation: authCardOut 0.24s ease-in both !important; }
+        .auth-btn-primary { transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease; }
+        .auth-btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 16px 32px rgba(242,11,50,0.28) !important; }
+        .auth-btn-primary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
         @media (min-width: 1024px) {
           .auth-grid-cols-otp { grid-template-columns: 1.22fr 0.78fr !important; }
         }

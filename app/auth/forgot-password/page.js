@@ -43,6 +43,9 @@ export default function ForgotPasswordPage() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+
+  const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
 
   useEffect(() => () => clearInterval(timerRef.current), []);
 
@@ -207,7 +210,7 @@ export default function ForgotPasswordPage() {
       >
         <button
           type="button"
-          onClick={() => router.push("/auth/login")}
+          onClick={() => navigate("/auth/login")}
           style={{
             position: "absolute", top: 20, left: 20,
             width: 36, height: 36, borderRadius: 12,
@@ -256,7 +259,7 @@ export default function ForgotPasswordPage() {
           </div>
         </div>
 
-        <div style={{
+        <div className={`auth-card${isExiting ? " auth-card-out" : ""}`} style={{
           width: "100%", maxWidth: 365,
           borderRadius: 20,
           border: "1px solid rgba(255,255,255,0.6)",
@@ -339,6 +342,7 @@ export default function ForgotPasswordPage() {
                   <button
                     type="submit"
                     disabled={sending}
+                    className="auth-btn-primary"
                     style={{
                       width: "100%", padding: "14px 0", borderRadius: 14, border: "none",
                       background: sending ? "#9CA3AF" : "#f20b32", color: "#fff",
@@ -353,7 +357,7 @@ export default function ForgotPasswordPage() {
                       : "Kod göndər"}
                   </button>
 
-                  <button type="button" onClick={() => router.push("/auth/login")} className="text-sm text-text-secondary hover:text-primary transition-colors text-center">
+                  <button type="button" onClick={() => navigate("/auth/login")} className="text-sm text-text-secondary hover:text-primary transition-colors text-center">
                     ← Geri qayıt
                   </button>
                 </form>
@@ -464,6 +468,7 @@ export default function ForgotPasswordPage() {
                   <button
                     type="submit"
                     disabled={resetting}
+                    className="auth-btn-primary"
                     style={{
                       width: "100%", padding: "14px 0", borderRadius: 14, border: "none",
                       background: resetting ? "#9CA3AF" : "#f20b32", color: "#fff",
@@ -478,7 +483,7 @@ export default function ForgotPasswordPage() {
                       : "Şifrəni Yenilə"}
                   </button>
 
-                  <button type="button" onClick={() => router.push("/auth/login")} style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}>
+                  <button type="button" onClick={() => navigate("/auth/login")} style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}>
                     ← Daxil ol
                   </button>
                 </form>
@@ -490,6 +495,13 @@ export default function ForgotPasswordPage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes authCardIn { from { opacity:0; transform:translateY(28px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes authCardOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-18px) scale(0.97); } }
+        .auth-card { animation: authCardIn 0.38s cubic-bezier(0.34,1.4,0.64,1) both; }
+        .auth-card-out { animation: authCardOut 0.24s ease-in both !important; }
+        .auth-btn-primary { transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease; }
+        .auth-btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 16px 32px rgba(242,11,50,0.28) !important; }
+        .auth-btn-primary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
         @media (max-height: 720px) and (max-width: 1023px) {
           .auth-mobile-logo { width: 110px !important; }
           .auth-mobile-brand { gap: 4px !important; }

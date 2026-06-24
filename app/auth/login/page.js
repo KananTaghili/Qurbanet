@@ -48,7 +48,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isExiting, setIsExiting] = useState(false);
   const abortRef = useRef(null);
+
+  const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
 
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
@@ -206,7 +209,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div style={{
+        <div className={`auth-card${isExiting ? " auth-card-out" : ""}`} style={{
           width: "100%",
           maxWidth: 365,
           borderRadius: 20,
@@ -252,7 +255,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
             {/* Phone / Email */}
-            <label style={{ display: "block" }}>
+            <label key={mode} className="auth-tab-field" style={{ display: "block" }}>
               <span style={{ display: "block", marginBottom: 4, fontSize: 12, fontWeight: 800, color: "#1f2937" }}>
                 {mode === "phone" ? "Telefon Nömrəsi" : "Email"}
               </span>
@@ -306,8 +309,10 @@ export default function LoginPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, fontSize: 12 }}>
               <button
                 type="button"
-                onClick={() => router.push("/auth/forgot-password")}
-                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800, color: "#c8102e", fontFamily: "inherit", padding: 0 }}
+                onClick={() => navigate("/auth/forgot-password")}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800, color: "#c8102e", fontFamily: "inherit", padding: 0, transition: "opacity 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.opacity = "0.7"}
+                onMouseLeave={e => e.currentTarget.style.opacity = "1"}
               >
                 Şifrəni unutdum
               </button>
@@ -324,6 +329,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
+              className="auth-btn-primary"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                 height: 40, width: "100%", borderRadius: 14, border: "none",
@@ -352,24 +358,63 @@ export default function LoginPage() {
             </div>
 
             {/* Register link */}
-            <Link
-              href="/auth/register"
+            <button
+              type="button"
+              onClick={() => navigate("/auth/register")}
+              className="auth-btn-outline"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                height: 40, borderRadius: 14, border: "2px solid #c8102e",
+                height: 40, width: "100%", borderRadius: 14, border: "2px solid #c8102e",
                 background: "#fff", color: "#c8102e",
-                fontSize: 14, fontWeight: 800, textDecoration: "none",
-                fontFamily: "inherit",
+                fontSize: 14, fontWeight: 800,
+                fontFamily: "inherit", cursor: "pointer",
               }}
             >
               Qeydiyyatdan keç
-            </Link>
+            </button>
           </form>
         </div>
       </section>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes authCardIn {
+          from { opacity: 0; transform: translateY(28px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+        @keyframes authCardOut {
+          from { opacity: 1; transform: translateY(0)    scale(1); }
+          to   { opacity: 0; transform: translateY(-18px) scale(0.97); }
+        }
+        @keyframes authTabField {
+          from { opacity: 0; transform: translateX(14px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .auth-card { animation: authCardIn 0.38s cubic-bezier(0.34,1.4,0.64,1) both; }
+        .auth-card-out { animation: authCardOut 0.24s ease-in both !important; }
+        .auth-tab-field { animation: authTabField 0.22s ease both; }
+        .auth-btn-primary {
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+        .auth-btn-primary:hover:not(:disabled) {
+          filter: brightness(1.08);
+          transform: translateY(-2px);
+          box-shadow: 0 16px 32px rgba(242,11,50,0.28) !important;
+        }
+        .auth-btn-primary:active:not(:disabled) {
+          transform: translateY(0px) scale(0.98);
+        }
+        .auth-btn-outline {
+          transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .auth-btn-outline:hover {
+          background: #fff1f3 !important;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 18px rgba(200,16,46,0.14) !important;
+        }
+        .auth-btn-outline:active {
+          transform: translateY(0) scale(0.98);
+        }
         @media (min-width: 1024px) {
           .auth-grid-cols { grid-template-columns: 1.22fr 0.78fr !important; }
         }
