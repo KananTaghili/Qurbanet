@@ -1928,32 +1928,32 @@ function HomeContent() {
             </div>
           </div>
           <div className="hidden lg:grid grid-cols-2 gap-6 items-stretch">
-            <div className="pl-8 py-8 pr-2 flex flex-col justify-center">
+            <div className="pl-8 py-4 pr-2 flex flex-col justify-center">
               <h1
-                className="leading-tight mb-3 text-[#241a4d]"
-                style={{ fontSize: "1.75rem", fontWeight: 700 }}
+                className="leading-tight mb-2 text-[#241a4d]"
+                style={{ fontSize: "1.6rem", fontWeight: 700 }}
               >
                 Birlikdə qurban,
                 <br />
                 <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
               </h1>
-              <p className="text-gray-500 text-sm mb-5 leading-relaxed max-w-xs">
+              <p className="text-gray-500 text-sm mb-4 leading-relaxed max-w-xs">
                 Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənirlik.
               </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={openNewCampaign}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all"
                   style={{ background: "#4b14bd" }}
                 >
                   <Plus size={14} /> Yeni açılış et
                 </button>
               </div>
-              <p className="text-gray-400 text-xs mt-3 flex items-center gap-1">
+              <p className="text-gray-400 text-xs mt-2 flex items-center gap-1">
                 <ArrowRight size={11} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
               </p>
             </div>
-            <div className="relative min-h-[220px]">
+            <div className="relative min-h-[160px]">
               <img
                 src="/charity-hero.png"
                 alt="Xeyriyyə"
