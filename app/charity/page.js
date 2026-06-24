@@ -1439,73 +1439,71 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
         )}
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-3 space-y-2">
         {/* Main info card */}
         <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
           <div className="flex flex-col xl:flex-row">
             {/* Animal image */}
-            <div className="xl:w-[340px] shrink-0 bg-[#f5f2ff]">
+            <div className="xl:w-[270px] shrink-0 bg-[#f5f2ff]">
               <img
                 src={animalImg}
                 alt={`${campaign.animal?.nameAz || "Qurban"} heyvanı`}
-                className="h-[240px] xl:h-full w-full object-cover"
+                className="h-[190px] xl:h-full w-full object-cover"
               />
             </div>
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
               {/* Stats grid */}
-              <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                {/* Col 1 — left on mobile: name, weight, date, participants */}
-                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[18px] font-black text-[#33245f] mb-3">
+              <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-3 p-3">
+                {/* Col 1 */}
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-4">
+                  <div className="text-[15px] font-black text-[#33245f] mb-1.5">
                     {campaign.animal?.nameAz || "Qurban"}
                   </div>
                   {campaign.animal?.weightRange && (
                     <>
-                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
-                      <div className="text-[13px] font-black text-[#33245f] mb-3">{campaign.animal.weightRange}</div>
+                      <div className="text-[10px] font-bold text-[#8b7dac]">Diri çəki</div>
+                      <div className="text-[12px] font-black text-[#33245f] mb-1.5">{campaign.animal.weightRange}</div>
                     </>
                   )}
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
-                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f] mb-3">
-                    <CalendarDays size={14} className="text-[#6840c6]" /> {fmtDate(campaign.createdAt)}
+                  <div className="text-[10px] font-bold text-[#8b7dac]">Açılış tarixi</div>
+                  <div className="flex items-center gap-1 text-[12px] font-black text-[#33245f] mb-1.5">
+                    <CalendarDays size={12} className="text-[#6840c6]" /> {fmtDate(campaign.createdAt)}
                   </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
-                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
-                    <Users size={14} className="text-[#5b22c7]" /> {campaign.participantCount} nəfər
-                  </div>
-                </div>
-
-                {/* Col 2 — right on mobile: total, collected, remaining */}
-                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-3">
-                    <Coins size={16} className="text-[#5b22c7]" /> {campaign.totalAmount} AZN
-                  </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-3">
-                    <Coins size={16} className="text-[#5b22c7]" /> {campaign.collectedAmount} AZN
-                  </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Qalan məbləğ</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
-                    <Coins size={16} className="text-[#5b22c7]" /> {Number((campaign.remainingAmount || 0).toFixed(2))} AZN
+                  <div className="md:hidden">
+                    <div className="text-[10px] font-bold text-[#8b7dac]">İştirakçı sayı</div>
+                    <div className="flex items-center gap-1 text-[12px] font-black text-[#33245f]">
+                      <Users size={12} className="text-[#5b22c7]" /> {campaign.participantCount} nəfər
+                    </div>
                   </div>
                 </div>
 
-                {/* Col 3 — desktop only (md+) */}
+                {/* Col 2 */}
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-4">
+                  <div className="text-[10px] font-bold text-[#8b7dac]">Ümumi məbləğ</div>
+                  <div className="flex items-center gap-1 text-[13px] font-black text-[#33245f] mb-1.5">
+                    <Coins size={13} className="text-[#5b22c7]" /> {campaign.totalAmount} AZN
+                  </div>
+                  <div className="text-[10px] font-bold text-[#8b7dac]">Toplanan məbləğ</div>
+                  <div className="flex items-center gap-1 text-[13px] font-black text-[#33245f] mb-1.5">
+                    <Coins size={13} className="text-[#5b22c7]" /> {campaign.collectedAmount} AZN
+                  </div>
+                  <div className="text-[10px] font-bold text-[#8b7dac]">Qalan məbləğ</div>
+                  <div className="flex items-center gap-1 text-[13px] font-black text-[#33245f]">
+                    <Coins size={13} className="text-[#5b22c7]" /> {Number((campaign.remainingAmount || 0).toFixed(2))} AZN
+                  </div>
+                </div>
+
+                {/* Col 3 — desktop only */}
                 <div className="hidden md:block">
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
-                    <Users size={20} className="text-[#5b22c7]" /> {campaign.participantCount} nəfər
-                  </div>
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Qalan məbləğ</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
-                    <Coins size={20} className="text-[#5b22c7]" /> {Number((campaign.remainingAmount || 0).toFixed(2))} AZN
+                  <div className="text-[10px] font-bold text-[#8b7dac]">İştirakçı sayı</div>
+                  <div className="flex items-center gap-1 text-[13px] font-black text-[#33245f]">
+                    <Users size={14} className="text-[#5b22c7]" /> {campaign.participantCount} nəfər
                   </div>
                 </div>
               </div>
 
               {/* Status panel */}
-              <div className="xl:w-[210px] shrink-0 p-4 border-t xl:border-t-0 xl:border-l border-[#e7e1f0]">
+              <div className="xl:w-[190px] shrink-0 p-3 border-t xl:border-t-0 xl:border-l border-[#e7e1f0]">
                 {isCompleted ? (
                   <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
                     <div className="flex flex-col items-center gap-2 shrink-0">
