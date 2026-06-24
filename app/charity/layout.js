@@ -810,17 +810,19 @@ export default function CharityLayout({ children }) {
 
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 min-h-screen flex-col shrink-0" style={{ backgroundColor: "#301586" }}>
-          <div className="px-4 py-4">
+          {/* Back arrow — very top of sidebar */}
+          <div className="px-4 pt-3 pb-1">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors text-xs font-semibold">
+              <ArrowLeft className="h-4 w-4" /> Ana səhifə
+            </Link>
+          </div>
+          {/* Logo + HeartHandshake icon top-left */}
+          <div className="px-4 pb-4">
             <div className="relative block">
-              {/* HeartHandshake — top-right of logo */}
-              <div className="absolute -top-3 -right-1 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#6820a3]/40 bg-white shadow-md">
-                <HeartHandshake className="h-7 w-7 text-[#6820a3]" />
+              <div className="absolute -top-3 -left-1 z-10 grid h-10 w-10 place-items-center rounded-full border-2 border-[#6820a3]/40 bg-white shadow-md">
+                <HeartHandshake className="h-6 w-6 text-[#6820a3]" />
               </div>
-              {/* Back arrow — top-left of logo */}
-              <Link href="/" className="absolute -top-3 -left-1 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-white/30 bg-white/15 shadow-md hover:bg-white/25 transition-colors">
-                <ArrowLeft className="h-6 w-6 text-white" />
-              </Link>
-              <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={130} height={72}
+              <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={110} height={60}
                 style={{ width: "100%", height: "auto", objectFit: "contain" }} priority />
             </div>
           </div>
