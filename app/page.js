@@ -145,7 +145,7 @@ function UserMenu({ user, onLogout }) {
         onClick={() => setOpen(v => !v)}
         style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0 }}
       >
-        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0 }}>
+        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0, lineHeight: 1 }}>
           {initials}
         </div>
         <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{[user?.name, user?.lastName].filter(Boolean).join(" ")}</span>
@@ -235,7 +235,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
 
         {/* ── Header ── */}
-        <header className="flex items-center justify-between bg-white px-6 py-1.5 text-neutral-950 md:px-10">
+        <header className="flex items-center justify-between bg-white px-6 py-2 text-neutral-950 md:px-10">
           <div className="hp-logo">
             <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
           </div>
