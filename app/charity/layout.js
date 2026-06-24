@@ -829,10 +829,10 @@ export default function CharityLayout({ children }) {
           <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
             {visibleNav.map(({ icon: Icon, label, href }) => (
               <Link key={href} href={href}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all ${
                   isActive(href) ? "bg-white/15 text-white font-semibold" : "text-purple-100/70 hover:bg-white/5 hover:text-white"
                 }`}>
-                <Icon size={16} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
+                <Icon size={15} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
                 {label}
               </Link>
             ))}
