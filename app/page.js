@@ -58,16 +58,16 @@ function ServiceCard({ item, idx = 0 }) {
   const { text, border, bg } = colorMap[item.color];
   const Icon = item.Icon;
   return (
-    <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
-      {/* Icon — half outside top, lifts on card hover */}
-      <div className="card-icon-wrap absolute -top-8 left-1/2 -translate-x-1/2 z-10 transition-transform duration-300">
+    <div className="hp-card card-hover-root relative mt-9 transition-transform duration-300" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
+      {/* Icon — half outside top */}
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
         <div className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white shadow-md ${text} ${border}`}>
           <Icon className="h-9 w-9" />
         </div>
       </div>
 
       <article
-        className="card-hover-root group rounded-2xl border border-border bg-white pt-10 pb-4 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-all duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+        className="rounded-2xl border border-border bg-white pt-10 pb-4 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
       >
       <h3 className={`text-center text-xl font-extrabold leading-6 ${text}`}>{item.title}</h3>
       <div className="relative mt-4 overflow-hidden rounded-xl bg-neutral-100">
@@ -189,8 +189,8 @@ export default function HomePage() {
         .hp-footer  { opacity:0; animation: hpFadeUp     0.42s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 1.05s; }
         .hp-copy    { opacity:0; animation: hpFadeUp     0.38s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 1.15s; }
 
-        /* on card hover → lift icon upward */
-        div:has(> .card-hover-root:hover) .card-icon-wrap { transform: translate(-50%, -10px); }
+        /* card + icon lift together */
+        .card-hover-root:hover { transform: translateY(-10px); }
       `}</style>
 
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
@@ -237,7 +237,7 @@ export default function HomePage() {
         )}
 
         {/* ── Hero ── */}
-        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-10 pt-12 md:px-12 md:pb-12">
+        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-16 pt-8 md:px-12 md:pb-20 md:pt-10">
           <Image src="/mb_hero_bg.jpg" alt="Hero fon" fill style={{ objectFit: "cover" }} priority />
           <div className="relative mx-auto max-w-3xl text-center">
             <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-7 py-5 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
