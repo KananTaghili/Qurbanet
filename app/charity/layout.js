@@ -372,7 +372,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl" style={{ maxHeight: "min(640px, calc(100vh - 2rem))" }}>
         <>
-          <div className="flex items-center justify-between border-b border-purple-100 px-5 py-3 shrink-0"
+          <div className="flex items-center justify-between border-b border-purple-100 px-4 py-2 shrink-0"
             style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
             <div>
               <div className="font-bold text-[#1a0f2e]">Yeni Açılış Et</div>
@@ -383,7 +383,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
             </button>
           </div>
 
-          <div className="flex items-center justify-center gap-2 border-b border-purple-100 px-5 py-2 shrink-0">
+          <div className="flex items-center justify-center gap-2 border-b border-purple-100 px-4 py-1.5 shrink-0">
             {NOM_STEPS.map((s, i) => (
               <div key={s} className="flex items-center gap-2">
                 <div className={`flex items-center gap-1.5 text-xs font-semibold ${i === step ? "text-purple-700" : i < step ? "text-emerald-600" : "text-[#7c6fa0]"}`}>
@@ -398,7 +398,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
             ))}
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3"
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-2"
             style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
 
             {/* Mini Auth Phase */}
@@ -554,7 +554,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                       const isSelected = !limited && String(selAnimalId) === String(item._id);
                       return (
                         <button key={item._id} onClick={() => !limited && setSelAnimalId(item._id)} disabled={limited}
-                          className={`relative rounded-2xl border-2 p-3 text-left transition-all overflow-hidden ${
+                          className={`relative rounded-2xl border-2 p-2 text-left transition-all overflow-hidden ${
                             limited ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
                               : isSelected ? "border-purple-500 bg-purple-50"
                               : "border-purple-100 hover:border-purple-300"}`}>
@@ -565,9 +565,9 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                               </span>
                             </div>
                           )}
-                          <div className="mb-2 flex items-center gap-2">
+                          <div className="mb-1.5 flex items-center gap-2">
                             <img src={item.image || ANIMAL_IMG_FALLBACK[item.nameAz] || "/qoyun.png"} alt={item.nameAz}
-                              className="h-10 w-10 rounded-xl bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
+                              className="h-8 w-8 rounded-lg bg-purple-100 object-cover shadow-sm ring-1 ring-purple-200" />
                             <div>
                               <div className="text-sm font-bold text-[#1a0f2e]">{item.nameAz}</div>
                               <div className="text-[10px] font-semibold text-purple-700">Qurbanlıq seçimi</div>
@@ -588,7 +588,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                     })}
                   </div>
                 )}
-                <label className="mt-3 flex cursor-pointer items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/30 p-3">
+                <label className="mt-2 flex cursor-pointer items-center justify-between rounded-xl border border-purple-100 bg-purple-50/30 p-2">
                   <div>
                     <div className="text-sm font-bold text-[#1a0f2e]">Anonim açılış</div>
                     <div className="text-xs text-[#7c6fa0]">Adınız iştirakçılara göstərilməyəcək</div>
@@ -600,8 +600,8 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
 
             {/* Step 1 — Payment */}
             {!authPhase && step === 1 && animal && (
-              <div className="space-y-3">
-                <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-3">
+              <div className="space-y-2">
+                <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-2.5">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex items-center gap-2">
                       <img src={animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || "/qoyun.png"} alt={animal.nameAz}
@@ -647,9 +647,9 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
 
             {/* Step 2 — Confirmation */}
             {!authPhase && step === 2 && animal && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {!isGuest ? (
-                  <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-3">
+                  <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-2.5">
                     <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-purple-700">
                       <Shield size={12} /> Aktiv hesab
                     </div>
@@ -668,13 +668,13 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                   <>
                     <div className="grid grid-cols-2 gap-2">
                       <button onClick={() => setContMode("registered")}
-                        className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "registered" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                        className={`rounded-2xl border-2 p-2 text-left transition ${contMode === "registered" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
                         <div className="font-bold text-[#1a0f2e]">Qeydiyyat ilə</div>
                         <div className="mt-0.5 text-xs text-[#7c6fa0]">Hesabınıza daxil olaraq davam edin</div>
                       </button>
                       {settings.allowGuest !== false && (
                         <button onClick={() => setContMode("guest")}
-                          className={`rounded-2xl border-2 p-3 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                          className={`rounded-2xl border-2 p-2 text-left transition ${contMode === "guest" ? "border-purple-500 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
                           <div className="font-bold text-[#1a0f2e]">Qeydiyyatsız</div>
                           <div className="mt-0.5 text-xs text-[#7c6fa0]">Ad soyad ilə davam edin</div>
                         </button>
@@ -719,9 +719,9 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                     </button>
                   </div>
                 )}
-                <div className="rounded-2xl border border-purple-100 p-3"
+                <div className="rounded-2xl border border-purple-100 p-2.5"
                   style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
-                  <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-purple-700">
+                  <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-purple-700">
                     <Shield size={12} /> Açılış xülasəsi
                   </div>
                   <div className="space-y-2 text-sm">
@@ -759,7 +759,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
           </div>
 
           {!authPhase && (
-            <div className="flex gap-3 px-5 pb-4 pt-3 shrink-0 border-t border-purple-100">
+            <div className="flex gap-3 px-4 pb-3 pt-2 shrink-0 border-t border-purple-100">
               {step > 0 && (
                 <button onClick={() => setStep(s => s - 1)}
                   className="flex-1 rounded-xl border border-purple-200 py-2.5 text-sm font-semibold text-[#1a0f2e] hover:bg-purple-50 transition-colors">
