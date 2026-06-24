@@ -302,12 +302,8 @@ export default function LoginPage() {
               </div>
             </label>
 
-            {/* Remember + Forgot */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, fontSize: 12 }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "#374151", flexShrink: 0 }}>
-                <input type="checkbox" style={{ width: 14, height: 14, accentColor: "#374151" }} />
-                Məni yadda saxla
-              </label>
+            {/* Forgot */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, fontSize: 12 }}>
               <button
                 type="button"
                 onClick={() => router.push("/auth/forgot-password")}
