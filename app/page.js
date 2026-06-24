@@ -288,9 +288,9 @@ export default function HomePage() {
               />
               <div className="mt-2 flex items-center justify-center gap-3 text-white uppercase" style={{ fontFamily: "'Montserrat', 'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontStyle: "italic", fontSize: "13px", letterSpacing: "0.22em" }}>
                 <span>ETİBARLI</span>
-                <span style={{ opacity: 0.6, fontSize: "16px", lineHeight: 1, fontStyle: "normal" }}>•</span>
+                <span style={{ fontSize: "16px", lineHeight: 1, fontStyle: "normal" }}>•</span>
                 <span>HALAL</span>
-                <span style={{ opacity: 0.6, fontSize: "16px", lineHeight: 1, fontStyle: "normal" }}>•</span>
+                <span style={{ fontSize: "16px", lineHeight: 1, fontStyle: "normal" }}>•</span>
                 <span>SÜRƏTLİ</span>
               </div>
             </div>
