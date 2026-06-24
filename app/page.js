@@ -250,8 +250,8 @@ export default function HomePage() {
         </div>
 
         {/* ── Services ── */}
-        <section className="bg-[#fbf7f2] px-6 py-8 md:px-12">
-          <div className="grid gap-4 lg:grid-cols-3">
+        <section className="bg-[#fbf7f2] px-6 pb-8 pt-0 md:px-12">
+          <div className="grid gap-4 lg:grid-cols-3" style={{ marginTop: "-50px", position: "relative", zIndex: 10 }}>
             {cards.map((item, idx) => <ServiceCard key={item.title} item={item} idx={idx} />)}
           </div>
 
