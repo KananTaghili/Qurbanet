@@ -819,7 +819,7 @@ export default function CharityLayout({ children }) {
           {/* Logo + HeartHandshake icon top-left */}
           <div className="flex justify-center pb-4" style={{ marginTop: 5 }}>
             <div className="relative" style={{ width: 160 }}>
-              <div className="absolute -top-4 -right-4 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#6820a3]/30 bg-white shadow-lg">
+              <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#6820a3]/30 bg-white shadow-lg">
                 <HeartHandshake className="h-7 w-7 text-[#6820a3]" />
               </div>
               <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={160} height={88}
