@@ -809,24 +809,24 @@ export default function CharityLayout({ children }) {
       <div className="flex h-screen overflow-hidden bg-[#f7f5ff]">
 
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex w-56 min-h-screen flex-col shrink-0" style={{ backgroundColor: "#301586" }}>
+        <aside className="hidden lg:flex w-56 h-screen flex-col shrink-0 overflow-hidden" style={{ backgroundColor: "#301586" }}>
           {/* Back arrow — very top of sidebar */}
           <div className="px-4 pt-3 pb-1">
-            <Link href="/" className="inline-flex items-center text-white/70 hover:text-white transition-colors">
-              <ArrowLeft className="h-4 w-4" />
+            <Link href="/" className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/25 bg-white/10 text-white shadow hover:bg-white/20 transition-colors">
+              <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
             </Link>
           </div>
           {/* Logo + HeartHandshake icon top-left */}
           <div className="px-5 pb-4">
-            <div className="relative block">
+            <div className="relative block" style={{ width: 60 }}>
               <div className="absolute -top-3 -left-2 z-10 grid h-12 w-12 place-items-center rounded-full border-2 border-[#6820a3]/40 bg-white shadow-md">
                 <HeartHandshake className="h-7 w-7 text-[#6820a3]" />
               </div>
-              <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={88} height={48}
-                style={{ width: "100%", height: "auto", objectFit: "contain" }} priority />
+              <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={60} height={33}
+                style={{ width: 60, height: "auto", objectFit: "contain" }} priority />
             </div>
           </div>
-          <nav className="flex-1 px-3 space-y-0.5">
+          <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
             {visibleNav.map(({ icon: Icon, label, href }) => (
               <Link key={href} href={href}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
