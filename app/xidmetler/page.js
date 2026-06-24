@@ -1,12 +1,13 @@
 "use client";
+import Link from "next/link";
 import { ArrowRight, HeartHandshake, Beef } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import SiteLayout from "../../components/SiteLayout";
 
 const cards = [
-  { title: "Qurbanlıq Sifarişi", text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnifeBold },
-  { title: "Kollektiv Qurban",   text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake },
-  { title: "Ət Satışı",          text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef },
+  { title: "Qurbanlıq Sifarişi", text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnifeBold,    href: "/qurban" },
+  { title: "Kollektiv Qurban",   text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, href: "/charity" },
+  { title: "Ət Satışı",          text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef,           href: null },
 ];
 
 const colorMap = {
@@ -31,9 +32,15 @@ function ServiceDetailCard({ item, index }) {
         </div>
       </div>
       <p className="relative mt-4 flex-1 text-sm leading-6 text-neutral-700 sm:mt-5 sm:text-[15px] sm:leading-7">{item.text}</p>
-      <button className={`relative mt-6 inline-flex w-fit items-center gap-3 border-b-2 pb-1 text-sm font-black ${c.text} ${c.border}`}>
-        Ətraflı bax <ArrowRight className="h-4 w-4" />
-      </button>
+      {item.href ? (
+        <Link href={item.href} className={`relative mt-6 inline-flex w-fit items-center gap-3 border-b-2 pb-1 text-sm font-black transition hover:opacity-75 ${c.text} ${c.border}`}>
+          Ətraflı bax <ArrowRight className="h-4 w-4" />
+        </Link>
+      ) : (
+        <span className="relative mt-6 inline-flex w-fit cursor-not-allowed items-center gap-3 border-b-2 pb-1 text-sm font-black opacity-40 border-neutral-300 text-neutral-400">
+          Tezliklə <ArrowRight className="h-4 w-4" />
+        </span>
+      )}
     </article>
   );
 }
