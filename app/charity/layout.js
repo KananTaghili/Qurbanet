@@ -830,19 +830,29 @@ export default function CharityLayout({ children }) {
               </Link>
             ))}
           </nav>
-          <div className="px-3 mb-3">
-            <button onClick={() => setShowNewOpening(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/10 hover:bg-white/20 active:scale-95 transition-all"
-              style={{ backdropFilter: "blur(4px)" }}>
-              <Plus size={15} /> Yeni açılış et
-            </button>
-          </div>
-          <div className="mx-3 mb-5 p-3.5 rounded-xl bg-white/5">
-            <div className="flex items-center gap-2 mb-1">
-              <Heart size={13} className="text-white/80" />
-              <span className="text-white/80 text-xs font-medium">Birlikdə xeyir,</span>
+          <div className="mx-3 mb-5">
+            <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              {/* Top — slogan */}
+              <div className="px-4 pt-4 pb-3 flex items-start gap-2.5">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                  <Heart size={15} className="text-pink-300" />
+                </div>
+                <div>
+                  <p className="text-white text-[13px] font-semibold leading-snug">Birlikdə xeyir,</p>
+                  <p className="text-purple-200/60 text-[11px] mt-0.5">birlikdə paylaşaq</p>
+                </div>
+              </div>
+              {/* Divider */}
+              <div className="mx-4 h-px bg-white/8" />
+              {/* Bottom — CTA button */}
+              <div className="p-3">
+                <button onClick={() => setShowNewOpening(true)}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white active:scale-95 transition-all"
+                  style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)", boxShadow: "0 4px 14px rgba(92,33,182,0.5)" }}>
+                  <Plus size={15} strokeWidth={2.5} /> Yeni açılış et
+                </button>
+              </div>
             </div>
-            <span className="text-purple-100/60 text-xs">birlikdə paylaşaq</span>
           </div>
         </aside>
 
