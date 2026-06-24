@@ -286,11 +286,11 @@ export default function HomePage() {
                 width={220} height={176}
                 className="mx-auto h-20 w-28 object-contain drop-shadow-2xl md:h-28 md:w-36"
               />
-              <div className="mt-1 flex items-center justify-center gap-2 text-white font-extrabold italic tracking-widest text-[11px] md:text-[13px] uppercase" style={{ fontStyle: "italic", letterSpacing: "0.18em" }}>
+              <div className="mt-1 flex items-center justify-center gap-2 text-white uppercase" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontStyle: "italic", fontSize: "11px", letterSpacing: "0.16em" }}>
                 <span>ETİBARLI</span>
-                <span className="text-white opacity-70 text-lg leading-none">•</span>
+                <span style={{ opacity: 0.75, fontSize: "14px", lineHeight: 1 }}>•</span>
                 <span>HALAL</span>
-                <span className="text-white opacity-70 text-lg leading-none">•</span>
+                <span style={{ opacity: 0.75, fontSize: "14px", lineHeight: 1 }}>•</span>
                 <span>SÜRƏTLİ</span>
               </div>
             </div>
