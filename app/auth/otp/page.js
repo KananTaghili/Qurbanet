@@ -92,6 +92,7 @@ export default function OtpPage() {
     if (otp.length < 4) { setError('4 rəqəmli kodu daxil edin.'); return; }
     if (!isLogin) {
       if (name.trim().length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
+      if (lastName.trim().length < 2) { setError('Soyad ən az 2 simvol olmalıdır.'); return; }
       if (!password || password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır.'); return; }
     }
     if (submittingRef.current) return;
@@ -114,8 +115,7 @@ export default function OtpPage() {
 
         if (!isLogin && name.trim()) {
           try {
-            const body = { name: name.trim() };
-            if (lastName.trim()) body.lastName = lastName.trim();
+            const body = { name: name.trim(), lastName: lastName.trim() };
             const profileRes = await api.put('/auth/profile', body, { signal: abortRef.current.signal });
             const freshToken = profileRes.data.data?.token || token;
             const updatedUser = profileRes.data.data?.user || { ...user, name: name.trim() };
@@ -315,7 +315,7 @@ export default function OtpPage() {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Soyad</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Soyad *</label>
                     <input
                       type="text"
                       name="family-name"
