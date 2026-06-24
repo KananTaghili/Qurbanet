@@ -137,7 +137,7 @@ export default function HomePage() {
   const handleLogout = async () => { await logout(); router.push("/"); };
 
   const whyItems = [
-    [KnifeIcon, "Halal Kəsim",       "Dini qaydalara uyğun peşəkar kəsim"],
+    [PocketKnife, "Halal Kəsim",       "Dini qaydalara uyğun peşəkar kəsim"],
     [Video,     "Video Hesabat",      "Kəsim prosesini addım-addım izləyin"],
     [Truck,     "Çatdırılma",         "Sürətli və etibarlı çatdırılma"],
     [HeartHandshake, "Şəffaf Xeyriyyə", "Hesabatlı və şəffaf paylaşım"],
