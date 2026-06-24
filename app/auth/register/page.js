@@ -144,13 +144,13 @@ export default function RegisterPage() {
         </Link>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 420, margin: "0 auto", width: "100%", textAlign: "center" }}>
-          {/* Logo (includes MEATBOX text) */}
-          <div style={{ width: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {/* Logo */}
+          <div className="lp-fade-up" style={{ width: 200, display: "flex", alignItems: "center", justifyContent: "center", animationDelay: "0.05s" }}>
             <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={200} height={154} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
           </div>
 
-          {/* Slogan below logo */}
-          <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+          {/* Slogan */}
+          <div className="lp-fade-up" style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center", animationDelay: "0.18s" }}>
             {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
               <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.75)" }}>{t}</span>
@@ -159,10 +159,10 @@ export default function RegisterPage() {
             ))}
           </div>
 
-          {/* Feature cards */}
+          {/* Feature cards — staggered */}
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
-            {features.map((feature) => { const { title, text, icon, iconWrap } = feature; return (
-              <div key={title} style={{
+            {features.map((feature, idx) => { const { title, text, icon, iconWrap } = feature; return (
+              <div key={title} className="lp-fade-up" style={{
                 display: "flex", alignItems: "center", gap: 12,
                 borderRadius: 16, border: "1px solid rgba(255,255,255,0.12)",
                 background: "rgba(255,255,255,0.075)",
@@ -170,6 +170,7 @@ export default function RegisterPage() {
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 24px rgba(0,0,0,0.12)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
+                animationDelay: `${0.32 + idx * 0.12}s`,
               }}>
                 <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", ...iconWrap }}>
                   {feature.IconComponent
@@ -185,7 +186,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Footer tagline */}
-          <div style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
+          <div className="lp-fade-up" style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap", animationDelay: "0.72s" }}>
             {["Təmiz ət", "Təmiz niyyət", "Təmiz xidmət"].map((label) => (
               <span key={label} style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
             ))}
@@ -386,6 +387,14 @@ export default function RegisterPage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes lpFadeUp {
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .lp-fade-up {
+          opacity: 0;
+          animation: lpFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
         @keyframes authCardIn {
           from { opacity: 0; transform: translateY(28px) scale(0.96); }
           to   { opacity: 1; transform: translateY(0)   scale(1); }
