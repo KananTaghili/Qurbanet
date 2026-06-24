@@ -659,6 +659,7 @@ const filterPhoneInput = (v) => v.replace(/[^\d\s+\-()]/g, "");
 export function DonationModal({ animal, onClose }) {
   const { isGuest, user, login } = useAuth();
   const [step, setStep] = useState(0);
+  const [stepDir, setStepDir] = useState("fwd");
   const [anonymous, setAnonymous] = useState(false);
   const [anonExpanded, setAnonExpanded] = useState(false);
   const [amount, setAmount] = useState(animal.shareMin || "10");
@@ -810,6 +811,12 @@ export function DonationModal({ animal, onClose }) {
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
+      <style>{`
+        @keyframes _slide-fwd { from { transform:translateX(22px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+        @keyframes _slide-bwd { from { transform:translateX(-22px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+        .step-fwd { animation: _slide-fwd 0.22s cubic-bezier(.25,.8,.25,1); }
+        .step-bwd { animation: _slide-bwd 0.22s cubic-bezier(.25,.8,.25,1); }
+      `}</style>
       <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         <div
           className="flex items-center justify-between px-4 py-2 border-b border-[#ede9fe] shrink-0"
@@ -864,7 +871,8 @@ export function DonationModal({ animal, onClose }) {
         </div>
 
         <div
-          className="min-h-0 flex-1 overflow-y-auto px-4 py-2"
+          key={`donate-step-${step}`}
+          className={`min-h-0 flex-1 overflow-y-auto px-4 py-2 ${stepDir === "fwd" ? "step-fwd" : "step-bwd"}`}
           style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}
         >
           {/* ── Inline Auth Phase ── */}
@@ -1221,7 +1229,7 @@ export function DonationModal({ animal, onClose }) {
         {!authPhase && <div className="flex gap-3 border-t border-[#f0ebff] px-4 pb-3 pt-2 shrink-0">
           {step > 0 && (
             <button
-              onClick={() => setStep((s) => s - 1)}
+              onClick={() => { setStepDir("bwd"); setStep((s) => s - 1); }}
               className="flex-1 rounded-xl border border-[#d9cdfa] py-2.5 text-sm font-semibold text-[#241a4d] hover:bg-[#f5f3ff] transition-colors"
             >
               Geri
@@ -1231,7 +1239,7 @@ export function DonationModal({ animal, onClose }) {
             <button
               onClick={() => {
                 if (step === 1 && !validAmt) return;
-                setStep((s) => s + 1);
+                setStepDir("fwd"); setStep((s) => s + 1);
               }}
               disabled={step === 1 && !validAmt}
               className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
