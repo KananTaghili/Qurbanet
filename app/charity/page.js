@@ -52,83 +52,33 @@ const FEATURES = [
 
 /* ─── Ring Progress ──────────────────────────────────────────── */
 function RingProgress({ percent, type, img }) {
-  const size = 188,
-    r = 82;
+  const size = 148, r = 64;
   const circ = 2 * Math.PI * r;
   const p = Math.max(0, Math.min(percent, 100));
   const dash = (p / 100) * circ;
   const id = `grad-${type.replace(/[^a-zA-Z0-9]/g, "")}`;
   return (
-    <div
-      className="relative mx-auto mt-2"
-      style={{ height: 218, width: "100%", maxWidth: 198 }}
-    >
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none"
-      >
+    <div className="relative mx-auto mt-1" style={{ height: 170, width: "100%", maxWidth: 156 }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}
+        className="absolute left-1/2 top-0 z-10 -translate-x-1/2 pointer-events-none">
         <defs>
-          <linearGradient
-            id={id}
-            x1="94"
-            y1="176"
-            x2="94"
-            y2="12"
-            gradientUnits="userSpaceOnUse"
-          >
+          <linearGradient id={id} x1="74" y1="138" x2="74" y2="10" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#4513ad" />
             <stop offset="58%" stopColor="#5f2bd1" />
             <stop offset="100%" stopColor="#7547e6" />
           </linearGradient>
         </defs>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="#d9cdfa"
-          strokeWidth="7"
-          strokeLinecap="round"
-          opacity="0.9"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke={`url(#${id})`}
-          strokeWidth="11"
-          strokeLinecap="round"
-          strokeDasharray={`${dash} ${circ - dash}`}
-          strokeDashoffset="0"
-          transform={`rotate(90 ${size / 2} ${size / 2})`}
-        />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#d9cdfa" strokeWidth="6" strokeLinecap="round" opacity="0.9" />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`url(#${id})`} strokeWidth="9" strokeLinecap="round"
+          strokeDasharray={`${dash} ${circ-dash}`} strokeDashoffset="0" transform={`rotate(90 ${size/2} ${size/2})`} />
       </svg>
-      <div
-        className="absolute left-1/2 top-[19px] flex h-[150px] w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full"
-        style={{ backgroundColor: "#fbfaff" }}
-      >
-        <img
-          src={img}
-          alt={type}
-          className="max-h-[85%] max-w-[85%] object-contain"
-          style={{ mixBlendMode: "multiply" }}
-        />
+      <div className="absolute left-1/2 top-[14px] flex h-[120px] w-[120px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-full"
+        style={{ backgroundColor: "#fbfaff" }}>
+        <img src={img} alt={type} className="max-h-[85%] max-w-[85%] object-contain" style={{ mixBlendMode: "multiply" }} />
       </div>
-      <div
-        className="absolute left-1/2 top-[164px] z-20 -translate-x-1/2 rounded-2xl px-6 py-1.5 leading-none text-white"
-        style={{
-          backgroundColor: "#551dc7",
-          boxShadow: "0 8px 16px rgba(85,29,199,.25)",
-          border: "3px solid white",
-          fontSize: "22px",
-          fontWeight: 900,
-          letterSpacing: "-.04em",
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-        }}
-      >
+      <div className="absolute left-1/2 top-[128px] z-20 -translate-x-1/2 rounded-xl px-4 py-1 leading-none text-white whitespace-nowrap"
+        style={{ backgroundColor: "#551dc7", boxShadow: "0 6px 12px rgba(85,29,199,.25)", border: "2px solid white",
+          fontSize: "17px", fontWeight: 900, letterSpacing: "-.04em" }}>
         {p}%
       </div>
     </div>
@@ -221,64 +171,64 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
   };
   return (
     <div onClick={onClick}
-      className="group flex flex-col overflow-hidden rounded-[22px] border border-[#eee8f6] bg-white px-4 pb-4 pt-4 cursor-pointer transition-all hover:-translate-y-1"
+      className="group flex flex-col overflow-hidden rounded-[18px] border border-[#eee8f6] bg-white px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1"
       style={{ boxShadow: "0 8px 28px rgba(54,27,99,.08)" }}>
-      <div className="mb-2 flex items-start justify-between gap-3">
-        <h3 className="text-[20px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
-        <span className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-medium text-emerald-600">Davam Edir</span>
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <h3 className="text-[15px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
+        <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600">Davam Edir</span>
       </div>
       <RingProgress percent={animal.progressPercent} type={animal.type} img={animal.img} />
-      <div className="mt-1 text-center text-[13px] font-semibold text-[#281d55]">
+      <div className="mt-1 text-center text-[12px] font-semibold text-[#281d55]">
         {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl p-3" style={{ backgroundColor: "#f8f5ff" }}>
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm" style={{ color: "#5521c6" }}>
-            <CalendarDays size={15} strokeWidth={2} />
+      <div className="mt-2 grid grid-cols-2 gap-2 rounded-xl p-2" style={{ backgroundColor: "#f8f5ff" }}>
+        <div className="flex items-center gap-1.5">
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm" style={{ color: "#5521c6" }}>
+            <CalendarDays size={12} strokeWidth={2} />
           </span>
-          <div className="text-[11px] font-medium text-[#241a4d]">{animal.startTime}</div>
+          <div className="text-[10px] font-medium text-[#241a4d]">{animal.startTime}</div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white shadow-sm" style={{ color: "#5521c6" }}>
-            <UsersRound size={15} strokeWidth={2} />
+        <div className="flex items-center gap-1.5">
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm" style={{ color: "#5521c6" }}>
+            <UsersRound size={12} strokeWidth={2} />
           </span>
-          <div className="text-[11px] font-medium text-[#241a4d]">{animal.participants} iştirakçı</div>
+          <div className="text-[10px] font-medium text-[#241a4d]">{animal.participants} iştirakçı</div>
         </div>
       </div>
-      <div className="mt-4">
-        <div className="mb-1.5 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Açan şəxs</div>
-        <div className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-full bg-purple-100 text-xs font-semibold text-purple-700 shrink-0">
+      <div className="mt-2">
+        <div className="mb-1 text-[10px] font-medium" style={{ color: "#8a7ba7" }}>Açan şəxs</div>
+        <div className="flex items-center gap-1.5">
+          <div className="grid h-6 w-6 place-items-center rounded-full bg-purple-100 text-[9px] font-semibold text-purple-700 shrink-0">
             {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
           </div>
-          <div className="truncate text-[12px] font-medium" style={{ color: "#342760" }}>{animal.organizer}</div>
-          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "#5521c6" }} />
+          <div className="truncate text-[11px] font-medium" style={{ color: "#342760" }}>{animal.organizer}</div>
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#5521c6" }} />
         </div>
       </div>
-      <div className="mt-3">
-        <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Ödədiyi məbləğ</div>
-        <div className="flex items-center gap-2">
-          <span className="text-[16px] font-bold text-[#241a4d]">{animal.shareMin} {animal.currency}</span>
-          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-medium" style={{ color: "#5521c6" }}>{paidPct}%</span>
+      <div className="mt-2">
+        <div className="mb-0.5 text-[10px] font-medium" style={{ color: "#8a7ba7" }}>Ödədiyi məbləğ</div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[13px] font-bold text-[#241a4d]">{animal.shareMin} {animal.currency}</span>
+          <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium" style={{ color: "#5521c6" }}>{paidPct}%</span>
         </div>
       </div>
-      <div className="mt-3 border-t border-[#eee8f6] pt-3 grid grid-cols-2 gap-3">
+      <div className="mt-2 border-t border-[#eee8f6] pt-2 grid grid-cols-2 gap-2">
         <div>
-          <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Qalan məbləğ</div>
-          <div className="text-[17px] font-bold text-[#241a4d]">{animal.totalMin} <span className="text-[11px] font-normal">AZN</span></div>
+          <div className="mb-0.5 text-[10px] font-medium" style={{ color: "#8a7ba7" }}>Qalan məbləğ</div>
+          <div className="text-[13px] font-bold text-[#241a4d]">{animal.totalMin} <span className="text-[10px] font-normal">AZN</span></div>
         </div>
         <div>
-          <div className="mb-1 text-[11px] font-medium" style={{ color: "#8a7ba7" }}>Ümumi məbləğ</div>
-          <div className="text-[17px] font-bold text-[#241a4d]">{animal.totalMax} <span className="text-[11px] font-normal">AZN</span></div>
+          <div className="mb-0.5 text-[10px] font-medium" style={{ color: "#8a7ba7" }}>Ümumi məbləğ</div>
+          <div className="text-[13px] font-bold text-[#241a4d]">{animal.totalMax} <span className="text-[10px] font-normal">AZN</span></div>
         </div>
       </div>
       <button onClick={handleShare}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9cdfa] py-2.5 text-xs font-medium transition-all hover:bg-white"
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#d9cdfa] py-1.5 text-[11px] font-medium transition-all hover:bg-white"
         style={{ backgroundColor: "#f7f3ff", color: "#5521c6" }}>
-        <Share2 size={13} strokeWidth={2} /> İanəyə Dəvət Et
+        <Share2 size={11} strokeWidth={2} /> İanəyə Dəvət Et
       </button>
       <button onClick={(e) => { e.stopPropagation(); onDonate(animal); }}
-        className="mt-2 w-full rounded-xl py-2 text-xs font-medium text-white transition hover:opacity-90 active:scale-[0.98]"
+        className="mt-1.5 w-full rounded-lg py-1.5 text-[11px] font-medium text-white transition hover:opacity-90 active:scale-[0.98]"
         style={{ background: "linear-gradient(135deg, #5b21b6, #7c3aed)" }}>
         İanə et →
       </button>
