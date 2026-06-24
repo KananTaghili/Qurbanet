@@ -159,10 +159,10 @@ function AccountCard({ user, updateUser, fullHeight }) {
               {loading ? <Spinner /> : <><CheckCircle size={12} /> Yadda saxla</>}
             </button>
           </div>
-          {/* Contact info at bottom */}
-          <div style={{ paddingTop: 10, borderTop: "1px solid #f3f4f6", display: "flex", flexDirection: "column", gap: 6 }}>
-            {user.phone && <div style={{ display: "flex", alignItems: "center", gap: 7 }}><Phone size={12} color={RED} /><span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>{user.phone}</span></div>}
-            {user.email && <div style={{ display: "flex", alignItems: "center", gap: 7 }}><Mail size={12} color={RED} /><span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>{user.email}</span></div>}
+          {/* Contact info at bottom — same style as InfoRow */}
+          <div style={{ borderTop: "1px solid #f3f4f6", margin: "0 -18px -16px" }}>
+            {user.phone && <InfoRow icon={Phone} label="Telefon" value={user.phone} />}
+            {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
           </div>
         </div>
       ) : (
