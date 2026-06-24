@@ -656,7 +656,7 @@ const DONATE_STEPS = ["Məlumat", "Ödəniş", "Təsdiq"];
 const isValidAzPhone = (v) => /^(\+994|0)(50|51|55|60|70|77|99)\d{7}$/.test(v.replace(/[\s\-()]/g, ""));
 const filterPhoneInput = (v) => v.replace(/[^\d\s+\-()]/g, "");
 
-function DonationModal({ animal, onClose }) {
+export function DonationModal({ animal, onClose }) {
   const { isGuest, user, login } = useAuth();
   const [step, setStep] = useState(0);
   const [anonymous, setAnonymous] = useState(false);

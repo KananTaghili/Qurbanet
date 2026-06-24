@@ -14,6 +14,7 @@ import {
   STATUS_CFG, TAB_OPTIONS, STATUS_OPTIONS,
 } from "../_lib";
 import IaneDetailPage from "../_IaneDetailPage";
+import { DonationModal } from "../page";
 
 /* ─── Shared small components ────────────────────────────────── */
 function StatCell({ label, value }) {
@@ -84,6 +85,8 @@ function IanelerimContent() {
   const [statusOpen, setStatusOpen]     = useState(false);
   const [videoTarget, setVideoTarget]   = useState(null);
   const [copiedId, setCopiedId]         = useState(null);
+  const [donationTarget, setDonationTarget] = useState(null);
+  const [minDon, setMinDon]             = useState(10);
 
   const handleShare = (e, item) => {
     e.stopPropagation();
@@ -102,6 +105,9 @@ function IanelerimContent() {
       .then(res => setOrders((res.data?.data?.campaigns || []).map(mapMyCampaign)))
       .catch(() => {})
       .finally(() => setLoading(false));
+    api.get("/campaigns/settings")
+      .then(res => { const s = res.data?.data?.settings || {}; if (s.minDonation) setMinDon(s.minDonation); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -115,6 +121,27 @@ function IanelerimContent() {
   const openDetail = (item) => {
     setSelected(item);
     router.push(`/charity/donations?detail=${item.id}`, { scroll: false });
+  };
+
+  const handleDonate = (item) => {
+    const remaining = Math.max(0, Number(((item.totalAmountRaw || 0) - (item.collectedAmountRaw || 0)).toFixed(2)));
+    setDonationTarget({
+      campaignId: item.campaignId || item.id,
+      type: item.type,
+      img: item.img,
+      shareMin: String(minDon),
+      shareMinRaw: minDon,
+      remainingAmount: remaining,
+      targetRaw: item.totalAmountRaw || 0,
+      collected: item.collectedAmount,
+      target: item.totalAmount,
+      totalMin: String(remaining),
+      totalMax: String(item.totalAmountRaw || 0),
+      currency: "AZN",
+      organizer: item.organizer || "",
+      startTime: item.startDate,
+      progressPercent: item.progressPercent || 0,
+    });
   };
 
   const closeDetail = () => {
@@ -148,7 +175,12 @@ function IanelerimContent() {
     );
   }
 
-  if (selected) return <IaneDetailPage item={selected} onBack={closeDetail} />;
+  if (selected) return (
+    <>
+      <IaneDetailPage item={selected} onBack={closeDetail} onDonate={handleDonate} />
+      {donationTarget && <DonationModal animal={donationTarget} onClose={() => setDonationTarget(null)} />}
+    </>
+  );
 
   const totalPaid = orders.reduce((s, o) => s + o.amountRaw, 0);
   const STATUS_PRIORITY = { "Davam edir": 0, "Ləğv olundu": 1, "Tamamlandı": 2 };

@@ -74,10 +74,11 @@ export function mapMyCampaign(c) {
     || ANIMAL_IMG_FALLBACK[c.animal?.nameAz] || "/qoyun.png";
   const video = (c.media || []).find(m => m.type === "video");
   return {
-    id: c._id, campaignNumber: c.campaignNumber || "",
+    id: c._id, campaignId: c._id, campaignNumber: c.campaignNumber || "",
     type: c.animal?.nameAz || "Qurban",
     amount: fmtAmt(c.myPaidAmount), amountRaw: c.myPaidAmount || 0,
     collectedAmount: fmtAmt(c.collectedAmount), totalAmount: fmtAmt(c.totalAmount),
+    totalAmountRaw: c.totalAmount || 0, collectedAmountRaw: c.collectedAmount || 0,
     progressPercent: c.percent || 0,
     startDate: fmtDate(c.createdAt),
     endDate: c.status === "completed" ? fmtDate(c.completedAt) : "—",
