@@ -149,7 +149,7 @@ export default function OtpPage() {
 
   return (
     <>
-      <main style={{ minHeight: '100vh', background: '#0d0407', padding: '12px', fontFamily: "'Manrope', sans-serif", boxSizing: 'border-box' }}>
+      <main className="min-h-screen bg-background p-3 md:p-7" style={{ fontFamily: "'Manrope', sans-serif" }}>
       <div
         style={{
           position: 'relative',
@@ -157,7 +157,8 @@ export default function OtpPage() {
           borderRadius: '1.75rem',
           border: '1px solid rgba(255,255,255,0.13)',
           boxShadow: '0 25px 80px rgba(0,0,0,0.55)',
-          minHeight: 'calc(100vh - 24px)',
+          background: '#130807',
+          minHeight: 'calc(100vh - 56px)',
           display: 'grid',
           gridTemplateColumns: '1fr',
         }}
