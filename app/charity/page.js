@@ -1928,32 +1928,32 @@ function HomeContent() {
             </div>
           </div>
           <div className="hidden lg:grid grid-cols-2 gap-6 items-stretch">
-            <div className="pl-8 py-4 pr-2 flex flex-col justify-center">
+            <div className="pl-6 py-3 pr-2 flex flex-col justify-center">
               <h1
-                className="leading-tight mb-2 text-[#241a4d]"
-                style={{ fontSize: "1.6rem", fontWeight: 700 }}
+                className="leading-tight mb-1.5 text-[#241a4d]"
+                style={{ fontSize: "1.3rem", fontWeight: 700 }}
               >
                 Birlikdə qurban,
                 <br />
                 <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
               </h1>
-              <p className="text-gray-500 text-sm mb-4 leading-relaxed max-w-xs">
+              <p className="text-gray-500 text-xs mb-3 leading-relaxed max-w-xs">
                 Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənirlik.
               </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={openNewCampaign}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all"
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90 active:scale-95 transition-all"
                   style={{ background: "#4b14bd" }}
                 >
-                  <Plus size={14} /> Yeni açılış et
+                  <Plus size={12} /> Yeni açılış et
                 </button>
               </div>
-              <p className="text-gray-400 text-xs mt-2 flex items-center gap-1">
-                <ArrowRight size={11} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
+              <p className="text-gray-400 text-[11px] mt-2 flex items-center gap-1">
+                <ArrowRight size={10} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
               </p>
             </div>
-            <div className="relative min-h-[160px]">
+            <div className="relative min-h-[130px]">
               <img
                 src="/charity-hero.png"
                 alt="Xeyriyyə"
