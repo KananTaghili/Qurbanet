@@ -99,8 +99,7 @@ function ServiceCard({ item, idx = 0, onPlay }) {
             src={item.videoUrl.replace("autoplay=1", "autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0") + `&playlist=${item.videoUrl.split("/embed/")[1]?.split("?")[0]}`}
             allow="autoplay; fullscreen"
             allowFullScreen
-            className="w-full h-full"
-            style={{ border: "none", pointerEvents: "none" }}
+            style={{ border: "none", pointerEvents: "none", position: "absolute", top: "50%", left: "50%", width: "178%", height: "178%", transform: "translate(-50%, -50%)" }}
           />
         ) : (
           <video
