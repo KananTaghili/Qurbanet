@@ -816,13 +816,6 @@ export default function CharityLayout({ children }) {
                 style={{ width: "100%", height: "auto", objectFit: "contain" }} priority />
             </Link>
           </div>
-          <div className="px-3 mb-3">
-            <button onClick={() => setShowNewOpening(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/10 hover:bg-white/20 active:scale-95 transition-all"
-              style={{ backdropFilter: "blur(4px)" }}>
-              <Plus size={15} /> Yeni açılış et
-            </button>
-          </div>
           <nav className="flex-1 px-3 space-y-0.5">
             {visibleNav.map(({ icon: Icon, label, href }) => (
               <Link key={href} href={href}
@@ -834,6 +827,13 @@ export default function CharityLayout({ children }) {
               </Link>
             ))}
           </nav>
+          <div className="px-3 mb-3">
+            <button onClick={() => setShowNewOpening(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/10 hover:bg-white/20 active:scale-95 transition-all"
+              style={{ backdropFilter: "blur(4px)" }}>
+              <Plus size={15} /> Yeni açılış et
+            </button>
+          </div>
           <div className="mx-3 mb-5 p-3.5 rounded-xl bg-white/5">
             <div className="flex items-center gap-2 mb-1">
               <Heart size={13} className="text-white/80" />
