@@ -1,744 +1,269 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { X, ArrowRight, Play, ShieldCheck, Video, Truck, Heart, Phone, Mail, User, Menu, ShoppingCart, LogOut } from "lucide-react";
+import {
+  ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
+  HeartHandshake, Beef,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
-import { PiKnife } from "react-icons/pi";
-import { TbMeat, TbHeartHandshake } from "react-icons/tb";
 
-/* ─── SVG Icons ──────────────────────────────────────────────── */
-const IconKnife = ({ cls = "" }) => (
-  <svg viewBox="0 0 64 64" fill="none" className={cls}>
-    <path d="M10 50 L44 16 Q52 8 54 10 Q56 12 48 20 L14 54 Z" fill="currentColor" opacity="0.9" />
-    <path d="M12 48 L46 14" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.35" />
-    <rect x="8" y="48" width="10" height="4" rx="1.5" fill="currentColor" opacity="0.7" transform="rotate(-45 13 50)" />
-    <path d="M6 54 Q4 58 7 60 Q10 62 13 59 L18 54 L10 46 Z" fill="currentColor" opacity="0.6" />
-    <circle cx="9" cy="55" r="1.2" fill="white" opacity="0.5" />
-    <circle cx="12" cy="58" r="1.2" fill="white" opacity="0.5" />
-  </svg>
-);
-
-const IconHandshake = ({ cls = "" }) => (
-  <svg viewBox="0 0 64 64" fill="currentColor" className={cls}>
-    <rect x="4" y="24" width="8" height="16" rx="2" opacity="0.7" />
-    <rect x="52" y="24" width="8" height="16" rx="2" opacity="0.7" />
-    <path d="M12 32 L22 26 L30 28 L34 26 L52 32" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
-    <path d="M22 26 L26 36 L36 36 L40 28" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-    <circle cx="32" cy="30" r="6" opacity="0.3" />
-    <path d="M28 31 L31 34 L36 28" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const IconMeat = ({ cls = "" }) => (
-  <svg viewBox="0 0 64 64" fill="currentColor" className={cls}>
-    <ellipse cx="32" cy="38" rx="22" ry="14" opacity="0.85" />
-    <ellipse cx="32" cy="35" rx="18" ry="11" />
-    <ellipse cx="32" cy="34" rx="12" ry="7" opacity="0.6" />
-    <path d="M24 18 Q32 10 40 18" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" />
-    <circle cx="32" cy="18" r="4" opacity="0.8" />
-    <ellipse cx="28" cy="36" rx="5" ry="3" fill="white" opacity="0.2" />
-  </svg>
-);
-
-/* ─── Services data ──────────────────────────────────────────── */
-const SERVICES = [
-  {
-    id: "qurban",
-    title: "Qurbanlıq Sifarişi",
-    desc: "Qurbanlığınızı onlayn sifariş edin, kəsim prosesini video ilə izləyin, biz doğrayıb sizə çatdıraq.",
-    href: "/qurban",
-    disabled: false,
-    icon: <IconKnife cls="w-10 h-10 text-green-700" />,
-    ServiceIcon: PiKnife,
-    serviceIconColor: "#1B5E20",
-    badgeIcon: <IconKnife cls="w-5 h-5" />,
-    badgeColor: "text-green-600",
-    iconRing: "border-green-200 bg-green-50",
-    titleColor: "text-green-700",
-    thumbGradient: "bg-gradient-to-br from-green-200 via-green-300 to-emerald-500",
-    btnCls: "bg-green-700 hover:bg-green-800",
-    btnLabel: "Sifariş Et",
-    videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1",
-    videoType: "youtube",
-  },
-  {
-    id: "xeyriyye",
-    title: "Kollektiv Qurban",
-    desc: "Birlikdə qurban kəsdirib, ehtiyacı olanlara pay göndəririk. Şəffaf və etibarlı kollektiv qurban platformasına qoşulun.",
-    href: "/charity",
-    disabled: false,
-    icon: <IconHandshake cls="w-10 h-10 text-purple-700" />,
-    ServiceIcon: TbHeartHandshake,
-    serviceIconColor: "#6B21A8",
-    badgeIcon: <IconHandshake cls="w-5 h-5" />,
-    badgeColor: "text-purple-600",
-    iconRing: "border-purple-200 bg-purple-50",
-    titleColor: "text-purple-700",
-    thumbGradient: "bg-gradient-to-br from-purple-200 via-purple-300 to-violet-500",
-    btnCls: "bg-purple-700 hover:bg-purple-800",
-    btnLabel: "Qoşul",
-    videoUrl: "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm",
-    videoType: "mp4",
-  },
-  {
-    id: "et",
-    title: "Ət Sifarişi",
-    desc: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin. Biz qapınıza çatdıraq.",
-    href: "#",
-    disabled: true,
-    icon: <IconMeat cls="w-10 h-10 text-red-700" />,
-    ServiceIcon: TbMeat,
-    serviceIconColor: "#B91C1C",
-    badgeIcon: <IconMeat cls="w-5 h-5" />,
-    badgeColor: "text-red-700",
-    iconRing: "border-red-200 bg-red-50",
-    titleColor: "text-red-700",
-    thumbGradient: "bg-gradient-to-br from-red-300 via-red-400 to-rose-600",
-    btnCls: "bg-red-700 hover:bg-red-800",
-    btnLabel: "Məhsullara Bax",
-    videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1",
-    videoType: "youtube",
-  },
-];
-
-const WHY = [
-  { Icon: ShieldCheck, label: "Halal Kəsim",    desc: "Dini qaydalara uyğun peşəkar kəsim" },
-  { Icon: Video,       label: "Video Hesabat",   desc: "Kəsim prosesini addım-addım izləyin" },
-  { Icon: Truck,       label: "Çatdırılma",      desc: "Sürətli və etibarlı çatdırılma" },
-  { Icon: Heart,       label: "Şəffaf Xeyriyyə", desc: "Hər qəpiyin hesabatı, şəffaf pay bölgüsü" },
-];
-
-/* ─── Video Modal ────────────────────────────────────────────── */
-function VideoModal({ video, onClose }) {
+/* ── KnifeIcon SVG ─────────────────────────────────────── */
+function KnifeIcon({ className = "" }) {
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="relative w-full max-w-3xl">
-        <button onClick={onClose}
-          className="absolute -top-10 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors">
-          <X size={18} />
-        </button>
-        <div className="overflow-hidden rounded-2xl bg-black shadow-2xl" style={{ aspectRatio: "16/9" }}>
-          {video.type === "youtube" ? (
-            <iframe src={video.url} allow="autoplay; fullscreen" allowFullScreen className="h-full w-full" style={{ border: "none" }} />
-          ) : (
-            <video src={video.url} autoPlay controls className="h-full w-full" style={{ background: "#000" }} />
-          )}
-        </div>
-      </div>
+    <svg viewBox="0 0 64 64" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M45 5c5 10 3 22-5 30L20 55" />
+      <path d="M39 35l18 18" />
+      <path d="M15 59l9-9" />
+      <path d="M43 7l-4 25" />
+    </svg>
+  );
+}
+
+/* ── Slogan ────────────────────────────────────────────── */
+function Slogan({ compact = false }) {
+  return (
+    <div className={`flex items-center ${compact ? "gap-2 text-sm text-white/70" : "justify-center gap-3 text-sm font-bold uppercase tracking-[0.22em] text-white drop-shadow md:text-base md:tracking-[0.32em]"}`}>
+      <span>ETİBARLI</span>
+      <span className={`${compact ? "h-1.5 w-1.5" : "h-2 w-2"} shrink-0 rounded-full bg-white`} aria-hidden="true" />
+      <span>HALAL</span>
+      <span className={`${compact ? "h-1.5 w-1.5" : "h-2 w-2"} shrink-0 rounded-full bg-white`} aria-hidden="true" />
+      <span>SÜRƏTLİ</span>
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MOBILE LAYOUT
-═══════════════════════════════════════════════════════════════ */
-function MobileHeader() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { user, isGuest, logout } = useAuth();
-  const router = useRouter();
-  const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
+/* ── Payment logos ─────────────────────────────────────── */
+function PaymentLogos() {
+  return (
+    <div className="flex items-center gap-2.5">
+      {[
+        ["/pay_visa.jpg", "VISA"],
+        ["/pay_mastercard.jpg", "MasterCard"],
+        ["/pay_maestro.jpg", "Maestro"],
+      ].map(([src, alt]) => (
+        <div key={alt} className="grid h-9 w-14 place-items-center overflow-hidden rounded-md bg-white p-1 shadow-sm ring-1 ring-white/20">
+          <Image src={src} alt={alt} width={56} height={36} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  const displayName = !isGuest ? [user?.name, user?.lastName].filter(Boolean).join(" ") : null;
-  const initials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "";
+/* ── Service card ──────────────────────────────────────── */
+const cards = [
+  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: KnifeIcon, button: "SİFARİŞ ET" },
+  { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL" },
+  { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef, button: "MƏHSULLARA BAX" },
+];
+
+const colorMap = {
+  emerald: { text: "text-[#0b6c24]", border: "border-[#0b6c24]/25", bg: "bg-[#0b6c24]" },
+  violet:  { text: "text-[#6820a3]", border: "border-[#6820a3]/25", bg: "bg-[#6820a3]" },
+  orange:  { text: "text-[#c85a13]", border: "border-[#c85a13]/25", bg: "bg-[#c85a13]" },
+};
+
+function ServiceCard({ item }) {
+  const { text, border, bg } = colorMap[item.color];
+  const Icon = item.Icon;
+  return (
+    <article className="group rounded-2xl border border-border bg-white/95 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]">
+      <div className="mb-3 flex justify-center">
+        <div className={`grid h-16 w-16 place-items-center rounded-full border bg-white ${text} ${border}`}>
+          <Icon className="h-9 w-9" />
+        </div>
+      </div>
+      <h3 className={`text-center text-xl font-extrabold leading-6 ${text}`}>{item.title}</h3>
+      <div className="relative mt-4 overflow-hidden rounded-xl bg-neutral-100">
+        <Image src="/mb_card_hero.png" alt={`${item.title} video`} width={400} height={128} className="h-32 w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/25" />
+        <button className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/55 text-white backdrop-blur">
+          <Play className="ml-1 fill-white" />
+        </button>
+        <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">0:15</span>
+      </div>
+      <p className="min-h-20 px-2 py-3 text-[15px] leading-6 text-neutral-800">{item.text}</p>
+      <button className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition group-hover:brightness-110`}>
+        {item.button}<ArrowRight className="h-5 w-5" />
+      </button>
+    </article>
+  );
+}
+
+/* ── User menu (logged in) ─────────────────────────────── */
+function UserMenu({ user, onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const router = useRouter();
+
+  const initials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "?";
+
+  useEffect(() => {
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   return (
-    <>
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-        <div className="px-3">
-          <div className="flex items-center h-14 gap-2">
-            {/* Hamburger — LEFT */}
-            <button onClick={() => setMenuOpen(true)} className="p-1.5 text-gray-700 shrink-0">
-              <Menu size={22} />
-            </button>
-
-            {/* Logo — CENTER */}
-            <Link href="/" className="flex flex-1 items-center justify-center gap-2">
-              <Image src="/logo_test.png" alt="MeatBox Logo" width={36} height={36} className="object-contain" />
-              <div className="leading-none">
-                <div className="font-extrabold text-[18px] text-gray-900 tracking-tight leading-none">
-                  MEAT<span className="text-red-700">BOX</span>.AZ
-                </div>
-                <div className="text-[10px] text-gray-500 font-medium mt-0.5">
-                  Qurbanlıq · Xeyriyyə · Təzə Ət
-                </div>
-              </div>
-            </Link>
-
-            {/* User — RIGHT */}
-            {isGuest ? (
-              <Link href="/auth/login" className="p-1.5 text-gray-700 shrink-0">
-                <User size={22} />
-              </Link>
-            ) : (
-              <Link href="/settings" className="flex items-center gap-1.5 shrink-0 px-1">
-                <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white font-extrabold flex-shrink-0" style={{ fontSize: 11, letterSpacing: '1.5px' }}>
-                  {initials}
-                </div>
-                <span className="text-[12px] font-bold text-gray-800 max-w-[90px] truncate leading-tight">
-                  {displayName}
-                </span>
-              </Link>
-            )}
-          </div>
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+      >
+        <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0 }}>
+          {initials}
         </div>
-      </header>
+        <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{user?.name}</span>
+      </button>
 
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 z-[60] bg-black/40 transition-opacity duration-300 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-        onClick={() => setMenuOpen(false)}
-      />
-
-      {/* Left drawer */}
-      <div className={`fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        {/* Drawer header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <Image src="/logo_test.png" alt="MeatBox Logo" width={28} height={28} className="object-contain" />
-            <span className="font-extrabold text-[15px] text-gray-900 tracking-tight">
-              MEAT<span className="text-red-700">BOX</span>.AZ
-            </span>
-          </div>
-          <button onClick={() => setMenuOpen(false)} className="p-1.5 text-gray-500 hover:text-gray-700">
-            <X size={20} />
+      {open && (
+        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", padding: "6px", minWidth: 180, zIndex: 100 }}>
+          <button onClick={() => { setOpen(false); router.push("/settings"); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#374151" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f9fafb"}
+            onMouseLeave={e => e.currentTarget.style.background = "none"}
+          >
+            <Settings size={15} /> Parametrlər
+          </button>
+          <button onClick={() => { setOpen(false); onLogout(); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#f20b32" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#fff1f3"}
+            onMouseLeave={e => e.currentTarget.style.background = "none"}
+          >
+            <LogOut size={15} /> Çıxış et
           </button>
         </div>
-
-        {/* Nav links */}
-        <div className="flex flex-col py-2 flex-1">
-          {navLinks.map((link) => (
-            <a key={link} href="#" onClick={() => setMenuOpen(false)}
-              className="px-5 py-4 text-[15px] font-medium text-gray-700 hover:text-green-700 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-50">
-              {link}
-            </a>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
-
-/* Star-burst badge (exactly like MeatBox) */
-function ServiceBadge({ icon, badgeColor }) {
-  return (
-    <div className="relative w-14 h-14 flex items-center justify-center">
-      <svg viewBox="0 0 56 56" className={`absolute inset-0 w-full h-full ${badgeColor}`}>
-        <path d="M28 2 L32 20 L48 14 L38 28 L54 32 L38 36 L48 50 L32 44 L28 54 L24 44 L8 50 L18 36 L2 32 L18 28 L8 14 L24 20 Z" />
-      </svg>
-      <div className="relative z-10 w-8 h-8 flex items-center justify-center text-white">
-        {icon}
-      </div>
+      )}
     </div>
   );
 }
 
-function MobileServicesSection({ onPlay }) {
-  return (
-    <section className="px-3 pt-3 pb-4 flex flex-col gap-3">
-      {SERVICES.map((s) => {
-        const ytId = s.videoType === "youtube" ? s.videoUrl.split("/embed/")[1]?.split("?")[0] : null;
-        const inner = (
-          <div key={s.id} className="relative rounded-2xl shadow-md overflow-hidden bg-black" style={{ height: 220 }}>
-            {/* Real video background */}
-            {ytId ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0`}
-                allow="autoplay"
-                style={{
-                  position: "absolute", top: "50%", left: "50%",
-                  width: "calc(190px * 16 / 9)", height: "190px",
-                  transform: "translate(-50%, -50%)",
-                  border: "none", pointerEvents: "none",
-                }}
-                title={s.title}
-              />
-            ) : (
-              <video
-                src={s.videoUrl}
-                autoPlay muted loop playsInline
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }}
-              />
-            )}
-
-            {/* White overlay — left side readable */}
-            <div className="absolute inset-0 z-10" style={{
-              background: "linear-gradient(to right, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.97) 36%, rgba(255,255,255,0.15) 46%, rgba(255,255,255,0) 52%)",
-            }} />
-
-            {/* Text — left side */}
-            <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between p-3 w-[44%]">
-              <div>
-                <h3 className={`text-[14px] font-bold ${s.titleColor} leading-tight mb-1`}>
-                  {s.title}
-                </h3>
-                <p className="text-gray-600 text-[11px] leading-snug">
-                  {s.desc}
-                </p>
-              </div>
-              <button className={`${s.btnCls} text-white font-bold py-2 px-3 rounded-xl transition-colors flex items-center gap-1.5 text-[12px] self-start whitespace-nowrap opacity-${s.disabled ? "50" : "100"}`}>
-                {s.btnLabel}
-                <ArrowRight size={12} strokeWidth={2.5} />
-              </button>
-            </div>
-
-            {/* Play button — center-right */}
-            <button
-              className="absolute z-20 right-[28%] top-1/2 -translate-y-1/2 -translate-x-1/2"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPlay({ url: s.videoUrl, type: s.videoType }); }}
-            >
-              <div className="w-14 h-14 rounded-full bg-black/50 flex items-center justify-center shadow-xl border border-white/20">
-                <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6 ml-0.5">
-                  <polygon points="6,4 20,12 6,20" />
-                </svg>
-              </div>
-            </button>
-
-            {/* Circular icon badge — top right */}
-            <div className="absolute z-20 top-2 right-2">
-              <div
-                className={`w-[56px] h-[56px] rounded-full border-2 ${s.iconRing} flex items-center justify-center shadow-md`}
-                style={{ boxShadow: `0 4px 14px ${s.serviceIconColor}35` }}
-              >
-                <s.ServiceIcon size={28} color={s.serviceIconColor} />
-              </div>
-            </div>
-
-            {/* Tezliklə */}
-            {s.disabled && (
-              <span className="absolute z-30 top-2 left-3 bg-black/65 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
-                Tezliklə
-              </span>
-            )}
-
-            {/* Timer */}
-            <span className="absolute z-20 bottom-2 right-2 bg-black/75 text-white text-xs px-1.5 py-0.5 rounded font-mono tracking-wide">
-              0:15
-            </span>
-          </div>
-        );
-
-        if (s.disabled) return <div key={s.id}>{inner}</div>;
-        return <Link key={s.id} href={s.href} style={{ textDecoration: "none" }}>{inner}</Link>;
-      })}
-    </section>
-  );
-}
-
-function MobileBottomNav() {
-  const items = [
-    { Icon: ShieldCheck, label: "Halal Kəsim" },
-    { Icon: Video,       label: "Video Hesabat" },
-    { Icon: Truck,       label: "Çatdırılma" },
-    { Icon: Heart,       label: "Şəffaf Xeyriyyə" },
-  ];
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex items-stretch shadow-[0_-2px_12px_rgba(0,0,0,0.07)]">
-      {items.map(({ Icon, label }) => (
-        <button key={label}
-          className="flex flex-col items-center justify-center gap-1 flex-1 py-2.5 relative">
-          <Icon size={22} strokeWidth={1.8} className="text-gray-400" />
-          <span className="text-[10px] leading-none font-500 text-gray-400">
-            {label}
-          </span>
-        </button>
-      ))}
-    </nav>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   DESKTOP LAYOUT
-═══════════════════════════════════════════════════════════════ */
-function DesktopHeader() {
-  const [open, setOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
+/* ── Page ──────────────────────────────────────────────── */
+export default function HomePage() {
   const { user, isGuest, logout } = useAuth();
   const router = useRouter();
-  const navLinks = ["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"];
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const displayName = !isGuest ? [user?.name, user?.lastName].filter(Boolean).join(" ") : null;
-  const initials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "";
+  const handleLogout = async () => { await logout(); router.push("/"); };
 
-  const handleLogout = async () => {
-    setUserMenuOpen(false);
-    await logout();
-    router.push("/");
-  };
+  const whyItems = [
+    [KnifeIcon, "Halal Kəsim",       "Dini qaydalara uyğun peşəkar kəsim"],
+    [Video,     "Video Hesabat",      "Kəsim prosesini addım-addım izləyin"],
+    [Truck,     "Çatdırılma",         "Sürətli və etibarlı çatdırılma"],
+    [HeartHandshake, "Şəffaf Xeyriyyə", "Hesabatlı və şəffaf paylaşım"],
+  ];
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 cursor-pointer">
-            <span className="font-extrabold text-xl text-gray-900 leading-none tracking-tight">
-              MEAT<span className="text-red-700">BOX</span>.AZ
-            </span>
-          </Link>
+    <main className="min-h-screen bg-background p-3 font-sans text-foreground md:p-7">
+      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
 
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-gray-700">
-            {navLinks.map((link) => (
-              <a key={link} href="#" className="hover:text-green-700 transition-colors">{link}</a>
-            ))}
+        {/* ── Header ── */}
+        <header className="flex items-center justify-between bg-white px-6 py-4 text-neutral-950 md:px-10">
+          <Image src="/meatbox logo right black.png" alt="MeatBox" width={208} height={48} style={{ objectFit: "contain", objectPosition: "left", height: 48, width: "auto" }} priority />
+
+          <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
+            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Haqqımızda</span>
+            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Xidmətlər</span>
+            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Necə işləyir?</span>
+            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Əlaqə</span>
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
-            {isGuest ? (
-              <Link href="/auth/login" className="flex items-center gap-1.5 text-sm font-medium text-white bg-green-700 hover:bg-green-800 px-4 py-2 rounded-xl transition-colors">
-                <User size={14} strokeWidth={2.5} />
-                Daxil ol
-              </Link>
+          <div className="flex items-center gap-4">
+            {!isGuest ? (
+              <UserMenu user={user} onLogout={handleLogout} />
             ) : (
-              <div className="relative">
-                <button
-                  onClick={() => setUserMenuOpen((v) => !v)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white font-extrabold flex-shrink-0" style={{ fontSize: 11, letterSpacing: '1.5px' }}>
-                    {initials}
-                  </div>
-                  <span className="text-sm font-bold text-gray-800 max-w-[160px] truncate">
-                    {displayName}
-                  </span>
-                </button>
-
-                {userMenuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                    <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 min-w-[180px] py-1 overflow-hidden">
-                      <Link
-                        href="/settings"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-                      >
-                        <User size={15} className="text-gray-500" />
-                        Hesabım
-                      </Link>
-                      <div className="h-px bg-gray-100 mx-3" />
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors border-none bg-transparent cursor-pointer"
-                      >
-                        <LogOut size={15} />
-                        Çıxış
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+              <Link href="/auth/login" className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
+                <User className="h-5 w-5" />
+                <span className="hidden md:inline">Daxil ol</span>
+              </Link>
             )}
+            <button className="md:hidden" onClick={() => setMobileMenuOpen(v => !v)}>
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
+        </header>
 
-          <button className="md:hidden p-2 text-gray-700" onClick={() => setOpen(!open)}>
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-
-        {open && (
-          <div className="md:hidden border-t border-gray-100 py-3 flex flex-col gap-3 text-sm font-medium">
-            {navLinks.map((link) => (
-              <a key={link} href="#" className="text-gray-700 hover:text-green-700 py-1 px-1">{link}</a>
+        {/* Mobile nav */}
+        {mobileMenuOpen && (
+          <div className="flex flex-col gap-1 bg-white px-6 pb-4 text-sm font-medium md:hidden">
+            {["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"].map(item => (
+              <button key={item} onClick={() => setMobileMenuOpen(false)} className="py-2 text-left text-neutral-700 hover:text-[#f20b32] transition-colors">{item}</button>
             ))}
           </div>
         )}
-      </div>
-    </header>
-  );
-}
 
-function Hero() {
-  return (
-    <section className="relative h-[300px] md:h-[340px] flex items-center overflow-hidden">
-      <Image src="/home_image_test_2.jpg" alt="MeatBox hero" fill className="object-cover object-center" priority />
-
-      {/* Center white overlay */}
-      <div className="absolute inset-0" style={{
-        background: "radial-gradient(ellipse 55% 80% at 50% 52%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.88) 42%, rgba(255,255,255,0.4) 60%, rgba(255,255,255,0) 75%)",
-      }} />
-      {/* Bottom white fade */}
-      <div className="absolute inset-0" style={{
-        background: "linear-gradient(to bottom, transparent 75%, rgba(255,255,255,0.85) 90%, #ffffff 100%)",
-      }} />
-
-      <div className="relative z-10 max-w-5xl mx-auto px-6 w-full flex flex-col items-center text-center">
-        {/* Logo + Title + Tagline */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <Image src="/logo_test.png" alt="MeatBox Logo" width={115} height={115} className="object-contain drop-shadow-lg shrink-0" />
-          <div className="flex flex-col items-start">
-            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-none">
-              MEAT<span className="text-red-700">BOX</span>.AZ
-            </h1>
-            <p className="text-gray-900 text-xl md:text-[23px] font-semibold mt-2 tracking-wide">
-              Qurbanlıq &nbsp;·&nbsp; Xeyriyyə Platforması &nbsp;·&nbsp; Təzə Ət
-            </p>
+        {/* ── Hero ── */}
+        <div className="relative overflow-hidden bg-[#190908] px-6 pb-10 pt-12 md:px-12 md:pb-12">
+          <Image src="/mb_hero_bg.jpg" alt="Hero fon" fill style={{ objectFit: "cover" }} priority />
+          <div className="relative mx-auto max-w-3xl text-center">
+            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-7 py-5 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
+              <Image
+                src="/mb_logo_bottom.png"
+                alt="MEATBOX loqosu"
+                width={320} height={256}
+                className="mx-auto h-48 w-64 object-contain drop-shadow-2xl md:h-64 md:w-80"
+              />
+              <div className="mt-1"><Slogan /></div>
+            </div>
           </div>
         </div>
 
-      </div>
-    </section>
-  );
-}
+        {/* ── Services ── */}
+        <section className="bg-[#fbf7f2] px-6 py-8 md:px-12">
+          <div className="grid gap-4 lg:grid-cols-3">
+            {cards.map(item => <ServiceCard key={item.title} item={item} />)}
+          </div>
 
-/* Desktop video thumbnail card */
-function VideoThumbnail({ gradient }) {
-  return (
-    <div className={`relative rounded-xl overflow-hidden h-[150px] ${gradient} flex items-center justify-center cursor-pointer group`}>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-14 h-14 rounded-full bg-black/50 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-          <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6 ml-1">
-            <polygon points="6,4 20,12 6,20" />
-          </svg>
-        </div>
-      </div>
-      <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-1.5 py-0.5 rounded font-mono tracking-wide">
-        0:15
-      </span>
-    </div>
-  );
-}
-
-function DesktopServicesSection({ onPlay }) {
-  return (
-    <section className="max-w-6xl mx-auto px-4 pt-4 pb-4 relative z-10 -mt-[60px]">
-      <div className="grid grid-cols-3 gap-6">
-        {SERVICES.map((s) => {
-          const ytId = s.videoType === "youtube" ? s.videoUrl.split("/embed/")[1]?.split("?")[0] : null;
-          return (
-            <div key={s.id} className="relative pt-9 h-full">
-              {/* Floating icon — half above card */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
-                <div
-                  className={`w-[72px] h-[72px] rounded-full border-2 bg-white ${s.iconRing} flex items-center justify-center shadow-md`}
-                  style={{ boxShadow: `0 4px 16px ${s.serviceIconColor}30` }}
-                >
-                  <s.ServiceIcon size={38} color={s.serviceIconColor} />
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col overflow-hidden h-full">
-              <div className="px-5 pt-10 pb-2 flex flex-col items-center text-center gap-1.5">
-                <h3 className={`text-base font-bold ${s.titleColor} leading-tight text-center`}>
-                  {s.title}
-                </h3>
-              </div>
-
-              {/* Real video preview */}
-              <div className="px-3">
-                <div
-                  className="relative rounded-xl overflow-hidden cursor-pointer group"
-                  style={{ height: 150, background: "#000" }}
-                  onClick={() => onPlay({ url: s.videoUrl, type: s.videoType })}
-                >
-                  {ytId ? (
-                    <iframe
-                      src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0`}
-                      allow="autoplay"
-                      style={{
-                        position: "absolute", top: "50%", left: "50%",
-                        width: "calc(150px * 16 / 9)", height: "150px",
-                        transform: "translate(-50%, -50%)",
-                        border: "none", pointerEvents: "none",
-                      }}
-                      title={s.title}
-                    />
-                  ) : (
-                    <video
-                      src={s.videoUrl}
-                      autoPlay muted loop playsInline
-                      style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none", opacity: s.disabled ? 0.75 : 1 }}
-                    />
-                  )}
-                  {/* dark overlay */}
-                  <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.18)", pointerEvents: "none" }} />
-                  {/* bottom white fade */}
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "42%", background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.9))", pointerEvents: "none" }} />
-                  {/* play button */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-11 h-11 rounded-full bg-black/50 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl border border-white/20">
-                      <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 ml-0.5"><polygon points="6,4 20,12 6,20" /></svg>
-                    </div>
-                  </div>
-                  {/* Tezliklə */}
-                  {s.disabled && (
-                    <div className="absolute top-2 left-2 bg-black/65 text-white text-[10px] font-bold px-2 py-0.5 rounded-full pointer-events-none">
-                      Tezliklə
-                    </div>
-                  )}
-                  <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-1.5 py-0.5 rounded font-mono tracking-wide pointer-events-none">0:15</span>
-                </div>
-              </div>
-
-              <div className="px-5 pt-3 pb-5 flex flex-col gap-3 flex-1">
-                <p className="text-gray-600 text-sm leading-relaxed flex-1">{s.desc}</p>
-                {s.disabled ? (
-                  <button disabled className={`${s.btnCls} text-white font-bold py-2.5 px-5 rounded-lg text-sm w-full flex items-center justify-center gap-2 opacity-45 cursor-default`}>
-                    {s.btnLabel}<ArrowRight size={14} strokeWidth={2.5} />
-                  </button>
-                ) : (
-                  <Link href={s.href}>
-                    <button className={`${s.btnCls} text-white font-bold py-2.5 px-5 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm w-full`}>
-                      {s.btnLabel}<ArrowRight size={14} strokeWidth={2.5} />
-                    </button>
-                  </Link>
-                )}
-              </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function WhySection() {
-  return (
-    <section className="bg-white py-3">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="relative mt-4">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm px-6 pt-10 pb-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {WHY.map((f) => (
-                <div key={f.label} className="flex items-start gap-4">
-                  <div className="text-green-600 shrink-0 mt-0.5">
-                    <f.Icon size={48} strokeWidth={1} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-800 text-sm leading-tight">{f.label}</p>
-                    <p className="text-gray-500 text-xs mt-1 leading-relaxed line-clamp-2">{f.desc}</p>
+          {/* Why MeatBox */}
+          <div className="mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-5">
+            <h2 className="text-center text-2xl font-black">Niyə MeatBox?</h2>
+            <div className="mt-5 grid gap-5 md:grid-cols-4">
+              {whyItems.map(([Icon, title, text]) => (
+                <div className="flex items-center gap-3" key={title}>
+                  <Icon className="h-10 w-10 text-[#0b6c24] shrink-0" />
+                  <div>
+                    <h4 className="font-bold">{title}</h4>
+                    <p className="text-sm text-neutral-600">{text}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <h2 className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-5 text-lg font-semibold text-gray-800 whitespace-nowrap">
-            Niyə MeatBox?
-          </h2>
-        </div>
-      </div>
-    </section>
-  );
-}
+        </section>
 
-function Footer() {
-  return (
-    <footer className="bg-white border-t border-gray-200 text-gray-700">
-      <div className="max-w-6xl mx-auto px-4 pt-10 pb-4">
-        <div className="flex flex-col md:flex-row md:items-stretch gap-6 md:gap-0 pb-8 border-b border-gray-200">
-          <div className="flex flex-col gap-3 md:pr-8 md:flex-1">
-            <div className="flex items-center gap-2">
-              <div>
-                <div className="font-extrabold text-base leading-tight tracking-tight text-gray-900">
-                  MEAT<span className="text-red-700">BOX</span>.AZ
-                </div>
-                <div className="text-gray-500 text-xs mt-0.5 leading-snug">
-                  Qurbanlıq · Xeyriyyə ·<br />Təzə Ət
-                </div>
-              </div>
+        {/* ── Footer ── */}
+        <footer className="grid gap-8 border-t border-white/10 bg-[#140807] px-8 py-8 text-white md:grid-cols-4 md:px-12">
+          <div>
+            <Image src="/mb_logo_right_white.png" alt="MeatBox footer loqo" width={208} height={48} style={{ objectFit: "contain", objectPosition: "left", height: 48, width: "auto" }} />
+            <div className="mt-2"><Slogan compact /></div>
+          </div>
+          <div>
+            <h4 className="font-bold">Linklər</h4>
+            <div className="mt-3 flex flex-col gap-1 text-sm text-white/70">
+              <span className="cursor-pointer hover:text-white transition-colors">Haqqımızda</span>
+              <span className="cursor-pointer hover:text-white transition-colors">Xidmətlər</span>
+              <span className="cursor-pointer hover:text-white transition-colors">Necə işləyir?</span>
             </div>
           </div>
-
-          <div className="hidden md:block w-px bg-gray-200 mx-8 self-stretch" />
-
-          <div className="md:flex-1">
-            <p className="text-gray-900 font-semibold mb-4 text-sm">Keçidlər</p>
-            <ul className="space-y-2.5 text-sm text-gray-600">
-              {["Haqqımızda", "Xidmətlər", "Necə işləyir?"].map((l) => (
-                <li key={l}><a href="#" className="hover:text-green-700 transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:flex-1 md:px-8">
-            <p className="text-gray-900 font-semibold mb-4 text-sm">Əlaqə</p>
-            <ul className="space-y-2.5 text-sm text-gray-600">
-              <li className="flex items-center gap-2">
-                <Phone size={14} className="shrink-0" />010 399 02 22
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail size={14} className="shrink-0" />info@meatbox.az
-              </li>
-              <li className="flex gap-2.5 mt-3">
-                {[
-                  { Icon: FaFacebook, label: "Facebook" },
-                  { Icon: FaInstagram, label: "Instagram" },
-                  { Icon: FaWhatsapp, label: "WhatsApp" },
-                ].map(({ Icon, label }) => (
-                  <a key={label} href="#" title={label}
-                    className="w-8 h-8 rounded-full border border-gray-200 bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-600 transition-colors">
-                    <Icon size={14} />
-                  </a>
-                ))}
-              </li>
-            </ul>
-          </div>
-
-          <div className="hidden md:block w-px bg-gray-200 mx-8 self-stretch" />
-
-          <div className="md:flex-1">
-            <p className="text-gray-900 font-semibold mb-4 text-sm">Ödəniş üsulları</p>
-            <div className="flex flex-wrap gap-2 items-center">
-              {/* VISA */}
-              <div className="flex items-center justify-center w-[64px] h-[40px] rounded-lg bg-[#1A1F71] shadow-sm">
-                <span className="text-white text-[17px] font-black italic tracking-widest">VISA</span>
-              </div>
-              {/* Mastercard */}
-              <div className="flex items-center justify-center gap-0 w-[64px] h-[40px] rounded-lg bg-white border border-gray-200 shadow-sm">
-                <span className="w-[26px] h-[26px] rounded-full bg-[#EB001B] inline-block shrink-0" />
-                <span className="w-[26px] h-[26px] rounded-full bg-[#F79E1B] inline-block -ml-[13px] shrink-0 opacity-90" />
-              </div>
-              {/* Maestro */}
-              <div className="flex items-center justify-center w-[64px] h-[40px] rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden relative">
-                <span className="w-[26px] h-[26px] rounded-full bg-[#0099DF] inline-block shrink-0" />
-                <span className="w-[26px] h-[26px] rounded-full bg-[#CC0001] inline-block -ml-[13px] shrink-0 opacity-85" />
-              </div>
+          <div>
+            <h4 className="font-bold">Əlaqə</h4>
+            <div className="mt-3 text-sm text-white/70 flex flex-col gap-1">
+              <span>+994 50 123 44 55</span>
+              <span>info@meatbox.az</span>
             </div>
           </div>
-        </div>
+          <div>
+            <h4 className="mb-3 font-bold">Ödəniş üsulları</h4>
+            <PaymentLogos />
+          </div>
+        </footer>
 
-        <p className="text-center text-gray-400 text-xs pt-4">
+        {/* Copyright */}
+        <div className="bg-black px-6 py-3 text-center text-xs text-white/55">
           © 2024 MeatBox.az. Bütün hüquqlar qorunur.
-        </p>
-      </div>
-    </footer>
-  );
-}
+        </div>
 
-/* ═══════════════════════════════════════════════════════════════
-   ROOT PAGE
-═══════════════════════════════════════════════════════════════ */
-export default function LandingPage() {
-  const [activeVideo, setActiveVideo] = useState(null);
-
-  return (
-    <>
-      {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
-
-      {/* ── MOBILE (< 768px) ── */}
-      <div className="md:hidden min-h-screen bg-gray-50 flex flex-col pb-[60px]">
-        <MobileHeader />
-        <main className="flex-1">
-          <MobileServicesSection onPlay={setActiveVideo} />
-        </main>
-        <MobileBottomNav />
-      </div>
-
-      {/* ── DESKTOP (≥ 768px) ── */}
-      <div className="hidden md:block min-h-screen bg-white">
-        <DesktopHeader />
-        <main>
-          <Hero />
-          <DesktopServicesSection onPlay={setActiveVideo} />
-          <WhySection />
-        </main>
-        <Footer />
-      </div>
-    </>
+      </section>
+    </main>
   );
 }
