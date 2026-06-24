@@ -837,26 +837,20 @@ export default function CharityLayout({ children }) {
               </Link>
             ))}
           </nav>
-          <div className="mx-3 mb-5">
-            <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
-              {/* Top — slogan */}
-              <div className="px-4 pt-3 pb-2 flex items-start gap-2.5">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(255,255,255,0.15)" }}>
-                  <Heart size={15} style={{ color: "rgba(255,255,255,0.85)" }} />
+          <div className="mx-3 mb-4">
+            <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
+              <div className="px-3 py-2 flex items-center gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg" style={{ background: "rgba(255,255,255,0.15)" }}>
+                  <Heart size={12} style={{ color: "rgba(255,255,255,0.85)" }} />
                 </div>
-                <div>
-                  <p className="text-[13px] font-semibold leading-snug text-white">Birlikdə xeyir,</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.6)" }}>birlikdə paylaşaq</p>
-                </div>
+                <p className="text-[11px] font-semibold leading-tight text-white/80">Birlikdə xeyir, birlikdə paylaşaq</p>
               </div>
-              {/* Divider */}
-              <div className="mx-4 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
-              {/* Bottom — CTA button */}
-              <div className="px-3 pb-3 pt-2">
+              <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
+              <div className="px-2.5 pb-2.5 pt-2">
                 <button onClick={() => setShowNewOpening(true)}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white active:scale-95 transition-all"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold text-white active:scale-95 transition-all"
                   style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)" }}>
-                  <Plus size={15} strokeWidth={2.5} /> Yeni açılış et
+                  <Plus size={13} strokeWidth={2.5} /> Yeni açılış et
                 </button>
               </div>
             </div>
