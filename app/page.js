@@ -11,8 +11,6 @@ import {
 import { PiKnifeBold } from "react-icons/pi";
 import { useAuth } from "../context/AuthContext";
 
-/* ── KnifeIcon SVG ─────────────────────────────────────── */
-
 /* ── Slogan ────────────────────────────────────────────── */
 function Slogan({ compact = false }) {
   return (
@@ -56,11 +54,14 @@ const colorMap = {
   orange:  { text: "text-[#c85a13]", border: "border-[#c85a13]/25", bg: "bg-[#c85a13]" },
 };
 
-function ServiceCard({ item }) {
+function ServiceCard({ item, idx = 0 }) {
   const { text, border, bg } = colorMap[item.color];
   const Icon = item.Icon;
   return (
-    <article className="group rounded-2xl border border-border bg-white/95 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]">
+    <article
+      className="hp-card group rounded-2xl border border-border bg-white/95 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+      style={{ animationDelay: `${0.52 + idx * 0.13}s` }}
+    >
       <div className="mb-3 flex justify-center">
         <div className={`grid h-16 w-16 place-items-center rounded-full border bg-white ${text} ${border}`}>
           <Icon className="h-9 w-9" />
@@ -146,20 +147,57 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background p-3 font-sans text-foreground md:p-7">
+      <style>{`
+        @keyframes hpFadeDown {
+          from { opacity: 0; transform: translateY(-18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hpFadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hpFadeIn {
+          from { opacity: 0; transform: scale(0.97) translateY(12px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes hpSlideRight {
+          from { opacity: 0; transform: translateX(-20px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes hpSlideLeft {
+          from { opacity: 0; transform: translateX(20px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .hp-logo    { opacity:0; animation: hpSlideRight 0.42s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.05s; }
+        .hp-nav     { opacity:0; animation: hpFadeDown   0.38s cubic-bezier(0.22,1,0.36,1) both; }
+        .hp-user    { opacity:0; animation: hpSlideLeft  0.42s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.08s; }
+        .hp-hero    { opacity:0; animation: hpFadeIn     0.55s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.22s; }
+        .hp-card    { opacity:0; animation: hpFadeUp     0.48s cubic-bezier(0.22,1,0.36,1) both; }
+        .hp-why     { opacity:0; animation: hpFadeUp     0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.92s; }
+        .hp-footer  { opacity:0; animation: hpFadeUp     0.42s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 1.05s; }
+        .hp-copy    { opacity:0; animation: hpFadeUp     0.38s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 1.15s; }
+      `}</style>
+
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
 
         {/* ── Header ── */}
         <header className="flex items-center justify-between bg-white px-6 py-4 text-neutral-950 md:px-10">
-          <Image src="/meatbox logo right black.png" alt="MeatBox" width={208} height={48} style={{ objectFit: "contain", objectPosition: "left", height: 48, width: "auto" }} priority />
+          <div className="hp-logo">
+            <Image src="/meatbox logo right black.png" alt="MeatBox" width={208} height={48} style={{ objectFit: "contain", objectPosition: "left", height: 48, width: "auto" }} priority />
+          </div>
 
           <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
-            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Haqqımızda</span>
-            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Xidmətlər</span>
-            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Necə işləyir?</span>
-            <span className="cursor-pointer hover:text-[#f20b32] transition-colors">Əlaqə</span>
+            {["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"].map((item, i) => (
+              <span
+                key={item}
+                className="hp-nav cursor-pointer hover:text-[#f20b32] transition-colors"
+                style={{ animationDelay: `${0.1 + i * 0.07}s` }}
+              >{item}</span>
+            ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="hp-user flex items-center gap-4">
             {!isGuest ? (
               <UserMenu user={user} onLogout={handleLogout} />
             ) : (
@@ -184,7 +222,7 @@ export default function HomePage() {
         )}
 
         {/* ── Hero ── */}
-        <div className="relative overflow-hidden bg-[#190908] px-6 pb-10 pt-12 md:px-12 md:pb-12">
+        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-10 pt-12 md:px-12 md:pb-12">
           <Image src="/mb_hero_bg.jpg" alt="Hero fon" fill style={{ objectFit: "cover" }} priority />
           <div className="relative mx-auto max-w-3xl text-center">
             <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-7 py-5 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
@@ -202,11 +240,11 @@ export default function HomePage() {
         {/* ── Services ── */}
         <section className="bg-[#fbf7f2] px-6 py-8 md:px-12">
           <div className="grid gap-4 lg:grid-cols-3">
-            {cards.map(item => <ServiceCard key={item.title} item={item} />)}
+            {cards.map((item, idx) => <ServiceCard key={item.title} item={item} idx={idx} />)}
           </div>
 
           {/* Why MeatBox */}
-          <div className="mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-5">
+          <div className="hp-why mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-5">
             <h2 className="text-center text-2xl font-black">Niyə MeatBox?</h2>
             <div className="mt-5 grid gap-5 md:grid-cols-4">
               {whyItems.map(([Icon, title, text]) => (
@@ -223,7 +261,7 @@ export default function HomePage() {
         </section>
 
         {/* ── Footer ── */}
-        <footer className="grid gap-8 border-t border-white/10 bg-[#140807] px-8 py-8 text-white md:grid-cols-4 md:px-12">
+        <footer className="hp-footer grid gap-8 border-t border-white/10 bg-[#140807] px-8 py-8 text-white md:grid-cols-4 md:px-12">
           <div>
             <Image src="/mb_logo_right_white.png" alt="MeatBox footer loqo" width={208} height={48} style={{ objectFit: "contain", objectPosition: "left", height: 48, width: "auto" }} />
             <div className="mt-2"><Slogan compact /></div>
@@ -250,7 +288,7 @@ export default function HomePage() {
         </footer>
 
         {/* Copyright */}
-        <div className="bg-black px-6 py-3 text-center text-xs text-white/55">
+        <div className="hp-copy bg-black px-6 py-3 text-center text-xs text-white/55">
           © 2024 MeatBox.az. Bütün hüquqlar qorunur.
         </div>
 

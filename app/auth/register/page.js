@@ -103,17 +103,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <main style={{
-      minHeight: "100vh",
-      overflow: "hidden",
-      background: "#241331",
-      fontFamily: "'Manrope', sans-serif",
-      color: "#111827",
+    <main style={{ minHeight: "100vh", background: "#0d0407", padding: "12px", fontFamily: "'Manrope', sans-serif", color: "#111827", boxSizing: "border-box" }}>
+    <div style={{
       position: "relative",
+      overflow: "hidden",
+      borderRadius: "1.75rem",
+      border: "1px solid rgba(255,255,255,0.13)",
+      boxShadow: "0 25px 80px rgba(0,0,0,0.55)",
+      minHeight: "calc(100vh - 24px)",
       display: "grid",
       gridTemplateColumns: "1fr",
     }}
-    className="lg:grid lg:h-screen auth-grid-cols"
+    className="lg:grid auth-grid-cols"
     >
       {/* Background image */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
@@ -427,6 +428,7 @@ export default function RegisterPage() {
           .auth-mobile-brand { display: none !important; }
         }
       `}</style>
+    </div>
     </main>
   );
 }

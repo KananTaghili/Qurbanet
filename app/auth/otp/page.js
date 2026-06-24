@@ -149,17 +149,19 @@ export default function OtpPage() {
 
   return (
     <>
-      <main
+      <main style={{ minHeight: '100vh', background: '#0d0407', padding: '12px', fontFamily: "'Manrope', sans-serif", boxSizing: 'border-box' }}>
+      <div
         style={{
-          minHeight: '100vh',
-          background: '#241331',
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          fontFamily: "'Manrope', sans-serif",
           position: 'relative',
           overflow: 'hidden',
+          borderRadius: '1.75rem',
+          border: '1px solid rgba(255,255,255,0.13)',
+          boxShadow: '0 25px 80px rgba(0,0,0,0.55)',
+          minHeight: 'calc(100vh - 24px)',
+          display: 'grid',
+          gridTemplateColumns: '1fr',
         }}
-        className="lg:grid lg:h-screen auth-grid-cols-otp"
+        className="lg:grid auth-grid-cols-otp"
       >
         {/* Background */}
         <Image
@@ -422,6 +424,8 @@ export default function OtpPage() {
           .auth-mobile-brand { display: none !important; }
         }
       `}</style>
+      </div>
+      </main>
     </>
   );
 }
