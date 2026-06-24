@@ -806,7 +806,8 @@ export default function CharityLayout({ children }) {
 
   return (
     <CharityLayoutContext.Provider value={{ openNewCampaign: (animalName) => { setPreselectedAnimal(animalName || null); setShowNewOpening(true); } }}>
-      <div className="flex h-screen overflow-hidden bg-[#f7f5ff]">
+      <main className="min-h-screen bg-background p-3 font-sans text-foreground md:p-7">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex h-[calc(100vh-1.5rem)] md:h-[calc(100vh-3.5rem)]">
 
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 h-screen flex-col shrink-0 overflow-hidden" style={{ backgroundColor: "#301586" }}>
@@ -961,7 +962,7 @@ export default function CharityLayout({ children }) {
         </div>
 
         {/* Mobile Bottom Nav */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e7e1f0] bg-white flex">
+        <nav className="lg:hidden sticky bottom-0 z-40 border-t border-[#e7e1f0] bg-white flex">
           {visibleNav.map(({ icon: Icon, label, short, href }) => (
             <Link key={href} href={href}
               className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
@@ -975,6 +976,7 @@ export default function CharityLayout({ children }) {
       </div>
 
       {showNewOpening && <NewOpeningModal preselectedAnimalName={preselectedAnimal} onClose={() => { setShowNewOpening(false); setPreselectedAnimal(null); }} />}
+      </main>
     </CharityLayoutContext.Provider>
   );
 }
