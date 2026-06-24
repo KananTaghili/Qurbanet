@@ -281,12 +281,11 @@ export default function HomePage() {
           <div className="relative mx-auto max-w-3xl text-center">
             <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-6 py-3 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
               <Image
-                src="/mb_logo_bottom.png"
+                src="/mb_logo_slogan.png"
                 alt="MEATBOX loqosu"
                 width={260} height={208}
                 className="mx-auto h-28 w-40 object-contain drop-shadow-2xl md:h-40 md:w-52"
               />
-              <div className="mt-1"><Slogan /></div>
             </div>
           </div>
         </div>
