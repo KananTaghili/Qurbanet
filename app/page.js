@@ -276,15 +276,15 @@ export default function HomePage() {
         )}
 
         {/* ── Hero ── */}
-        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-12 pt-6 md:px-12 md:pb-16 md:pt-8">
+        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-8 pt-4 md:px-12 md:pb-12 md:pt-5">
           <Image src="/mb_hero_bg.jpg" alt="Hero fon" fill style={{ objectFit: "cover" }} priority />
           <div className="relative mx-auto max-w-3xl text-center">
-            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-7 py-5 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
+            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-6 py-3 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
               <Image
                 src="/mb_logo_bottom.png"
                 alt="MEATBOX loqosu"
-                width={320} height={256}
-                className="mx-auto h-36 w-48 object-contain drop-shadow-2xl md:h-52 md:w-64"
+                width={260} height={208}
+                className="mx-auto h-28 w-40 object-contain drop-shadow-2xl md:h-40 md:w-52"
               />
               <div className="mt-1"><Slogan /></div>
             </div>
