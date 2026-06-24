@@ -43,9 +43,9 @@ function PaymentLogos() {
 
 /* ── Service card ──────────────────────────────────────── */
 const cards = [
-  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnifeBold, button: "SİFARİŞ ET" },
-  { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL" },
-  { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef, button: "MƏHSULLARA BAX" },
+  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnifeBold, button: "SİFARİŞ ET",    href: "/qurban" },
+  { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL",          href: "/charity" },
+  { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef, button: "MƏHSULLARA BAX", href: null },
 ];
 
 const colorMap = {
@@ -80,9 +80,15 @@ function ServiceCard({ item, idx = 0 }) {
         <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">0:15</span>
       </div>
       <p className="min-h-20 px-2 py-3 text-[15px] leading-6 text-neutral-800">{item.text}</p>
-      <button className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition group-hover:brightness-110`}>
-        {item.button}<ArrowRight className="h-5 w-5" />
-      </button>
+      {item.href ? (
+        <Link href={item.href} className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5 hover:shadow-lg active:scale-95`}>
+          {item.button}<ArrowRight className="h-5 w-5" />
+        </Link>
+      ) : (
+        <button disabled className="flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white bg-neutral-300 cursor-not-allowed opacity-60">
+          {item.button}<ArrowRight className="h-5 w-5" />
+        </button>
+      )}
       </article>
       </div>
     </div>
