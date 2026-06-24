@@ -831,24 +831,24 @@ export default function CharityLayout({ children }) {
             ))}
           </nav>
           <div className="mx-3 mb-5">
-            <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg, #2e1065 0%, #1e0a4a 100%)", border: "1px solid rgba(139,92,246,0.25)" }}>
               {/* Top — slogan */}
               <div className="px-4 pt-4 pb-3 flex items-start gap-2.5">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                  <Heart size={15} className="text-pink-300" />
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(167,139,250,0.15)" }}>
+                  <Heart size={15} style={{ color: "#f9a8d4" }} />
                 </div>
                 <div>
                   <p className="text-white text-[13px] font-semibold leading-snug">Birlikdə xeyir,</p>
-                  <p className="text-purple-200/60 text-[11px] mt-0.5">birlikdə paylaşaq</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(196,181,253,0.7)" }}>birlikdə paylaşaq</p>
                 </div>
               </div>
               {/* Divider */}
-              <div className="mx-4 h-px bg-white/8" />
+              <div className="mx-4 h-px" style={{ background: "rgba(139,92,246,0.2)" }} />
               {/* Bottom — CTA button */}
               <div className="p-3">
                 <button onClick={() => setShowNewOpening(true)}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white active:scale-95 transition-all"
-                  style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)", boxShadow: "0 4px 14px rgba(92,33,182,0.5)" }}>
+                  style={{ background: "linear-gradient(135deg, #4c1d95, #3b0764)", boxShadow: "0 4px 16px rgba(76,29,149,0.6)" }}>
                   <Plus size={15} strokeWidth={2.5} /> Yeni açılış et
                 </button>
               </div>
