@@ -131,7 +131,10 @@ function AnimalCard({ animal, onDonate, onClick }) {
       className="group flex flex-col overflow-hidden rounded-[18px] border border-[#eee8f6] bg-white px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1"
       style={{ boxShadow: "0 6px 20px rgba(54,27,99,.08)" }}
     >
-      <h3 className="text-[14px] font-bold text-center text-[#241a4d] mb-1 leading-tight">{animal.type}</h3>
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <h3 className="text-[14px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
+        <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[9px] font-medium text-emerald-600 whitespace-nowrap shrink-0">Davam Edir</span>
+      </div>
       <RingProgressSmall percent={animal.progressPercent} type={animal.type} img={animal.img} />
       <div className="mt-1 text-center text-[12px] font-semibold text-[#281d55]">
         {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
@@ -140,7 +143,7 @@ function AnimalCard({ animal, onDonate, onClick }) {
         <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-purple-100 text-[9px] font-bold text-purple-700">
           {animal.organizer.split(" ").slice(0, 2).map((w) => w[0]).join("")}
         </div>
-        <span className="text-[11px] font-medium leading-tight line-clamp-2" style={{ color: "#342760" }}>
+        <span className="truncate text-[11px] font-medium" style={{ color: "#342760" }}>
           {animal.organizer}
         </span>
       </div>
@@ -177,7 +180,7 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
       style={{ boxShadow: "0 8px 28px rgba(54,27,99,.08)" }}>
       <div className="mb-1 flex items-start justify-between gap-2">
         <h3 className="text-[15px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
-        <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600">Davam Edir</span>
+        <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600 whitespace-nowrap shrink-0">Davam Edir</span>
       </div>
       <RingProgress percent={animal.progressPercent} type={animal.type} img={animal.img} />
       <div className="mt-1 text-center text-[12px] font-semibold text-[#281d55]">
@@ -188,7 +191,7 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm" style={{ color: "#5521c6" }}>
             <CalendarDays size={12} strokeWidth={2} />
           </span>
-          <div className="text-[10px] font-medium text-[#241a4d]">{animal.startTime}</div>
+          <div className="truncate text-[10px] font-medium text-[#241a4d]">{animal.startTime}</div>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm" style={{ color: "#5521c6" }}>
