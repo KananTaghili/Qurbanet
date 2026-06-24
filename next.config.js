@@ -25,9 +25,13 @@ const nextConfig = {
   // App Router client-side Router Cache: don't reuse stale dynamic-page data
   experimental: {
     staleTimes: {
-      dynamic: 0,   // always refetch when navigating to a dynamic route
-      static: 180,  // static pages can stay cached for 3 min
+      dynamic: 0,
+      static: 180,
     },
+  },
+
+  outputFileTracingExcludes: {
+    "*": ["**/_not-found/**"],
   },
 };
 
