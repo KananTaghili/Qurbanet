@@ -810,10 +810,11 @@ export default function CharityLayout({ children }) {
 
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 min-h-screen flex-col shrink-0" style={{ backgroundColor: "#301586" }}>
-          <div className="px-4 py-5 flex items-center gap-3">
-            <Image src="/logo_test.png" alt="meatbox.az" width={44} height={44}
-              className="rounded-full object-contain bg-white shadow-sm" />
-            <div className="text-white font-semibold text-[15px] tracking-wide">meatbox.az</div>
+          <div className="px-4 py-4">
+            <Link href="/">
+              <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={180} height={100}
+                style={{ width: "100%", height: "auto", objectFit: "contain" }} priority />
+            </Link>
           </div>
           <div className="px-3 mb-3">
             <button onClick={() => setShowNewOpening(true)}
@@ -858,8 +859,8 @@ export default function CharityLayout({ children }) {
                 <ArrowLeft size={18} className="text-white" />
               </Link>
               <div className="flex items-center gap-2 lg:hidden shrink-0">
-                <Image src="/logo_test.png" alt="meatbox.az" width={28} height={28}
-                  className="rounded-full object-contain bg-white shadow-sm" />
+                <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={80} height={44}
+                  style={{ height: 28, width: "auto", objectFit: "contain" }} />
               </div>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1 min-w-0">
                 <span>Kollektiv Qurban</span>
@@ -899,10 +900,9 @@ export default function CharityLayout({ children }) {
             style={{ backgroundColor: "#301586" }}>
             {/* Drawer header */}
             <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <Image src="/logo_test.png" alt="meatbox.az" width={30} height={30}
-                  className="rounded-full object-contain bg-white shadow-sm" />
-                <span className="text-white font-semibold text-[14px]">meatbox.az</span>
+              <div className="flex items-center">
+                <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={130} height={70}
+                  style={{ height: "auto", objectFit: "contain" }} />
               </div>
               <button onClick={() => setMobileMenuOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
