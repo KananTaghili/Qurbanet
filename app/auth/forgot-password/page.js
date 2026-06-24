@@ -186,14 +186,14 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background p-3 md:p-7" style={{ fontFamily: "'Manrope', sans-serif", color: "#111827" }}>
+    <main className="h-screen overflow-hidden bg-background p-3 md:p-7" style={{ fontFamily: "'Manrope', sans-serif", color: "#111827" }}>
     <div style={{
       position: "relative", overflow: "hidden",
       borderRadius: "1.75rem",
       border: "1px solid rgba(255,255,255,0.13)",
       boxShadow: "0 25px 80px rgba(0,0,0,0.55)",
       background: "#130807",
-      minHeight: "calc(100vh - 56px)",
+      height: "100%",
       display: "grid", gridTemplateColumns: "1fr",
     }}
       className="lg:grid auth-grid-cols"
@@ -211,7 +211,7 @@ export default function ForgotPasswordPage() {
 
       {/* ── Brand panel ── */}
       <section style={{ position: "relative", zIndex: 1, color: "#fff" }}
-        className="hidden lg:flex flex-col justify-center px-[6vw] py-[4vh] min-h-screen"
+        className="hidden lg:flex flex-col justify-center px-[6vw] py-[4vh] h-full overflow-y-auto"
       >
         <button
           type="button"
@@ -247,7 +247,7 @@ export default function ForgotPasswordPage() {
 
       {/* ── Form panel ── */}
       <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px", gap: 20 }}
-        className="min-h-screen lg:min-h-0 lg:h-screen"
+        className="h-full overflow-y-auto"
       >
         {/* Mobile branding — above card, hidden on desktop */}
         <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
