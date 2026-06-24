@@ -51,57 +51,56 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
         )}
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-3 space-y-2">
 
         {/* ── Main info card ── */}
         <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.05)]">
           <div className="flex flex-col lg:flex-row">
 
             {/* Photo — full width on mobile, left sidebar on lg+ */}
-            <div className="lg:w-[280px] shrink-0 bg-[#f5f2ff]">
+            <div className="lg:w-[240px] shrink-0 bg-[#f5f2ff]">
               <img src={item.img} alt={`${item.type} qurban heyvanı`}
-                className="h-[200px] lg:h-full w-full object-cover" />
+                className="h-[170px] lg:h-full w-full object-cover" />
             </div>
 
             {/* Data area */}
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
 
               {/* Stats — 2 col on mobile */}
-              <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
+              <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-3 p-3">
 
                 {/* Col 1: name / weight / date / participants */}
-                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[18px] font-black text-[#33245f] mb-3">{item.type}</div>
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-4">
+                  <div className="text-[16px] font-black text-[#33245f] mb-2">{item.type}</div>
                   {item.weightRange && (
                     <>
-                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1">Diri çəki</div>
-                      <div className="text-[13px] font-black text-[#33245f] mb-3">{item.weightRange}</div>
+                      <div className="text-[11px] font-bold text-[#8b7dac] mb-0.5">Diri çəki</div>
+                      <div className="text-[13px] font-black text-[#33245f] mb-2">{item.weightRange}</div>
                     </>
                   )}
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Açılış tarixi</div>
-                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f] mb-3">
-                    <CalendarDays size={14} className="text-[#6840c6]" /> {item.startDate}
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-0.5">Açılış tarixi</div>
+                  <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f] mb-2">
+                    <CalendarDays size={13} className="text-[#6840c6]" /> {item.startDate}
                   </div>
-                  {/* İştirakçı sayı — mobile only (desktop shows in Col 3) */}
                   <div className="md:hidden">
-                    <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
+                    <div className="text-[11px] font-bold text-[#8b7dac] mb-0.5">İştirakçı sayı</div>
                     <div className="flex items-center gap-1.5 text-[13px] font-black text-[#33245f]">
-                      <Users size={14} className="text-[#5b22c7]" /> {item.participants} nəfər
+                      <Users size={13} className="text-[#5b22c7]" /> {item.participants} nəfər
                     </div>
                   </div>
                 </div>
 
                 {/* Col 2: total / collected */}
-                <div className="md:border-r md:border-[#e7e1f0] md:pr-5">
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Ümumi məbləğ</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-3">
-                    <Coins size={16} className="text-[#5b22c7]" /> {item.totalAmount} AZN
+                <div className="md:border-r md:border-[#e7e1f0] md:pr-4">
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-0.5">Ümumi məbləğ</div>
+                  <div className="flex items-center gap-1.5 text-[14px] font-black text-[#33245f] mb-2">
+                    <Coins size={15} className="text-[#5b22c7]" /> {item.totalAmount} AZN
                   </div>
                   {!isCompleted && (
                     <>
-                      <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">Toplanan məbləğ</div>
-                      <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f]">
-                        <Coins size={16} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
+                      <div className="text-[11px] font-bold text-[#8b7dac] mb-0.5">Toplanan məbləğ</div>
+                      <div className="flex items-center gap-1.5 text-[14px] font-black text-[#33245f]">
+                        <Coins size={15} className="text-[#5b22c7]" /> {item.collectedAmount} AZN
                       </div>
                     </>
                   )}
@@ -109,15 +108,15 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
 
                 {/* Col 3 — desktop only */}
                 <div className="hidden md:block">
-                  <div className="text-[11px] font-bold text-[#8b7dac] mb-1.5">İştirakçı sayı</div>
-                  <div className="flex items-center gap-1.5 text-[15px] font-black text-[#33245f] mb-5">
-                    <Users size={20} className="text-[#5b22c7]" /> {item.participants} nəfər
+                  <div className="text-[11px] font-bold text-[#8b7dac] mb-0.5">İştirakçı sayı</div>
+                  <div className="flex items-center gap-1.5 text-[14px] font-black text-[#33245f] mb-3">
+                    <Users size={16} className="text-[#5b22c7]" /> {item.participants} nəfər
                   </div>
                 </div>
               </div>
 
               {/* Status panel */}
-              <div className="xl:w-[210px] shrink-0 p-4 border-t xl:border-t-0 xl:border-l border-[#e7e1f0]">
+              <div className="xl:w-[190px] shrink-0 p-3 border-t xl:border-t-0 xl:border-l border-[#e7e1f0]">
                 {isCompleted ? (
                   <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
                     <div className="flex flex-col items-center gap-2 shrink-0">
@@ -141,7 +140,7 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                   <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
                     <div className="flex flex-col items-center gap-1 shrink-0">
                       <div className="text-[11px] font-bold text-[#6e5b9b] mb-1">Tamamlanma</div>
-                      <svg width="130" height="130" viewBox="0 0 108 108">
+                      <svg width="100" height="100" viewBox="0 0 108 108">
                         <defs>
                           <linearGradient id="iane-detail-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
                             <stop offset="0%"   stopColor="#4513ad" />
@@ -178,8 +177,8 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
         {/* ── Opener row ── */}
         {openerDon && (
           <div>
-            <div className="inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1.5 text-[11px] font-black text-white">Açan şəxs</div>
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] min-h-[60px] items-center gap-4 rounded-b-[8px] rounded-tr-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-5 py-3 shadow-[0_3px_10px_rgba(49,22,93,.04)]">
+            <div className="inline-flex rounded-t-[5px] bg-[#4b14bd] px-3 py-1 text-[11px] font-black text-white">Açan şəxs</div>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] min-h-[48px] items-center gap-3 rounded-b-[8px] rounded-tr-[8px] border border-[#e1d8ee] bg-[#f5f0ff] px-4 py-2 shadow-[0_3px_10px_rgba(49,22,93,.04)]">
               <div className="flex items-center gap-3">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-black text-sm"
                   style={(() => { const c = avatarColor(openerDon.isAnonymous ? null : openerDon.name); return { backgroundColor: c.bg, color: c.text }; })()}>
@@ -206,7 +205,7 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
 
         {/* ── Donors table ── */}
         <div>
-          <h2 className="mb-3 text-[15px] font-black text-[#33245f]">
+          <h2 className="mb-1.5 text-[14px] font-black text-[#33245f]">
             Digər ödəniş edənlər ({otherDons.length} nəfər)
           </h2>
           <div className="overflow-hidden rounded-[10px] border border-[#e7e1f0] bg-white shadow-[0_4px_14px_rgba(49,22,93,.04)]">
@@ -214,11 +213,11 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
               <table className="w-full min-w-[540px] text-left text-[11px] font-bold text-[#33245f]">
                 <thead>
                   <tr className="border-b border-[#e7e1f0] bg-white text-[11px] text-[#8b7dac]">
-                    <th className="px-5 py-3.5">#</th>
-                    <th className="px-4 py-3.5">Ad Soyad</th>
-                    <th className="px-4 py-3.5">Ödənilən məbləğ</th>
-                    <th className="px-4 py-3.5">Faiz</th>
-                    <th className="px-4 py-3.5 text-right">Ödəniş tarixi</th>
+                    <th className="px-4 py-2.5">#</th>
+                    <th className="px-3 py-2.5">Ad Soyad</th>
+                    <th className="px-3 py-2.5">Ödənilən məbləğ</th>
+                    <th className="px-3 py-2.5">Faiz</th>
+                    <th className="px-3 py-2.5 text-right">Ödəniş tarixi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -231,9 +230,9 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                   )}
                   {shown.map((d, i) => (
                     <tr key={d._id || i} className="border-b border-[#eee8f6] last:border-b-0 hover:bg-purple-50/30 transition-colors">
-                      <td className="px-5 py-3 font-black">{i + 1}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
+                      <td className="px-4 py-2 font-black">{i + 1}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2">
                           <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[9px] font-bold"
                             style={(() => { const c = avatarColor(d.isAnonymous ? null : d.name); return { backgroundColor: c.bg, color: c.text }; })()}>
                             {d.isAnonymous ? "AN" : initials(d.name)}
@@ -244,9 +243,9 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 font-black">{d.amount} AZN</td>
-                      <td className="px-4 py-3 text-[#5b22c7]">{Math.round(d.percent)}%</td>
-                      <td className="px-4 py-3 text-right text-[#4f4075]">{fmtDonTime(d.paidAt)}</td>
+                      <td className="px-3 py-2 font-black">{d.amount} AZN</td>
+                      <td className="px-3 py-2 text-[#5b22c7]">{Math.round(d.percent)}%</td>
+                      <td className="px-3 py-2 text-right text-[#4f4075]">{fmtDonTime(d.paidAt)}</td>
                     </tr>
                   ))}
                 </tbody>
