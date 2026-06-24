@@ -838,18 +838,18 @@ export default function CharityLayout({ children }) {
               </Link>
             ))}
           </nav>
-          <div className="mx-3 mb-4">
+          <div className="mx-3 mb-3">
             <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
-              <div className="px-3 py-2 flex items-center gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg" style={{ background: "rgba(255,255,255,0.15)" }}>
-                  <Heart size={12} style={{ color: "rgba(255,255,255,0.85)" }} />
+              <div className="px-3 py-1.5 flex items-center gap-2">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md" style={{ background: "rgba(255,255,255,0.15)" }}>
+                  <Heart size={11} style={{ color: "rgba(255,255,255,0.85)" }} />
                 </div>
                 <p className="text-[11px] font-semibold leading-tight text-white/80">Birlikdə xeyir, birlikdə paylaşaq</p>
               </div>
               <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
-              <div className="px-2.5 pb-2.5 pt-2">
+              <div className="px-2 pb-2 pt-1.5">
                 <button onClick={() => setShowNewOpening(true)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold text-white active:scale-95 transition-all"
+                  className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold text-white active:scale-95 transition-all"
                   style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)" }}>
                   <Plus size={13} strokeWidth={2.5} /> Yeni açılış et
                 </button>
