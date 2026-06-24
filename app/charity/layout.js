@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -164,6 +164,24 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   const [stepDir,     setStepDir]     = useState("fwd");
   const [closing,     setClosing]     = useState(false);
   const handleClose = () => { setClosing(true); setTimeout(onClose, 260); };
+  const wrapRef = useRef(null);
+  const prevH = useRef(null);
+  const changeStep = (dir, next) => {
+    if (wrapRef.current) prevH.current = wrapRef.current.offsetHeight;
+    setStepDir(dir); setStep(next);
+  };
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el || prevH.current == null) return;
+    const from = prevH.current, to = el.scrollHeight;
+    prevH.current = null;
+    if (Math.abs(from - to) < 2) return;
+    el.style.height = from + "px";
+    requestAnimationFrame(() => {
+      el.style.height = to + "px";
+      el.addEventListener("transitionend", () => { el.style.height = ""; }, { once: true });
+    });
+  }, [step]);
   const [selAnimalId, setSelAnimalId] = useState(null);
   const [isAnon,      setIsAnon]      = useState(false);
   const [amount,      setAmount]      = useState("");
@@ -224,10 +242,9 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
 
   const goNext = () => {
     if (step === 0 && (!animal || isAtLimit(animal))) return;
-    setStepDir("fwd");
-    if (step === 0) { setAmount(String(minAmount)); setStep(1); return; }
+    if (step === 0) { setAmount(String(minAmount)); changeStep("fwd", 1); return; }
     if (step === 1 && !validAmt) return;
-    setStep(s => s + 1);
+    changeStep("fwd", step + 1);
   };
 
   const handleConfirm = async () => {
@@ -414,9 +431,9 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
             ))}
           </div>
 
-          <div key={`nom-step-${step}`}
-            className={`min-h-0 flex-1 overflow-y-auto px-4 py-2 ${stepDir === "fwd" ? "nom-step-fwd" : "nom-step-bwd"}`}
-            style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
+          <div ref={wrapRef} className="overflow-hidden px-4"
+            style={{ transition: "height 0.28s cubic-bezier(.25,.8,.25,1)" }}>
+          <div key={`nom-step-${step}`} className={`py-2 ${stepDir === "fwd" ? "nom-step-fwd" : "nom-step-bwd"}`}>
 
             {/* Mini Auth Phase */}
             {authPhase && forgotPhase && (
@@ -773,12 +790,12 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
                 </p>
               </div>
             )}
-          </div>
+          </div></div>
 
           {!authPhase && (
             <div className="flex gap-3 px-4 pb-3 pt-2 shrink-0 border-t border-purple-100">
               {step > 0 && (
-                <button onClick={() => { setStepDir("bwd"); setStep(s => s - 1); }}
+                <button onClick={() => changeStep("bwd", step - 1)}
                   className="flex-1 rounded-xl border border-purple-200 py-2.5 text-sm font-semibold text-[#1a0f2e] hover:bg-purple-50 transition-colors">
                   Geri
                 </button>

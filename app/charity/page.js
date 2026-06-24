@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, useRef, useLayoutEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
@@ -662,6 +662,24 @@ export function DonationModal({ animal, onClose }) {
   const [stepDir, setStepDir] = useState("fwd");
   const [closing, setClosing] = useState(false);
   const handleClose = () => { setClosing(true); setTimeout(onClose, 260); };
+  const wrapRef = useRef(null);
+  const prevH = useRef(null);
+  const changeStep = (dir, next) => {
+    if (wrapRef.current) prevH.current = wrapRef.current.offsetHeight;
+    setStepDir(dir); setStep(next);
+  };
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el || prevH.current == null) return;
+    const from = prevH.current, to = el.scrollHeight;
+    prevH.current = null;
+    if (Math.abs(from - to) < 2) return;
+    el.style.height = from + "px";
+    requestAnimationFrame(() => {
+      el.style.height = to + "px";
+      el.addEventListener("transitionend", () => { el.style.height = ""; }, { once: true });
+    });
+  }, [step]);
   const [anonymous, setAnonymous] = useState(false);
   const [anonExpanded, setAnonExpanded] = useState(false);
   const [amount, setAmount] = useState(animal.shareMin || "10");
@@ -879,10 +897,11 @@ export function DonationModal({ animal, onClose }) {
         </div>
 
         <div
-          key={`donate-step-${step}`}
-          className={`min-h-0 flex-1 overflow-y-auto px-4 py-2 ${stepDir === "fwd" ? "step-fwd" : "step-bwd"}`}
-          style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}
+          ref={wrapRef}
+          className="overflow-hidden px-4"
+          style={{ transition: "height 0.28s cubic-bezier(.25,.8,.25,1)" }}
         >
+        <div key={`ds-${step}`} className={`py-2 ${stepDir === "fwd" ? "step-fwd" : "step-bwd"}`}>
           {/* ── Inline Auth Phase ── */}
           {authPhase && forgotPhase && (
             <ForgotPasswordInline onBack={() => setForgotPhase(false)} onSuccess={afterAuth} />
@@ -1232,12 +1251,12 @@ export function DonationModal({ animal, onClose }) {
               </div>
             </div>
           )}
-        </div>
+        </div></div>
 
         {!authPhase && <div className="flex gap-3 border-t border-[#f0ebff] px-4 pb-3 pt-2 shrink-0">
           {step > 0 && (
             <button
-              onClick={() => { setStepDir("bwd"); setStep((s) => s - 1); }}
+              onClick={() => changeStep("bwd", step - 1)}
               className="flex-1 rounded-xl border border-[#d9cdfa] py-2.5 text-sm font-semibold text-[#241a4d] hover:bg-[#f5f3ff] transition-colors"
             >
               Geri
@@ -1247,7 +1266,7 @@ export function DonationModal({ animal, onClose }) {
             <button
               onClick={() => {
                 if (step === 1 && !validAmt) return;
-                setStepDir("fwd"); setStep((s) => s + 1);
+                changeStep("fwd", step + 1);
               }}
               disabled={step === 1 && !validAmt}
               className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
