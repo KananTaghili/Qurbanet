@@ -184,12 +184,6 @@ export default function LoginPage() {
             ); })}
           </div>
 
-          {/* Footer tagline */}
-          <div className="lp-fade-up" style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap", animationDelay: "0.72s" }}>
-            {["Təmiz ət", "Təmiz niyyət", "Təmiz xidmət"].map((label) => (
-              <span key={label} style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
-            ))}
-          </div>
         </div>
       </section>
 
