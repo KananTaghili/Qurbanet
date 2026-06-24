@@ -162,6 +162,8 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   const { isGuest, user, login } = useAuth();
   const [step,        setStep]        = useState(0);
   const [stepDir,     setStepDir]     = useState("fwd");
+  const [closing,     setClosing]     = useState(false);
+  const handleClose = () => { setClosing(true); setTimeout(onClose, 260); };
   const [selAnimalId, setSelAnimalId] = useState(null);
   const [isAnon,      setIsAnon]      = useState(false);
   const [amount,      setAmount]      = useState("");
@@ -370,15 +372,21 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center px-4"
+      style={{ animation: `${closing ? "_nom-bd-out" : "_nom-bd-in"} 0.26s ease forwards` }}>
       <style>{`
+        @keyframes _nom-bd-in  { from { background:rgba(0,0,0,0);   backdrop-filter:blur(0px);  } to { background:rgba(0,0,0,.40); backdrop-filter:blur(4px); } }
+        @keyframes _nom-bd-out { from { background:rgba(0,0,0,.40); backdrop-filter:blur(4px); } to { background:rgba(0,0,0,0);   backdrop-filter:blur(0px);  } }
+        @keyframes _nom-in   { from { transform:scale(.94) translateY(10px); opacity:0; } to { transform:scale(1) translateY(0); opacity:1; } }
+        @keyframes _nom-out  { from { transform:scale(1) translateY(0); opacity:1; } to { transform:scale(.94) translateY(10px); opacity:0; } }
         @keyframes _nom-fwd { from { transform:translateX(22px); opacity:0; } to { transform:translateX(0); opacity:1; } }
         @keyframes _nom-bwd { from { transform:translateX(-22px); opacity:0; } to { transform:translateX(0); opacity:1; } }
         .nom-step-fwd { animation: _nom-fwd 0.22s cubic-bezier(.25,.8,.25,1); }
         .nom-step-bwd { animation: _nom-bwd 0.22s cubic-bezier(.25,.8,.25,1); }
       `}</style>
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl" style={{ maxHeight: "min(640px, calc(100vh - 2rem))" }}>
+      <div className="absolute inset-0" onClick={handleClose} />
+      <div className="relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+        style={{ maxHeight: "min(640px, calc(100vh - 2rem))", animation: `${closing ? "_nom-out" : "_nom-in"} 0.26s cubic-bezier(.34,1.2,.64,1) forwards` }}>
         <>
           <div className="flex items-center justify-between border-b border-purple-100 px-4 py-2 shrink-0"
             style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}>
@@ -386,7 +394,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
               <div className="font-bold text-[#1a0f2e]">Yeni Açılış Et</div>
               <div className="text-xs text-[#7c6fa0]">Heyvan seçin və minimum 30% ilkin ödəniş edin</div>
             </div>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-purple-100 transition-colors">
+            <button onClick={handleClose} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-purple-100 transition-colors">
               <X size={16} className="text-[#7c6fa0]" />
             </button>
           </div>

@@ -660,6 +660,8 @@ export function DonationModal({ animal, onClose }) {
   const { isGuest, user, login } = useAuth();
   const [step, setStep] = useState(0);
   const [stepDir, setStepDir] = useState("fwd");
+  const [closing, setClosing] = useState(false);
+  const handleClose = () => { setClosing(true); setTimeout(onClose, 260); };
   const [anonymous, setAnonymous] = useState(false);
   const [anonExpanded, setAnonExpanded] = useState(false);
   const [amount, setAmount] = useState(animal.shareMin || "10");
@@ -808,16 +810,22 @@ export function DonationModal({ animal, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6"
+      style={{ animation: `${closing ? "_bd-out" : "_bd-in"} 0.26s ease forwards` }}
+      onClick={(e) => e.target === e.currentTarget && handleClose()}
     >
       <style>{`
+        @keyframes _bd-in  { from { background:rgba(0,0,0,0);    } to { background:rgba(0,0,0,.50); } }
+        @keyframes _bd-out { from { background:rgba(0,0,0,.50);  } to { background:rgba(0,0,0,0);   } }
+        @keyframes _m-in   { from { transform:scale(.94) translateY(10px); opacity:0; } to { transform:scale(1) translateY(0); opacity:1; } }
+        @keyframes _m-out  { from { transform:scale(1) translateY(0); opacity:1; } to { transform:scale(.94) translateY(10px); opacity:0; } }
         @keyframes _slide-fwd { from { transform:translateX(22px); opacity:0; } to { transform:translateX(0); opacity:1; } }
         @keyframes _slide-bwd { from { transform:translateX(-22px); opacity:0; } to { transform:translateX(0); opacity:1; } }
         .step-fwd { animation: _slide-fwd 0.22s cubic-bezier(.25,.8,.25,1); }
         .step-bwd { animation: _slide-bwd 0.22s cubic-bezier(.25,.8,.25,1); }
       `}</style>
-      <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+        style={{ animation: `${closing ? "_m-out" : "_m-in"} 0.26s cubic-bezier(.34,1.2,.64,1) forwards` }}>
         <div
           className="flex items-center justify-between px-4 py-2 border-b border-[#ede9fe] shrink-0"
           style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)" }}
@@ -843,7 +851,7 @@ export function DonationModal({ animal, onClose }) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-purple-100 transition-colors"
           >
             <X size={16} className="text-[#8a7ba7]" />
