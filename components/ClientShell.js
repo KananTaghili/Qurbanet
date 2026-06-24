@@ -64,9 +64,9 @@ export default function ClientShell({ children }) {
             <Image
               src="/meatbox_icon.png"
               alt="MeatBox"
-              width={96}
-              height={96}
-              style={{ objectFit: "contain", borderRadius: 22, display: "block" }}
+              width={140}
+              height={140}
+              style={{ objectFit: "contain", borderRadius: 30, display: "block" }}
               priority
             />
           </div>
@@ -78,14 +78,14 @@ export default function ClientShell({ children }) {
             animation: "mbFadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.3s both",
           }}>
             <span style={{
-              fontSize: 38,
+              fontSize: 52,
               fontWeight: 900,
               color: "#fff",
               letterSpacing: 1,
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               lineHeight: 1,
             }}>MEAT</span><span style={{
-              fontSize: 38,
+              fontSize: 52,
               fontWeight: 900,
               color: "#dc2626",
               letterSpacing: 1,
@@ -108,7 +108,7 @@ export default function ClientShell({ children }) {
           {/* Slogan */}
           <p style={{
             margin: "12px 0 0",
-            fontSize: 10.5,
+            fontSize: 13,
             fontWeight: 600,
             fontStyle: "italic",
             letterSpacing: "0.22em",
