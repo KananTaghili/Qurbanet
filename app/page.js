@@ -41,11 +41,33 @@ function PaymentLogos() {
   );
 }
 
+/* ── Video Modal ───────────────────────────────────────── */
+function VideoModal({ video, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 px-4"
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-3xl">
+        <button onClick={onClose}
+          className="absolute -top-10 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors">
+          <X size={18} />
+        </button>
+        <div className="overflow-hidden rounded-2xl bg-black shadow-2xl" style={{ aspectRatio: "16/9" }}>
+          {video.type === "youtube" ? (
+            <iframe src={video.url} allow="autoplay; fullscreen" allowFullScreen className="h-full w-full" style={{ border: "none" }} />
+          ) : (
+            <video src={video.url} autoPlay controls className="h-full w-full" style={{ background: "#000" }} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Service card ──────────────────────────────────────── */
 const cards = [
-  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnifeBold, button: "SİFARİŞ ET",    href: "/qurban" },
-  { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL",          href: "/charity" },
-  { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef, button: "MƏHSULLARA BAX", href: null },
+  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnifeBold,    button: "SİFARİŞ ET",    href: "/qurban",  videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1", videoType: "youtube" },
+  { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL",          href: "/charity", videoUrl: "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm", videoType: "mp4" },
+  { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef,           button: "MƏHSULLARA BAX", href: null,       videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1", videoType: "youtube" },
 ];
 
 const colorMap = {
@@ -54,7 +76,7 @@ const colorMap = {
   orange:  { text: "text-[#c85a13]", border: "border-[#c85a13]/25", bg: "bg-[#c85a13]" },
 };
 
-function ServiceCard({ item, idx = 0 }) {
+function ServiceCard({ item, idx = 0, onPlay }) {
   const { text, border, bg } = colorMap[item.color];
   const Icon = item.Icon;
   return (
@@ -74,7 +96,8 @@ function ServiceCard({ item, idx = 0 }) {
       <div className="relative mt-4 overflow-hidden rounded-xl bg-neutral-100">
         <Image src="/mb_card_hero.png" alt={`${item.title} video`} width={400} height={128} className="h-32 w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/25" />
-        <button className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/55 text-white backdrop-blur">
+        <button onClick={() => item.videoUrl && onPlay({ url: item.videoUrl, type: item.videoType })}
+          className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/75 transition-colors">
           <Play className="ml-1 fill-white" />
         </button>
         <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">0:15</span>
@@ -147,6 +170,7 @@ export default function HomePage() {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeVideo, setActiveVideo] = useState(null);
 
   const nav = [
     { label: "Haqqımızda", to: "/haqqimizda" },
@@ -262,8 +286,9 @@ export default function HomePage() {
 
         {/* ── Services ── */}
         <section className="bg-[#fbf7f2] px-6 pb-8 pt-0 md:px-12">
+          {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
           <div className="grid gap-4 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
-            {cards.map((item, idx) => <ServiceCard key={item.title} item={item} idx={idx} />)}
+            {cards.map((item, idx) => <ServiceCard key={item.title} item={item} idx={idx} onPlay={setActiveVideo} />)}
           </div>
 
           {/* Why MeatBox */}
