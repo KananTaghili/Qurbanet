@@ -93,14 +93,22 @@ function ServiceCard({ item, idx = 0, onPlay }) {
         className="rounded-2xl border border-border bg-white pt-10 pb-4 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
       >
       <h3 className={`text-center text-xl font-extrabold leading-6 ${text}`}>{item.title}</h3>
-      <div className="relative mt-4 overflow-hidden rounded-xl bg-neutral-100">
-        <Image src="/mb_card_hero.png" alt={`${item.title} video`} width={400} height={128} className="h-32 w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/25" />
-        <button onClick={() => item.videoUrl && onPlay({ url: item.videoUrl, type: item.videoType })}
-          className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/75 transition-colors">
-          <Play className="ml-1 fill-white" />
-        </button>
-        <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">0:15</span>
+      <div className="relative mt-4 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
+        {item.videoType === "youtube" ? (
+          <iframe
+            src={item.videoUrl.replace("autoplay=1", "autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0") + `&playlist=${item.videoUrl.split("/embed/")[1]?.split("?")[0]}`}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            className="w-full h-full"
+            style={{ border: "none", pointerEvents: "none" }}
+          />
+        ) : (
+          <video
+            src={item.videoUrl}
+            autoPlay muted loop playsInline
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
       <p className="min-h-20 px-2 py-3 text-[15px] leading-6 text-neutral-800">{item.text}</p>
       {item.href ? (
