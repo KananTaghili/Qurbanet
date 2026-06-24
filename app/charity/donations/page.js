@@ -221,7 +221,7 @@ function IanelerimContent() {
           const cfg = STATUS_CFG[item.status] || STATUS_CFG["Davam edir"];
           return (
             <div key={item.id} onClick={() => openDetail(item)}
-              className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition-shadow hover:shadow-md">
               {/* Mobile */}
               <div className="flex lg:hidden flex-col">
                 {/* Top: photo (left 2/3) + ring (right 1/3) */}
@@ -289,25 +289,25 @@ function IanelerimContent() {
               </div>
 
               {/* Desktop */}
-              <div className="hidden lg:grid grid-cols-[260px_1fr_250px] min-h-[160px]">
+              <div className="hidden lg:grid grid-cols-[240px_1fr_230px] min-h-[130px]">
                 <div className="shrink-0">
                   <img src={item.img} alt={item.type} className="h-full w-full rounded-l-2xl bg-[#f5f2ff] object-cover" />
                 </div>
-                <div className="px-5 py-4">
-                  <div className="mb-2 flex items-center gap-3">
+                <div className="px-5 py-3">
+                  <div className="mb-1.5 flex items-center gap-3">
                     <h3 className="text-[18px] font-bold leading-none text-[#33245f]">{item.type}</h3>
                     <span className={`rounded px-2.5 py-1 text-[11px] font-medium ${cfg.badge}`}>{cfg.label}</span>
                   </div>
-                  <div className="mb-1.5 flex items-center gap-2 text-[11px] text-[#77689c]">
-                    <User size={13} className="text-[#7760bb]" />{item.organizer}
+                  <div className="mb-1 flex items-center gap-2 text-[11px] text-[#77689c]">
+                    <User size={13} className="text-[#7760bb] shrink-0" />{item.organizer}
                   </div>
                   {item.weightRange && (
-                    <div className="mb-3 flex items-center gap-1.5 text-[11px] text-[#8778a8]">
-                      <Beef size={13} className="text-[#5b22c7]" />
+                    <div className="mb-2 flex items-center gap-1.5 text-[11px] text-[#8778a8]">
+                      <Beef size={13} className="text-[#5b22c7] shrink-0" />
                       Diri çəki: <span className="font-semibold text-[#5b22c7]">{item.weightRange}</span>
                     </div>
                   )}
-                  <div className="mb-3.5 grid grid-cols-2 gap-4 max-w-[340px]">
+                  <div className="mb-2.5 grid grid-cols-2 gap-4 max-w-[340px]">
                     <div>
                       <div className="text-[11px] text-[#8778a8]">Başlanma tarixi</div>
                       <div className="mt-0.5 text-[13px] font-semibold text-[#33245f]">{item.startDate}</div>
@@ -325,7 +325,7 @@ function IanelerimContent() {
                     <StatCell label="Ümumi məbləğ" value={item.totalAmount} />
                   </div>
                 </div>
-                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5">
+                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-4">
                   <div className="w-full max-w-[190px] space-y-2">
                     <div className="flex justify-center"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
                     <button onClick={(e) => { e.stopPropagation(); openDetail(item); }}
