@@ -431,38 +431,38 @@ function PaymentSuccessModal({
       <div className="w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl">
         {/* Hero */}
         <div
-          className="px-6 pt-8 pb-6 text-center"
+          className="px-5 pt-5 pb-4 text-center"
           style={{ background: "linear-gradient(135deg, #4513ad, #7c3aed)" }}
         >
-          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
-            <Heart size={38} className="text-white fill-white" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white/20">
+            <Heart size={28} className="text-white fill-white" />
           </div>
-          <h1 className="text-[22px] font-black text-white leading-snug">
+          <h1 className="text-[19px] font-black text-white leading-snug">
             İanəniz qəbul edildi!
           </h1>
-          <p className="mt-2 text-[13px] text-white/80 leading-snug">
+          <p className="mt-1 text-[12px] text-white/80 leading-snug">
             Kollektiv qurbanınıza töhfəniz uğurla qeydə alındı
           </p>
         </div>
 
         {/* Campaign card + dua */}
-        <div className="px-5 pt-5 pb-2 space-y-3">
+        <div className="px-4 pt-3 pb-1.5 space-y-2">
           {campaign && (
-            <div className="rounded-2xl bg-purple-50 border border-purple-100 p-3">
-              <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-purple-50 border border-purple-100 p-2.5">
+              <div className="flex items-center gap-2.5">
                 {animalImg && (
                   <img
                     src={animalImg}
                     alt={campaign.animal?.nameAz}
-                    className="h-12 w-12 rounded-xl object-cover bg-white border border-purple-100 shrink-0"
+                    className="h-10 w-10 rounded-lg object-cover bg-white border border-purple-100 shrink-0"
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="font-black text-[#33245f] truncate">
+                  <div className="font-black text-[#33245f] truncate text-[14px]">
                     {campaign.animal?.nameAz} Qurbanı
                   </div>
                   {displayAmount && (
-                    <div className="mt-1 text-[13px] font-bold text-[#4b14bd]">
+                    <div className="mt-0.5 text-[12px] font-bold text-[#4b14bd]">
                       {displayAmount} AZN
                       {Number(campaign.totalAmount) > 0 && (
                         <span className="ml-2 text-[#7c6fa0] font-semibold">
@@ -477,20 +477,20 @@ function PaymentSuccessModal({
           )}
 
           {/* Dua */}
-          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-4 text-center">
-            <div className="text-xl mb-2">✅</div>
-            <p className="text-[13px] font-semibold text-emerald-800 leading-relaxed">
+          <div className="rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-3 text-center">
+            <div className="text-lg mb-1">✅</div>
+            <p className="text-[12px] font-semibold text-emerald-800 leading-relaxed">
               Sədəqəniz Allah qatında qəbul olsun!<br />Allah sizdən razı olsun!
             </p>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="px-5 pt-3 pb-6 space-y-2">
+        <div className="px-4 pt-2 pb-4 space-y-2">
           {campaignId && (
             <button
               onClick={onViewCampaign}
-              className="w-full rounded-2xl py-3 text-sm font-bold text-white transition hover:opacity-90"
+              className="w-full rounded-xl py-2.5 text-sm font-bold text-white transition hover:opacity-90"
               style={{ background: "linear-gradient(135deg, #4513ad, #7c3aed)" }}
             >
               Qurbanınızı izləyin
@@ -498,7 +498,7 @@ function PaymentSuccessModal({
           )}
           <button
             onClick={onClose}
-            className="w-full rounded-2xl border-2 border-purple-200 py-3 text-sm font-bold text-[#4b14bd] hover:bg-purple-50 transition"
+            className="w-full rounded-xl border-2 border-purple-200 py-2.5 text-sm font-bold text-[#4b14bd] hover:bg-purple-50 transition"
           >
             Əsas səhifəyə qayıt
           </button>
