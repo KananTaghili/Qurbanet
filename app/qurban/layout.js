@@ -5,9 +5,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, LogOut, Bell, HelpCircle, BookOpen,
+  ArrowLeft, Menu, X, Beef, ClipboardList, LogOut, Bell, HelpCircle, BookOpen, PocketKnife,
 } from "lucide-react";
-import { PiKnifeBold } from "react-icons/pi";
 
 const GREEN = "#1c5e20";
 
@@ -47,8 +46,8 @@ export default function QurbanLayout({ children }) {
           </div>
           <div className="flex justify-center pb-4" style={{ marginTop: -1 }}>
             <div className="relative" style={{ width: 160 }}>
-              <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#1c5e20]/30 bg-white shadow-lg">
-                <PiKnifeBold className="h-7 w-7 text-[#1c5e20]" />
+              <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#00695C]/30 bg-white shadow-lg">
+                <PocketKnife className="h-7 w-7 text-[#00695C]" />
               </div>
               <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={160} height={88}
                 style={{ width: 160, height: "auto", objectFit: "contain" }} priority />
