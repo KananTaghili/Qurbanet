@@ -55,7 +55,7 @@ export default function NecePage() {
         <div className="absolute left-5 top-6 bottom-6 w-0.5 bg-gradient-to-b from-[#e9d9ff] via-[#c4b5fd] to-[#e9d9ff]" />
         <div className="space-y-2">
           {NECE_STEPS.map((s, i) => (
-            <div key={i} className="flex gap-3 relative">
+            <div key={i} className="flex items-center gap-3 relative">
               <div className="h-10 w-10 shrink-0 rounded-xl flex items-center justify-center z-10 shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
                 style={{ background: s.bg }}>
                 <NeceStepIcon icon={s.icon} />
