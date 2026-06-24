@@ -227,8 +227,20 @@ export default function LoginPage() {
             <p style={{ marginTop: 4, fontSize: 12, color: "#6b7280" }}>Hesabınıza daxil olun və sifarişlərinizi idarə edin.</p>
           </div>
 
-          {/* Mode toggle */}
-          <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", background: "#fff", borderRadius: 15, border: "1px solid #e5e7eb", padding: 2 }}>
+          {/* Mode toggle — sliding pill */}
+          <div style={{ marginTop: 16, position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", background: "#f3f4f6", borderRadius: 14, padding: 3 }}>
+            {/* sliding indicator */}
+            <div style={{
+              position: "absolute", top: 3, bottom: 3,
+              width: "calc(50% - 3px)",
+              left: mode === "phone" ? 3 : "calc(50%)",
+              background: "#fff",
+              borderRadius: 11,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.10)",
+              border: "1px solid #ef9caf",
+              transition: "left 0.22s cubic-bezier(0.34,1.4,0.64,1)",
+              pointerEvents: "none",
+            }} />
             {[
               { key: "phone", icon: <Phone size={14} />, label: "Telefon" },
               { key: "email", icon: <Mail size={14} />, label: "Email" },
@@ -238,14 +250,13 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => switchMode(key)}
                 style={{
+                  position: "relative", zIndex: 1,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                  borderRadius: 13, padding: "6px 0", fontSize: 12, fontWeight: 800,
-                  border: mode === key ? "1px solid #ef9caf" : "1px solid transparent",
-                  background: mode === key ? "#fff" : "transparent",
+                  borderRadius: 11, padding: "7px 0", fontSize: 12, fontWeight: 800,
+                  border: "none", background: "transparent",
                   color: mode === key ? "#c8102e" : "#6b7280",
-                  boxShadow: mode === key ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
+                  cursor: "pointer", fontFamily: "inherit",
+                  transition: "color 0.22s ease",
                 }}
               >
                 {icon} {label}
