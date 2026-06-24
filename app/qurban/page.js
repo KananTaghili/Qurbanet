@@ -79,17 +79,23 @@ export default function QurbanPage() {
 
   useEffect(() => {
     fetchAnimals();
+
+    // Re-fetch when user returns to this tab (covers admin-added animals if socket missed)
+    const onVisible = () => { if (!document.hidden) fetchAnimals(); };
+    document.addEventListener("visibilitychange", onVisible);
+
     let socket;
     try {
       const { io } = require("socket.io-client");
       socket = io(BASE_URL.replace(/\/api$/, ""), {
-        transports: ["websocket"],
+        transports: ["websocket", "polling"], // polling as fallback for reverse-proxy environments
       });
       socket.on("category_updated", fetchAnimals);
     } catch {
       /* ignore */
     }
     return () => {
+      document.removeEventListener("visibilitychange", onVisible);
       try { socket?.disconnect(); } catch { /* ignore */ }
     };
   }, []);
