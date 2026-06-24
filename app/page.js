@@ -109,7 +109,7 @@ function ServiceCard({ item, idx = 0, onPlay }) {
           />
         )}
       </div>
-      <p className="px-0 pt-2 pb-2 text-[14px] leading-5 text-neutral-800">{item.text}</p>
+      <p className="px-0 pt-2 pb-2 text-[12px] leading-[1.45] text-neutral-800">{item.text}</p>
       {item.href ? (
         <Link href={item.href} className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5 hover:shadow-lg active:scale-95`}>
           {item.button}<ArrowRight className="h-5 w-5" />
