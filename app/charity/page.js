@@ -76,10 +76,10 @@ function RingProgress({ percent, type, img }) {
         style={{ backgroundColor: "#fbfaff" }}>
         <img src={img} alt={type} className="max-h-[85%] max-w-[85%] object-contain" style={{ mixBlendMode: "multiply" }} />
       </div>
-      <div className="absolute left-1/2 top-[128px] z-20 -translate-x-1/2 rounded-xl px-4 py-1 leading-none text-white whitespace-nowrap"
+      <div className="absolute left-1/2 top-[128px] z-20 -translate-x-1/2 rounded-xl leading-none text-white whitespace-nowrap"
         style={{ backgroundColor: "#551dc7", boxShadow: "0 6px 12px rgba(85,29,199,.25)", border: "2px solid white",
           fontSize: "17px", fontWeight: 900, letterSpacing: "-.04em",
-          display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 54, height: 30 }}>
+          display: "inline-flex", alignItems: "center", justifyContent: "center", width: 64, height: 30 }}>
         {p}%
       </div>
     </div>
@@ -112,10 +112,10 @@ function RingProgressSmall({ percent, type, img }) {
         style={{ backgroundColor: "#fbfaff" }}>
         <img src={img} alt={type} className="max-h-[85%] max-w-[85%] object-contain" style={{ mixBlendMode: "multiply" }} />
       </div>
-      <div className="absolute left-1/2 top-[120px] z-20 -translate-x-1/2 rounded-2xl px-4 py-1 leading-none text-white whitespace-nowrap"
+      <div className="absolute left-1/2 top-[120px] z-20 -translate-x-1/2 rounded-2xl leading-none text-white whitespace-nowrap"
         style={{ backgroundColor: "#551dc7", boxShadow: "0 6px 12px rgba(85,29,199,.25)", border: "2px solid white",
           fontSize: "16px", fontWeight: 900, letterSpacing: "-.04em",
-          display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 52, height: 28 }}>
+          display: "inline-flex", alignItems: "center", justifyContent: "center", width: 58, height: 28 }}>
         {p}%
       </div>
     </div>
@@ -276,9 +276,9 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
                 onError={e => { e.currentTarget.style.display = "none"; }} />
             : <Plus size={36} className="text-purple-200" strokeWidth={1.5} />}
         </div>
-        <div className="absolute left-1/2 top-[120px] z-20 -translate-x-1/2 rounded-2xl px-4 py-1 leading-none text-purple-300 whitespace-nowrap"
+        <div className="absolute left-1/2 top-[120px] z-20 -translate-x-1/2 rounded-2xl leading-none text-purple-300 whitespace-nowrap"
           style={{ backgroundColor: "#ede9fe", border: "2px solid white", fontSize: "16px", fontWeight: 900, letterSpacing: "-.04em",
-            display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 52, height: 28 }}>
+            display: "inline-flex", alignItems: "center", justifyContent: "center", width: 58, height: 28 }}>
           —%
         </div>
       </div>
@@ -329,9 +329,9 @@ function DesktopNewOpeningPlaceholderCard({ onOpen, animal }) {
                 style={{ mixBlendMode: "multiply" }} onError={e => { e.currentTarget.style.display = "none"; }} />
             : <Plus size={36} className="text-purple-200" strokeWidth={1.5} />}
         </div>
-        <div className="absolute left-1/2 top-[128px] z-20 -translate-x-1/2 rounded-xl px-4 py-1 leading-none whitespace-nowrap"
+        <div className="absolute left-1/2 top-[128px] z-20 -translate-x-1/2 rounded-xl leading-none whitespace-nowrap"
           style={{ backgroundColor: "#ede9fe", border: "2px solid white", fontSize: "17px", fontWeight: 900, letterSpacing: "-.04em", color: "#c4b5e0",
-            display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 54, height: 30 }}>
+            display: "inline-flex", alignItems: "center", justifyContent: "center", width: 64, height: 30 }}>
           —%
         </div>
       </div>
