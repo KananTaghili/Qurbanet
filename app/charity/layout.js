@@ -811,7 +811,10 @@ export default function CharityLayout({ children }) {
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 min-h-screen flex-col shrink-0" style={{ backgroundColor: "#301586" }}>
           <div className="px-4 py-4">
-            <Link href="/">
+            <Link href="/" className="relative block">
+              <div className="absolute -top-2 -left-1 z-10 grid h-9 w-9 place-items-center rounded-full border-2 border-[#6820a3]/40 bg-white shadow-md">
+                <HeartHandshake className="h-5 w-5 text-[#6820a3]" />
+              </div>
               <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={180} height={100}
                 style={{ width: "100%", height: "auto", objectFit: "contain" }} priority />
             </Link>
