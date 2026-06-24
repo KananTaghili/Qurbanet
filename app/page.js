@@ -58,15 +58,17 @@ function ServiceCard({ item, idx = 0 }) {
   const { text, border, bg } = colorMap[item.color];
   const Icon = item.Icon;
   return (
-    <article
-      className="hp-card group rounded-2xl border border-border bg-white/95 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
-      style={{ animationDelay: `${0.52 + idx * 0.13}s` }}
-    >
-      <div className="mb-3 flex justify-center">
-        <div className={`grid h-16 w-16 place-items-center rounded-full border bg-white ${text} ${border}`}>
+    <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
+      {/* Icon — half outside top */}
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+        <div className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white shadow-md ${text} ${border}`}>
           <Icon className="h-9 w-9" />
         </div>
       </div>
+
+      <article
+        className="group rounded-2xl border border-border bg-white/95 pt-10 pb-4 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+      >
       <h3 className={`text-center text-xl font-extrabold leading-6 ${text}`}>{item.title}</h3>
       <div className="relative mt-4 overflow-hidden rounded-xl bg-neutral-100">
         <Image src="/mb_card_hero.png" alt={`${item.title} video`} width={400} height={128} className="h-32 w-full object-cover" />
@@ -80,7 +82,8 @@ function ServiceCard({ item, idx = 0 }) {
       <button className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition group-hover:brightness-110`}>
         {item.button}<ArrowRight className="h-5 w-5" />
       </button>
-    </article>
+      </article>
+    </div>
   );
 }
 

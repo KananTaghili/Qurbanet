@@ -19,22 +19,25 @@ function ServiceDetailCard({ item, index }) {
   const c = colorMap[item.color];
   const Icon = item.Icon;
   return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[#ead9cf] bg-[#fff8f1] p-6 shadow-[0_16px_45px_rgba(35,18,8,0.08)]">
-      <div className={`absolute -right-8 -top-8 h-28 w-28 rounded-full ${c.bg} opacity-10`} />
-      <div className="relative flex items-start gap-5">
-        <div className={`grid h-16 w-16 shrink-0 place-items-center rounded-2xl border-2 bg-white ${c.text} ${c.border}`}>
+    <div className="relative mt-9">
+      {/* Icon half outside top */}
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+        <div className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white shadow-md ${c.text} ${c.border}`}>
           <Icon className="h-9 w-9" />
         </div>
-        <div>
+      </div>
+      <article className="relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[#ead9cf] bg-[#fff8f1] pt-10 px-6 pb-6 shadow-[0_16px_45px_rgba(35,18,8,0.08)]">
+      <div className={`absolute -right-8 -top-8 h-28 w-28 rounded-full ${c.bg} opacity-10`} />
+      <div className="relative">
           <span className="text-xs font-black uppercase tracking-[0.24em] text-neutral-400">0{index + 1} / Xidmət</span>
           <h3 className={`mt-2 text-2xl font-black leading-7 ${c.text}`}>{item.title}</h3>
-        </div>
       </div>
       <p className="relative mt-5 min-h-24 flex-1 text-[15px] leading-7 text-neutral-700">{item.text}</p>
       <button className={`relative mt-6 inline-flex w-fit items-center gap-3 border-b-2 pb-1 text-sm font-black ${c.text} ${c.border}`}>
         Ətraflı bax <ArrowRight className="h-4 w-4" />
       </button>
-    </article>
+      </article>
+    </div>
   );
 }
 
