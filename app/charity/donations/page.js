@@ -29,7 +29,7 @@ function StatCell({ label, value }) {
 
 function TopStat({ icon: Icon, title, value }) {
   return (
-    <div className="flex flex-1 items-center gap-4 px-5 py-4 border-b md:border-b-0 md:border-r border-[#ded5ec] last:border-0">
+    <div className="flex flex-1 items-center gap-4 px-5 py-3 border-b md:border-b-0 md:border-r border-[#ded5ec] last:border-0">
       <div className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full text-white"
         style={{ background: "linear-gradient(135deg, #6a24d1, #3d0aa8)", boxShadow: "0 6px 16px rgba(83,25,188,.22)" }}>
         <Icon size={24} strokeWidth={1.9} />
@@ -168,14 +168,14 @@ function IanelerimContent() {
     });
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-3 md:py-4 pb-20 lg:pb-4">
-      <div className="mb-4 flex flex-col sm:flex-row overflow-hidden rounded-xl border border-[#e7e1f0] bg-white shadow-sm">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-2 md:py-3 pb-20 lg:pb-3">
+      <div className="mb-3 flex flex-col sm:flex-row overflow-hidden rounded-xl border border-[#e7e1f0] bg-white shadow-sm">
         <TopStat icon={Wallet} title="Bütün ianələrimin toplamı" value={`${fmtAmt(totalPaid)} AZN`} />
         <TopStat icon={Flag}   title="Ümumi ianə sayı"           value={String(orders.length)}       />
         <TopStat icon={Users}  title="Tamamlanmış ianələr"       value={String(orders.filter(o => o.status === "Tamamlandı").length)} />
       </div>
 
-      <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div className="mb-3 flex flex-col sm:flex-row items-start sm:items-center gap-2">
         <div className="flex rounded-xl border border-[#e7e1f0] bg-white shadow-sm w-full sm:w-auto overflow-hidden p-1 gap-1">
           {[
             { full: TAB_OPTIONS[0], short: "Hamısı"   },
@@ -221,7 +221,7 @@ function IanelerimContent() {
           const cfg = STATUS_CFG[item.status] || STATUS_CFG["Davam edir"];
           return (
             <div key={item.id} onClick={() => openDetail(item)}
-              className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md my-2">
+              className="cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
               {/* Mobile */}
               <div className="flex lg:hidden flex-col">
                 {/* Top: photo (left 2/3) + ring (right 1/3) */}
