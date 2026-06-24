@@ -45,29 +45,29 @@ export default function TamamlanmisPage() {
   if (selected) return <IaneDetailPage item={selected} onBack={() => setSelected(null)} />;
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-4 py-4 pb-20 lg:pb-4">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-4 py-2 pb-20 lg:pb-3">
       {shareMessage && (
         <div className="fixed right-5 top-5 z-50 max-w-sm rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-[0_14px_36px_rgba(28,18,72,0.16)]">
           Səhifənin bağlantısı kopyalandı. Dostlarınla paylaşa bilərsən.
         </div>
       )}
 
-      <div className="mb-4 flex overflow-hidden rounded-[11px] border border-[#e7e1f0] bg-white shadow-[0_4px_16px_rgba(63,34,116,0.07)]">
-        <div className="flex min-h-[92px] flex-1 items-center gap-5 px-6">
-          <div className="grid h-[62px] w-[62px] shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#6a24d1] to-[#3d0aa8] text-white shadow-[0_8px_18px_rgba(83,25,188,.22)]">
-            <CheckCircle size={30} strokeWidth={2} />
+      <div className="mb-3 flex overflow-hidden rounded-[11px] border border-[#e7e1f0] bg-white shadow-[0_4px_16px_rgba(63,34,116,0.07)]">
+        <div className="flex min-h-[72px] flex-1 items-center gap-4 px-5">
+          <div className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#6a24d1] to-[#3d0aa8] text-white shadow-[0_8px_18px_rgba(83,25,188,.22)]">
+            <CheckCircle size={26} strokeWidth={2} />
           </div>
           <div>
-            <div className="mb-1 text-[12px] font-extrabold text-[#33245f]">Ümumi tamamlanmış ianə sayı</div>
-            <div className="text-[24px] font-black leading-none tracking-[-.03em] text-[#24124f]">{orders.length}</div>
-            <div className="mt-1 text-[11px] font-bold text-[#77689c]">Tamamlanmış ianələr</div>
+            <div className="mb-0.5 text-[12px] font-extrabold text-[#33245f]">Ümumi tamamlanmış ianə sayı</div>
+            <div className="text-[22px] font-black leading-none tracking-[-.03em] text-[#24124f]">{orders.length}</div>
+            <div className="mt-0.5 text-[11px] font-bold text-[#77689c]">Tamamlanmış ianələr</div>
           </div>
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-3">
         <h1 className="text-[20px] font-black tracking-[-.02em] text-[#33245f]">Tamamlanmış Açılışlar</h1>
-        <p className="mt-1 text-[12px] font-semibold text-[#8778a8]">Açılışlar tamamlanma vaxtına görə sıralanıb</p>
+        <p className="mt-0.5 text-[12px] font-semibold text-[#8778a8]">Açılışlar tamamlanma vaxtına görə sıralanıb</p>
       </div>
 
       {loading && (
@@ -91,7 +91,7 @@ export default function TamamlanmisPage() {
             <div key={item.id} onClick={() => setSelected(item)}
               role="button" tabIndex={0}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
-              className="group w-full cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
+              className="group w-full cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition-shadow hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
 
               {/* ── Mobile layout ── */}
               <div className="lg:hidden">
@@ -161,9 +161,9 @@ export default function TamamlanmisPage() {
               </div>
 
               {/* ── Desktop layout (unchanged) ── */}
-              <div className="hidden lg:grid min-h-[160px] grid-cols-[130px_260px_1fr_210px]">
-                <div className="flex flex-col justify-center border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-4">
-                  <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
+              <div className="hidden lg:grid min-h-[130px] grid-cols-[130px_240px_1fr_210px]">
+                <div className="flex flex-col justify-center border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-3">
+                  <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
                     <span className="text-[#5b22c7] text-[16px] leading-none">•</span>
                     Tamamlanma tarixi
                   </div>
@@ -174,11 +174,11 @@ export default function TamamlanmisPage() {
                 <div className="flex items-stretch border-r border-[#e7e1f0]">
                   <img src={item.img} alt={`${item.type} qurban heyvanı`} className="h-full w-full bg-white object-cover" />
                 </div>
-                <div className="flex flex-col justify-center px-5 py-4">
-                  <div className="mb-2.5 flex items-center gap-3">
+                <div className="flex flex-col justify-center px-5 py-3">
+                  <div className="mb-1.5 flex items-center gap-3">
                     <h3 className="text-[22px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
                   </div>
-                  <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-[#77689c]">
+                  <div className="mb-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-[#77689c]">
                     <User size={15} className="text-[#7760bb]" />
                     <span>{item.organizer}</span>
                     <span className="rounded-full bg-[#f1ecff] px-2.5 py-0.5 text-[12px] font-bold text-[#5622c6]">
@@ -191,10 +191,10 @@ export default function TamamlanmisPage() {
                     <CompletedStat label="İştirakçı sayı" value={`${item.participants} nəfər`} />
                   </div>
                 </div>
-                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5 py-4">
-                  <div className="w-full max-w-[180px] space-y-2.5">
-                    <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-4 text-center">
-                      <CheckCircle size={30} className="mx-auto mb-1.5 text-emerald-500" strokeWidth={2} />
+                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5 py-3">
+                  <div className="w-full max-w-[180px] space-y-2">
+                    <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-2.5 text-center">
+                      <CheckCircle size={26} className="mx-auto mb-1 text-emerald-500" strokeWidth={2} />
                       <div className="text-[11px] font-black text-emerald-600">Açılış tamamlanıb</div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
