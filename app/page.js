@@ -329,9 +329,9 @@ export default function HomePage() {
           <div>
             <h4 className="font-bold">Linklər</h4>
             <div className="mt-3 flex flex-col gap-1 text-sm text-white/70">
-              <span className="cursor-pointer hover:text-white transition-colors">Haqqımızda</span>
-              <span className="cursor-pointer hover:text-white transition-colors">Xidmətlər</span>
-              <span className="cursor-pointer hover:text-white transition-colors">Necə işləyir?</span>
+              <Link href="/haqqimizda" className="hover:text-white transition-colors">Haqqımızda</Link>
+              <Link href="/xidmetler" className="hover:text-white transition-colors">Xidmətlər</Link>
+              <Link href="/nece-isleyir" className="hover:text-white transition-colors">Necə işləyir?</Link>
             </div>
           </div>
           <div>
