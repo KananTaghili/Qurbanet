@@ -848,7 +848,7 @@ export default function CharityLayout({ children }) {
               <div className="p-3">
                 <button onClick={() => setShowNewOpening(true)}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white active:scale-95 transition-all"
-                  style={{ background: "linear-gradient(135deg, #4c1d95, #3b0764)", boxShadow: "0 4px 16px rgba(76,29,149,0.6)" }}>
+                  style={{ background: "#4c1d95", boxShadow: "0 4px 16px rgba(76,29,149,0.5)" }}>
                   <Plus size={15} strokeWidth={2.5} /> Yeni açılış et
                 </button>
               </div>
