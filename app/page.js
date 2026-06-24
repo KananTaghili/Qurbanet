@@ -90,10 +90,10 @@ function ServiceCard({ item, idx = 0, onPlay }) {
       </div>
 
       <article
-        className="rounded-2xl border border-border bg-white pt-5 pb-4 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+        className="rounded-2xl border border-border bg-white pt-3 pb-3 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
       >
       <h3 className={`text-left text-xl font-extrabold leading-6 pr-16 ${text}`}>{item.title}</h3>
-      <div className="relative mt-4 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
+      <div className="relative mt-2 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
         {item.videoType === "youtube" ? (
           <iframe
             src={item.videoUrl.replace("autoplay=1", "autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0") + `&playlist=${item.videoUrl.split("/embed/")[1]?.split("?")[0]}`}
@@ -109,7 +109,7 @@ function ServiceCard({ item, idx = 0, onPlay }) {
           />
         )}
       </div>
-      <p className="min-h-20 px-2 py-3 text-[15px] leading-6 text-neutral-800">{item.text}</p>
+      <p className="px-0 pt-2 pb-2 text-[14px] leading-5 text-neutral-800">{item.text}</p>
       {item.href ? (
         <Link href={item.href} className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5 hover:shadow-lg active:scale-95`}>
           {item.button}<ArrowRight className="h-5 w-5" />
