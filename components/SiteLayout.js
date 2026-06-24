@@ -138,7 +138,7 @@ export default function SiteLayout({ children }) {
         {/* Footer */}
         <footer className="grid gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-center">
           <div>
-            <Image src="/meatbox logo right +slogan.png" alt="MeatBox footer" width={200} height={56} style={{ objectFit: "contain", objectPosition: "left", height: 56, width: "auto" }} />
+            <Image src="/mb_logo_footer.png" alt="MeatBox footer" width={200} height={56} style={{ objectFit: "contain", objectPosition: "left", height: 56, width: "auto" }} />
           </div>
           <div>
             <h4 className="font-bold">Linklər</h4>
