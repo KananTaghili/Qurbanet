@@ -82,18 +82,18 @@ function ServiceCard({ item, idx = 0, onPlay }) {
   return (
     <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
       <div className="card-hover-root relative transition-transform duration-300 ease-out">
-      {/* Icon — half outside top, shifted right */}
-      <div className="absolute -top-8 right-6 z-10">
+      {/* Icon — half outside top */}
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
         <div className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white shadow-md ${text} ${border}`}>
           <Icon className="h-9 w-9" />
         </div>
       </div>
 
       <article
-        className="rounded-2xl border border-border bg-white pt-3 pb-3 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+        className="rounded-2xl border border-border bg-white pt-10 pb-4 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
       >
-      <h3 className={`text-left text-xl font-extrabold leading-6 pr-16 ${text}`}>{item.title}</h3>
-      <div className="relative mt-2 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
+      <h3 className={`text-center text-xl font-extrabold leading-6 ${text}`}>{item.title}</h3>
+      <div className="relative mt-4 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
         {item.videoType === "youtube" ? (
           <iframe
             src={item.videoUrl.replace("autoplay=1", "autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0") + `&playlist=${item.videoUrl.split("/embed/")[1]?.split("?")[0]}`}
@@ -109,7 +109,7 @@ function ServiceCard({ item, idx = 0, onPlay }) {
           />
         )}
       </div>
-      <p className="px-0 pt-2 pb-2 text-[12px] leading-[1.45] text-neutral-800">{item.text}</p>
+      <p className="min-h-20 px-2 py-3 text-[15px] leading-6 text-neutral-800">{item.text}</p>
       {item.href ? (
         <Link href={item.href} className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5 hover:shadow-lg active:scale-95`}>
           {item.button}<ArrowRight className="h-5 w-5" />
@@ -276,13 +276,18 @@ export default function HomePage() {
         )}
 
         {/* ── Hero ── */}
-        <div className="hp-hero relative h-[220px] md:h-[260px] flex items-center overflow-hidden">
-          <Image src="/home_image_test_2.jpg" alt="MeatBox hero" fill className="object-cover object-center" priority />
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 80% at 50% 52%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.88) 42%, rgba(255,255,255,0.4) 60%, rgba(255,255,255,0) 75%)" }} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 75%, rgba(255,255,255,0.85) 90%, #ffffff 100%)" }} />
-          <div className="relative z-10 w-full flex flex-col items-center text-center">
-            <Image src="/mb_logo_bottom.png" alt="MeatBox Logo" width={90} height={90} className="object-contain drop-shadow-lg" />
-            <Slogan />
+        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-12 pt-6 md:px-12 md:pb-16 md:pt-8">
+          <Image src="/mb_hero_bg.jpg" alt="Hero fon" fill style={{ objectFit: "cover" }} priority />
+          <div className="relative mx-auto max-w-3xl text-center">
+            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-7 py-5 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
+              <Image
+                src="/mb_logo_bottom.png"
+                alt="MEATBOX loqosu"
+                width={320} height={256}
+                className="mx-auto h-36 w-48 object-contain drop-shadow-2xl md:h-52 md:w-64"
+              />
+              <div className="mt-1"><Slogan /></div>
+            </div>
           </div>
         </div>
 
