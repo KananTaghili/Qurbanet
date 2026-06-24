@@ -36,6 +36,7 @@ jobs:
 
             # Next.js production build edirik (Kritik addım)
             rm -rf .next
+            mkdir -p .next/cache
             npm run build
 
             # PM2 ilə tətbiqi sıfır itki ilə (zero-downtime) restart edirik
