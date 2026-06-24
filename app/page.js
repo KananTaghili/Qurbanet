@@ -152,7 +152,7 @@ function UserMenu({ user, onLogout }) {
       </button>
 
       {open && (
-        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", padding: "6px", minWidth: 180, zIndex: 100 }}>
+        <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.18)", padding: "6px", minWidth: 180, zIndex: 9999 }}>
           <button onClick={() => { setOpen(false); router.push("/settings"); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#374151" }}
             onMouseEnter={e => e.currentTarget.style.background = "#f9fafb"}
             onMouseLeave={e => e.currentTarget.style.background = "none"}
@@ -235,7 +235,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
 
         {/* ── Header ── */}
-        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10" style={{ height: 56 }}>
+        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10" style={{ height: 56, position: "relative", zIndex: 50 }}>
           <div className="hp-logo">
             <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
           </div>
