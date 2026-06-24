@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import {
   Plus, Bell, User, ChevronDown, ArrowLeft, X,
   Heart, Menu, Shield, ChevronRight, Mail, Phone, Lock,
-  UserRoundCheck, Video,
+  UserRoundCheck, Video, HeartHandshake,
 } from "lucide-react";
 import { CharityLayoutContext } from "./_context";
 import { SIDEBAR_NAV, ANIMAL_IMG_FALLBACK } from "./_lib";
