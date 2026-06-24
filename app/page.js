@@ -277,7 +277,7 @@ export default function HomePage() {
 
         {/* ── Hero ── */}
         <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5">
-          <Image src="/home_page_foto_hero_2.png" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center calc(70% + 20px)" }} priority />
+          <Image src="/home_page_foto_hero_2.png" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center calc(70% + 40px)" }} priority />
           <div className="relative mx-auto max-w-3xl text-center">
             <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-6 py-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm" style={{ position: "relative", top: "-10px" }}>
               <Image
