@@ -52,7 +52,7 @@ export default function TamamlanmisPage() {
         </div>
       )}
 
-      <div className="mb-3 flex overflow-hidden rounded-[11px] border border-[#e7e1f0] bg-white shadow-[0_4px_16px_rgba(63,34,116,0.07)]">
+      <div className="mb-2 flex overflow-hidden rounded-[11px] border border-[#e7e1f0] bg-white shadow-[0_4px_16px_rgba(63,34,116,0.07)]">
         <div className="flex min-h-[72px] flex-1 items-center gap-4 px-5">
           <div className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#6a24d1] to-[#3d0aa8] text-white shadow-[0_8px_18px_rgba(83,25,188,.22)]">
             <CheckCircle size={26} strokeWidth={2} />
@@ -65,7 +65,7 @@ export default function TamamlanmisPage() {
         </div>
       </div>
 
-      <div className="mb-3">
+      <div className="mb-2">
         <h1 className="text-[20px] font-black tracking-[-.02em] text-[#33245f]">Tamamlanmış Açılışlar</h1>
         <p className="mt-0.5 text-[12px] font-semibold text-[#8778a8]">Açılışlar tamamlanma vaxtına görə sıralanıb</p>
       </div>
@@ -81,7 +81,7 @@ export default function TamamlanmisPage() {
         </div>
       )}
 
-      <div className="space-y-3.5">
+      <div className="space-y-2">
         {orders.map((item) => {
           const openerDon  = (item.donations || []).find(d => d.isOpener);
           const paidPct    = openerDon ? Math.round(openerDon.percent || 0) : 0;
@@ -161,40 +161,40 @@ export default function TamamlanmisPage() {
               </div>
 
               {/* ── Desktop layout (unchanged) ── */}
-              <div className="hidden lg:grid min-h-[130px] grid-cols-[130px_240px_1fr_210px]">
-                <div className="flex flex-col justify-center border-r border-[#e7e1f0] bg-[#fbf9ff] px-4 py-3">
-                  <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold text-[#8778a8]">
-                    <span className="text-[#5b22c7] text-[16px] leading-none">•</span>
+              <div className="hidden lg:grid min-h-[112px] grid-cols-[120px_230px_1fr_200px]">
+                <div className="flex flex-col justify-center border-r border-[#e7e1f0] bg-[#fbf9ff] px-3 py-2.5">
+                  <div className="mb-0.5 flex items-center gap-1 text-[10px] font-semibold text-[#8778a8]">
+                    <span className="text-[#5b22c7] text-[14px] leading-none">•</span>
                     Tamamlanma tarixi
                   </div>
-                  <div className="text-[16px] font-black leading-snug text-[#33245f]">
+                  <div className="text-[15px] font-black leading-snug text-[#33245f]">
                     {item.date.split(" ").slice(0, 2).join(" ")}<br />{item.date.split(" ")[2]}
                   </div>
                 </div>
                 <div className="flex items-stretch border-r border-[#e7e1f0]">
                   <img src={item.img} alt={`${item.type} qurban heyvanı`} className="h-full w-full bg-white object-cover" />
                 </div>
-                <div className="flex flex-col justify-center px-5 py-3">
-                  <div className="mb-1.5 flex items-center gap-3">
-                    <h3 className="text-[22px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
+                <div className="flex flex-col justify-center px-4 py-2.5">
+                  <div className="mb-1 flex items-center gap-3">
+                    <h3 className="text-[20px] font-extrabold leading-none text-[#33245f]">{item.type}</h3>
                   </div>
-                  <div className="mb-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-[#77689c]">
-                    <User size={15} className="text-[#7760bb]" />
+                  <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] font-semibold text-[#77689c]">
+                    <User size={13} className="text-[#7760bb] shrink-0" />
                     <span>{item.organizer}</span>
-                    <span className="rounded-full bg-[#f1ecff] px-2.5 py-0.5 text-[12px] font-bold text-[#5622c6]">
+                    <span className="rounded-full bg-[#f1ecff] px-2 py-0.5 text-[11px] font-bold text-[#5622c6]">
                       {paidPct}% · {displayAmt} AZN ödədi
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-start gap-5">
+                  <div className="flex flex-wrap items-start gap-4">
                     <CompletedStat label="Açılış tarixi"  value={item.date} />
                     <CompletedStat label="Ümumi məbləğ"   value={`${item.totalAmount} AZN`} />
                     <CompletedStat label="İştirakçı sayı" value={`${item.participants} nəfər`} />
                   </div>
                 </div>
-                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-5 py-3">
-                  <div className="w-full max-w-[180px] space-y-2">
-                    <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-2.5 text-center">
-                      <CheckCircle size={26} className="mx-auto mb-1 text-emerald-500" strokeWidth={2} />
+                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-4 py-2.5">
+                  <div className="w-full max-w-[180px] space-y-1.5">
+                    <div className="rounded-[10px] border border-emerald-100 bg-emerald-50 py-2 text-center">
+                      <CheckCircle size={22} className="mx-auto mb-0.5 text-emerald-500" strokeWidth={2} />
                       <div className="text-[11px] font-black text-emerald-600">Açılış tamamlanıb</div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
