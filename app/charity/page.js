@@ -1448,7 +1448,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
               <img
                 src={animalImg}
                 alt={`${campaign.animal?.nameAz || "Qurban"} heyvanı`}
-                className="h-[190px] xl:h-full w-full object-cover"
+                className="h-[150px] xl:h-full w-full object-cover"
               />
             </div>
             <div className="flex flex-col xl:flex-row flex-1 divide-y xl:divide-y-0 xl:divide-x divide-[#e7e1f0]">
@@ -1506,23 +1506,23 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
               <div className="xl:w-[190px] shrink-0 p-3 border-t xl:border-t-0 xl:border-l border-[#e7e1f0]">
                 {isCompleted ? (
                   <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
-                    <div className="flex flex-col items-center gap-2 shrink-0">
-                      <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                        <CheckCircle size={26} />
+                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                      <div className="grid h-9 w-9 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                        <CheckCircle size={20} />
                       </div>
-                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700">Tamamlandı</span>
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-black text-emerald-700">Tamamlandı</span>
                     </div>
                     <button onClick={handleShare}
-                      className="flex flex-1 xl:w-full items-center justify-center gap-2 rounded-[6px] border border-[#d9cff0] bg-white py-2 text-[12px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
-                      <Share2 size={14} /> {copied ? "Kopyalandı!" : "Dostlarınla paylaş"}
+                      className="flex flex-1 xl:w-full items-center justify-center gap-1.5 rounded-[6px] border border-[#d9cff0] bg-white py-1.5 text-[11px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                      <Share2 size={12} /> {copied ? "Kopyalandı!" : "Paylaş"}
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-4 xl:flex-col xl:items-center xl:text-center">
                     {/* Ring — left, larger */}
-                    <div className="flex flex-col items-center gap-1 shrink-0">
-                      <div className="text-[11px] font-bold text-[#6e5b9b]">Tamamlanma</div>
-                      <svg width="130" height="130" viewBox="0 0 108 108">
+                    <div className="flex flex-col items-center gap-0.5 shrink-0">
+                      <div className="text-[10px] font-bold text-[#6e5b9b]">Tamamlanma</div>
+                      <svg width="90" height="90" viewBox="0 0 108 108">
                         <defs>
                           <linearGradient id="camp-detail-ring-grad" x1="54" y1="96" x2="54" y2="12" gradientUnits="userSpaceOnUse">
                             <stop offset="0%" stopColor="#4513ad" />
@@ -1541,11 +1541,11 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
                       </svg>
                     </div>
                     {/* Right: status on top, share below */}
-                    <div className="flex flex-1 flex-col items-center gap-2 xl:w-full">
-                      <span className="w-full max-w-[130px] rounded-lg bg-amber-50 px-2.5 py-1.5 text-[11px] font-black text-center text-amber-700">Davam edir</span>
+                    <div className="flex flex-1 flex-col items-center gap-1.5 xl:w-full">
+                      <span className="w-full max-w-[120px] rounded-lg bg-amber-50 px-2 py-1 text-[11px] font-black text-center text-amber-700">Davam edir</span>
                       <button onClick={handleShare}
-                        className="flex w-full max-w-[130px] items-center justify-center gap-1.5 rounded-lg border border-[#d9cff0] bg-white px-2 py-1.5 text-[10px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
-                        <Share2 size={12} /> {copied ? "Kopyalandı!" : "Paylaş"}
+                        className="flex w-full max-w-[120px] items-center justify-center gap-1.5 rounded-lg border border-[#d9cff0] bg-white px-2 py-1 text-[10px] font-extrabold text-[#4b14bd] hover:bg-[#f6f1ff] transition">
+                        <Share2 size={11} /> {copied ? "Kopyalandı!" : "Paylaş"}
                       </button>
                     </div>
                   </div>
