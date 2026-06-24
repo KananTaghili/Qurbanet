@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
   HeartHandshake, Beef,
@@ -134,7 +134,15 @@ function UserMenu({ user, onLogout }) {
 export default function HomePage() {
   const { user, isGuest, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const nav = [
+    { label: "Haqqımızda", to: "/haqqimizda" },
+    { label: "Xidmətlər",  to: "/xidmetler" },
+    { label: "Necə işləyir?", to: "/nece-isleyir" },
+    { label: "Əlaqə",      to: "/elaqe" },
+  ];
 
   const handleLogout = async () => { await logout(); router.push("/"); };
 
@@ -188,12 +196,13 @@ export default function HomePage() {
           </div>
 
           <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
-            {["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"].map((item, i) => (
-              <span
-                key={item}
-                className="hp-nav cursor-pointer hover:text-[#f20b32] transition-colors"
+            {nav.map((item, i) => (
+              <Link
+                key={item.to}
+                href={item.to}
+                className={`hp-nav transition-colors hover:text-[#f20b32] ${pathname === item.to ? "text-[#f20b32] font-bold" : ""}`}
                 style={{ animationDelay: `${0.1 + i * 0.07}s` }}
-              >{item}</span>
+              >{item.label}</Link>
             ))}
           </nav>
 
@@ -215,8 +224,8 @@ export default function HomePage() {
         {/* Mobile nav */}
         {mobileMenuOpen && (
           <div className="flex flex-col gap-1 bg-white px-6 pb-4 text-sm font-medium md:hidden">
-            {["Haqqımızda", "Xidmətlər", "Necə işləyir?", "Əlaqə"].map(item => (
-              <button key={item} onClick={() => setMobileMenuOpen(false)} className="py-2 text-left text-neutral-700 hover:text-[#f20b32] transition-colors">{item}</button>
+            {nav.map(item => (
+              <Link key={item.to} href={item.to} onClick={() => setMobileMenuOpen(false)} className={`py-2 text-left transition-colors hover:text-[#f20b32] ${pathname === item.to ? "text-[#f20b32] font-bold" : "text-neutral-700"}`}>{item.label}</Link>
             ))}
           </div>
         )}
