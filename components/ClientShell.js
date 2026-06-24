@@ -112,7 +112,7 @@ export default function ClientShell({ children }) {
             fontWeight: 600,
             fontStyle: "italic",
             letterSpacing: "0.22em",
-            color: "rgba(255,255,255,0.4)",
+            color: "rgba(255,255,255,0.7)",
             fontFamily: "'Plus Jakarta Sans', sans-serif",
             WebkitAnimation: "mbFadeUp 0.5s ease 0.65s both",
             animation: "mbFadeUp 0.5s ease 0.65s both",
