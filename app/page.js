@@ -279,7 +279,7 @@ export default function HomePage() {
         <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5">
           <Image src="/mb_hero_bg.jpg" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center 70%" }} priority />
           <div className="relative mx-auto max-w-3xl text-center">
-            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-6 py-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
+            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-6 py-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm" style={{ marginTop: "-5px" }}>
               <Image
                 src="/mb_logo_bottom.png"
                 alt="MEATBOX loqosu"
