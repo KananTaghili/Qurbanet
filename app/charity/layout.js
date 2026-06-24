@@ -958,7 +958,7 @@ export default function CharityLayout({ children }) {
           </div>
 
           {/* Page content */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto scrollbar-none" style={{ scrollbarWidth: "none" }}>
           {children}
           </div>
         </div>
