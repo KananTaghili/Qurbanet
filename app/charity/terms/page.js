@@ -62,20 +62,22 @@ export default function SertlerPage() {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-2 pb-20 lg:pb-3">
-      <h1 className="text-[#241a4d] mb-0.5 font-extrabold text-[18px]">Şərtlərimiz</h1>
-      <p className="text-gray-500 text-[12px] mb-3">Platforma qaydaları və istifadə şərtləri</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+    <div className="flex-1 flex flex-col overflow-hidden px-4 py-2 pb-20 lg:pb-3">
+      <div className="mb-2.5">
+        <h1 className="text-[#241a4d] font-extrabold text-[17px] leading-none">Şərtlərimiz</h1>
+        <p className="text-gray-400 text-[11px] mt-0.5">Platforma qaydaları və istifadə şərtləri</p>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 flex-1">
         {sertler.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.value} className="bg-white rounded-xl px-4 py-3 border border-[#eee8f6] shadow-sm flex gap-3 items-start">
-              <div className={`mt-0.5 shrink-0 flex h-9 w-9 items-center justify-center rounded-xl ${s.color.bg}`}>
-                <Icon size={18} className={s.color.icon} />
+            <div key={s.value} className="bg-white rounded-xl border border-[#eee8f6] shadow-sm p-3 flex flex-col gap-2">
+              <div className={`shrink-0 flex h-8 w-8 items-center justify-center rounded-lg ${s.color.bg}`}>
+                <Icon size={16} className={s.color.icon} />
               </div>
               <div className="min-w-0">
-                <div className={`font-extrabold text-[13px] leading-snug mb-0.5 ${s.color.title}`}>{s.value}</div>
-                <div className="text-[12px] text-gray-500 leading-relaxed">{s.label}</div>
+                <div className={`font-extrabold text-[12.5px] leading-snug mb-1 ${s.color.title}`}>{s.value}</div>
+                <div className="text-[11px] text-gray-400 leading-relaxed">{s.label}</div>
               </div>
             </div>
           );
