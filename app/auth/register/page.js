@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, ArrowRight, ArrowLeft, MessageSquare } from "lucide-react";
+import { Phone, Mail, ArrowRight, ArrowLeft, MessageSquare, Beef } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
@@ -31,8 +31,10 @@ const features = [
   {
     title: "Ət Sifarişi",
     text: "Qapınıza çatdırırıq",
-    icon: "/icon_meat.png",
-    iconWrap: { border: "2px solid #ffc6cc", background: "#fff0f1" },
+    icon: null,
+    IconComponent: Beef,
+    iconColor: "#c85a13",
+    iconWrap: { border: "2px solid rgba(200,90,19,0.3)", background: "#fff4ee" },
   },
 ];
 
@@ -156,7 +158,7 @@ export default function RegisterPage() {
 
           {/* Feature cards */}
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
-            {features.map(({ title, text, icon, iconWrap }) => (
+            {features.map((feature) => { const { title, text, icon, iconWrap } = feature; return (
               <div key={title} style={{
                 display: "flex", alignItems: "center", gap: 12,
                 borderRadius: 16, border: "1px solid rgba(255,255,255,0.12)",
@@ -167,14 +169,16 @@ export default function RegisterPage() {
                 WebkitBackdropFilter: "blur(20px)",
               }}>
                 <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", ...iconWrap }}>
-                  <Image src={icon} alt={title} width={22} height={22} style={{ objectFit: "contain" }} />
+                  {feature.IconComponent
+                    ? <feature.IconComponent size={22} color={feature.iconColor} />
+                    : <Image src={icon} alt={title} width={22} height={22} style={{ objectFit: "contain" }} />}
                 </div>
                 <div style={{ flex: 1, textAlign: "left" }}>
                   <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.02em" }}>{title}</div>
                   <div style={{ marginTop: 1, fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{text}</div>
                 </div>
               </div>
-            ))}
+            ); })}
           </div>
 
           {/* Footer tagline */}
