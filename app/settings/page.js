@@ -233,7 +233,7 @@ function PasswordCard({ fullHeight }) {
 /* ─── Logout ────────────────────────────────────────── */
 function LogoutBtn({ onLogout }) {
   return (
-    <button onClick={onLogout} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 18px", background: "#fff", borderRadius: 16, border: "1px solid #fee2e2", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,.05)", fontFamily: "inherit", flexShrink: 0 }}
+    <button onClick={onLogout} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 20px", background: "#fff", borderRadius: 16, border: "1px solid #fee2e2", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,.05)", fontFamily: "inherit", flexShrink: 0 }}
       onMouseEnter={e => { e.currentTarget.style.background = "#fff5f5"; e.currentTarget.style.borderColor = "#fca5a5"; }}
       onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#fee2e2"; }}
     >
@@ -295,7 +295,7 @@ export default function SettingsPage() {
           </div>
 
           {/* ── DESKTOP layout (md+) ── */}
-          <div className="hidden md:grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 14, flex: 1, minHeight: 0, alignItems: "stretch" }}>
+          <div className="s-desktop" style={{ gridTemplateColumns: "1fr 1fr", gap: 14, flex: 1, minHeight: 0, alignItems: "stretch" }}>
             {/* Left col */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12, height: "100%" }}>
               <div style={{ flex: 1, minHeight: 0 }}>
@@ -310,7 +310,7 @@ export default function SettingsPage() {
           </div>
 
           {/* ── MOBILE layout ── */}
-          <div className="md:hidden" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="s-mobile" style={{ flex: 1, minHeight: 0, flexDirection: "column", gap: 12 }}>
             {/* Tab switcher */}
             <div style={{ display: "flex", gap: 4, background: "#fff", borderRadius: 12, padding: 4, border: "1px solid #ebebeb", flexShrink: 0 }}>
               {[["account", "Hesab", User], ["password", "Şifrə", Shield]].map(([key, label, Icon]) => (
@@ -339,6 +339,12 @@ export default function SettingsPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         .no-sb::-webkit-scrollbar { display: none; }
         .no-sb { -ms-overflow-style: none; scrollbar-width: none; }
+        .s-desktop { display: none !important; }
+        .s-mobile  { display: flex !important; }
+        @media (min-width: 768px) {
+          .s-desktop { display: grid !important; }
+          .s-mobile  { display: none !important; }
+        }
       `}</style>
     </>
   );
