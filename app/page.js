@@ -82,18 +82,18 @@ function ServiceCard({ item, idx = 0, onPlay }) {
   return (
     <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
       <div className="card-hover-root relative transition-transform duration-300 ease-out">
-      {/* Icon — half outside top */}
-      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+      {/* Icon — half outside top, right side */}
+      <div className="absolute -top-8 right-5 z-10">
         <div className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white shadow-md ${text} ${border}`}>
           <Icon className="h-9 w-9" />
         </div>
       </div>
 
       <article
-        className="rounded-2xl border border-border bg-white pt-10 pb-4 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
+        className="rounded-2xl border border-border bg-white pt-3 pb-3 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
       >
-      <h3 className={`text-center text-xl font-extrabold leading-6 ${text}`}>{item.title}</h3>
-      <div className="relative mt-3 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
+      <h3 className={`text-left text-xl font-extrabold leading-6 pr-20 ${text}`}>{item.title}</h3>
+      <div className="relative mt-2 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
         {item.videoType === "youtube" ? (
           <iframe
             src={item.videoUrl.replace("autoplay=1", "autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0") + `&playlist=${item.videoUrl.split("/embed/")[1]?.split("?")[0]}`}
