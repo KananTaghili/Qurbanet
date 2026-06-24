@@ -811,7 +811,7 @@ export default function CharityLayout({ children }) {
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 h-screen flex-col shrink-0 overflow-hidden" style={{ backgroundColor: "#301586" }}>
           {/* Back arrow — very top of sidebar */}
-          <div className="px-4 pt-3 pb-1">
+          <div className="px-4 pb-1" style={{ paddingTop: 14 }}>
             <Link href="/" className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/25 bg-white/10 text-white shadow hover:bg-white/20 transition-colors">
               <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
             </Link>
