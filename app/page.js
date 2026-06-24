@@ -8,7 +8,7 @@ import {
   ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
   HeartHandshake, Beef,
 } from "lucide-react";
-import { PiKnifeBoldBold } from "react-icons/pi";
+import { PiKnifeBold } from "react-icons/pi";
 import { useAuth } from "../context/AuthContext";
 
 /* ── KnifeIcon SVG ─────────────────────────────────────── */
