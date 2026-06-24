@@ -187,17 +187,17 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
         {animal.collected} / {animal.target} <span className="text-[#5521c6]">{animal.currency}</span>
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2 rounded-xl p-2" style={{ backgroundColor: "#f8f5ff" }}>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 min-h-[36px]">
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm" style={{ color: "#5521c6" }}>
             <CalendarDays size={12} strokeWidth={2} />
           </span>
-          <div className="truncate text-[10px] font-medium text-[#241a4d]">{animal.startTime}</div>
+          <div className="text-[10px] font-medium leading-tight text-[#241a4d]">{animal.startTime}</div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 min-h-[36px]">
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm" style={{ color: "#5521c6" }}>
             <UsersRound size={12} strokeWidth={2} />
           </span>
-          <div className="text-[10px] font-medium text-[#241a4d]">{animal.participants} iştirakçı</div>
+          <div className="text-[10px] font-medium leading-tight text-[#241a4d]">{animal.participants} iştirakçı</div>
         </div>
       </div>
       <div className="mt-2">
@@ -340,13 +340,13 @@ function DesktopNewOpeningPlaceholderCard({ onOpen, animal }) {
       </div>
       <div className="mt-1 text-center text-[12px] font-semibold text-purple-200">— / — <span className="text-purple-200">AZN</span></div>
       <div className="mt-2 grid grid-cols-2 gap-2 rounded-xl p-2" style={{ backgroundColor: "#f8f5ff" }}>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 min-h-[36px]">
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm text-purple-200"><CalendarDays size={12} strokeWidth={2} /></span>
-          <div className="text-[10px] font-medium text-purple-200">— —</div>
+          <div className="text-[10px] font-medium leading-tight text-purple-200">— —</div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 min-h-[36px]">
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-white shadow-sm text-purple-200"><UsersRound size={12} strokeWidth={2} /></span>
-          <div className="text-[10px] font-medium text-purple-200">— iştirakçı</div>
+          <div className="text-[10px] font-medium leading-tight text-purple-200">— iştirakçı</div>
         </div>
       </div>
       <div className="mt-2">
