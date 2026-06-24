@@ -806,7 +806,7 @@ export default function CharityLayout({ children }) {
 
   return (
     <CharityLayoutContext.Provider value={{ openNewCampaign: (animalName) => { setPreselectedAnimal(animalName || null); setShowNewOpening(true); } }}>
-      <main className="bg-background p-3 font-sans text-foreground md:p-7" style={{ height: "100dvh" }}>
+      <main className="bg-background p-3 pb-3 font-sans text-foreground md:p-7 md:pb-7 overflow-hidden" style={{ height: "100dvh" }}>
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex" style={{ height: "calc(100dvh - 24px)" }}>
 
         {/* Desktop Sidebar */}
@@ -958,7 +958,7 @@ export default function CharityLayout({ children }) {
           </div>
 
           {/* Page content */}
-          <div className="flex-1 overflow-y-auto scrollbar-none" style={{ scrollbarWidth: "none" }}>
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#7c3aed33 transparent" }}>
           {children}
           </div>
         </div>
