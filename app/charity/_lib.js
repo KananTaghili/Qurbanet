@@ -24,7 +24,7 @@ export const AVATAR_PALETTE = [
 ];
 
 export const SIDEBAR_NAV = [
-  { icon: Home,        label: "Əsas Səhifə",  short: "Ana Səhifə",  href: "/charity"             },
+  { icon: Home,        label: "Əsas",          short: "Əsas",        href: "/charity"             },
   { icon: List,        label: "İanələrim",     short: "İanələrim",   href: "/charity/donations"    },
   { icon: CheckCircle, label: "Tamamlanmış",   short: "Bitənlər",    href: "/charity/completed"    },
   { icon: HelpCircle,  label: "Necə işləyir", short: "Necə işlər",  href: "/charity/how-it-works"  },
