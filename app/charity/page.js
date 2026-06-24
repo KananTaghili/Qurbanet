@@ -1826,7 +1826,7 @@ function HomeContent() {
       <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
         {/* Hero */}
         <div
-          className="relative overflow-hidden rounded-xl md:rounded-2xl mx-3 md:mx-6 mt-4 mb-5"
+          className="relative overflow-hidden rounded-xl md:rounded-2xl mx-3 md:mx-6 mt-3 mb-3"
           style={{
             background:
               "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 60%, #ddd6fe 100%)",
@@ -1904,7 +1904,7 @@ function HomeContent() {
         </div>
 
         {/* Filter + heading */}
-        <div className="flex items-center justify-between px-3 md:px-6 mb-4">
+        <div className="flex items-center justify-between px-3 md:px-6 mb-2">
           <div>
             <h2 className="font-semibold text-[#241a4d] text-base md:text-lg">
               Davam edən açılışlar
