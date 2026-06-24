@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import {
-  BookOpen, CheckCircle2, Users, Beef, PocketKnife,
+  BookOpen, CheckCircle2, Users, Beef,
   Flower2, ShieldAlert, ChevronDown, HandHeart,
 } from "lucide-react";
+import { PiKnifeBold } from "react-icons/pi";
 import { useLanguage } from "../../context/LanguageContext";
 import { t, QURBAN_SECTIONS_TEXT } from "../../lib/i18n";
 
@@ -12,7 +13,7 @@ const SECTION_META = [
   { Icon: CheckCircle2, accent: "#1565C0", bg: "#E3F2FD" },
   { Icon: Users,        accent: "#6A1B9A", bg: "#F3E5F5" },
   { Icon: Beef,         accent: "#E65100", bg: "#FBE9E7" },
-  { Icon: PocketKnife,  accent: "#00695C", bg: "#E0F2F1" },
+  { Icon: PiKnifeBold,  accent: "#1c5e20", bg: "#E8F5E9" },
   { Icon: Flower2,      accent: "#2E7D32", bg: "#F1F8E9" },
   { Icon: ShieldAlert,  accent: "#B71C1C", bg: "#FFEBEE" },
 ];
