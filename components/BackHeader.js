@@ -11,7 +11,7 @@ export default function BackHeader({ title, onBack, onMenu }) {
       {onMenu && (
         <button
           onClick={onMenu}
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
+          className="xl:hidden w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
           style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}
         >
           <Menu size={18} />
