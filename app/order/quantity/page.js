@@ -1,229 +1,355 @@
 "use client";
-
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Clock, AlertTriangle, Beef } from "lucide-react";
 import BackHeader from "../../../components/BackHeader";
-import StepHeader from "../../../components/StepHeader";
 import { useMobileMenu } from "../../../context/MobileMenuContext";
+import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import api from "../../../lib/api";
 
-// Sabitlər
 const TIME_SLOTS = ["12:00-15:00", "15:00-18:00", "18:00-21:00"];
-const MONTHS = [
-  "Yan",
-  "Fev",
-  "Mar",
-  "Apr",
+const AZ_MONTHS = [
+  "Yanvar",
+  "Fevral",
+  "Mart",
+  "Aprel",
   "May",
-  "İyn",
-  "İyl",
-  "Avq",
-  "Sen",
-  "Okt",
-  "Noy",
-  "Dek",
+  "İyun",
+  "İyul",
+  "Avqust",
+  "Sentyabr",
+  "Oktyabr",
+  "Noyabr",
+  "Dekabr",
 ];
-const today = () => {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-const tomorrow = () => {
-  const d = today();
-  d.setDate(d.getDate() + 1);
-  return d;
-};
 
-// Yardımçı funksiyalar
-const fmt = (d) =>
-  d ? `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : "";
-const meatWeight = (label) => {
+const Card = ({ children, className = "" }) => (
+  <div
+    className={`bg-white rounded-2xl border border-border shadow-card overflow-hidden ${className}`}
+  >
+    {children}
+  </div>
+);
+
+const CardHead = ({ label, Icon }) => (
+  <div className="px-4 py-2 border-b border-border text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase flex items-center gap-2">
+    {Icon && <Icon className="w-3.5 h-3.5 flex-shrink-0" />}
+    {label}
+  </div>
+);
+
+const QtyBtn = ({ onClick, disabled, children }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl text-lg sm:text-xl font-bold transition-all
+    ${
+      disabled
+        ? "bg-border text-text-secondary cursor-default opacity-85"
+        : "bg-primary text-white cursor-pointer hover:opacity-90"
+    }`}
+  >
+    {children}
+  </button>
+);
+
+function getMeatWeight(label) {
   const nums = (label || "").match(/\d+(?:[.,]\d+)?/g);
-  if (!nums) return null;
+  if (!nums || nums.length < 1) return null;
   const vals = nums.map((n) => parseFloat(n.replace(",", ".")));
   const lo = Math.floor(Math.min(...vals) * 0.5);
   const hi = Math.ceil(Math.max(...vals) * 0.5);
   return lo === hi ? `~${lo} kq ət` : `~${lo}–${hi} kq ət`;
-};
-const validToday = (windows) => {
-  const now = new Date();
-  const min = now.getHours() * 60 + now.getMinutes() + 240;
-  return windows.filter((s) => parseInt(s.split(":")[0]) * 60 > min);
-};
+}
 
-// Əsas komponent
+function getTomorrow() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export default function QuantityPage() {
   const router = useRouter();
   const { openMenu } = useMobileMenu();
   const { updateOrder } = useOrder();
 
-  // ── State ──
   const [animal, setAnimal] = useState(null);
   const [deliveryWindows, setDeliveryWindows] = useState(TIME_SLOTS);
-  const [form, setForm] = useState({
-    mode: "tam",
-    qty: 1,
-    cutStyle: null,
-    headOption: null,
-    feetOption: null,
-    weightKey: null,
-    date: tomorrow(),
-    timeSlot: TIME_SLOTS[0],
-    notes: "",
-  });
-  const [settings, setSettings] = useState({
-    maxDays: 14,
-    showToday: true,
-    showTomorrow: true,
-  });
+  const [mode, setMode] = useState("tam");
+  const [qty, setQty] = useState(1);
+  const [selectedDate, setSelectedDate] = useState(getTomorrow);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calYear, setCalYear] = useState(() => getTomorrow().getFullYear());
+  const [calMonth, setCalMonth] = useState(() => getTomorrow().getMonth());
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [timeSlot, setTimeSlot] = useState("");
+  const [notes, setNotes] = useState("");
+  const [cutStyles, setCutStyles] = useState({});
+  const [selectedWeight, setSelectedWeight] = useState(null);
+  const [headBuckets, setHeadBuckets] = useState({});
+  const [feetBuckets, setFeetBuckets] = useState({});
+  const [maxSlaughterDays, setMaxSlaughterDays] = useState(14);
+  const [quickDateTodayEnabled, setQuickDateTodayEnabled] = useState(true);
+  const [quickDateTomorrowEnabled, setQuickDateTomorrowEnabled] =
+    useState(true);
 
-  // ── Yükləmə ──
   useEffect(() => {
-    const a = localStorage.getItem("selected_animal");
-    const dw = localStorage.getItem("delivery_windows");
-    const flow = sessionStorage.getItem("qurbanet_flow");
-    if (!a || !flow) {
-      router.replace("/");
-      return;
-    }
     try {
+      const a = localStorage.getItem("selected_animal");
+      const dw = localStorage.getItem("delivery_windows");
+      const flowActive = sessionStorage.getItem("qurbanet_flow");
+      if (!a || !flowActive) {
+        router.replace("/");
+        return;
+      }
       const parsed = JSON.parse(a);
       setAnimal(parsed);
-      if (parsed.orderMode === "serikli" && parsed.serikliEnabled) {
-        setForm((f) => ({ ...f, mode: "serikli" }));
-      }
+      if (parsed.orderMode === "serikli" && parsed.serikliEnabled)
+        setMode("serikli");
       if (dw) {
         const w = JSON.parse(dw);
-        if (w.length) setDeliveryWindows(w);
+        if (w.length) {
+          setDeliveryWindows(w);
+          setTimeSlot(w[0]);
+        } else {
+          setTimeSlot(TIME_SLOTS[0]);
+        }
+      } else {
+        setTimeSlot(TIME_SLOTS[0]);
       }
-      // Restore session
-      const saved = sessionStorage.getItem("qurbanet_qty_state");
-      if (saved) {
-        const s = JSON.parse(saved);
-        if (s.animalId === parsed._id) {
-          setForm((f) => ({
-            ...f,
-            qty: s.qty || f.qty,
-            mode: s.mode || f.mode,
-            cutStyle: s.cutStyle || f.cutStyle,
-            headOption: s.headOption || f.headOption,
-            feetOption: s.feetOption || f.feetOption,
-            weightKey: s.weightKey || f.weightKey,
-            date: s.date ? new Date(s.date) : f.date,
-            timeSlot: s.timeSlot || f.timeSlot,
-            notes: s.notes || f.notes,
-          }));
+      const init = {};
+      (parsed.cutStyleOptions || []).forEach((c) => {
+        init[c.key] = 0;
+      });
+      setCutStyles(init);
+      const initHead = {};
+      (parsed.headOptions || [])
+        .filter((o) => o.isActive !== false)
+        .forEach((o) => {
+          initHead[o.key] = 0;
+        });
+      setHeadBuckets(initHead);
+      const initFeet = {};
+      (parsed.feetOptions || [])
+        .filter((o) => o.isActive !== false)
+        .forEach((o) => {
+          initFeet[o.key] = 0;
+        });
+      setFeetBuckets(initFeet);
+
+      const ws = parsed.weights || parsed.weightOptions || [];
+
+      // Restore previously saved form state if available for same animal
+      const savedRaw = sessionStorage.getItem("qurbanet_qty_state");
+      if (savedRaw) {
+        try {
+          const saved = JSON.parse(savedRaw);
+          if (saved.animalId === parsed._id) {
+            if (saved.qty) setQty(saved.qty);
+            if (saved.mode) setMode(saved.mode);
+            if (saved.cutStyles) setCutStyles(saved.cutStyles);
+            if (saved.headBuckets) setHeadBuckets(saved.headBuckets);
+            if (saved.feetBuckets) setFeetBuckets(saved.feetBuckets);
+            if (saved.timeSlot) setTimeSlot(saved.timeSlot);
+            if (saved.notes) setNotes(saved.notes);
+            if (saved.selectedDate)
+              setSelectedDate(new Date(saved.selectedDate));
+            if (saved.selectedWeightKey && ws.length > 0) {
+              const w = ws.find((w) => w.key === saved.selectedWeightKey);
+              if (w) {
+                setSelectedWeight(w);
+                return;
+              }
+            }
+          }
+        } catch {
+          /* ignore */
         }
       }
-      // İlk weight
-      const ws = parsed.weights || parsed.weightOptions || [];
-      if (ws.length && !form.weightKey) {
-        setForm((f) => ({ ...f, weightKey: ws[0].key }));
+
+      if (ws.length > 0) {
+        setSelectedWeight(ws[0]);
       }
     } catch {
       router.replace("/");
     }
   }, [router]);
 
-  // Settings
+  // Fetch max slaughter days from settings
   useEffect(() => {
     api
       .get("/app-config/settings")
       .then((res) => {
         const d = res.data?.data;
-        if (d)
-          setSettings({
-            maxDays: d.maxSlaughterDays || 14,
-            showToday: d.quickDateTodayEnabled !== false,
-            showTomorrow: d.quickDateTomorrowEnabled !== false,
-          });
+        if (d?.maxSlaughterDays > 0) setMaxSlaughterDays(d.maxSlaughterDays);
+        if (d?.quickDateTodayEnabled !== undefined)
+          setQuickDateTodayEnabled(d.quickDateTodayEnabled);
+        if (d?.quickDateTomorrowEnabled !== undefined)
+          setQuickDateTomorrowEnabled(d.quickDateTomorrowEnabled);
       })
       .catch(() => {});
   }, []);
 
-  // Avtosaxlama
+  // Autosave form state to sessionStorage on every change
   useEffect(() => {
     if (!animal) return;
-    sessionStorage.setItem(
-      "qurbanet_qty_state",
-      JSON.stringify({
-        animalId: animal._id,
-        ...form,
-        date: form.date ? form.date.toISOString() : null,
-      }),
-    );
-  }, [form, animal]);
+    try {
+      sessionStorage.setItem(
+        "qurbanet_qty_state",
+        JSON.stringify({
+          animalId: animal._id,
+          qty,
+          mode,
+          cutStyles,
+          headBuckets,
+          feetBuckets,
+          selectedWeightKey: selectedWeight?.key || null,
+          selectedDate: selectedDate ? selectedDate.toISOString() : null,
+          timeSlot,
+          notes,
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [
+    qty,
+    mode,
+    cutStyles,
+    headBuckets,
+    feetBuckets,
+    selectedWeight,
+    selectedDate,
+    timeSlot,
+    notes,
+    animal,
+  ]);
 
-  // Törəmələr
-  const weights = animal?.weights || animal?.weightOptions || [];
-  const selectedWeight = useMemo(
-    () => weights.find((w) => w.key === form.weightKey) || weights[0] || null,
-    [weights, form.weightKey],
+  // Bu gün seçilidisə və etibarlı slot yoxdursa → sabaha keç
+  // (useEffect conditional return-dən ƏVVƏL olmalıdır — React Hooks qaydası)
+  useEffect(() => {
+    if (!selectedDate) return;
+    const todayStr = new Date(new Date().setHours(0, 0, 0, 0)).toDateString();
+    const isTodayCheck = new Date(selectedDate).toDateString() === todayStr;
+    if (!isTodayCheck) return;
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    const validSlots = deliveryWindows.filter((slot) => {
+      const startH = parseInt(slot.split(":")[0], 10);
+      return startH * 60 > nowMins + 240;
+    });
+    if (validSlots.length === 0) {
+      const tomorrow = new Date(new Date().setHours(0, 0, 0, 0));
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setSelectedDate(new Date(tomorrow));
+      if (deliveryWindows[0]) setTimeSlot(deliveryWindows[0]);
+    }
+  }, [selectedDate, deliveryWindows]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!animal) return null;
+
+  const maxQty = Number(animal.maxQuantity) || 1;
+  const isSingle = maxQty === 1;
+  const maxShares = Number(animal.totalShares) || 1;
+  const effectiveCutStyles = animal.cutStyleOptions || [];
+  const pricePerUnit = animal.pricePerShare || 0;
+  const weights = animal.weights || animal.weightOptions || [];
+  const effectivePrice = selectedWeight ? selectedWeight.price : pricePerUnit;
+
+  const animalSharePrice =
+    mode === "serikli"
+      ? (effectivePrice / maxShares) * qty
+      : effectivePrice * qty;
+
+  const activeHeadOptions = (animal.headOptions || []).filter(
+    (o) => o.isActive !== false,
   );
-  const effectivePrice = selectedWeight?.price || animal?.pricePerShare || 0;
-  const maxQty = Number(animal?.maxQuantity) || 1;
-  const maxShares = Number(animal?.totalShares) || 1;
-  const isSerikli = form.mode === "serikli";
-  const basePrice = isSerikli
-    ? (effectivePrice / maxShares) * form.qty
-    : effectivePrice * form.qty;
-  const cutFee = form.cutStyle
-    ? (animal?.cutStyleOptions || []).find((c) => c.key === form.cutStyle)
-        ?.fee || 0
-    : 0;
-  const headFee = form.headOption
-    ? (animal?.headOptions || []).find((h) => h.key === form.headOption)?.fee ||
-      0
-    : 0;
-  const feetFee = form.feetOption
-    ? (animal?.feetOptions || []).find((f) => f.key === form.feetOption)?.fee ||
-      0
-    : 0;
-  const totalPrice =
-    basePrice +
-    cutFee * form.qty +
-    headFee * form.qty +
-    feetFee * (form.feetOption ? form.qty * 4 : 0);
-  const totalPriceFixed = totalPrice.toFixed(0);
+  const activeFeetOptions = (animal.feetOptions || []).filter(
+    (o) => o.isActive !== false,
+  );
+  const headFee =
+    animal.hasHeadOption !== false
+      ? activeHeadOptions.reduce(
+          (sum, o) => sum + (headBuckets[o.key] || 0) * (o.fee || 0),
+          0,
+        )
+      : 0;
+  const feetFee =
+    animal.hasFeetOption !== false
+      ? activeFeetOptions.reduce(
+          (sum, o) => sum + (feetBuckets[o.key] || 0) * (o.fee || 0),
+          0,
+        )
+      : 0;
+  const partsFee = headFee + feetFee;
 
-  const cutError =
-    submitAttempted && animal?.cutStyleOptions?.length > 0 && !form.cutStyle;
-  const headError =
-    submitAttempted && animal?.hasHeadOption !== false && !form.headOption;
+  const cutStyleFee = effectiveCutStyles.reduce(
+    (sum, cs) => sum + (cutStyles[cs.key] || 0) * (cs.fee || 0),
+    0,
+  );
 
-  const todayMid = today();
-  const tomorrowMid = tomorrow();
-  const isToday = form.date?.toDateString() === todayMid.toDateString();
-  const isTomorrow = form.date?.toDateString() === tomorrowMid.toDateString();
-  const visibleWindows = isToday
-    ? validToday(deliveryWindows)
-    : deliveryWindows;
+  const basePrice = animalSharePrice.toFixed(0);
+  const totalPrice = (animalSharePrice + partsFee + cutStyleFee).toFixed(0);
+  const totalCutCount = Object.values(cutStyles).reduce(
+    (s, v) => s + (v || 0),
+    0,
+  );
 
-  // Handlers
-  const setField = (key, val) => setForm((f) => ({ ...f, [key]: val }));
-  const handleQty = (delta) => {
-    const max = isSerikli ? maxShares : maxQty;
-    setForm((f) => ({ ...f, qty: Math.max(1, Math.min(max, f.qty + delta)) }));
-  };
+  const needsHead =
+    animal.hasHeadOption !== false &&
+    (animal.headOptions || []).filter((o) => o.isActive !== false).length > 0;
+  const needsFeet =
+    animal.hasFeetOption !== false &&
+    (animal.feetOptions || []).filter((o) => o.isActive !== false).length > 0;
 
-  const handleContinue = useCallback(() => {
+  const headTotal = needsHead ? qty : 0;
+  const feetTotal = needsFeet ? qty * 4 : 0;
+  const headAssigned = Object.values(headBuckets).reduce((s, v) => s + v, 0);
+  const feetAssigned = Object.values(feetBuckets).reduce((s, v) => s + v, 0);
+  const headUnassigned = headTotal - headAssigned;
+  const feetUnassigned = feetTotal - feetAssigned;
+
+  const cutStyleError =
+    submitAttempted && effectiveCutStyles.length > 0 && totalCutCount === 0;
+  const partsError = submitAttempted && needsHead && headAssigned === 0;
+
+  const handleContinue = () => {
     setSubmitAttempted(true);
-    if (!form.date) return alert("Kəsim tarixini seçin.");
-    if (!form.timeSlot) return alert("Vaxt seçin.");
-    if (cutError) return;
-    if (headError) return alert("Baş seçimi edin.");
-    const order = {
+    if (!selectedDate) {
+      alert("Kəsim tarixini seçin.");
+      return;
+    }
+    if (!timeSlot) {
+      alert("Çatdırılma vaxtını seçin.");
+      return;
+    }
+    if (effectiveCutStyles.length > 0 && totalCutCount === 0) {
+      return;
+    }
+    if (needsHead && headAssigned === 0) {
+      alert("Baş & ayaqlar üçün bir seçim edin.");
+      return;
+    }
+
+    const orderPatch = {
       animal,
-      ...form,
+      mode,
+      qty,
+      selectedDate,
+      timeSlot,
+      notes,
+      cutStyles,
       selectedWeight,
-      totalPrice: parseFloat(totalPriceFixed),
+      headBuckets,
+      feetBuckets,
+      pricePerUnit: effectivePrice,
+      totalPrice: parseFloat(totalPrice),
     };
-    if (isSerikli) {
+    if (mode === "serikli") {
       updateOrder({
-        ...order,
+        ...orderPatch,
         deliveryType: "ozum",
         address: "",
         charityDist: null,
@@ -231,301 +357,642 @@ export default function QuantityPage() {
       });
       router.push("/order/contact");
     } else {
-      updateOrder(order);
+      updateOrder(orderPatch);
       router.push("/order/distribution");
     }
-  }, [
-    form,
-    animal,
-    selectedWeight,
-    totalPriceFixed,
-    cutError,
-    headError,
-    isSerikli,
-    updateOrder,
-    router,
-  ]);
+  };
 
-  // ── Render ──
-  if (!animal)
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Yüklənir...
+  const today = new Date();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const calDays = [];
+  for (let i = 0; i < firstDay; i++) calDays.push(null);
+  for (let d = 1; d <= daysInMonth; d++) calDays.push(d);
+
+  const dateStr = selectedDate
+    ? (() => {
+        const d = new Date(selectedDate);
+        return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+      })()
+    : null;
+
+  const todayMidnight = new Date();
+  todayMidnight.setHours(0, 0, 0, 0);
+  const tomorrowMidnight = new Date(todayMidnight);
+  tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
+
+  const isToday =
+    selectedDate &&
+    new Date(selectedDate).toDateString() === todayMidnight.toDateString();
+  const isTomorrow =
+    selectedDate &&
+    new Date(selectedDate).toDateString() === tomorrowMidnight.toDateString();
+
+  const isCustom = selectedDate && !isToday && !isTomorrow;
+
+  // ── 4-saat interval məntiqi ───────────────────────────────────────────────
+  const getValidWindowsForToday = (windows) => {
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    const minStartMins = nowMins + 4 * 60;
+    return windows.filter((slot) => {
+      const startH = parseInt(slot.split(":")[0], 10);
+      return startH * 60 > minStartMins;
+    });
+  };
+
+  const validWindowsToday = getValidWindowsForToday(deliveryWindows);
+  const noValidSlotsToday = validWindowsToday.length === 0;
+  const visibleWindows = isToday ? validWindowsToday : deliveryWindows;
+  const customLabel = isCustom
+    ? `${new Date(selectedDate).getDate()} ${AZ_MONTHS[new Date(selectedDate).getMonth()]} ${new Date(selectedDate).getFullYear()}`
+    : null;
+
+  const CalendarBlock = () => (
+    <div className="p-2 flex flex-col gap-1.5">
+      {/* Quick picks */}
+      {(quickDateTodayEnabled || quickDateTomorrowEnabled) && (
+        <div
+          className={`grid gap-2 ${quickDateTodayEnabled && quickDateTomorrowEnabled ? "grid-cols-2" : "grid-cols-1"}`}
+        >
+          {[
+            // "Bu gün" — məntiqi yazılıb amma hələlik deaktiv (imkanımız yoxdur)
+            {
+              label: "Bu gün",
+              date: todayMidnight,
+              active: isToday,
+              enabled: false,
+            },
+            {
+              label: "Sabah",
+              date: tomorrowMidnight,
+              active: isTomorrow,
+              enabled: quickDateTomorrowEnabled,
+            },
+          ]
+            .filter((o) => o.enabled)
+            .map(({ label, date, active }) => (
+              <button
+                key={label}
+                onClick={() => {
+                  setSelectedDate(new Date(date));
+                  setShowCalendar(false);
+                }}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
+                ${
+                  active
+                    ? "border-primary bg-primary-surface text-primary"
+                    : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"
+                }`}
+              >
+                <span>{label}</span>
+                <span className="text-[11px] font-semibold opacity-60">
+                  {date.getDate()} {AZ_MONTHS[date.getMonth()]}
+                </span>
+              </button>
+            ))}
+        </div>
+      )}
+
+      {/* Custom date toggle */}
+      <button
+        onClick={() => setShowCalendar((v) => !v)}
+        className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-semibold cursor-pointer transition-all
+          ${
+            isCustom
+              ? "border-primary bg-primary-surface text-primary"
+              : showCalendar
+                ? "border-primary/50 bg-surface text-text-secondary"
+                : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"
+          }`}
+      >
+        <span className="flex items-center gap-2">
+          <CalendarDays className="w-4 h-4 flex-shrink-0" />
+          {isCustom ? customLabel : "Başqa tarix seç"}
+        </span>
+        <span className="text-xs opacity-50">{showCalendar ? "▲" : "▼"}</span>
+      </button>
+
+      {/* Inline calendar */}
+      {showCalendar && (
+        <div className="border border-border rounded-xl p-3 bg-surface">
+          <div className="flex items-center justify-between mb-2.5">
+            <button
+              onClick={() => {
+                if (calMonth === 0) {
+                  setCalMonth(11);
+                  setCalYear((y) => y - 1);
+                } else setCalMonth((m) => m - 1);
+              }}
+              className="w-8 h-8 flex items-center justify-center bg-surface-alt rounded-lg text-base font-bold text-text-secondary border-none cursor-pointer"
+            >
+              ‹
+            </button>
+            <span className="text-xs sm:text-[13px] font-bold text-text-primary">
+              {AZ_MONTHS[calMonth]} {calYear}
+            </span>
+            <button
+              onClick={() => {
+                if (calMonth === 11) {
+                  setCalMonth(0);
+                  setCalYear((y) => y + 1);
+                } else setCalMonth((m) => m + 1);
+              }}
+              className="w-8 h-8 flex items-center justify-center bg-surface-alt rounded-lg text-base font-bold text-text-secondary border-none cursor-pointer"
+            >
+              ›
+            </button>
+          </div>
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1.5">
+            {["BE", "ÇA", "Ç", "CA", "C", "Ş", "B"].map((d, i) => (
+              <div
+                key={i}
+                className="text-center text-[9px] font-bold text-text-muted py-1"
+              >
+                {d}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+            {calDays.map((d, i) => {
+              const maxDate = new Date(todayMidnight);
+              maxDate.setDate(maxDate.getDate() + maxSlaughterDays);
+              const cellDate = d ? new Date(calYear, calMonth, d) : null;
+              const disabled =
+                !d || cellDate < todayMidnight || cellDate > maxDate;
+              const sel =
+                d &&
+                selectedDate &&
+                cellDate.toDateString() ===
+                  new Date(selectedDate).toDateString();
+              return (
+                <button
+                  key={i}
+                  disabled={!d || disabled}
+                  onClick={() => {
+                    if (d && !disabled) {
+                      setSelectedDate(cellDate);
+                      setShowCalendar(false);
+                    }
+                  }}
+                  className={`h-7 sm:h-8 rounded-lg border-none text-[11px] sm:text-xs font-medium transition-colors
+                    ${
+                      sel
+                        ? "bg-primary text-white font-extrabold"
+                        : disabled
+                          ? "text-border bg-transparent cursor-default"
+                          : "text-text-primary bg-transparent cursor-pointer hover:bg-surface-alt"
+                    }`}
+                >
+                  {d || ""}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const TimeSlotBlock = ({ cols = "grid-cols-3" }) => (
+    <div className={`p-2 grid ${cols} gap-1.5`}>
+      {visibleWindows.map((slot) => (
+        <button
+          key={slot}
+          onClick={() => setTimeSlot(slot)}
+          className={`px-2 py-2.5 rounded-xl text-[11px] sm:text-xs font-bold text-center border-2 cursor-pointer transition-all ${
+            timeSlot === slot
+              ? "border-primary bg-primary-surface text-primary"
+              : "border-border bg-surface-alt text-text-secondary"
+          }`}
+        >
+          {slot}
+        </button>
+      ))}
+    </div>
+  );
+
+  /* ─── Price Summary (desktop right col) ─── */
+  const PriceSummary = () => (
+    <div
+      className="rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(27,94,32,0.22)]"
+      style={{
+        background:
+          "linear-gradient(145deg,#1B5E20 0%,#2E7D32 60%,#388E3C 100%)",
+      }}
+    >
+      <div className="p-5">
+        <p className="text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] mb-2">
+          Ümumi məbləğ
+        </p>
+        <div className="flex items-end gap-2 mb-1">
+          <span className="text-4xl font-black text-white tracking-tight leading-none">
+            {totalPrice}
+          </span>
+          <span className="text-lg font-bold text-white/60 mb-0.5">AZN</span>
+        </div>
+        <p className="text-[10px] text-white/40 leading-relaxed mt-1">
+          {mode === "serikli"
+            ? `${animal.nameAz} · ${qty}/${maxShares} pay${partsFee > 0 ? ` + ${partsFee.toFixed(0)} AZN` : ""}`
+            : `${animal.nameAz} × ${qty}${selectedWeight ? ` · ${selectedWeight.labelAz || selectedWeight.label}` : ""}`}
+        </p>
       </div>
+      <div className="px-4 pb-4">
+        <button
+          onClick={handleContinue}
+          className="w-full bg-white text-primary rounded-xl py-3 text-[13px] font-extrabold border-none cursor-pointer transition-all active:scale-[0.98] hover:bg-green-50 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+        >
+          Davam et →
+        </button>
+      </div>
+    </div>
+  );
+
+  /* ─── Section card ─── */
+  const S = ({ label, Icon, error, hideOnXl = false, children }) => (
+    <div
+      className={`bg-white rounded-xl overflow-hidden ${hideOnXl ? "xl:hidden" : ""}
+      ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"}`}
+    >
+      <div
+        className={`flex items-center justify-between px-3 py-2 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
+      >
+        <span
+          className="flex items-center gap-1.5 text-[9.5px] font-bold tracking-[0.12em] uppercase"
+          style={{ color: error ? "#ef4444" : "#9ca3af" }}
+        >
+          {Icon && <Icon className="w-3 h-3" />}
+          {label}
+        </span>
+        {error && (
+          <span className="flex items-center gap-1 text-[9.5px] font-bold text-red-500">
+            <AlertTriangle className="w-3 h-3" />
+            {error}
+          </span>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+
+  /* ─── Option row (radio style) ─── */
+  const Opt = ({ selected, onClick, label, sub, subGreen = false }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left cursor-pointer transition-all duration-150 border-2
+        ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
+    >
+      <div
+        className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
+        ${selected ? "border-primary bg-primary" : "border-[#d1d5db]"}`}
+      >
+        {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="text-[12px] font-semibold leading-tight block text-text-primary">
+          {label}
+        </span>
+        {sub && (
+          <span
+            className={`text-[10px] font-bold ${subGreen ? "text-emerald-600" : "text-primary"}`}
+          >
+            {sub}
+          </span>
+        )}
+      </div>
+    </button>
+  );
+
+  /* ─── Weight pill ─── */
+  const WPill = ({ w }) => {
+    const lbl = w.labelAz || w.label || w.key;
+    const on =
+      selectedWeight?.key === w.key || selectedWeight?.labelAz === w.labelAz;
+    return (
+      <button
+        onClick={() => setSelectedWeight(w)}
+        className={`flex flex-col items-start gap-0.5 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border-2
+          ${on ? "border-primary bg-primary-surface text-primary" : "border-transparent bg-[#f7f8f7] text-text-primary hover:bg-[#eef5ee]"}`}
+      >
+        <span className="text-[11px] font-bold leading-tight">
+          {lbl} — {w.price} AZN
+        </span>
+        {getMeatWeight(lbl) && (
+          <span
+            className={`text-[9px] font-semibold ${on ? "text-primary/70" : "text-text-muted"}`}
+          >
+            {getMeatWeight(lbl)}
+          </span>
+        )}
+      </button>
     );
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f2f5f2]">
+    <div
+      className="flex flex-col flex-1 min-h-0"
+      style={{ background: "#f2f5f2" }}
+    >
       <BackHeader
-        title="Qurbanliq"
+        title="Miqdar seçin"
         onBack={() => router.replace("/")}
         onMenu={openMenu}
       />
       <StepHeader currentStep={1} />
 
-      <div className="flex-1 overflow-y-auto p-3 xl:grid xl:grid-cols-[1fr_280px] xl:gap-4 max-w-7xl mx-auto w-full">
-        {/* Sol hissə */}
-        <div className="space-y-3">
-          {/* Heyvan kartı */}
-          <div className="bg-white rounded-xl shadow-sm flex items-stretch">
-            <div className="w-28 bg-gradient-to-br from-green-50 to-green-100 rounded-l-xl flex items-center justify-center">
-              {animal.imageUrl ? (
-                <img
-                  src={animal.imageUrl}
-                  alt={animal.nameAz}
-                  className="w-full h-full object-contain p-2"
-                />
-              ) : (
-                <Beef className="w-10 h-10 text-green-800/30" />
-              )}
-            </div>
-            <div className="flex-1 p-3 flex flex-col justify-between">
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                  SEÇİLMİŞ HEYVAN
-                </div>
-                <h2 className="text-lg font-bold">{animal.nameAz}</h2>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-black text-green-700">
-                    {effectivePrice}
-                  </span>
-                  <span className="text-xs text-gray-500">AZN</span>
-                </div>
-              </div>
-              {maxQty > 1 && (
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-[10px] font-bold uppercase text-gray-400">
-                    Miqdar
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleQty(-1)}
-                      disabled={form.qty <= 1}
-                      className="w-8 h-8 rounded-lg bg-green-700 text-white disabled:bg-gray-200 disabled:text-gray-400 text-lg font-bold"
-                    >
-                      −
-                    </button>
-                    <span className="w-6 text-center text-lg font-bold">
-                      {form.qty}
-                    </span>
-                    <button
-                      onClick={() => handleQty(1)}
-                      disabled={
-                        isSerikli ? form.qty >= maxShares : form.qty >= maxQty
-                      }
-                      className="w-8 h-8 rounded-lg bg-green-700 text-white disabled:bg-gray-200 disabled:text-gray-400 text-lg font-bold"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Şərikli seçimi (əgər varsa) */}
-          {!animal.orderMode &&
-            animal.totalShares > 1 &&
-            animal.serikliEnabled && (
-              <div className="bg-white rounded-xl shadow-sm p-3">
-                <div className="text-[10px] font-bold uppercase text-gray-400 mb-2">
-                  Sifariş növü
-                </div>
-                <div className="flex gap-2">
-                  {["tam", "serikli"].map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setField("mode", m)}
-                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${form.mode === m ? "bg-green-700 text-white" : "bg-gray-100 text-gray-600"}`}
-                    >
-                      {m === "tam" ? "Tam heyvan" : `Şərikli (/${maxShares})`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          {/* Diri çəki (yalnız mobil) */}
-          {weights.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm p-3 xl:hidden">
-              <div className="text-[10px] font-bold uppercase text-gray-400 mb-2">
-                Diri çəki
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {weights.map((w) => (
-                  <button
-                    key={w.key}
-                    onClick={() => setField("weightKey", w.key)}
-                    className={`p-2 rounded-lg border-2 text-left text-sm ${form.weightKey === w.key ? "border-green-700 bg-green-50" : "border-gray-200"}`}
-                  >
-                    <div className="font-semibold">
-                      {w.labelAz || w.label} — {w.price} AZN
+      {/* ── Scrollable body ── */}
+      <div
+        className="order-scroll flex-1 overflow-y-auto min-h-0"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "#1B5E20 transparent",
+        }}
+      >
+        <div
+          className="p-2.5 xl:p-4
+                        xl:grid xl:grid-cols-[1fr_290px] 2xl:grid-cols-[1fr_310px]
+                        xl:gap-3.5 xl:items-start"
+        >
+          {/* ══ LEFT ══ */}
+          <div className="flex flex-col gap-2">
+            {/* Animal hero card */}
+            <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
+              <div className="flex items-stretch min-h-[90px]">
+                <div
+                  className="w-[110px] sm:w-[130px] flex-shrink-0 overflow-hidden"
+                  style={{
+                    background:
+                      "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)",
+                  }}
+                >
+                  {animal.imageUrl ? (
+                    <img
+                      src={animal.imageUrl}
+                      alt={animal.nameAz}
+                      className="w-full h-full object-contain"
+                      style={{ transform: "scale(1.06)" }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Beef
+                        className="w-8 h-8"
+                        style={{ color: "#1B5E20", opacity: 0.3 }}
+                      />
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {meatWeight(w.labelAz || w.label)}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Doğrama üsulu */}
-          {(animal.cutStyleOptions || []).length > 0 && (
-            <div
-              className={`bg-white rounded-xl shadow-sm p-3 ${cutError ? "ring-2 ring-red-400" : ""}`}
-            >
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] font-bold uppercase text-gray-400">
-                  Doğrama üsulu
-                </span>
-                {cutError && (
-                  <span className="text-red-500 text-xs font-bold flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" /> Seçin
-                  </span>
-                )}
-              </div>
-              <div className="space-y-1">
-                {(animal.cutStyleOptions || []).map((c) => (
-                  <button
-                    key={c.key}
-                    onClick={() => setField("cutStyle", c.key)}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg border-2 ${form.cutStyle === c.key ? "border-green-700 bg-green-50" : "border-gray-200"}`}
-                  >
-                    <span className="font-medium text-sm">{c.labelAz}</span>
-                    {c.fee > 0 && (
-                      <span className="text-xs text-green-700">
-                        +{c.fee * form.qty} AZN
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Baş & Ayaqlar */}
-          {animal.hasHeadOption !== false &&
-            (animal.headOptions || []).filter((h) => h.isActive !== false)
-              .length > 0 && (
-              <div
-                className={`bg-white rounded-xl shadow-sm p-3 ${headError ? "ring-2 ring-red-400" : ""}`}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] font-bold uppercase text-gray-400">
-                    Baş & Ayaqlar
-                  </span>
-                  {headError && (
-                    <span className="text-red-500 text-xs font-bold flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" /> Seçin
-                    </span>
                   )}
                 </div>
-                <div className="space-y-1">
-                  {(animal.headOptions || [])
-                    .filter((h) => h.isActive !== false)
-                    .map((h) => (
-                      <button
-                        key={h.key}
-                        onClick={() => setField("headOption", h.key)}
-                        className={`w-full flex items-center justify-between p-2 rounded-lg border-2 ${form.headOption === h.key ? "border-green-700 bg-green-50" : "border-gray-200"}`}
-                      >
-                        <span className="font-medium text-sm">{h.labelAz}</span>
-                        <span className="text-xs text-green-700">
-                          {h.fee > 0 ? `+${h.fee * form.qty} AZN` : "Pulsuz"}
+                <div className="flex-1 min-w-0 flex flex-col justify-between px-3 py-2.5">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-text-muted">
+                      Seçilmiş heyvan
+                    </p>
+                    <h2 className="text-[15px] font-extrabold text-text-primary mt-0.5 leading-tight">
+                      {animal.nameAz}
+                    </h2>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <span className="text-[22px] font-black text-primary leading-none tracking-tight">
+                        {effectivePrice}
+                      </span>
+                      <span className="text-[11px] font-semibold text-text-muted ml-0.5">
+                        AZN{!isSingle ? " / əd." : ""}
+                      </span>
+                    </div>
+                  </div>
+                  {!isSingle && (
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-[9px] font-bold uppercase tracking-wide text-text-muted">
+                        Miqdar
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <QtyBtn
+                          onClick={() => setQty((q) => Math.max(1, q - 1))}
+                          disabled={qty <= 1}
+                        >
+                          −
+                        </QtyBtn>
+                        <span className="w-6 text-center text-lg font-black text-primary">
+                          {qty}
                         </span>
+                        <QtyBtn
+                          onClick={() =>
+                            setQty((q) =>
+                              mode === "serikli"
+                                ? Math.min(maxShares, q + 1)
+                                : Math.min(maxQty, q + 1),
+                            )
+                          }
+                          disabled={
+                            (mode === "serikli" && qty >= maxShares) ||
+                            (mode !== "serikli" && qty >= maxQty)
+                          }
+                        >
+                          +
+                        </QtyBtn>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {!isSingle && (
+                <div
+                  className="flex items-center justify-between px-3 py-1.5 border-t border-[#f0f0f0]"
+                  style={{ background: "rgba(27,94,32,0.04)" }}
+                >
+                  <span className="text-[10px] text-text-muted font-medium">
+                    {mode === "serikli"
+                      ? `${qty}/${maxShares} pay`
+                      : `${qty} × ${effectivePrice} AZN`}
+                  </span>
+                  <span className="text-[12px] font-extrabold text-primary">
+                    = {basePrice} AZN
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Sifariş növü */}
+            {!animal.orderMode &&
+              animal.totalShares > 1 &&
+              animal.serikliEnabled && (
+                <S label="Sifariş növü">
+                  <div className="p-2 flex gap-2">
+                    {[
+                      { k: "tam", l: "Tam heyvan" },
+                      { k: "serikli", l: `Şərikli (/${maxShares})` },
+                    ].map((m) => (
+                      <button
+                        key={m.k}
+                        onClick={() => setMode(m.k)}
+                        className={`flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-150 cursor-pointer
+                        ${mode === m.k ? "bg-primary text-white shadow-[0_2px_8px_rgba(27,94,32,0.25)]" : "bg-[#f7f8f7] text-text-secondary hover:bg-[#eef5ee]"}`}
+                      >
+                        {m.l}
                       </button>
                     ))}
+                  </div>
+                </S>
+              )}
+
+            {/* Diri çəki — mobile only */}
+            {weights.length > 0 && (
+              <S label="Diri çəki kateqoriyası" hideOnXl>
+                <div className="p-2 grid grid-cols-2 gap-1.5">
+                  {weights.map((w) => (
+                    <WPill key={w.key || w.labelAz} w={w} />
+                  ))}
                 </div>
+              </S>
+            )}
+
+            {/* Doğrama üsulu + Baş & Ayaqlar — yan-yana */}
+            {(effectiveCutStyles.length > 0 || needsHead) && (
+              <div className="flex gap-2 items-start">
+                {effectiveCutStyles.length > 0 && (
+                  <div className="flex-1 min-w-0">
+                    <S
+                      label="Doğrama üsulu"
+                      error={cutStyleError ? "Seçim edin" : null}
+                    >
+                      <div className="p-2 flex flex-col gap-1">
+                        {effectiveCutStyles.map((cs) => (
+                          <Opt
+                            key={cs.key}
+                            selected={(cutStyles[cs.key] || 0) > 0}
+                            onClick={() =>
+                              setCutStyles(() => {
+                                const z = Object.fromEntries(
+                                  effectiveCutStyles.map((c) => [c.key, 0]),
+                                );
+                                return { ...z, [cs.key]: qty };
+                              })
+                            }
+                            label={cs.labelAz}
+                            sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : null}
+                          />
+                        ))}
+                      </div>
+                    </S>
+                  </div>
+                )}
+
+                {needsHead && (
+                  <div className="flex-1 min-w-0">
+                    <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                      <div className="p-2 flex flex-col gap-1">
+                        {activeHeadOptions.map((opt) => {
+                          const on = (headBuckets[opt.key] || 0) > 0;
+                          const fee = opt.fee || 0;
+                          return (
+                            <Opt
+                              key={opt.key}
+                              selected={on}
+                              onClick={() => {
+                                const hZ = Object.fromEntries(
+                                  Object.keys(headBuckets).map((k) => [k, 0]),
+                                );
+                                const fZ = Object.fromEntries(
+                                  Object.keys(feetBuckets).map((k) => [k, 0]),
+                                );
+                                if (on) {
+                                  setHeadBuckets(hZ);
+                                  setFeetBuckets(fZ);
+                                } else {
+                                  setHeadBuckets({ ...hZ, [opt.key]: headTotal });
+                                  setFeetBuckets({ ...fZ, [opt.key]: feetTotal });
+                                }
+                              }}
+                              label={opt.labelAz}
+                              sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
+                              subGreen={fee === 0}
+                            />
+                          );
+                        })}
+                      </div>
+                    </S>
+                  </div>
+                )}
               </div>
             )}
 
-          {/* Tarix, vaxt, qeyd (mobil) */}
-          <div className="xl:hidden space-y-3">
-            <DateSection
-              form={form}
-              setField={setField}
-              settings={settings}
-              visibleWindows={visibleWindows}
-            />
-            <NoteSection
-              notes={form.notes}
-              setNotes={(v) => setField("notes", v)}
-            />
+            {/* Date / Time / Notes — mobile */}
+            <div className="xl:hidden flex flex-col gap-2">
+              <S label="Kəsim tarixi" Icon={CalendarDays}>
+                <CalendarBlock />
+              </S>
+              <S label="Çatdırılma vaxtı" Icon={Clock}>
+                <TimeSlotBlock cols="grid-cols-3" />
+              </S>
+              <S label="Qeydlər">
+                <div className="p-2">
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Xüsusi istəklərinizi qeyd edin..."
+                    rows={3}
+                    className="field-input resize-none w-full text-sm"
+                  />
+                </div>
+              </S>
+            </div>
           </div>
-        </div>
 
-        {/* Sağ hissə (desktop) */}
-        <div className="hidden xl:block space-y-3">
-          {weights.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm p-3">
-              <div className="text-[10px] font-bold uppercase text-gray-400 mb-2">
-                Diri çəki
+          {/* ══ RIGHT — xl+ ══ */}
+          <div className="hidden xl:flex flex-col gap-2">
+            {weights.length > 0 && (
+              <S label="Diri çəki kateqoriyası">
+                <div className="p-2 grid grid-cols-1 gap-1.5">
+                  {weights.map((w) => (
+                    <WPill key={w.key || w.labelAz} w={w} />
+                  ))}
+                </div>
+              </S>
+            )}
+            <S label="Kəsim tarixi" Icon={CalendarDays}>
+              <CalendarBlock />
+            </S>
+            <S label="Çatdırılma vaxtı" Icon={Clock}>
+              <TimeSlotBlock cols="grid-cols-2" />
+            </S>
+            <S label="Qeydlər">
+              <div className="p-2">
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Xüsusi istəklərinizi qeyd edin..."
+                  rows={2}
+                  className="field-input resize-none w-full text-sm"
+                />
               </div>
-              <div className="space-y-2">
-                {weights.map((w) => (
-                  <button
-                    key={w.key}
-                    onClick={() => setField("weightKey", w.key)}
-                    className={`w-full p-2 rounded-lg border-2 text-left ${form.weightKey === w.key ? "border-green-700 bg-green-50" : "border-gray-200"}`}
-                  >
-                    <div className="font-semibold text-sm">
-                      {w.labelAz || w.label} — {w.price} AZN
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {meatWeight(w.labelAz || w.label)}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          <DateSection
-            form={form}
-            setField={setField}
-            settings={settings}
-            visibleWindows={visibleWindows}
-          />
-          <NoteSection
-            notes={form.notes}
-            setNotes={(v) => setField("notes", v)}
-          />
-
-          {/* Ümumi məbləğ */}
-          <div className="bg-gradient-to-br from-green-800 to-green-700 rounded-xl shadow-lg p-4 text-white">
-            <div className="text-[10px] font-bold uppercase opacity-60">
-              Ümumi məbləğ
-            </div>
-            <div className="text-3xl font-black">
-              {totalPriceFixed}{" "}
-              <span className="text-lg font-bold opacity-80">AZN</span>
-            </div>
-            <div className="text-xs opacity-60 mt-1">
-              {isSerikli
-                ? `${form.qty}/${maxShares} pay`
-                : `${form.qty} × ${effectivePrice} AZN`}
-            </div>
-            <button
-              onClick={handleContinue}
-              className="w-full mt-3 bg-white text-green-800 rounded-lg py-2.5 font-extrabold text-sm"
-            >
-              Davam et →
-            </button>
+            </S>
+            <PriceSummary />
           </div>
         </div>
       </div>
 
-      {/* Mobil alt panel */}
-      <div className="xl:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-green-800 to-green-700 p-3 flex items-center justify-between">
-        <div>
-          <div className="text-[10px] font-bold uppercase opacity-60">Cəmi</div>
-          <div className="text-xl font-black text-white">
-            {totalPriceFixed} AZN
-          </div>
+      {/* ══ Mobile action bar ══ */}
+      <div
+        className="xl:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3"
+        style={{ background: "linear-gradient(90deg,#1B5E20,#2E7D32)" }}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-[9px] font-bold text-white/50 uppercase tracking-[0.12em]">
+            Cəmi məbləğ
+          </p>
+          <p className="text-xl font-black text-white leading-tight tracking-tight">
+            {totalPrice} AZN
+          </p>
+          {!isSingle && (
+            <p className="text-[10px] text-white/40 truncate">
+              {mode === "serikli"
+                ? `${qty}/${maxShares} pay`
+                : `${qty} × ${effectivePrice} AZN`}
+            </p>
+          )}
         </div>
         <button
           onClick={handleContinue}
-          className="bg-white text-green-800 px-6 py-2.5 rounded-lg font-extrabold text-sm"
+          className="flex-shrink-0 bg-white text-primary rounded-xl py-3 px-5 text-[13px] font-extrabold border-none cursor-pointer whitespace-nowrap active:scale-95 transition-transform shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
         >
           Davam et →
         </button>
@@ -534,170 +1001,160 @@ export default function QuantityPage() {
   );
 }
 
-// ── Alt komponentlər ──
-function DateSection({ form, setField, settings, visibleWindows }) {
-  const [showCal, setShowCal] = useState(false);
-  const [calYear, setCalYear] = useState(
-    form.date?.getFullYear() || new Date().getFullYear(),
-  );
-  const [calMonth, setCalMonth] = useState(
-    form.date?.getMonth() || new Date().getMonth(),
-  );
+function PartBucketSection({
+  label,
+  total,
+  unitLabel,
+  options,
+  buckets,
+  unassigned,
+  onChangeBucket,
+  radioMode,
+  onRadioSelect,
+  required,
+  submitAttempted,
+}) {
+  const isError = required && submitAttempted && unassigned > 0;
 
-  const todayMid = today();
-  const tomorrowMid = tomorrow();
-  const isToday = form.date?.toDateString() === todayMid.toDateString();
-  const isTomorrow = form.date?.toDateString() === tomorrowMid.toDateString();
-  const isCustom = form.date && !isToday && !isTomorrow;
-
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const days = [];
-  for (let i = 0; i < firstDay; i++) days.push(null);
-  for (let d = 1; d <= daysInMonth; d++) days.push(d);
-  const maxDate = new Date(todayMid);
-  maxDate.setDate(maxDate.getDate() + settings.maxDays);
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm p-3">
-      <div className="text-[10px] font-bold uppercase text-gray-400 mb-2 flex items-center gap-1">
-        <CalendarDays className="w-3.5 h-3.5" /> Kəsim tarixi
-      </div>
-      <div className="space-y-2">
-        <div
-          className={`grid gap-2 ${settings.showToday && settings.showTomorrow ? "grid-cols-2" : "grid-cols-1"}`}
-        >
-          {[
-            {
-              label: "Bu gün",
-              date: todayMid,
-              active: isToday,
-              enabled: settings.showToday,
-            },
-            {
-              label: "Sabah",
-              date: tomorrowMid,
-              active: isTomorrow,
-              enabled: settings.showTomorrow,
-            },
-          ]
-            .filter((o) => o.enabled)
-            .map((o) => (
-              <button
-                key={o.label}
-                onClick={() => {
-                  setField("date", o.date);
-                  setShowCal(false);
-                }}
-                className={`p-2 rounded-lg border-2 text-sm font-semibold ${o.active ? "border-green-700 bg-green-50" : "border-gray-200"}`}
-              >
-                {o.label}{" "}
-                <span className="text-xs font-normal text-gray-500">
-                  {o.date.getDate()} {MONTHS[o.date.getMonth()]}
-                </span>
-              </button>
-            ))}
+  if (radioMode) {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] sm:text-xs font-bold text-text-secondary">
+            {label}
+          </span>
+          {isError && (
+            <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+              Seçin!
+            </span>
+          )}
         </div>
-        <button
-          onClick={() => setShowCal(!showCal)}
-          className={`w-full p-2 rounded-lg border-2 text-sm font-semibold flex justify-between ${isCustom ? "border-green-700 bg-green-50" : "border-gray-200"}`}
-        >
-          <span>{isCustom ? fmt(form.date) : "Başqa tarix"}</span>
-          <span>{showCal ? "▲" : "▼"}</span>
-        </button>
-        {showCal && (
-          <div className="border rounded-lg p-2">
-            <div className="flex justify-between items-center mb-2">
-              <button
-                onClick={() => {
-                  if (calMonth === 0) {
-                    setCalMonth(11);
-                    setCalYear((y) => y - 1);
-                  } else setCalMonth((m) => m - 1);
-                }}
-                className="px-2 py-1 bg-gray-100 rounded"
-              >
-                ‹
-              </button>
-              <span className="font-bold text-sm">
-                {MONTHS[calMonth]} {calYear}
-              </span>
-              <button
-                onClick={() => {
-                  if (calMonth === 11) {
-                    setCalMonth(0);
-                    setCalYear((y) => y + 1);
-                  } else setCalMonth((m) => m + 1);
-                }}
-                className="px-2 py-1 bg-gray-100 rounded"
-              >
-                ›
-              </button>
-            </div>
-            <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] font-bold text-gray-400 mb-1">
-              {["B", "Ç", "Ç", "C", "C", "Ş", "B"].map((d) => (
-                <div key={d}>{d}</div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-0.5">
-              {days.map((d, i) => {
-                const cell = d ? new Date(calYear, calMonth, d) : null;
-                const disabled = !cell || cell < todayMid || cell > maxDate;
-                const sel =
-                  cell &&
-                  form.date &&
-                  cell.toDateString() === form.date.toDateString();
-                return (
-                  <button
-                    key={i}
-                    disabled={disabled}
-                    onClick={() => {
-                      if (!disabled) {
-                        setField("date", cell);
-                        setShowCal(false);
-                      }
-                    }}
-                    className={`h-7 rounded text-sm ${sel ? "bg-green-700 text-white font-bold" : disabled ? "text-gray-300" : "hover:bg-gray-100"}`}
-                  >
-                    {d || ""}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        {isError && (
+          <p className="text-[11px] font-bold text-red-500 mb-2">
+            Davam etmək üçün {label.toLowerCase()} seçin.
+          </p>
         )}
-        <div className="text-[10px] font-bold uppercase text-gray-400 mt-2 flex items-center gap-1">
-          <Clock className="w-3.5 h-3.5" /> Vaxt
-        </div>
-        <div className="grid grid-cols-3 gap-1.5">
-          {visibleWindows.map((s) => (
-            <button
-              key={s}
-              onClick={() => setField("timeSlot", s)}
-              className={`p-2 rounded-lg border-2 text-sm font-semibold ${form.timeSlot === s ? "border-green-700 bg-green-50" : "border-gray-200"}`}
-            >
-              {s}
-            </button>
-          ))}
+        <div className="flex flex-col gap-1.5">
+          {options.map((opt) => {
+            const isSelected = (buckets[opt.key] || 0) > 0;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => onRadioSelect(opt.key)}
+                className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
+                  isSelected
+                    ? "border-primary bg-primary-surface"
+                    : isError
+                      ? "border-red-200 bg-red-50"
+                      : "border-border bg-surface-alt"
+                }`}
+              >
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
+                    {opt.labelAz}
+                  </span>
+                  <span className="text-[10px] text-primary font-bold">
+                    {opt.fee > 0 ? `+${opt.fee * total} AZN` : "Pulsuz"}
+                  </span>
+                </div>
+                <div
+                  className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
+                    isSelected ? "border-primary" : "border-slate-300"
+                  }`}
+                >
+                  {isSelected && (
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-function NoteSection({ notes, setNotes }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-3">
-      <div className="text-[10px] font-bold uppercase text-gray-400 mb-1">
-        Qeydlər
+    <div>
+      <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
+        <span className="text-[10px] sm:text-xs font-bold text-text-secondary">
+          {label}
+        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-bold text-text-muted bg-surface-alt border border-border px-2 py-0.5 rounded-full">
+            Cəmi: {total} {unitLabel}
+          </span>
+          <span
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+              unassigned === 0
+                ? "text-primary bg-primary-surface border-primary/30"
+                : isError
+                  ? "text-red-600 bg-red-50 border-red-200"
+                  : "text-text-muted bg-surface-alt border-border"
+            }`}
+          >
+            {unassigned === 0
+              ? "✓ Tamamlandı"
+              : isError
+                ? `Qalıq: ${unassigned}!`
+                : `Qalıq: ${unassigned}`}
+          </span>
+        </div>
       </div>
-      <textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        placeholder="Xüsusi istəklərinizi qeyd edin..."
-        rows={2}
-        className="w-full text-sm border border-gray-200 rounded-lg p-2 resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-      />
+      {isError && (
+        <p className="text-[11px] font-bold text-red-500 mb-2">
+          Davam etmək üçün bütün {label.toLowerCase()} bölgüsünü doldurun.
+        </p>
+      )}
+      <div className="flex flex-col gap-1.5">
+        {options.map((opt) => {
+          const count = buckets[opt.key] || 0;
+          const canIncrease = unassigned > 0;
+          return (
+            <div
+              key={opt.key}
+              className="flex items-center justify-between bg-surface-alt rounded-xl px-3 py-2 gap-2"
+            >
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-[11px] sm:text-xs font-semibold text-text-primary truncate">
+                  {opt.labelAz}
+                </span>
+                <span className="text-[10px] text-primary font-bold">
+                  {opt.fee > 0 ? `+${opt.fee} AZN` : "Pulsuz"}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <button
+                  onClick={() => onChangeBucket(opt.key, -1)}
+                  disabled={count <= 0}
+                  className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
+                    count <= 0
+                      ? "bg-border text-text-secondary cursor-default opacity-85"
+                      : "bg-primary text-white cursor-pointer hover:opacity-90"
+                  }`}
+                >
+                  −
+                </button>
+                <span className="w-5 text-center text-sm font-extrabold text-primary">
+                  {count}
+                </span>
+                <button
+                  onClick={() => onChangeBucket(opt.key, 1)}
+                  disabled={!canIncrease}
+                  className={`w-7 h-7 rounded-lg text-sm font-bold border-none flex items-center justify-center transition-all ${
+                    !canIncrease
+                      ? "bg-border text-text-secondary cursor-default opacity-85"
+                      : "bg-primary text-white cursor-pointer hover:opacity-90"
+                  }`}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
