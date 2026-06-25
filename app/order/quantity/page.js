@@ -731,7 +731,7 @@ export default function QuantityPage() {
         <div
           className="p-2.5 xl:p-4
                         xl:grid xl:grid-cols-[320px_1fr] 2xl:grid-cols-[360px_1fr]
-                        xl:gap-3.5 xl:items-start"
+                        xl:gap-3.5 xl:items-stretch"
         >
           {/* ══ LEFT ══ */}
           <div className="flex flex-col gap-2">
