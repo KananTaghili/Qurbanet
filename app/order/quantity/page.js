@@ -938,10 +938,10 @@ export default function QuantityPage() {
             {/* Date / Time — mobile */}
             <div className="xl:hidden flex flex-col gap-2">
               <S label="Kəsim tarixi" Icon={CalendarDays}>
-                <CalendarBlock />
+                {CalendarBlock()}
               </S>
               <S label="Çatdırılma vaxtı" Icon={Clock}>
-                <TimeSlotBlock cols="grid-cols-3" />
+                {TimeSlotBlock({ cols: "grid-cols-3" })}
               </S>
             </div>
           </div>
@@ -949,7 +949,7 @@ export default function QuantityPage() {
           {/* ══ RIGHT — xl+ ══ */}
           <div className="hidden xl:flex flex-col gap-2 h-full">
             {weights.length > 0 ? (
-              <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-start">
+              <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-stretch">
                 <div className="flex flex-col gap-2">
                   <S label="Diri çəki kateqoriyası">
                     <div className="p-2 grid grid-cols-2 gap-1.5">
@@ -970,25 +970,25 @@ export default function QuantityPage() {
                     </div>
                   </S>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 h-full">
                   <S label="Kəsim tarixi" Icon={CalendarDays}>
-                    <CalendarBlock />
+                    {CalendarBlock()}
                   </S>
                   <S label="Çatdırılma vaxtı" Icon={Clock}>
-                    <TimeSlotBlock cols="grid-cols-2" />
+                    {TimeSlotBlock({ cols: "grid-cols-2" })}
                   </S>
-                  <PriceSummary />
+                  <div className="mt-auto">{PriceSummary()}</div>
                 </div>
               </div>
             ) : (
               <>
                 <S label="Kəsim tarixi" Icon={CalendarDays}>
-                  <CalendarBlock />
+                  {CalendarBlock()}
                 </S>
                 <S label="Çatdırılma vaxtı" Icon={Clock}>
-                  <TimeSlotBlock cols="grid-cols-2" />
+                  {TimeSlotBlock({ cols: "grid-cols-2" })}
                 </S>
-                <PriceSummary />
+                {PriceSummary()}
               </>
             )}
           </div>
