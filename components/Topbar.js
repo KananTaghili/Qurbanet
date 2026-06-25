@@ -7,7 +7,7 @@ import { useOrder } from "../context/OrderContext";
 
 const PAGE_TITLES = {
   "/": "Əsas Səhifə",
-  "/qurban": "Heyvan Seçimi",
+  "/qurban": "Əsas",
   "/my-orders": "Sifarişlərim",
   "/need-support": "Xeyriyyə",
   "/how-it-works": "Necə İşləyirik?",

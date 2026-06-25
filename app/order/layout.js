@@ -13,7 +13,7 @@ import { MobileMenuProvider, useMobileMenu } from "../../context/MobileMenuConte
 const GREEN = "#1c5e20";
 
 const SIDEBAR_NAV = [
-  { icon: Beef,          label: "Heyvan Seçimi", href: "/qurban" },
+  { icon: Beef,          label: "Əsas",           href: "/qurban" },
   { icon: ClipboardList, label: "Sifarişlərim",  href: "/my-orders" },
   { icon: HelpCircle,    label: "Necə işləyir",  href: "/how-it-works" },
   { icon: BookOpen,      label: "Qaydalar",       href: "/qurban-rules" },

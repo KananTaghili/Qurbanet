@@ -693,7 +693,7 @@ export default function DistributionPage() {
                   return (
                     <div className="border-b border-border">
                       <div className="px-3 pt-0.5 pb-0">
-                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Heyvan Seçimi</span>
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Əsas</span>
                       </div>
                       <div className="flex justify-between items-center px-3 pb-1">
                         <div>

@@ -7,7 +7,7 @@ const BRAND = '#1c5e20';
 const MUTED  = '#a1a1aa';
 
 const TABS = [
-  { href: '/qurban',       label: 'Heyvan Seçimi', Icon: Beef,          key: 'home'   },
+  { href: '/qurban',       label: 'Əsas',           Icon: Beef,          key: 'home'   },
   { href: '/my-orders',    label: 'Sifarişlərim',  Icon: ClipboardList, key: 'orders' },
   { href: '/how-it-works', label: 'Necə İşləyir?', Icon: HelpCircle,    key: 'how'    },
   { href: '/qurban-rules', label: 'Qaydalar',       Icon: BookOpen,      key: 'rules'  },
