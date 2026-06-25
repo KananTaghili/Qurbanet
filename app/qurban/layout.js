@@ -196,7 +196,14 @@ export default function QurbanLayout({ children }) {
           </div>
 
           {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#1c5e2033 transparent" }}>
+          <style>{`
+            .qurban-scroll::-webkit-scrollbar { width: 16px; }
+            .qurban-scroll::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 999px; margin: 8px 0 0 0; }
+            .qurban-scroll::-webkit-scrollbar-thumb { background: #1c5e20; border-radius: 999px; border: 5px solid #1a1a1a; background-clip: padding-box; }
+            .qurban-scroll::-webkit-scrollbar-thumb:hover { background: #2e7d32; border: 5px solid #1a1a1a; background-clip: padding-box; }
+            .qurban-scroll { overflow-y: auto; scrollbar-color: #1c5e20 #1a1a1a; }
+          `}</style>
+          <div className="qurban-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
             {children}
           </div>
 

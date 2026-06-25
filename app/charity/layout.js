@@ -1033,7 +1033,14 @@ export default function CharityLayout({ children }) {
           </div>
 
           {/* Page content */}
-          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
+          <style>{`
+            .charity-scroll::-webkit-scrollbar { width: 16px; }
+            .charity-scroll::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 999px; margin: 8px 0 0 0; }
+            .charity-scroll::-webkit-scrollbar-thumb { background: #301586; border-radius: 999px; border: 5px solid #1a1a1a; background-clip: padding-box; }
+            .charity-scroll::-webkit-scrollbar-thumb:hover { background: #4c1d95; border: 5px solid #1a1a1a; background-clip: padding-box; }
+            .charity-scroll { overflow-y: auto; scrollbar-color: #301586 #1a1a1a; }
+          `}</style>
+          <div className="charity-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
           {children}
           </div>
 
