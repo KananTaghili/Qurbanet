@@ -933,9 +933,9 @@ export default function QuantityPage() {
           {/* ══ RIGHT — xl+ ══ */}
           <div className="hidden xl:flex flex-col gap-2">
             {weights.length > 0 ? (
-              <div className="grid grid-cols-2 gap-2 items-start">
+              <div className="grid grid-cols-[1fr_200px] gap-2 items-start">
                 <S label="Diri çəki kateqoriyası">
-                  <div className="p-2 flex flex-col gap-1.5">
+                  <div className="p-2 grid grid-cols-2 gap-1.5">
                     {weights.map((w) => (
                       <WPill key={w.key || w.labelAz} w={w} />
                     ))}
@@ -946,7 +946,7 @@ export default function QuantityPage() {
                     <CalendarBlock />
                   </S>
                   <S label="Çatdırılma vaxtı" Icon={Clock}>
-                    <TimeSlotBlock cols="grid-cols-2" />
+                    <TimeSlotBlock cols="grid-cols-1" />
                   </S>
                 </div>
               </div>
