@@ -657,9 +657,13 @@ export default function DistributionPage() {
                 {OptionList()}
               </Card>
 
-              {/* Pickup info — mobile */}
+              {/* Pickup info — mobile only */}
               {selectedKey === "ozum" && meatPickupLocation && (
                 PickupCard({ className: "lg:hidden" })
+              )}
+              {/* Pickup info — desktop (left column) */}
+              {selectedKey === "ozum" && meatPickupLocation && (
+                PickupCard({ className: "hidden lg:block" })
               )}
 
               {/* Address — mobile */}
@@ -669,7 +673,6 @@ export default function DistributionPage() {
 
             {/* ════ RIGHT — desktop ════ */}
             <div className="hidden lg:flex flex-col gap-3 lg:col-span-5">
-              {selectedKey === "ozum" && meatPickupLocation && PickupCard({})}
               {needsLocation && AddressSection({})}
               {selectedKey === "ozum" && AddressSection({ phoneOnly: true })}
 
