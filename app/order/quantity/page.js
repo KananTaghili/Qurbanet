@@ -32,7 +32,7 @@ const Card = ({ children, className = "" }) => (
 );
 
 const CardHead = ({ label, Icon }) => (
-  <div className="px-4 py-3 border-b border-border text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase flex items-center gap-2">
+  <div className="px-4 py-2 border-b border-border text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase flex items-center gap-2">
     {Icon && <Icon className="w-3.5 h-3.5 flex-shrink-0" />}
     {label}
   </div>
@@ -534,9 +534,9 @@ export default function QuantityPage() {
       <BackHeader title="Miqdar seçin" onBack={() => router.replace("/")} />
       <StepHeader currentStep={1} />
 
-      <div className="flex-1 overflow-y-auto pb-24 xl:pb-6 pt-[124px] md:pt-4 xl:pt-0">
+      <div className="flex-1 overflow-y-auto pb-[72px] xl:pb-6 pt-[124px] md:pt-4 xl:pt-0">
         <div
-          className="max-w-full mx-auto px-0 sm:px-4 md:px-5 py-3 sm:py-4 xl:py-6
+          className="max-w-full mx-auto px-0 sm:px-4 md:px-5 py-1 sm:py-3 xl:py-6
                      xl:grid xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px]
                      xl:gap-5 xl:items-start"
         >
@@ -693,7 +693,7 @@ export default function QuantityPage() {
 
             {effectiveCutStyles.length > 0 && (
               <Card className={cutStyleError ? "ring-2 ring-red-400" : ""}>
-                <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-2 flex-wrap">
+                <div className="px-3 sm:px-4 py-2 border-b border-border flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide">
                     DOĞRAMA ÜSULU
                   </span>
@@ -757,7 +757,7 @@ export default function QuantityPage() {
 
             {needsHead && (
               <Card className={partsError ? "ring-2 ring-red-400" : ""}>
-                <div className="px-3 sm:px-4 py-3 border-b border-border">
+                <div className="px-3 sm:px-4 py-2 border-b border-border">
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
                     Baş & Ayaqlar
                   </span>
@@ -817,7 +817,7 @@ export default function QuantityPage() {
               </Card>
             )}
 
-            <div className="xl:hidden flex flex-col gap-3">
+            <div className="xl:hidden flex flex-col gap-2">
               <Card>
                 <CardHead label="Kəsim tarixi" Icon={CalendarDays} />
                 <CalendarBlock />
