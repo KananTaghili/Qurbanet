@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import BackHeader from "../../../components/BackHeader";
+import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import { useAuth } from "../../../context/AuthContext";
@@ -94,6 +95,7 @@ const Card = ({ children, className = "" }) => (
 
 export default function DistributionPage() {
   const router = useRouter();
+  const { openMenu } = useMobileMenu();
   const { order, updateOrder, isLoaded } = useOrder();
   const { user } = useAuth();
   const { lang } = useLanguage();
@@ -620,6 +622,7 @@ export default function DistributionPage() {
         <BackHeader
           title={t(lang, "distribution")}
           onBack={() => router.push("/order/quantity")}
+          onMenu={openMenu}
         />
         <StepHeader currentStep={2} />
 

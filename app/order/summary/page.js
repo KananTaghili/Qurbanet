@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import BackHeader from "../../../components/BackHeader";
+import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import { useLanguage } from "../../../context/LanguageContext";
@@ -73,6 +74,7 @@ function PriceItem({ label, sub, value, isFree, sep, freeLabel }) {
 
 export default function SummaryPage() {
   const router = useRouter();
+  const { openMenu } = useMobileMenu();
   const { order, updateOrder, isLoaded } = useOrder();
   const { lang } = useLanguage();
   const [loading, setLoading] = useState(false);
@@ -328,6 +330,7 @@ export default function SummaryPage() {
               : "/order/distribution",
           )
         }
+        onMenu={openMenu}
       />
       <StepHeader currentStep={3} />
 

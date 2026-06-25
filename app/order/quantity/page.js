@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Clock, AlertTriangle, Beef } from "lucide-react";
 import BackHeader from "../../../components/BackHeader";
+import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import api from "../../../lib/api";
@@ -71,6 +72,7 @@ function getTomorrow() {
 
 export default function QuantityPage() {
   const router = useRouter();
+  const { openMenu } = useMobileMenu();
   const { updateOrder } = useOrder();
 
   const [animal, setAnimal] = useState(null);
@@ -531,7 +533,7 @@ export default function QuantityPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Miqdar seçin" onBack={() => router.replace("/")} />
+      <BackHeader title="Miqdar seçin" onBack={() => router.replace("/")} onMenu={openMenu} />
       <StepHeader currentStep={1} />
 
       <div className="flex-1 overflow-y-auto pb-[72px] xl:pb-6 pt-[124px] md:pt-4 xl:pt-0">

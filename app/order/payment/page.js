@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreditCard, Banknote, Lock } from 'lucide-react';
 import BackHeader from '../../../components/BackHeader';
+import { useMobileMenu } from '../../../context/MobileMenuContext';
 import StepHeader from '../../../components/StepHeader';
 import { useOrder } from '../../../context/OrderContext';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -40,6 +41,7 @@ function PayMethodOption({ selected, onClick, Icon, label, sub }) {
 
 export default function PaymentPage() {
   const router = useRouter();
+  const { openMenu } = useMobileMenu();
   const { order, updateOrder, isLoaded } = useOrder();
   const { lang } = useLanguage();
 
@@ -143,7 +145,7 @@ export default function PaymentPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title={t(lang, 'payment')} />
+      <BackHeader title={t(lang, 'payment')} onMenu={openMenu} />
       <StepHeader currentStep={3} />
 
       <div className="flex-1 overflow-y-auto pb-28 lg:pb-6 pt-[124px] lg:pt-0">
