@@ -612,10 +612,11 @@ export default function QuantityPage() {
   );
 
   /* ─── Section card ─── */
-  const S = ({ label, Icon, error, hideOnXl = false, className: sCls = "", children }) => (
+  const S = ({ label, Icon, error, hideOnXl = false, className: sCls = "", overflow = "hidden", children }) => (
     <div
-      className={`bg-white rounded-xl overflow-hidden ${hideOnXl ? "xl:hidden" : ""}
+      className={`bg-white rounded-xl ${hideOnXl ? "xl:hidden" : ""}
       ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"} ${sCls}`}
+      style={{ overflow }}
     >
       <div
         className={`flex items-center justify-between px-2.5 py-1 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
@@ -937,7 +938,7 @@ export default function QuantityPage() {
 
             {/* Date / Time — mobile */}
             <div className="xl:hidden flex flex-col gap-2">
-              <S label="Kəsim tarixi" Icon={CalendarDays}>
+              <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                 {CalendarBlock()}
               </S>
               <S label="Çatdırılma vaxtı" Icon={Clock}>
@@ -971,7 +972,7 @@ export default function QuantityPage() {
                   </S>
                 </div>
                 <div className="flex flex-col gap-2 h-full">
-                  <S label="Kəsim tarixi" Icon={CalendarDays}>
+                  <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                     {CalendarBlock()}
                   </S>
                   <S label="Çatdırılma vaxtı" Icon={Clock}>
@@ -982,7 +983,7 @@ export default function QuantityPage() {
               </div>
             ) : (
               <>
-                <S label="Kəsim tarixi" Icon={CalendarDays}>
+                <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                   {CalendarBlock()}
                 </S>
                 <S label="Çatdırılma vaxtı" Icon={Clock}>
