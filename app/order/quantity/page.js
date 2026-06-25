@@ -723,14 +723,14 @@ export default function QuantityPage() {
 
       {/* ── Scrollable body ── */}
       <div
-        className="order-scroll flex-1 overflow-y-auto min-h-0"
+        className="order-scroll flex-1 overflow-y-auto min-h-0 flex flex-col"
         style={{
           scrollbarWidth: "thin",
           scrollbarColor: "#1B5E20 transparent",
         }}
       >
         <div
-          className="p-2.5 xl:p-4
+          className="p-2.5 xl:p-4 flex-1
                         xl:grid xl:grid-cols-[320px_1fr] 2xl:grid-cols-[360px_1fr]
                         xl:gap-3.5 xl:items-stretch"
         >
