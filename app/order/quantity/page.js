@@ -608,7 +608,7 @@ export default function QuantityPage() {
       ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"} ${sCls}`}
     >
       <div
-        className={`flex items-center justify-between px-3 py-2 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
+        className={`flex items-center justify-between px-2.5 py-1 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
       >
         <span
           className="flex items-center gap-1.5 text-[9.5px] font-bold tracking-[0.12em] uppercase"
@@ -633,7 +633,7 @@ export default function QuantityPage() {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left cursor-pointer transition-all duration-150 border-2
+      className={`w-full flex items-center gap-2 rounded-lg px-2 py-1 text-left cursor-pointer transition-all duration-150 border-2
         ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
     >
       <div
@@ -711,7 +711,7 @@ export default function QuantityPage() {
             <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
               <div className="flex items-stretch min-h-[90px]">
                 <div
-                  className="w-[110px] sm:w-[130px] flex-shrink-0 overflow-hidden"
+                  className="w-[140px] sm:w-[160px] flex-shrink-0 overflow-hidden"
                   style={{
                     background:
                       "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)",
