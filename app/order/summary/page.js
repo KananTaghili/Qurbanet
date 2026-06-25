@@ -361,21 +361,44 @@ export default function SummaryPage() {
             <C className="border-primary/20 shadow-lg lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
               <CHead label={t(lang, "priceCalcCard")} colored />
 
-              {/* Animal base price */}
-              <div className="flex items-center justify-between px-4 py-2 border-b border-border/60 bg-surface-alt/20">
-                <div>
-                  <p className="text-xs font-bold text-text-primary">
-                    {animal?.nameAz || t(lang, "animalRow2")}
-                  </p>
-                  <p className="text-[11px] text-text-secondary mt-0.5">
-                    {mode === "serikli"
-                      ? `${qty}/${animal?.totalShares || "?"} ${t(lang, "shares")}`
-                      : `${qty} ${t(lang, "pcsLabel")} × ${Math.round(animalBasePrice / qty)} AZN`}
-                  </p>
+              {/* Animal base price + Delivery — 2-column top row */}
+              <div className="grid grid-cols-2 divide-x divide-border/60 border-b border-border/60 bg-surface-alt/20">
+                <div className="flex items-center justify-between px-3 py-2">
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">
+                      {animal?.nameAz || t(lang, "animalRow2")}
+                    </p>
+                    <p className="text-[11px] text-text-secondary mt-0.5">
+                      {mode === "serikli"
+                        ? `${qty}/${animal?.totalShares || "?"} ${t(lang, "shares")}`
+                        : `${qty} ${t(lang, "pcsLabel")} × ${Math.round(animalBasePrice / qty)} AZN`}
+                    </p>
+                  </div>
+                  <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-1 rounded-lg border border-border/40 shrink-0 ml-2">
+                    {animalBasePrice} AZN
+                  </span>
                 </div>
-                <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-1 rounded-lg border border-border/40">
-                  {animalBasePrice} AZN
-                </span>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">
+                      {isCharityDist
+                        ? getDistLabel(selectedDistKey)
+                        : deliveryType === "delivery"
+                        ? t(lang, "homeDelivery")
+                        : t(lang, "pickupSelf")}
+                    </p>
+                    <p className="text-[11px] text-text-secondary mt-0.5">
+                      {t(lang, "deliveryTypeRow")}
+                    </p>
+                  </div>
+                  <span className={`text-xs font-extrabold px-2 py-1 rounded-lg border shrink-0 ml-2 ${
+                    finalDeliveryFee === 0
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                      : "bg-surface-alt text-text-primary border-border/40"
+                  }`}>
+                    {finalDeliveryFee === 0 ? t(lang, "free") : `+${finalDeliveryFee} AZN`}
+                  </span>
+                </div>
               </div>
 
               {/* Cut / head / feet sections — 2-column grid */}
@@ -441,24 +464,6 @@ export default function SummaryPage() {
                 </div>
               )}
 
-              {/* Delivery / Distribution fee */}
-              {finalDeliveryFee > 0 && (
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/50">
-                  <div>
-                    <p className="text-xs font-bold text-text-primary">
-                      {isCharityDist
-                        ? getDistLabel(selectedDistKey)
-                        : t(lang, "deliveryRow")}
-                    </p>
-                    <p className="text-[10px] text-text-secondary mt-0.5">
-                      {isCharityDist ? "Çatdırılma haqqı" : t(lang, "deliveryRow")}
-                    </p>
-                  </div>
-                  <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">
-                    +{finalDeliveryFee} AZN
-                  </span>
-                </div>
-              )}
 
               {/* Total */}
               <div className="flex justify-between items-center px-4 py-4 bg-primary-surface/20">
