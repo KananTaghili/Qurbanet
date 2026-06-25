@@ -633,7 +633,7 @@ export default function QuantityPage() {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-center gap-2 rounded-lg px-2 py-1 text-left cursor-pointer transition-all duration-150 border-2
+      className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left cursor-pointer transition-all duration-150 border-2
         ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
     >
       <div
@@ -711,7 +711,7 @@ export default function QuantityPage() {
             <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
               <div className="flex items-stretch min-h-[90px]">
                 <div
-                  className="w-[140px] sm:w-[160px] flex-shrink-0 overflow-hidden"
+                  className="w-[160px] sm:w-[190px] flex-shrink-0 overflow-hidden"
                   style={{
                     background:
                       "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)",
@@ -839,7 +839,7 @@ export default function QuantityPage() {
             {/* Doğrama üsulu + Baş & Ayaqlar — alt-alta */}
             {effectiveCutStyles.length > 0 && (
               <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
-                <div className="p-1.5 grid grid-cols-2 gap-1">
+                <div className="p-2 grid grid-cols-2 gap-1.5">
                   {effectiveCutStyles.map((cs) => (
                     <Opt
                       key={cs.key}
@@ -863,7 +863,7 @@ export default function QuantityPage() {
 
             {needsHead && (
               <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
-                <div className="p-1.5 grid grid-cols-2 gap-1">
+                <div className="p-2 grid grid-cols-2 gap-1.5">
                   {activeHeadOptions.map((opt) => {
                     const on = (headBuckets[opt.key] || 0) > 0;
                     const fee = opt.fee || 0;
