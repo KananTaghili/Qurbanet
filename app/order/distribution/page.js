@@ -334,9 +334,11 @@ export default function DistributionPage() {
               >
                 {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, "free")}
               </div>
-              <div className="text-[8px] text-amber-600 font-medium leading-none">
-                {key === "catdirilsin" ? "Yalnız Bakı və ətrafı" : " "}
-              </div>
+              {key === "catdirilsin" && (
+                <div className="text-[8px] text-amber-600 font-medium leading-none mt-0.5">
+                  Yalnız Bakı və ətrafı
+                </div>
+              )}
             </div>
             <div
               className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -604,7 +606,7 @@ export default function DistributionPage() {
   // Pickup location card
   const PickupCard = ({ className = "" }) => (
     <Card className={className}>
-      <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+      <div className="px-3 py-1 border-b border-border bg-surface-alt/40">
         <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
           {t(lang, "pickupLocation")}
         </span>

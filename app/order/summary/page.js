@@ -18,7 +18,7 @@ const C = ({ children, className = "" }) => (
 );
 const CHead = ({ label, colored }) => (
   <div
-    className={`px-4 py-3 border-b border-border text-xs font-bold tracking-wide uppercase ${colored ? "text-primary bg-primary-surface" : "text-text-secondary bg-surface-alt/40"}`}
+    className={`px-4 py-2 border-b border-border text-xs font-bold tracking-wide uppercase ${colored ? "text-primary bg-primary-surface" : "text-text-secondary bg-surface-alt/40"}`}
   >
     {label}
   </div>
@@ -343,7 +343,7 @@ export default function SummaryPage() {
               {infoRows.map((row) => (
                 <div
                   key={row.label}
-                  className="flex justify-between items-start px-4 py-2.5 gap-3"
+                  className="flex justify-between items-start px-4 py-2 gap-3"
                 >
                   <span className="text-xs text-text-secondary font-medium shrink-0">
                     {row.label}
@@ -357,12 +357,12 @@ export default function SummaryPage() {
           </C>
 
           {/* ── RIGHT: Price breakdown ───────────────────────────────── */}
-          <div className="mt-4 lg:mt-0 flex flex-col gap-4">
+          <div className="mt-4 lg:mt-0 flex flex-col gap-3">
             <C className="border-primary/20 shadow-lg">
               <CHead label={t(lang, "priceCalcCard")} colored />
 
               {/* Animal base price */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-surface-alt/20">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-border/60 bg-surface-alt/20">
                 <div>
                   <p className="text-xs font-bold text-text-primary">
                     {animal?.nameAz || t(lang, "animalRow2")}
@@ -475,11 +475,26 @@ export default function SummaryPage() {
                 </span>
               </div>
             </C>
+
+            {/* Desktop button — bottom right */}
+            <div className="hidden lg:flex justify-end">
+              <button
+                className="btn-primary px-8 py-3 rounded-xl font-bold text-sm"
+                onClick={handleCreateOrder}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Spinner label={t(lang, "orderCreating")} />
+                ) : (
+                  t(lang, "confirmOrder")
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
         {/* ── Mobile action bar ─────────────────────────────────────── */}
-        <div className="mobile-action-bar">
+        <div className="mobile-action-bar lg:hidden">
           <button
             className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
             onClick={handleCreateOrder}
