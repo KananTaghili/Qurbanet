@@ -872,14 +872,15 @@ export default function QuantityPage() {
                     <Opt
                       key={cs.key}
                       selected={(cutStyles[cs.key] || 0) > 0}
-                      onClick={() =>
+                      onClick={() => {
+                        if ((cutStyles[cs.key] || 0) > 0) return;
                         setCutStyles(() => {
                           const z = Object.fromEntries(
                             effectiveCutStyles.map((c) => [c.key, 0]),
                           );
                           return { ...z, [cs.key]: qty };
-                        })
-                      }
+                        });
+                      }}
                       label={cs.labelAz}
                       sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"}
                       subGreen={cs.fee === 0}
@@ -900,19 +901,15 @@ export default function QuantityPage() {
                         key={opt.key}
                         selected={on}
                         onClick={() => {
+                          if (on) return;
                           const hZ = Object.fromEntries(
                             Object.keys(headBuckets).map((k) => [k, 0]),
                           );
                           const fZ = Object.fromEntries(
                             Object.keys(feetBuckets).map((k) => [k, 0]),
                           );
-                          if (on) {
-                            setHeadBuckets(hZ);
-                            setFeetBuckets(fZ);
-                          } else {
-                            setHeadBuckets({ ...hZ, [opt.key]: headTotal });
-                            setFeetBuckets({ ...fZ, [opt.key]: feetTotal });
-                          }
+                          setHeadBuckets({ ...hZ, [opt.key]: headTotal });
+                          setFeetBuckets({ ...fZ, [opt.key]: feetTotal });
                         }}
                         label={opt.labelAz}
                         sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
