@@ -249,6 +249,18 @@ export default function QuantityPage() {
     }
   }, [selectedDate, deliveryWindows]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const calendarRef = useRef(null);
+  useEffect(() => {
+    if (!showCalendar) return;
+    const handler = (e) => {
+      if (calendarRef.current && !calendarRef.current.contains(e.target)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showCalendar]);
+
   if (!animal) return null;
 
   const maxQty = Number(animal.maxQuantity) || 1;
@@ -408,18 +420,6 @@ export default function QuantityPage() {
   const customLabel = isCustom
     ? `${new Date(selectedDate).getDate()} ${AZ_MONTHS[new Date(selectedDate).getMonth()]} ${new Date(selectedDate).getFullYear()}`
     : null;
-
-  const calendarRef = useRef(null);
-  useEffect(() => {
-    if (!showCalendar) return;
-    const handler = (e) => {
-      if (calendarRef.current && !calendarRef.current.contains(e.target)) {
-        setShowCalendar(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showCalendar]);
 
   const CalendarBlock = () => (
     <div className="p-2 flex flex-col gap-1.5">
