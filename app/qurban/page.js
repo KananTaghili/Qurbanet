@@ -133,18 +133,20 @@ export default function QurbanPage() {
   return (
     <div className="flex flex-col flex-1 bg-bg min-h-full w-full">
       {/* Mobile list */}
-      <div className="md:hidden flex flex-col w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-4 gap-2.5 xs:gap-3 sm:gap-4">
-        {loading ? (
-          <Spinner />
-        ) : animals.length === 0 ? (
-          <EmptyState lang={lang} />
-        ) : (
-          animals.map((a) => (
-            <MobileAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
-          ))
-        )}
+      <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-4">
+        <div className="flex flex-col flex-1 gap-2.5 xs:gap-3 sm:gap-4">
+          {loading ? (
+            <Spinner />
+          ) : animals.length === 0 ? (
+            <EmptyState lang={lang} />
+          ) : (
+            animals.map((a) => (
+              <MobileAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
+            ))
+          )}
+        </div>
         {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4 shrink-0">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
               <div key={labelKey} className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-3 py-2.5 shadow-card">
                 <div className="w-9 h-9 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
