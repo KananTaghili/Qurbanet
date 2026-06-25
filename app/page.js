@@ -240,7 +240,7 @@ export default function HomePage() {
         .hp-main { scrollbar-width: thin; scrollbar-color: #f20b32 transparent; }
       `}</style>
 
-      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col" style={{ height: 'calc(100dvh - 12px)' }}>
+      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
 
         {/* ── Header ── */}
         <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
