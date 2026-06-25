@@ -275,7 +275,7 @@ export default function HomePage() {
         </header>
 
         {/* Scrollable content */}
-        <div className="hp-scroll flex-1 overflow-y-auto">
+        <div className="hp-scroll flex-1 overflow-y-auto" style={{ marginBottom: 10 }}>
 
         {/* Mobile nav */}
         {mobileMenuOpen && (
