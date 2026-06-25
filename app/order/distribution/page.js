@@ -658,7 +658,7 @@ export default function DistributionPage() {
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
                           lg:flex-1 lg:min-h-0
                           lg:grid lg:grid-cols-[minmax(0,3.8fr)_minmax(250px,2.5fr)_minmax(0,9fr)]
-                          lg:gap-4 lg:items-stretch"
+                          lg:gap-4 lg:items-start"
           >
             {/* ════ LEFT (1fr) ════ */}
             {/* Sol sütun (1fr): Çatdırılma üsulu + altda Çatdırılma ünvanı/Götürmə məkanı */}
@@ -708,7 +708,7 @@ export default function DistributionPage() {
             {/* Orta sütun (1fr): Əlaqə nömrəsi — desktop only */}
             <div className="hidden lg:flex flex-col lg:min-h-0 lg:overflow-y-auto">
               {(needsLocation || selectedKey === "ozum")
-                ? AddressSection({ className: "h-full", phoneOnly: true })
+                ? AddressSection({ className: "", phoneOnly: true })
                 : null}
             </div>
 
