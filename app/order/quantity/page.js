@@ -711,7 +711,7 @@ export default function QuantityPage() {
       >
         <div
           className="p-2.5 xl:p-4
-                        xl:grid xl:grid-cols-[360px_1fr] 2xl:grid-cols-[400px_1fr]
+                        xl:grid xl:grid-cols-[320px_1fr] 2xl:grid-cols-[360px_1fr]
                         xl:gap-3.5 xl:items-start"
         >
           {/* ══ LEFT ══ */}
@@ -933,7 +933,7 @@ export default function QuantityPage() {
           {/* ══ RIGHT — xl+ ══ */}
           <div className="hidden xl:flex flex-col gap-2">
             {weights.length > 0 ? (
-              <div className="grid grid-cols-[1fr_200px] gap-2 items-start">
+              <div className="grid grid-cols-[1fr_240px] gap-2 items-start">
                 <S label="Diri çəki kateqoriyası">
                   <div className="p-2 grid grid-cols-2 gap-1.5">
                     {weights.map((w) => (
