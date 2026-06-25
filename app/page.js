@@ -197,7 +197,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-background p-3 font-sans text-foreground md:p-7">
+    <main className="hp-main min-h-screen bg-background p-3 font-sans text-foreground md:p-7">
       <style>{`
         @keyframes hpFadeDown {
           from { opacity: 0; transform: translateY(-18px); }
@@ -231,6 +231,13 @@ export default function HomePage() {
 
         /* card + icon lift together */
         .card-hover-root:hover { transform: translateY(-10px); }
+
+        /* Red scrollbar for homepage */
+        .hp-main::-webkit-scrollbar { width: 6px; }
+        .hp-main::-webkit-scrollbar-track { background: transparent; }
+        .hp-main::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; }
+        .hp-main::-webkit-scrollbar-thumb:hover { background: #d00828; }
+        .hp-main { scrollbar-width: thin; scrollbar-color: #f20b32 transparent; }
       `}</style>
 
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
