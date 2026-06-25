@@ -848,7 +848,7 @@ export default function QuantityPage() {
             {/* Doğrama üsulu + Baş & Ayaqlar — alt-alta */}
             {effectiveCutStyles.length > 0 && (
               <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
-                <div className="p-2 flex flex-col gap-1">
+                <div className="p-2 grid grid-cols-2 gap-1.5">
                   {effectiveCutStyles.map((cs) => (
                     <Opt
                       key={cs.key}
@@ -862,7 +862,8 @@ export default function QuantityPage() {
                         })
                       }
                       label={cs.labelAz}
-                      sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : null}
+                      sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"}
+                      subGreen={cs.fee === 0}
                     />
                   ))}
                 </div>
