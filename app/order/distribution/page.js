@@ -535,10 +535,9 @@ export default function DistributionPage() {
                           : "border-border focus-within:border-primary"
                       }`}
                     >
-                      <div className="flex items-center gap-1.5 px-2.5 py-2.5 border-r border-border bg-surface-alt shrink-0">
-                        <span className="text-base leading-none">🇦🇿</span>
-                        <span className="text-[10px] font-bold text-text-secondary">+994
-                        </span>
+                      <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-border bg-surface-alt shrink-0 self-stretch">
+                        <span className="text-sm leading-none">🇦🇿</span>
+                        <span className="text-[10px] font-bold text-text-secondary leading-none">+994</span>
                       </div>
                       <input
                         type="tel"
