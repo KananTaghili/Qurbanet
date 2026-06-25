@@ -334,11 +334,9 @@ export default function DistributionPage() {
               >
                 {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, "free")}
               </div>
-              {key === "catdirilsin" && (
-                <div className="text-[10px] text-amber-600 font-medium mt-0.5">
-                  Yalnız Bakı və ətrafı
-                </div>
-              )}
+              <div className="text-[10px] text-amber-600 font-medium mt-0.5">
+                {key === "catdirilsin" ? "Yalnız Bakı və ətrafı" : " "}
+              </div>
             </div>
             <div
               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
