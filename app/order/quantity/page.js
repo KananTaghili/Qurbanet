@@ -615,7 +615,7 @@ export default function QuantityPage() {
   /* ─── Section card ─── */
   const S = ({ label, Icon, error, hideOnXl = false, className: sCls = "", overflow = "hidden", children }) => (
     <div
-      className={`bg-white rounded-xl ${hideOnXl ? "xl:hidden" : ""}
+      className={`bg-white rounded-xl flex flex-col ${hideOnXl ? "xl:hidden" : ""}
       ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"} ${sCls}`}
       style={{ overflow }}
     >
@@ -675,7 +675,7 @@ export default function QuantityPage() {
     return (
       <button
         onClick={() => setSelectedWeight(w)}
-        className={`flex flex-col items-start gap-0.5 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border-2
+        className={`w-full h-full flex flex-col items-start gap-0.5 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border-2
           ${on ? "border-primary bg-primary-surface text-primary" : "border-transparent bg-[#f7f8f7] text-text-primary hover:bg-[#eef5ee]"}`}
       >
         <span className="text-[11px] font-bold leading-tight">
@@ -953,22 +953,21 @@ export default function QuantityPage() {
           <div className="hidden xl:flex flex-col gap-2 h-full">
             {weights.length > 0 ? (
               <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-stretch">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 h-full">
                   <S label="Diri çəki kateqoriyası">
-                    <div className="p-2 grid grid-cols-2 gap-1.5">
+                    <div className="p-2 grid grid-cols-2 gap-1.5 auto-rows-fr">
                       {weights.map((w) => (
                         <WPill key={w.key || w.labelAz} w={w} />
                       ))}
                     </div>
                   </S>
-                  <S label="Qeydlər">
-                    <div className="p-2">
+                  <S label="Qeydlər" className="flex-1">
+                    <div className="p-2 h-full">
                       <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Xüsusi istəklərinizi qeyd edin..."
-                        rows={3}
-                        className="field-input resize-none w-full text-sm"
+                        className="field-input resize-none w-full h-full text-sm min-h-[72px]"
                       />
                     </div>
                   </S>
@@ -977,7 +976,7 @@ export default function QuantityPage() {
                   <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                     {CalendarBlock()}
                   </S>
-                  <S label="Çatdırılma vaxtı" Icon={Clock}>
+                  <S label="Çatdırılma vaxtı" Icon={Clock} className="flex-1">
                     {TimeSlotBlock({ cols: "grid-cols-2" })}
                   </S>
                   <div className="mt-auto">{PriceSummary()}</div>
