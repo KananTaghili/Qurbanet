@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { MobileMenuProvider, useMobileMenu } from '../../context/MobileMenuContext';
 import { X, Beef, ClipboardList, HelpCircle, BookOpen, LogOut } from 'lucide-react';
+import Sidebar from '../../components/Sidebar';
 
 const GREEN = '#1c5e20';
 
@@ -81,17 +82,23 @@ function Drawer() {
 export default function OrderLayout({ children }) {
   return (
     <MobileMenuProvider>
-      <main
-        className="bg-background p-3 font-sans text-foreground md:p-7 overflow-hidden"
+      <div
+        className="flex bg-background font-sans text-foreground overflow-hidden"
         style={{ height: "100dvh" }}
       >
-        <div
-          className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex flex-col h-[calc(100dvh-1.5rem)] md:h-[calc(100dvh-3.5rem)]"
-        >
-          <Drawer />
-          {children}
+        {/* Desktop sidebar — hidden on mobile via Sidebar's own classes */}
+        <Sidebar />
+
+        {/* Main content area */}
+        <div className="flex-1 min-w-0 flex flex-col p-3 md:p-7 overflow-hidden">
+          <div
+            className="flex-1 overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex flex-col"
+          >
+            <Drawer />
+            {children}
+          </div>
         </div>
-      </main>
+      </div>
     </MobileMenuProvider>
   );
 }
