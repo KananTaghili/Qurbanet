@@ -658,10 +658,12 @@ export default function DistributionPage() {
                   {OptionList()}
                 </Card>
 
-                {/* Götürmə məkanı — desktop, sağında */}
+                {/* Sağ slot: ozum → Götürmə məkanı, catdirilsin → Çatdırılma ünvanı */}
                 {selectedKey === "ozum" && meatPickupLocation
                   ? PickupCard({ className: "h-full" })
-                  : <div />}
+                  : needsLocation
+                    ? AddressSection({ className: "h-full" })
+                    : <div />}
               </div>
 
               {/* Mobile: Çatdırılma üsulu tək */}
@@ -691,9 +693,8 @@ export default function DistributionPage() {
               {needsLocation && AddressSection({ className: "lg:hidden" })}
               {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
 
-              {/* Əlaqə nömrəsi — desktop, bu 2-nin altında tam en */}
+              {/* Əlaqə nömrəsi — desktop, bu 2-nin altında tam en (yalnız ozum) */}
               {selectedKey === "ozum" && AddressSection({ className: "hidden lg:block", phoneOnly: true })}
-              {needsLocation && AddressSection({ className: "hidden lg:block" })}
             </div>
 
             {/* ════ RIGHT (col-span-3) — desktop ════ */}
