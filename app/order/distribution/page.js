@@ -488,14 +488,7 @@ export default function DistributionPage() {
 
         {!addressOnly && (
           <div className={`flex flex-col gap-1.5 ${!phoneOnly ? "border-t border-border pt-2 mt-auto" : ""}`}>
-            <div className="flex items-center justify-between mb-0.5">
-              <div className="flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-text-secondary" />
-                <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wide">
-                  {t(lang, "contactPhone")}{" "}
-                  <span className="text-sm font-black text-red-500 leading-none">*</span>
-                </span>
-              </div>
+            <div className="flex items-center justify-end">
               <button
                 type="button"
                 disabled={phones.length >= 4}
@@ -573,13 +566,18 @@ export default function DistributionPage() {
             })}
 
             {phoneOnly && (
-              <textarea
-                value={addressNote}
-                onChange={(e) => setAddressNote(e.target.value)}
-                placeholder={t(lang, "addressNotePlaceholder")}
-                rows={2}
-                className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2.5 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
-              />
+              <div className="flex flex-col gap-1 mt-1 border-t border-border pt-2">
+                <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                  {t(lang, "addressNotePlaceholder") ? "Qeyd" : "Qeyd"}
+                </span>
+                <textarea
+                  value={addressNote}
+                  onChange={(e) => setAddressNote(e.target.value)}
+                  placeholder={t(lang, "addressNotePlaceholder")}
+                  rows={2}
+                  className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
+                />
+              </div>
             )}
           </div>
         )}
