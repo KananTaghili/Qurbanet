@@ -234,7 +234,7 @@ export default function HomePage() {
 
         /* Red scrollbar for homepage */
         .hp-scroll::-webkit-scrollbar { width: 16px; }
-        .hp-scroll::-webkit-scrollbar-track { background: #111; border-radius: 999px; margin: 4px 0; }
+        .hp-scroll::-webkit-scrollbar-track { background: #111; border-radius: 999px; margin: 4px 0 20px 0; }
         .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 5px solid #111; background-clip: padding-box; }
         .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 5px solid #111; background-clip: padding-box; }
         .hp-scroll { overflow-y: overlay; scrollbar-color: #f20b32 #111; }
