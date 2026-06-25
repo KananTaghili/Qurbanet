@@ -19,12 +19,12 @@ export default function HowItWorksPage() {
           </h1>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 md:mt-5 md:gap-4 lg:grid-cols-4">
             {steps.map((step, i) => (
-              <div key={step.title} className="rounded-2xl border border-[#ead9cf] bg-[#fff8f1] p-4 sm:p-5">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-[#e10d0d] font-black text-white">
+              <div key={step.title} className="rounded-xl border border-[#ead9cf] bg-[#fff8f1] p-3">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-[#e10d0d] text-sm font-black text-white">
                   {i + 1}
                 </span>
-                <h3 className="mt-3 text-base font-black sm:mt-4 sm:text-lg">{step.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-neutral-600">{step.text}</p>
+                <h3 className="mt-2 text-sm font-black">{step.title}</h3>
+                <p className="mt-1 text-xs leading-5 text-neutral-600">{step.text}</p>
               </div>
             ))}
           </div>
