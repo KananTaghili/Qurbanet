@@ -402,7 +402,7 @@ export default function QuantityPage() {
     : null;
 
   const CalendarBlock = () => (
-    <div className="p-3 flex flex-col gap-2">
+    <div className="p-2 flex flex-col gap-1.5">
       {/* Quick picks */}
       {(quickDateTodayEnabled || quickDateTomorrowEnabled) && (
         <div className={`grid gap-2 ${quickDateTodayEnabled && quickDateTomorrowEnabled ? "grid-cols-2" : "grid-cols-1"}`}>
@@ -492,7 +492,7 @@ export default function QuantityPage() {
   );
 
   const TimeSlotBlock = ({ cols = "grid-cols-3" }) => (
-    <div className={`p-3 grid ${cols} gap-2`}>
+    <div className={`p-2 grid ${cols} gap-1.5`}>
       {visibleWindows.map((slot) => (
         <button
           key={slot}
@@ -536,15 +536,15 @@ export default function QuantityPage() {
 
   /* ─── Section card ─── */
   const S = ({ label, Icon, error, hideOnXl = false, children }) => (
-    <div className={`bg-white rounded-2xl overflow-hidden ${hideOnXl ? "xl:hidden" : ""}
-      ${error ? "shadow-[0_0_0_1.5px_#f87171,0_2px_8px_rgba(248,113,113,0.12)]" : "shadow-[0_1px_4px_rgba(0,0,0,0.06),0_2px_12px_rgba(0,0,0,0.04)]"}`}>
-      <div className={`flex items-center justify-between px-4 py-2.5 border-b ${error ? "border-red-100 bg-red-50/60" : "border-[#f0f0f0]"}`}>
-        <span className="flex items-center gap-2 text-[10px] font-bold tracking-[0.13em] uppercase"
+    <div className={`bg-white rounded-xl overflow-hidden ${hideOnXl ? "xl:hidden" : ""}
+      ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"}`}>
+      <div className={`flex items-center justify-between px-3 py-2 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}>
+        <span className="flex items-center gap-1.5 text-[9.5px] font-bold tracking-[0.12em] uppercase"
           style={{ color: error ? "#ef4444" : "#9ca3af" }}>
-          {Icon && <Icon className="w-3.5 h-3.5" />}
+          {Icon && <Icon className="w-3 h-3" />}
           {label}
         </span>
-        {error && <span className="flex items-center gap-1 text-[10px] font-bold text-red-500">
+        {error && <span className="flex items-center gap-1 text-[9.5px] font-bold text-red-500">
           <AlertTriangle className="w-3 h-3" />{error}
         </span>}
       </div>
@@ -555,17 +555,15 @@ export default function QuantityPage() {
   /* ─── Option row (radio style) ─── */
   const Opt = ({ selected, onClick, label, sub, subGreen = false }) => (
     <button type="button" onClick={onClick}
-      className={`w-full flex items-center gap-3 rounded-xl px-3 py-[11px] text-left cursor-pointer transition-all duration-150
-        ${selected
-          ? "bg-primary shadow-[0_2px_8px_rgba(27,94,32,0.25)]"
-          : "bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}>
-      <div className={`w-[18px] h-[18px] rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
-        ${selected ? "border-white bg-white/20" : "border-[#d1d5db]"}`}>
-        {selected && <div className="w-2 h-2 rounded-full bg-white" />}
+      className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left cursor-pointer transition-all duration-150 border-2
+        ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}>
+      <div className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
+        ${selected ? "border-primary bg-primary" : "border-[#d1d5db]"}`}>
+        {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
       </div>
       <div className="flex-1 min-w-0">
-        <span className={`text-[12.5px] font-semibold leading-tight block ${selected ? "text-white" : "text-text-primary"}`}>{label}</span>
-        {sub && <span className={`text-[10px] font-bold ${selected ? "text-white/60" : subGreen ? "text-emerald-600" : "text-primary"}`}>{sub}</span>}
+        <span className="text-[12px] font-semibold leading-tight block text-text-primary">{label}</span>
+        {sub && <span className={`text-[10px] font-bold ${subGreen ? "text-emerald-600" : "text-primary"}`}>{sub}</span>}
       </div>
     </button>
   );
@@ -576,10 +574,10 @@ export default function QuantityPage() {
     const on = selectedWeight?.key === w.key || selectedWeight?.labelAz === w.labelAz;
     return (
       <button onClick={() => setSelectedWeight(w)}
-        className={`flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150
-          ${on ? "bg-primary shadow-[0_2px_10px_rgba(27,94,32,0.28)]" : "bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}>
-        <span className={`text-[11px] font-bold leading-tight ${on ? "text-white" : "text-text-primary"}`}>{lbl} — {w.price} AZN</span>
-        {getMeatWeight(lbl) && <span className={`text-[9px] font-semibold ${on ? "text-white/60" : "text-text-muted"}`}>{getMeatWeight(lbl)}</span>}
+        className={`flex flex-col items-start gap-0.5 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border-2
+          ${on ? "border-primary bg-primary-surface text-primary" : "border-transparent bg-[#f7f8f7] text-text-primary hover:bg-[#eef5ee]"}`}>
+        <span className="text-[11px] font-bold leading-tight">{lbl} — {w.price} AZN</span>
+        {getMeatWeight(lbl) && <span className={`text-[9px] font-semibold ${on ? "text-primary/70" : "text-text-muted"}`}>{getMeatWeight(lbl)}</span>}
       </button>
     );
   };
@@ -592,36 +590,36 @@ export default function QuantityPage() {
       {/* ── Scrollable body ── */}
       <div className="order-scroll flex-1 overflow-y-auto min-h-0"
         style={{ scrollbarWidth: "thin", scrollbarColor: "#1B5E20 transparent" }}>
-        <div className="p-3 xl:p-5
-                        xl:grid xl:grid-cols-[1fr_300px] 2xl:grid-cols-[1fr_320px]
-                        xl:gap-4 xl:items-start">
+        <div className="p-2.5 xl:p-4
+                        xl:grid xl:grid-cols-[1fr_290px] 2xl:grid-cols-[1fr_310px]
+                        xl:gap-3.5 xl:items-start">
 
           {/* ══ LEFT ══ */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
 
             {/* Animal hero card */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.06),0_2px_12px_rgba(0,0,0,0.04)]">
-              <div className="flex items-stretch min-h-[104px]">
-                <div className="w-[120px] sm:w-[140px] flex-shrink-0 relative overflow-hidden"
+            <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
+              <div className="flex items-stretch min-h-[90px]">
+                <div className="w-[110px] sm:w-[130px] flex-shrink-0 overflow-hidden"
                   style={{ background: "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)" }}>
                   {animal.imageUrl
                     ? <img src={animal.imageUrl} alt={animal.nameAz}
-                        className="w-full h-full object-contain" style={{ transform: "scale(1.08)" }} />
+                        className="w-full h-full object-contain" style={{ transform: "scale(1.06)" }} />
                     : <div className="w-full h-full flex items-center justify-center">
-                        <Beef className="w-9 h-9" style={{ color: "#1B5E20", opacity: 0.3 }} />
+                        <Beef className="w-8 h-8" style={{ color: "#1B5E20", opacity: 0.3 }} />
                       </div>}
                 </div>
-                <div className="flex-1 min-w-0 flex flex-col justify-between px-4 py-3">
+                <div className="flex-1 min-w-0 flex flex-col justify-between px-3 py-2.5">
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-text-muted">Seçilmiş heyvan</p>
-                    <h2 className="text-base font-extrabold text-text-primary mt-0.5 leading-tight">{animal.nameAz}</h2>
-                    <div className="flex items-baseline gap-1 mt-1.5">
-                      <span className="text-[26px] font-black text-primary leading-none tracking-tight">{effectivePrice}</span>
-                      <span className="text-xs font-semibold text-text-muted ml-0.5">AZN{!isSingle ? " / əd." : ""}</span>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-text-muted">Seçilmiş heyvan</p>
+                    <h2 className="text-[15px] font-extrabold text-text-primary mt-0.5 leading-tight">{animal.nameAz}</h2>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <span className="text-[22px] font-black text-primary leading-none tracking-tight">{effectivePrice}</span>
+                      <span className="text-[11px] font-semibold text-text-muted ml-0.5">AZN{!isSingle ? " / əd." : ""}</span>
                     </div>
                   </div>
                   {!isSingle && (
-                    <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center justify-between mt-1.5">
                       <span className="text-[9px] font-bold uppercase tracking-wide text-text-muted">Miqdar</span>
                       <div className="flex items-center gap-1.5">
                         <QtyBtn onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1}>−</QtyBtn>
@@ -635,12 +633,12 @@ export default function QuantityPage() {
                 </div>
               </div>
               {!isSingle && (
-                <div className="flex items-center justify-between px-4 py-2 border-t border-[#f0f0f0]"
+                <div className="flex items-center justify-between px-3 py-1.5 border-t border-[#f0f0f0]"
                   style={{ background: "rgba(27,94,32,0.04)" }}>
-                  <span className="text-[11px] text-text-muted font-medium">
+                  <span className="text-[10px] text-text-muted font-medium">
                     {mode === "serikli" ? `${qty}/${maxShares} pay` : `${qty} × ${effectivePrice} AZN`}
                   </span>
-                  <span className="text-[13px] font-extrabold text-primary">= {basePrice} AZN</span>
+                  <span className="text-[12px] font-extrabold text-primary">= {basePrice} AZN</span>
                 </div>
               )}
             </div>
@@ -648,7 +646,7 @@ export default function QuantityPage() {
             {/* Sifariş növü */}
             {!animal.orderMode && animal.totalShares > 1 && animal.serikliEnabled && (
               <S label="Sifariş növü">
-                <div className="p-3 flex gap-2">
+                <div className="p-2 flex gap-2">
                   {[{k:"tam",l:"Tam heyvan"},{k:"serikli",l:`Şərikli (/${maxShares})`}].map(m => (
                     <button key={m.k} onClick={() => setMode(m.k)}
                       className={`flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-150 cursor-pointer
@@ -663,7 +661,7 @@ export default function QuantityPage() {
             {/* Diri çəki — mobile only */}
             {weights.length > 0 && (
               <S label="Diri çəki kateqoriyası" hideOnXl>
-                <div className="p-3 grid grid-cols-2 gap-2">
+                <div className="p-2 grid grid-cols-2 gap-1.5">
                   {weights.map(w => <WPill key={w.key||w.labelAz} w={w} />)}
                 </div>
               </S>
@@ -672,7 +670,7 @@ export default function QuantityPage() {
             {/* Doğrama üsulu */}
             {effectiveCutStyles.length > 0 && (
               <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
-                <div className="p-3 flex flex-col gap-1.5">
+                <div className="p-2 flex flex-col gap-1">
                   {effectiveCutStyles.map(cs => (
                     <Opt key={cs.key}
                       selected={(cutStyles[cs.key]||0)>0}
@@ -690,7 +688,7 @@ export default function QuantityPage() {
             {/* Baş & Ayaqlar */}
             {needsHead && (
               <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
-                <div className="p-3 flex flex-col gap-1.5">
+                <div className="p-2 flex flex-col gap-1">
                   {activeHeadOptions.map(opt => {
                     const on = (headBuckets[opt.key]||0) > 0;
                     const fee = opt.fee || 0;
@@ -712,11 +710,11 @@ export default function QuantityPage() {
             )}
 
             {/* Date / Time / Notes — mobile */}
-            <div className="xl:hidden flex flex-col gap-3">
+            <div className="xl:hidden flex flex-col gap-2">
               <S label="Kəsim tarixi" Icon={CalendarDays}><CalendarBlock /></S>
               <S label="Çatdırılma vaxtı" Icon={Clock}><TimeSlotBlock cols="grid-cols-3" /></S>
               <S label="Qeydlər">
-                <div className="p-3">
+                <div className="p-2">
                   <textarea value={notes} onChange={e=>setNotes(e.target.value)}
                     placeholder="Xüsusi istəklərinizi qeyd edin..."
                     rows={3} className="field-input resize-none w-full text-sm" />
@@ -726,10 +724,10 @@ export default function QuantityPage() {
           </div>
 
           {/* ══ RIGHT — xl+ ══ */}
-          <div className="hidden xl:flex flex-col gap-3">
+          <div className="hidden xl:flex flex-col gap-2">
             {weights.length > 0 && (
               <S label="Diri çəki kateqoriyası">
-                <div className="p-3 grid grid-cols-1 gap-2">
+                <div className="p-2 grid grid-cols-1 gap-1.5">
                   {weights.map(w => <WPill key={w.key||w.labelAz} w={w} />)}
                 </div>
               </S>
@@ -737,7 +735,7 @@ export default function QuantityPage() {
             <S label="Kəsim tarixi" Icon={CalendarDays}><CalendarBlock /></S>
             <S label="Çatdırılma vaxtı" Icon={Clock}><TimeSlotBlock cols="grid-cols-2" /></S>
             <S label="Qeydlər">
-              <div className="p-3">
+              <div className="p-2">
                 <textarea value={notes} onChange={e=>setNotes(e.target.value)}
                   placeholder="Xüsusi istəklərinizi qeyd edin..."
                   rows={2} className="field-input resize-none w-full text-sm" />
