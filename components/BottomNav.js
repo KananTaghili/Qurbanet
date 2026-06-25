@@ -4,8 +4,7 @@ import { usePathname } from 'next/navigation';
 import { HelpCircle, BookOpen, ClipboardList, Beef } from 'lucide-react';
 
 const BRAND = '#1c5e20';
-const MUTED  = '#9ca3af';
-const BG     = '#f0f4f0';
+const MUTED  = '#a1a1aa';
 
 const TABS = [
   { href: '/qurban',       label: 'Heyvan Seçimi', Icon: Beef,          key: 'home'   },
@@ -15,50 +14,50 @@ const TABS = [
 ];
 
 const CSS = `
-  .epn-bar {
+  .bnv-bar {
+    display: flex;
+    width: 100%;
+    padding: 6px 4px 8px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+  }
+  .bnv-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px 2px;
+    text-decoration: none;
+    min-width: 0;
+  }
+  .bnv-icon {
+    width: 42px;
+    height: 32px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 8px 10px 10px;
-    background: #fff;
+    transition: background 0.2s ease;
   }
-  .epn-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 0px;
-    height: 40px;
-    border-radius: 999px;
-    padding: 0 11px;
-    text-decoration: none;
-    overflow: hidden;
-    transition:
-      background 0.3s ease,
-      padding 0.3s ease,
-      box-shadow 0.3s ease;
-    flex-shrink: 0;
+  .bnv-tab.bnv-on .bnv-icon {
+    background: #e8f5e9;
   }
-  .epn-tab.epn-on {
-    background: #1c5e20;
-    padding: 0 16px;
-    box-shadow: 0 4px 14px rgba(27,94,32,0.30);
-    gap: 7px;
-  }
-  .epn-lbl {
-    font-size: 12px;
-    font-weight: 700;
-    color: #fff;
+  .bnv-lbl {
+    font-size: 10px;
+    font-weight: 500;
+    color: ${MUTED};
+    text-align: center;
+    line-height: 1.2;
     white-space: nowrap;
-    max-width: 0;
-    opacity: 0;
     overflow: hidden;
-    transition:
-      max-width 0.32s ease,
-      opacity 0.22s ease;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color 0.2s ease, font-weight 0.2s ease;
   }
-  .epn-tab.epn-on .epn-lbl {
-    max-width: 120px;
-    opacity: 1;
+  .bnv-tab.bnv-on .bnv-lbl {
+    color: ${BRAND};
+    font-weight: 700;
   }
 `;
 
@@ -68,18 +67,19 @@ export default function BottomNav() {
   return (
     <nav className="bottom-nav-wrap mobile-only">
       <style>{CSS}</style>
-      <div className="epn-bar">
+      <div className="bnv-bar">
         {TABS.map(({ href, label, Icon, key }) => {
           const active = href === '/qurban'
             ? (pathname === '/qurban' || pathname === '/qurban/')
             : pathname === href || pathname.startsWith(href + '/');
 
           return (
-            <Link key={key} href={href} className={`epn-tab${active ? ' epn-on' : ''}`}
-              style={{ background: active ? BRAND : BG }}>
-              <Icon size={18} strokeWidth={active ? 2.5 : 1.8}
-                color={active ? '#fff' : MUTED} style={{ flexShrink: 0 }} />
-              <span className="epn-lbl">{label}</span>
+            <Link key={key} href={href} className={`bnv-tab${active ? ' bnv-on' : ''}`}>
+              <div className="bnv-icon">
+                <Icon size={19} strokeWidth={active ? 2.4 : 1.7}
+                  color={active ? BRAND : MUTED} />
+              </div>
+              <span className="bnv-lbl">{label}</span>
             </Link>
           );
         })}

@@ -159,23 +159,23 @@ export default function QurbanLayout({ children }) {
           </div>
 
           {/* Mobile bottom nav */}
-          <nav className="lg:hidden shrink-0 bg-white z-40">
+          <nav className="lg:hidden shrink-0 bg-white z-40" style={{ borderTop: '1px solid #f0f0f0' }}>
             <style>{`
-              .qln-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:8px 10px 10px; }
-              .qln-tab { display:inline-flex; align-items:center; gap:0px; height:40px; border-radius:999px; padding:0 11px; text-decoration:none; overflow:hidden; flex-shrink:0; transition:background 0.3s ease,padding 0.3s ease,box-shadow 0.3s ease; }
-              .qln-tab.qln-on { background:#1c5e20 !important; padding:0 16px; box-shadow:0 4px 14px rgba(27,94,32,0.30); gap:7px; }
-              .qln-lbl { font-size:12px; font-weight:700; color:#fff; white-space:nowrap; max-width:0; opacity:0; overflow:hidden; transition:max-width 0.32s ease,opacity 0.22s ease; }
-              .qln-on .qln-lbl { max-width:120px; opacity:1; }
+              .qln-bar { display:flex; width:100%; padding:6px 4px 8px; }
+              .qln-tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:4px 2px 2px; text-decoration:none; min-width:0; }
+              .qln-icon { width:42px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; transition:background 0.2s ease; }
+              .qln-tab.qln-on .qln-icon { background:#e8f5e9; }
+              .qln-lbl { font-size:10px; font-weight:500; color:#a1a1aa; text-align:center; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; transition:color 0.2s ease; }
+              .qln-tab.qln-on .qln-lbl { color:#1c5e20; font-weight:700; }
             `}</style>
             <div className="qln-bar">
               {SIDEBAR_NAV.map(({ icon: Icon, label, href }) => {
                 const act = isActive(href);
                 return (
-                  <Link key={href} href={href}
-                    className={`qln-tab${act ? ' qln-on' : ''}`}
-                    style={{ background: act ? '#1c5e20' : '#f0f4f0' }}>
-                    <Icon size={18} strokeWidth={act ? 2.5 : 1.8}
-                      color={act ? '#fff' : '#9ca3af'} style={{ flexShrink: 0 }} />
+                  <Link key={href} href={href} className={`qln-tab${act ? ' qln-on' : ''}`}>
+                    <div className="qln-icon">
+                      <Icon size={19} strokeWidth={act ? 2.4 : 1.7} color={act ? '#1c5e20' : '#a1a1aa'} />
+                    </div>
                     <span className="qln-lbl">{label}</span>
                   </Link>
                 );
