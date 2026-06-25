@@ -233,11 +233,11 @@ export default function HomePage() {
         .card-hover-root:hover { transform: translateY(-10px); }
 
         /* Red scrollbar for homepage */
-        .hp-scroll::-webkit-scrollbar { width: 12px; }
-        .hp-scroll::-webkit-scrollbar-track { background: #1a0000; border-radius: 999px; }
-        .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 3px solid #1a0000; }
-        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; }
-        .hp-scroll { scrollbar-width: auto; scrollbar-color: #f20b32 #1a0000; }
+        .hp-scroll::-webkit-scrollbar { width: 14px; background: #111; }
+        .hp-scroll::-webkit-scrollbar-track { background: #111; }
+        .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 4px solid #111; background-clip: padding-box; }
+        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 4px solid #111; background-clip: padding-box; }
+        .hp-scroll { scrollbar-color: #f20b32 #111; }
       `}</style>
 
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
