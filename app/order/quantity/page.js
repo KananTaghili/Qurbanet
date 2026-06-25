@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, Clock, AlertTriangle, Beef } from "lucide-react";
+import { CalendarDays, Clock, AlertTriangle, Beef, ArrowRight } from "lucide-react";
 import BackHeader from "../../../components/BackHeader";
 import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
@@ -588,9 +588,9 @@ export default function QuantityPage() {
         </div>
         <button
           onClick={handleContinue}
-          className="flex-shrink-0 bg-white text-primary rounded-xl py-2 px-4 text-[13px] font-extrabold border-none cursor-pointer transition-all active:scale-[0.98] hover:bg-green-50 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+          className="flex-shrink-0 flex items-center gap-1.5 bg-white text-primary rounded-xl py-2 px-4 text-[13px] font-extrabold border-none cursor-pointer transition-all active:scale-[0.98] hover:bg-green-50 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
         >
-          Davam et →
+          Davam et <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
         </button>
       </div>
     </div>
