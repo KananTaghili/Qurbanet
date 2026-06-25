@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -7,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { MobileMenuProvider, useMobileMenu } from '../../context/MobileMenuContext';
 import { X, Beef, ClipboardList, HelpCircle, BookOpen, LogOut } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
+import Topbar from '../../components/Topbar';
 
 const GREEN = '#1c5e20';
 
@@ -27,12 +27,10 @@ function Drawer() {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className={`lg:hidden fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={closeMenu}
       />
-      {/* Panel */}
       <div
         className={`lg:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ backgroundColor: GREEN }}
@@ -82,8 +80,19 @@ function Drawer() {
 export default function OrderLayout({ children }) {
   return (
     <MobileMenuProvider>
+      {/* Desktop sidebar + topbar — eyni qurban səhifəsindəki kimi */}
+      <Sidebar />
+      <Topbar />
+
+      {/* Mobile drawer */}
       <Drawer />
-      {children}
+
+      {/* Content — sidebar genişliyindən + topbar hündürlüyündən sonra */}
+      <div className="app-body">
+        <main className="app-main">
+          {children}
+        </main>
+      </div>
     </MobileMenuProvider>
   );
 }
