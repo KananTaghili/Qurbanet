@@ -643,11 +643,11 @@ export default function QuantityPage() {
         {selected && <div className="w-1 h-1 rounded-full bg-white" />}
       </div>
       <div className="flex-1 min-w-0">
-        <span className="text-[11px] font-semibold leading-tight block text-text-primary">
+        <span className="text-[11px] font-semibold leading-none block text-text-primary">
           {label}
         </span>
         {sub && (
-          <span className={`text-[9px] font-bold ${subGreen ? "text-emerald-600" : "text-primary"}`}>
+          <span className={`text-[9px] font-bold leading-none mt-0.5 block ${subGreen ? "text-emerald-600" : "text-primary"}`}>
             {sub}
           </span>
         )}
