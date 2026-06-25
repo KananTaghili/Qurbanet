@@ -159,27 +159,24 @@ export default function QurbanLayout({ children }) {
           </div>
 
           {/* Mobile bottom nav */}
-          <nav className="lg:hidden shrink-0 border-t border-gray-100 bg-white z-40">
+          <nav className="lg:hidden shrink-0 bg-white z-40">
             <style>{`
-              .qln-bar { display:flex; width:100%; padding:0 6px; }
-              .qln-tab { flex:1; display:flex; flex-direction:column; align-items:center; padding:7px 2px 8px; text-decoration:none; min-width:0; transition:transform 0.28s cubic-bezier(.34,1.56,.64,1); }
-              .qln-tab.qln-on { transform:translateY(-7px); }
-              .qln-pill { width:52px; height:30px; border-radius:15px; display:flex; align-items:center; justify-content:center; transition:background 0.22s ease,box-shadow 0.22s ease; }
-              .qln-on .qln-pill { background:#1c5e20; box-shadow:0 3px 10px rgba(27,94,32,0.28); }
-              .qln-label { font-size:10px; font-weight:600; text-align:center; line-height:1.35; margin-top:4px; min-height:26px; display:flex; flex-direction:column; align-items:center; transition:color 0.18s ease; }
-              .qln-on .qln-label { font-weight:700; }
+              .qln-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:8px 10px 10px; }
+              .qln-tab { display:inline-flex; align-items:center; gap:0px; height:40px; border-radius:999px; padding:0 11px; text-decoration:none; overflow:hidden; flex-shrink:0; transition:background 0.3s ease,padding 0.3s ease,box-shadow 0.3s ease; }
+              .qln-tab.qln-on { background:#1c5e20 !important; padding:0 16px; box-shadow:0 4px 14px rgba(27,94,32,0.30); gap:7px; }
+              .qln-lbl { font-size:12px; font-weight:700; color:#fff; white-space:nowrap; max-width:0; opacity:0; overflow:hidden; transition:max-width 0.32s ease,opacity 0.22s ease; }
+              .qln-on .qln-lbl { max-width:120px; opacity:1; }
             `}</style>
             <div className="qln-bar">
-              {SIDEBAR_NAV.map(({ icon: Icon, lines, href }) => {
+              {SIDEBAR_NAV.map(({ icon: Icon, label, href }) => {
                 const act = isActive(href);
                 return (
-                  <Link key={href} href={href} className={`qln-tab${act ? ' qln-on' : ''}`}>
-                    <div className="qln-pill">
-                      <Icon size={19} strokeWidth={act ? 2.5 : 1.7} color={act ? '#fff' : '#9ca3af'} />
-                    </div>
-                    <span className="qln-label" style={{ color: act ? '#1c5e20' : '#9ca3af' }}>
-                      {lines.map((ln, i) => <span key={i}>{ln}</span>)}
-                    </span>
+                  <Link key={href} href={href}
+                    className={`qln-tab${act ? ' qln-on' : ''}`}
+                    style={{ background: act ? '#1c5e20' : '#f0f4f0' }}>
+                    <Icon size={18} strokeWidth={act ? 2.5 : 1.8}
+                      color={act ? '#fff' : '#9ca3af'} style={{ flexShrink: 0 }} />
+                    <span className="qln-lbl">{label}</span>
                   </Link>
                 );
               })}
