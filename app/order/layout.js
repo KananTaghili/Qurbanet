@@ -140,35 +140,18 @@ function InnerLayout({ children }) {
                     <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{fullName(user)}</span>
                   </button>
                   {userMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden z-50"
-                      style={{ background: "#fff", boxShadow: "0 8px 32px rgba(0,0,0,0.18)", border: "1px solid rgba(0,0,0,0.07)", minWidth: 210 }}>
-                      <div className="px-4 py-3 flex items-center gap-2.5" style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold text-white shrink-0" style={{ background: GREEN }}>
-                          {initials(user)}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-sm font-bold text-slate-800 truncate">{fullName(user)}</div>
-                          {user?.phone && <div className="text-xs text-slate-400 truncate">{user.phone}</div>}
-                        </div>
-                      </div>
+                    <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.18)", padding: "6px", minWidth: 180, zIndex: 9999 }}>
                       <button onClick={() => { setUserMenuOpen(false); router.push("/settings"); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer border-none bg-transparent"
-                        onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"}
-                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#e8f5e9" }}>
-                          <Settings size={15} style={{ color: GREEN }} />
-                        </div>
-                        <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
+                        style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#374151" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#f9fafb"}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <Settings size={15} /> Parametrlər
                       </button>
-                      <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
                       <button onClick={() => { setUserMenuOpen(false); logout(); router.push("/"); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer border-none bg-transparent"
-                        onMouseEnter={e => e.currentTarget.style.background = "#fff5f5"}
-                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#fee2e2" }}>
-                          <LogOut size={15} style={{ color: "#ef4444" }} />
-                        </div>
-                        <span className="text-sm font-semibold" style={{ color: "#ef4444" }}>Çıxış et</span>
+                        style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#f20b32" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#fff1f3"}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <LogOut size={15} /> Çıxış et
                       </button>
                     </div>
                   )}
