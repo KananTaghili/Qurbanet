@@ -576,31 +576,24 @@ export default function QuantityPage() {
   const PriceSummary = () => (
     <div
       className="rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(27,94,32,0.22)]"
-      style={{
-        background:
-          "linear-gradient(145deg,#1B5E20 0%,#2E7D32 60%,#388E3C 100%)",
-      }}
+      style={{ background: "linear-gradient(145deg,#1B5E20 0%,#2E7D32 60%,#388E3C 100%)" }}
     >
-      <div className="p-5">
-        <p className="text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] mb-2">
-          Ümumi məbləğ
-        </p>
-        <div className="flex items-end gap-2 mb-1">
-          <span className="text-4xl font-black text-white tracking-tight leading-none">
-            {totalPrice}
-          </span>
-          <span className="text-lg font-bold text-white/60 mb-0.5">AZN</span>
+      <div className="px-4 py-3 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[9px] font-bold text-white/50 uppercase tracking-[0.15em]">Ümumi məbləğ</p>
+          <div className="flex items-baseline gap-1 mt-0.5">
+            <span className="text-2xl font-black text-white tracking-tight leading-none">{totalPrice}</span>
+            <span className="text-sm font-bold text-white/60">AZN</span>
+          </div>
+          <p className="text-[9px] text-white/40 mt-0.5 truncate">
+            {mode === "serikli"
+              ? `${animal.nameAz} · ${qty}/${maxShares} pay${partsFee > 0 ? ` + ${partsFee.toFixed(0)} AZN` : ""}`
+              : `${animal.nameAz} × ${qty}${selectedWeight ? ` · ${selectedWeight.labelAz || selectedWeight.label}` : ""}`}
+          </p>
         </div>
-        <p className="text-[10px] text-white/40 leading-relaxed mt-1">
-          {mode === "serikli"
-            ? `${animal.nameAz} · ${qty}/${maxShares} pay${partsFee > 0 ? ` + ${partsFee.toFixed(0)} AZN` : ""}`
-            : `${animal.nameAz} × ${qty}${selectedWeight ? ` · ${selectedWeight.labelAz || selectedWeight.label}` : ""}`}
-        </p>
-      </div>
-      <div className="px-4 pb-4">
         <button
           onClick={handleContinue}
-          className="w-full bg-white text-primary rounded-xl py-3 text-[13px] font-extrabold border-none cursor-pointer transition-all active:scale-[0.98] hover:bg-green-50 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+          className="flex-shrink-0 bg-white text-primary rounded-xl py-2 px-4 text-[13px] font-extrabold border-none cursor-pointer transition-all active:scale-[0.98] hover:bg-green-50 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
         >
           Davam et →
         </button>
@@ -932,7 +925,7 @@ export default function QuantityPage() {
           </div>
 
           {/* ══ RIGHT — xl+ ══ */}
-          <div className="hidden xl:flex flex-col gap-2">
+          <div className="hidden xl:flex flex-col gap-2 h-full">
             {weights.length > 0 ? (
               <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-start">
                 <div className="flex flex-col gap-2">
@@ -985,7 +978,9 @@ export default function QuantityPage() {
                 </S>
               </>
             )}
-            <PriceSummary />
+            <div className="mt-auto">
+              <PriceSummary />
+            </div>
           </div>
         </div>
       </div>
