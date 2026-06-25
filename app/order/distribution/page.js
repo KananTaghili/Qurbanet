@@ -629,11 +629,11 @@ export default function DistributionPage() {
         <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px]
+                          lg:grid lg:grid-cols-7
                           lg:gap-5 lg:items-start"
           >
             {/* ════ LEFT ════ */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 lg:col-span-2">
               <Card
                 className={
                   submitAttempted && !selectionOk
@@ -668,7 +668,7 @@ export default function DistributionPage() {
             </div>
 
             {/* ════ RIGHT — desktop ════ */}
-            <div className="hidden lg:flex flex-col gap-3">
+            <div className="hidden lg:flex flex-col gap-3 lg:col-span-5">
               {selectedKey === "ozum" && meatPickupLocation && PickupCard({})}
               {needsLocation && AddressSection({})}
               {selectedKey === "ozum" && AddressSection({ phoneOnly: true })}
