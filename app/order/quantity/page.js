@@ -643,7 +643,6 @@ export default function QuantityPage() {
     <button
       type="button"
       onClick={onClick}
-<<<<<<< HEAD
       className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left cursor-pointer transition-all duration-150 border-2
         ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
     >
