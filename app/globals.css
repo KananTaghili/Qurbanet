@@ -421,7 +421,7 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
 }
 .carousel-dot.active { width: 24px; background: var(--primary); }
 
-::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #7c3aed; }

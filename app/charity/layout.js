@@ -1033,7 +1033,7 @@ export default function CharityLayout({ children }) {
           </div>
 
           {/* Page content */}
-          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#7c3aed33 transparent" }}>
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#a78bfa transparent" }}>
           {children}
           </div>
 
