@@ -657,7 +657,7 @@ export default function DistributionPage() {
         <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-[4fr_3fr_8fr]
+                          lg:grid lg:grid-cols-[4fr_2fr_9fr]
                           lg:gap-4 lg:items-start"
           >
             {/* ════ LEFT (1fr) ════ */}
@@ -721,6 +721,8 @@ export default function DistributionPage() {
                     {t(lang, "orderSummaryCard")}
                   </span>
                 </div>
+
+                <div className="grid grid-cols-2 divide-x divide-border">
 
                 {/* Animal base — subtract cut/head/feet fees from totalPrice */}
                 {(() => {
@@ -834,6 +836,8 @@ export default function DistributionPage() {
                     </div>
                   </div>
                 )}
+
+                </div>{/* end 2-col grid */}
 
                 <div className="p-2 border-t border-border bg-surface-alt/30">
                   <div className="flex justify-between items-baseline mb-1.5">
