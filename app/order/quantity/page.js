@@ -941,18 +941,25 @@ export default function QuantityPage() {
                     ))}
                   </div>
                 </S>
+                <div className="flex flex-col gap-2">
+                  <S label="Kəsim tarixi" Icon={CalendarDays}>
+                    <CalendarBlock />
+                  </S>
+                  <S label="Çatdırılma vaxtı" Icon={Clock}>
+                    <TimeSlotBlock cols="grid-cols-2" />
+                  </S>
+                </div>
+              </div>
+            ) : (
+              <>
                 <S label="Kəsim tarixi" Icon={CalendarDays}>
                   <CalendarBlock />
                 </S>
-              </div>
-            ) : (
-              <S label="Kəsim tarixi" Icon={CalendarDays}>
-                <CalendarBlock />
-              </S>
+                <S label="Çatdırılma vaxtı" Icon={Clock}>
+                  <TimeSlotBlock cols="grid-cols-2" />
+                </S>
+              </>
             )}
-            <S label="Çatdırılma vaxtı" Icon={Clock}>
-              <TimeSlotBlock cols="grid-cols-2" />
-            </S>
             <S label="Qeydlər">
               <div className="p-2">
                 <textarea
