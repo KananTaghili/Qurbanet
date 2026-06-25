@@ -933,7 +933,7 @@ export default function QuantityPage() {
           {/* ══ RIGHT — xl+ ══ */}
           <div className="hidden xl:flex flex-col gap-2">
             {weights.length > 0 ? (
-              <div className="grid grid-cols-[250px_1fr] gap-2 items-start">
+              <div className="grid grid-cols-[2fr_3fr] gap-2 items-start">
                 <S label="Diri çəki kateqoriyası">
                   <div className="p-2 grid grid-cols-2 gap-1.5">
                     {weights.map((w) => (
