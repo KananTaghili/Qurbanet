@@ -48,13 +48,13 @@ function ServiceDetailCard({ item, index }) {
 export default function ServicesPage() {
   return (
     <SiteLayout>
-      <section className="bg-[#fbf7f2] px-4 py-7 text-[#1d0c08] sm:px-6 md:px-12 md:py-12">
-        <div className="rounded-[1.25rem] border border-[#ead9cf] bg-white/90 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] sm:p-6 md:rounded-[1.5rem] md:p-9">
+      <section className="bg-[#fbf7f2] px-4 py-4 text-[#1d0c08] sm:px-6 md:px-8 md:py-5">
+        <div className="rounded-[1.25rem] border border-[#ead9cf] bg-white/90 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] sm:p-5 md:rounded-[1.5rem] md:p-6">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#e10d0d] md:text-xs md:tracking-[0.28em]">Xidmətlər</p>
-          <h1 className="mt-3 max-w-3xl text-2xl font-black leading-snug sm:text-3xl md:text-4xl">
+          <h1 className="mt-2 max-w-3xl text-xl font-black leading-snug sm:text-2xl md:text-3xl">
             Üç əsas xidmət — qurbanlıq, kollektiv qurban və təzə ət satışı.
           </h1>
-          <div className="mt-6 grid gap-4 md:mt-8 md:gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-3 md:mt-5 md:gap-4 lg:grid-cols-3">
             {cards.map((item, index) => (
               <ServiceDetailCard key={item.title} item={item} index={index} />
             ))}

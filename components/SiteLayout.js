@@ -89,11 +89,8 @@ export default function SiteLayout({ children }) {
   return (
     <main className="bg-background p-1.5 font-sans text-foreground md:p-4 overflow-hidden" style={{ height: "100dvh" }}>
       <style>{`
-        .hp-scroll::-webkit-scrollbar { width: 16px; }
-        .hp-scroll::-webkit-scrollbar-track { background: #111; border-radius: 999px; margin: 8px 0 0 0; }
-        .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 5px solid #111; background-clip: padding-box; }
-        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 5px solid #111; background-clip: padding-box; }
-        .hp-scroll { overflow-y: overlay; scrollbar-color: #f20b32 #111; }
+        .hp-scroll::-webkit-scrollbar { display: none; }
+        .hp-scroll { overflow-y: auto; scrollbar-width: none; }
       `}</style>
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
 
