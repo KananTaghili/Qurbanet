@@ -36,7 +36,7 @@ function Spinner({ label }) {
 function SectionHead({ label, badge, top }) {
   return (
     <div
-      className={`px-3 py-2 bg-surface-alt/50 flex items-center justify-between ${top ? "border-t border-border/60" : ""}`}
+      className={`px-4 py-2.5 bg-surface-alt/50 flex items-center justify-between ${top ? "border-t border-border/60" : ""}`}
     >
       <span className="text-[10px] font-extrabold text-text-secondary uppercase tracking-wider">
         {label}
@@ -53,15 +53,15 @@ function SectionHead({ label, badge, top }) {
 function PriceItem({ label, sub, value, isFree, sep, freeLabel }) {
   return (
     <div
-      className={`flex items-center justify-between px-3 py-3 gap-2 ${sep ? "border-b border-border/40" : ""}`}
+      className={`flex items-center justify-between px-4 py-3.5 gap-3 ${sep ? "border-b border-border/40" : ""}`}
     >
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-bold text-text-primary leading-tight">
+        <p className="text-xs font-bold text-text-primary leading-tight">
           {label}
         </p>
-        {sub && <p className="text-[10px] text-text-secondary mt-0.5">{sub}</p>}
+        {sub && <p className="text-[11px] text-text-secondary mt-1">{sub}</p>}
       </div>
-      <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-md border shrink-0 ${
+      <span className={`text-xs font-extrabold px-2.5 py-1 rounded-md border shrink-0 ${
         isFree
           ? "bg-emerald-50 text-emerald-700 border-emerald-100"
           : "bg-surface-alt text-text-primary border-border/40"
@@ -335,7 +335,7 @@ export default function SummaryPage() {
       <StepHeader currentStep={3} />
 
       <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden page-scroll">
-        <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[300px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
+        <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[340px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
           <C className="lg:overflow-y-auto lg:min-h-0">
             <CHead label={t(lang, "orderInfoCard")} colored />
@@ -363,7 +363,7 @@ export default function SummaryPage() {
 
               {/* Animal base price + Delivery — 2-column top row */}
               <div className="grid grid-cols-2 divide-x divide-border/60 border-b border-border/60 bg-surface-alt/20">
-                <div className="flex items-center justify-between px-3 py-3">
+                <div className="flex items-center justify-between px-4 py-4">
                   <div>
                     <p className="text-xs font-bold text-text-primary">
                       {animal?.nameAz || t(lang, "animalRow2")}
@@ -378,7 +378,7 @@ export default function SummaryPage() {
                     {animalBasePrice} AZN
                   </span>
                 </div>
-                <div className="flex items-center justify-between px-3 py-3">
+                <div className="flex items-center justify-between px-4 py-4">
                   <div>
                     <p className="text-xs font-bold text-text-primary">
                       {isCharityDist
