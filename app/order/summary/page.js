@@ -320,7 +320,7 @@ export default function SummaryPage() {
   const freeLabel = t(lang, "free");
 
   return (
-    <div className="flex flex-col flex-1 bg-bg">
+    <div className="flex flex-col h-full bg-bg overflow-hidden">
       <BackHeader
         title={t(lang, "orderSummary")}
         onBack={() =>
@@ -334,10 +334,10 @@ export default function SummaryPage() {
       />
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 page-scroll">
-        <div className="p-4 lg:p-6 lg:grid lg:grid-cols-[300px_1fr] lg:gap-5 lg:items-start max-w-6xl mx-auto w-full">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden page-scroll">
+        <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[300px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
-          <C>
+          <C className="lg:overflow-y-auto lg:min-h-0">
             <CHead label={t(lang, "orderInfoCard")} colored />
             <div className="divide-y divide-border/40">
               {infoRows.map((row) => (
@@ -357,8 +357,8 @@ export default function SummaryPage() {
           </C>
 
           {/* ── RIGHT: Price breakdown ───────────────────────────────── */}
-          <div className="mt-4 lg:mt-0 flex flex-col gap-3">
-            <C className="border-primary/20 shadow-lg">
+          <div className="mt-4 lg:mt-0 flex flex-col gap-3 lg:min-h-0 lg:overflow-hidden">
+            <C className="border-primary/20 shadow-lg lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
               <CHead label={t(lang, "priceCalcCard")} colored />
 
               {/* Animal base price */}
