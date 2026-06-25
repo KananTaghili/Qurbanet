@@ -233,10 +233,10 @@ export default function HomePage() {
         .card-hover-root:hover { transform: translateY(-10px); }
 
         /* Red scrollbar for homepage */
-        .hp-scroll::-webkit-scrollbar { width: 14px; background: #111; }
-        .hp-scroll::-webkit-scrollbar-track { background: #111; }
-        .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 4px solid #111; background-clip: padding-box; }
-        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 4px solid #111; background-clip: padding-box; }
+        .hp-scroll::-webkit-scrollbar { width: 14px; }
+        .hp-scroll::-webkit-scrollbar-track { background: #111; border-radius: 999px; }
+        .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 4px solid transparent; background-clip: padding-box; }
+        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 4px solid transparent; background-clip: padding-box; }
         .hp-scroll { scrollbar-color: #f20b32 #111; }
       `}</style>
 
