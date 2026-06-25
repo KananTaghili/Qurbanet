@@ -140,9 +140,9 @@ export default function SiteLayout({ children }) {
         )}
 
         {/* Scrollable content + footer */}
-        <div className="hp-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
+        <div className="hp-scroll flex-1 overflow-y-auto flex flex-col" style={{ marginBottom: 15 }}>
 
-        {children}
+        <div className="flex-1">{children}</div>
 
         {/* Footer */}
         <footer className="grid gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-center">

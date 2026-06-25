@@ -4,10 +4,10 @@ import SiteLayout from "../../components/SiteLayout";
 
 function Info({ title, text, icon: Icon = CheckCircle2 }) {
   return (
-    <div className="rounded-2xl border border-[#ead9cf] bg-[#fff8f1] p-4 sm:p-5">
-      <Icon className="h-8 w-8 text-[#e10d0d] sm:h-9 sm:w-9" />
-      <h3 className="mt-3 text-lg font-black sm:mt-4 sm:text-xl">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-neutral-700 sm:text-base sm:leading-7">{text}</p>
+    <div className="rounded-xl border border-[#ead9cf] bg-[#fff8f1] p-3">
+      <Icon className="h-6 w-6 text-[#e10d0d]" />
+      <h3 className="mt-2 text-sm font-black">{title}</h3>
+      <p className="mt-1 text-xs leading-5 text-neutral-700">{text}</p>
     </div>
   );
 }
