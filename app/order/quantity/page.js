@@ -609,10 +609,10 @@ export default function QuantityPage() {
   );
 
   /* ─── Section card ─── */
-  const S = ({ label, Icon, error, hideOnXl = false, children }) => (
+  const S = ({ label, Icon, error, hideOnXl = false, className: sCls = "", children }) => (
     <div
       className={`bg-white rounded-xl overflow-hidden ${hideOnXl ? "xl:hidden" : ""}
-      ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"}`}
+      ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"} ${sCls}`}
     >
       <div
         className={`flex items-center justify-between px-3 py-2 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
@@ -845,14 +845,15 @@ export default function QuantityPage() {
               </S>
             )}
 
-            {/* Doğrama üsulu + Baş & Ayaqlar — yan-yana */}
+            {/* Doğrama üsulu + Baş & Ayaqlar — yan-yana, eyni hündürlük */}
             {(effectiveCutStyles.length > 0 || needsHead) && (
-              <div className="flex gap-2 items-start">
+              <div className="flex gap-2 items-stretch">
                 {effectiveCutStyles.length > 0 && (
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex flex-col">
                     <S
                       label="Doğrama üsulu"
                       error={cutStyleError ? "Seçim edin" : null}
+                      className="h-full"
                     >
                       <div className="p-2 flex flex-col gap-1">
                         {effectiveCutStyles.map((cs) => (
@@ -877,9 +878,9 @@ export default function QuantityPage() {
                 )}
 
                 {needsHead && (
-                  <div className="flex-1 min-w-0">
-                    <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
-                      <div className="p-2 flex flex-col gap-1">
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null} className="h-full">
+                      <div className="p-2 grid grid-cols-2 gap-1.5">
                         {activeHeadOptions.map((opt) => {
                           const on = (headBuckets[opt.key] || 0) > 0;
                           const fee = opt.fee || 0;
@@ -915,14 +916,8 @@ export default function QuantityPage() {
               </div>
             )}
 
-            {/* Date / Time / Notes — mobile */}
-            <div className="xl:hidden flex flex-col gap-2">
-              <S label="Kəsim tarixi" Icon={CalendarDays}>
-                <CalendarBlock />
-              </S>
-              <S label="Çatdırılma vaxtı" Icon={Clock}>
-                <TimeSlotBlock cols="grid-cols-3" />
-              </S>
+            {/* Qeydlər — mobile-da Doğrama+Baş altında */}
+            <div className="xl:hidden">
               <S label="Qeydlər">
                 <div className="p-2">
                   <textarea
@@ -933,6 +928,16 @@ export default function QuantityPage() {
                     className="field-input resize-none w-full text-sm"
                   />
                 </div>
+              </S>
+            </div>
+
+            {/* Date / Time — mobile */}
+            <div className="xl:hidden flex flex-col gap-2">
+              <S label="Kəsim tarixi" Icon={CalendarDays}>
+                <CalendarBlock />
+              </S>
+              <S label="Çatdırılma vaxtı" Icon={Clock}>
+                <TimeSlotBlock cols="grid-cols-3" />
               </S>
             </div>
           </div>
