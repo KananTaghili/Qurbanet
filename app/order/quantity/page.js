@@ -633,23 +633,21 @@ export default function QuantityPage() {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left cursor-pointer transition-all duration-150 border-2
+      className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left cursor-pointer transition-all duration-150 border-2
         ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
     >
       <div
-        className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
+        className={`w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
         ${selected ? "border-primary bg-primary" : "border-[#d1d5db]"}`}
       >
-        {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+        {selected && <div className="w-1 h-1 rounded-full bg-white" />}
       </div>
       <div className="flex-1 min-w-0">
-        <span className="text-[12px] font-semibold leading-tight block text-text-primary">
+        <span className="text-[11px] font-semibold leading-tight block text-text-primary">
           {label}
         </span>
         {sub && (
-          <span
-            className={`text-[10px] font-bold ${subGreen ? "text-emerald-600" : "text-primary"}`}
-          >
+          <span className={`text-[9px] font-bold ${subGreen ? "text-emerald-600" : "text-primary"}`}>
             {sub}
           </span>
         )}
@@ -841,7 +839,7 @@ export default function QuantityPage() {
             {/* Doğrama üsulu + Baş & Ayaqlar — alt-alta */}
             {effectiveCutStyles.length > 0 && (
               <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
-                <div className="p-2 grid grid-cols-2 gap-1.5">
+                <div className="p-1.5 grid grid-cols-2 gap-1">
                   {effectiveCutStyles.map((cs) => (
                     <Opt
                       key={cs.key}
@@ -865,7 +863,7 @@ export default function QuantityPage() {
 
             {needsHead && (
               <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
-                <div className="p-2 grid grid-cols-2 gap-1.5">
+                <div className="p-1.5 grid grid-cols-2 gap-1">
                   {activeHeadOptions.map((opt) => {
                     const on = (headBuckets[opt.key] || 0) > 0;
                     const fee = opt.fee || 0;
