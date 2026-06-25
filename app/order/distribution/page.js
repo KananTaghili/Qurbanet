@@ -302,7 +302,7 @@ export default function DistributionPage() {
 
   // Renders the radio option list (used in both mobile and desktop)
   const OptionList = () => (
-    <div className="p-3 flex flex-col gap-2">
+    <div className="px-2 py-2 flex flex-col gap-1.5">
       {deliveryKeys.map((key) => {
         const meta = OPTION_META[key];
         const data = optionData[key] || {};
@@ -312,7 +312,7 @@ export default function DistributionPage() {
             key={key}
             type="button"
             onClick={() => setSelectedKey(key)}
-            className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
               isSelected
                 ? "border-primary bg-primary/5"
                 : "border-border bg-white hover:border-primary/30"
@@ -371,7 +371,7 @@ export default function DistributionPage() {
             type="button"
             onClick={() => !isDisabled && setSelectedKey(key)}
             disabled={isDisabled}
-            className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 w-full text-left transition-all ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 w-full text-left transition-all ${
               isDisabled
                 ? "border-border/50 bg-gray-50 cursor-not-allowed opacity-75"
                 : isSelected
