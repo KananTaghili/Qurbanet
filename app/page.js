@@ -234,10 +234,10 @@ export default function HomePage() {
 
         /* Red scrollbar for homepage */
         .hp-scroll::-webkit-scrollbar { width: 16px; }
-        .hp-scroll::-webkit-scrollbar-track { background: #111; border-radius: 999px; margin: 8px 0 60px 0; }
-        .hp-scroll::-webkit-scrollbar-thumb { background: #fff; border-radius: 999px; border: 5px solid #111; background-clip: padding-box; }
-        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #e5e5e5; border: 5px solid #111; background-clip: padding-box; }
-        .hp-scroll { overflow-y: overlay; scrollbar-color: #fff #111; }
+        .hp-scroll::-webkit-scrollbar-track { background: #fff; border-radius: 999px; margin: 8px 0 60px 0; }
+        .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 5px solid #fff; background-clip: padding-box; }
+        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 5px solid #fff; background-clip: padding-box; }
+        .hp-scroll { overflow-y: overlay; scrollbar-color: #f20b32 #fff; }
       `}</style>
 
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
