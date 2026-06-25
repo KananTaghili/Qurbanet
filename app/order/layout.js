@@ -81,8 +81,24 @@ function Drawer() {
 export default function OrderLayout({ children }) {
   return (
     <MobileMenuProvider>
-      <Drawer />
-      {children}
+      <main
+        className="overflow-hidden font-sans"
+        style={{ height: "100dvh", background: "var(--bg)", padding: "10px 10px" }}
+      >
+        <div
+          className="mx-auto overflow-hidden flex flex-col"
+          style={{
+            height: "calc(100dvh - 20px)",
+            borderRadius: "1.5rem",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.13)",
+            border: "1.5px solid rgba(0,0,0,0.06)",
+            background: "var(--surface)",
+          }}
+        >
+          <Drawer />
+          {children}
+        </div>
+      </main>
     </MobileMenuProvider>
   );
 }
