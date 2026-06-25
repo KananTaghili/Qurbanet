@@ -159,16 +159,28 @@ export default function QurbanLayout({ children }) {
           </div>
 
           {/* Mobile bottom nav */}
-          <nav className="lg:hidden shrink-0 border-t border-gray-100 bg-white flex z-40">
-            {SIDEBAR_NAV.map(({ icon: Icon, label, short, href }) => (
-              <Link key={href} href={href}
-                className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
-                  isActive(href) ? "text-[#1c5e20]" : "text-gray-400"
-                }`}>
-                <Icon size={20} strokeWidth={isActive(href) ? 2.2 : 1.8} />
-                <span className="text-[9px] font-medium leading-none truncate max-w-[56px]">{short || label}</span>
-              </Link>
-            ))}
+          <nav className="lg:hidden shrink-0 border-t border-gray-100 bg-white z-40" style={{ display: 'flex', padding: '0 4px' }}>
+            <style>{`
+              .qbn-tab2 { flex:1; display:flex; flex-direction:column; align-items:center; gap:0; padding:8px 2px 6px; text-decoration:none; min-width:0; transition:transform 0.25s cubic-bezier(.34,1.4,.64,1); }
+              .qbn-tab2.qbn-act2 { transform:translateY(-5px); }
+              .qbn-pill2 { width:44px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center; transition:background 0.2s,box-shadow 0.2s; }
+              .qbn-act2 .qbn-pill2 { background:#e8f5e9; box-shadow:0 2px 8px rgba(27,94,32,.13); }
+              .qbn-lbl2 { font-size:9.5px; font-weight:600; text-align:center; line-height:1.3; margin-top:3px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; width:100%; max-width:64px; transition:color 0.18s; }
+              .qbn-dot2 { margin-top:3px; height:3px; border-radius:99px; background:transparent; transition:width 0.25s cubic-bezier(.34,1.3,.64,1),background 0.18s; width:0; }
+              .qbn-act2 .qbn-dot2 { background:#1c5e20; width:18px; }
+            `}</style>
+            {SIDEBAR_NAV.map(({ icon: Icon, label, short, href }) => {
+              const act = isActive(href);
+              return (
+                <Link key={href} href={href} className={`qbn-tab2${act ? ' qbn-act2' : ''}`}>
+                  <div className="qbn-pill2">
+                    <Icon size={20} strokeWidth={act ? 2.3 : 1.7} color={act ? '#1c5e20' : '#9ca3af'} />
+                  </div>
+                  <span className="qbn-lbl2" style={{ color: act ? '#1c5e20' : '#9ca3af' }}>{short || label}</span>
+                  <div className="qbn-dot2" />
+                </Link>
+              );
+            })}
           </nav>
         </div>
       </div>
