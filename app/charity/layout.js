@@ -1035,10 +1035,10 @@ export default function CharityLayout({ children }) {
           {/* Page content */}
           <style>{`
             .charity-scroll::-webkit-scrollbar { width: 16px; }
-            .charity-scroll::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 999px; margin: 8px 0 0 0; }
-            .charity-scroll::-webkit-scrollbar-thumb { background: #301586; border-radius: 999px; border: 5px solid #1a1a1a; background-clip: padding-box; }
-            .charity-scroll::-webkit-scrollbar-thumb:hover { background: #4c1d95; border: 5px solid #1a1a1a; background-clip: padding-box; }
-            .charity-scroll { overflow-y: auto; scrollbar-color: #301586 #1a1a1a; }
+            .charity-scroll::-webkit-scrollbar-track { background: #301586; border-radius: 999px; margin: 8px 0 0 0; }
+            .charity-scroll::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 999px; border: 5px solid #301586; background-clip: padding-box; }
+            .charity-scroll::-webkit-scrollbar-thumb:hover { background: #c4b5fd; border: 5px solid #301586; background-clip: padding-box; }
+            .charity-scroll { overflow-y: auto; scrollbar-color: #a78bfa #301586; }
           `}</style>
           <div className="charity-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
           {children}
