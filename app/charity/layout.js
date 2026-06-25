@@ -888,8 +888,8 @@ export default function CharityLayout({ children }) {
 
   return (
     <CharityLayoutContext.Provider value={{ openNewCampaign: (animalName) => { setPreselectedAnimal(animalName || null); setShowNewOpening(true); } }}>
-      <main className="bg-background p-3 pb-3 font-sans text-foreground md:p-7 md:pb-7 overflow-hidden" style={{ height: "100dvh" }}>
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex h-[calc(100dvh-1.5rem)] md:h-[calc(100dvh-3.5rem)]">
+      <main className="bg-background p-1.5 font-sans text-foreground md:p-4 overflow-hidden" style={{ height: "100dvh" }}>
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
 
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden" style={{ backgroundColor: "#301586" }}>
