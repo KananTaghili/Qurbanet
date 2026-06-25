@@ -168,9 +168,9 @@ export default function PaymentPage() {
             {breakdownRows.length > 0 && (
               <CardShell className="lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
                 <CardHead label={t(lang, 'priceBreakdown')} />
-                <div className="lg:flex-1 lg:flex lg:flex-col lg:justify-around divide-y divide-border/60">
+                <div className="divide-y divide-border/60">
                   {breakdownRows.map((row, i) => (
-                    <div key={i} className="flex justify-between items-center px-4 py-3.5 gap-3">
+                    <div key={i} className="flex justify-between items-center px-4 py-3 gap-3">
                       <span className="text-xs text-text-secondary flex-1">{row.label}</span>
                       {row.free
                         ? <span className="text-xs font-bold text-emerald-600 shrink-0">{t(lang, 'free')}</span>
@@ -179,7 +179,7 @@ export default function PaymentPage() {
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between items-center px-4 py-3.5 bg-primary-surface/20 border-t border-primary/10">
+                <div className="mt-auto flex justify-between items-center px-4 py-3.5 bg-primary-surface/20 border-t border-primary/10">
                   <span className="text-xs font-black text-text-primary uppercase tracking-wider">{t(lang, 'totalRow')}</span>
                   <span className="text-xl font-extrabold text-primary">{amount} AZN</span>
                 </div>
