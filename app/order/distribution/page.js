@@ -325,16 +325,16 @@ export default function DistributionPage() {
               <meta.Icon className="w-4 h-4" style={{ color: meta.color }} />
             </div>
             <div className="flex-1">
-              <div className="text-xs font-bold text-text-primary">
+              <div className="text-[11px] font-bold text-text-primary">
                 {distLabel(key, data)}
               </div>
               <div
-                className="text-[11px] font-semibold"
+                className="text-[10px] font-semibold"
                 style={{ color: meta.color }}
               >
                 {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, "free")}
               </div>
-              <div className="text-[10px] text-amber-600 font-medium leading-none">
+              <div className="text-[9px] text-amber-600 font-medium leading-none">
                 {key === "catdirilsin" ? "Yalnız Bakı və ətrafı" : " "}
               </div>
             </div>
