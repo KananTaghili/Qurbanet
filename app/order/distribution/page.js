@@ -657,28 +657,28 @@ export default function DistributionPage() {
                 {OptionList()}
               </Card>
 
-              {/* Pickup info — mobile only */}
+              {/* Pickup info — mobile */}
               {selectedKey === "ozum" && meatPickupLocation && (
                 PickupCard({ className: "lg:hidden" })
+              )}
+              {/* Pickup info — desktop (sol sütun, altda) */}
+              {selectedKey === "ozum" && meatPickupLocation && (
+                PickupCard({ className: "hidden lg:block" })
               )}
 
               {/* Address — mobile */}
               {needsLocation && AddressSection({ className: "lg:hidden" })}
               {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
+
+              {/* Əlaqə nömrəsi — desktop (sol sütun, ən altda) */}
+              {selectedKey === "ozum" && AddressSection({ className: "hidden lg:block", phoneOnly: true })}
+              {needsLocation && AddressSection({ className: "hidden lg:block" })}
             </div>
 
             {/* ════ RIGHT — desktop ════ */}
-            <div className="hidden lg:flex flex-col gap-3 lg:col-span-5">
-              {/* ozum: Götürmə məkanı + Əlaqə nömrəsi yan-yana */}
-              {selectedKey === "ozum" && (
-                <div className="grid grid-cols-2 gap-3">
-                  {meatPickupLocation ? PickupCard({}) : <div />}
-                  {AddressSection({ phoneOnly: true })}
-                </div>
-              )}
-              {needsLocation && AddressSection({})}
+            <div className="hidden lg:flex flex-col lg:col-span-5 lg:h-full">
 
-              <Card>
+              <Card className="flex-1">
                 <div className="px-3 py-1.5 border-b border-border bg-surface-alt/40">
                   <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
                     {t(lang, "orderSummaryCard")}
