@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
@@ -302,7 +302,7 @@ export default function DistributionPage() {
 
   // Renders the radio option list (used in both mobile and desktop)
   const OptionList = () => (
-    <div className="px-2 py-2 flex flex-col gap-1.5">
+    <div className="px-2 py-1 flex flex-col gap-1">
       {deliveryKeys.map((key) => {
         const meta = OPTION_META[key];
         const data = optionData[key] || {};
@@ -312,38 +312,38 @@ export default function DistributionPage() {
             key={key}
             type="button"
             onClick={() => setSelectedKey(key)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
+            className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
               isSelected
                 ? "border-primary bg-primary/5"
                 : "border-border bg-white hover:border-primary/30"
             }`}
           >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ background: meta.light }}
             >
-              <meta.Icon className="w-5 h-5" style={{ color: meta.color }} />
+              <meta.Icon className="w-4 h-4" style={{ color: meta.color }} />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-bold text-text-primary">
+              <div className="text-xs font-bold text-text-primary">
                 {distLabel(key, data)}
               </div>
               <div
-                className="text-xs font-semibold mt-0.5"
+                className="text-[11px] font-semibold"
                 style={{ color: meta.color }}
               >
                 {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, "free")}
               </div>
-              <div className="text-[10px] text-amber-600 font-medium mt-0.5">
+              <div className="text-[10px] text-amber-600 font-medium leading-none">
                 {key === "catdirilsin" ? "Yalnız Bakı və ətrafı" : " "}
               </div>
             </div>
             <div
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                 isSelected ? "border-primary bg-primary" : "border-border"
               }`}
             >
-              {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
             </div>
           </button>
         );
@@ -404,7 +404,7 @@ export default function DistributionPage() {
               </div>
             </div>
             <div
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                 isDisabled
                   ? "border-border/40"
                   : isSelected
