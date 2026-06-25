@@ -20,25 +20,25 @@ function ServiceDetailCard({ item, index }) {
   const c = colorMap[item.color];
   const Icon = item.Icon;
   return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-[#ead9cf] bg-[#fff8f1] p-4 shadow-[0_16px_45px_rgba(35,18,8,0.08)] sm:p-6 md:rounded-[1.5rem]">
-      <div className={`absolute -right-8 -top-8 h-28 w-28 rounded-full ${c.bg} opacity-10`} />
-      <div className="relative flex items-start gap-4 sm:gap-5">
-        <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl border-2 bg-white sm:h-16 sm:w-16 ${c.text} ${c.border}`}>
-          <Icon className="h-8 w-8 sm:h-9 sm:w-9" />
+    <article className="relative flex h-full flex-col overflow-hidden rounded-[1rem] border border-[#ead9cf] bg-[#fff8f1] p-3 shadow-[0_8px_24px_rgba(35,18,8,0.07)] sm:p-4">
+      <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full ${c.bg} opacity-10`} />
+      <div className="relative flex items-center gap-3">
+        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 bg-white ${c.text} ${c.border}`}>
+          <Icon className="h-6 w-6" />
         </div>
         <div>
-          <span className="text-xs font-black uppercase tracking-[0.24em] text-neutral-400">0{index + 1} / Xidmət</span>
-          <h3 className={`mt-2 text-xl font-black leading-6 sm:text-2xl sm:leading-7 ${c.text}`}>{item.title}</h3>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400">0{index + 1} / Xidmət</span>
+          <h3 className={`text-base font-black leading-5 ${c.text}`}>{item.title}</h3>
         </div>
       </div>
-      <p className="relative mt-4 flex-1 text-sm leading-6 text-neutral-700 sm:mt-5 sm:text-[15px] sm:leading-7">{item.text}</p>
+      <p className="relative mt-3 flex-1 text-sm leading-5 text-neutral-700">{item.text}</p>
       {item.href ? (
-        <Link href={item.href} className={`relative mt-6 inline-flex w-fit items-center gap-3 border-b-2 pb-1 text-sm font-black transition hover:opacity-75 ${c.text} ${c.border}`}>
-          Ətraflı bax <ArrowRight className="h-4 w-4" />
+        <Link href={item.href} className={`relative mt-3 inline-flex w-fit items-center gap-2 border-b-2 pb-0.5 text-sm font-black transition hover:opacity-75 ${c.text} ${c.border}`}>
+          Ətraflı bax <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       ) : (
-        <span className="relative mt-6 inline-flex w-fit cursor-not-allowed items-center gap-3 border-b-2 pb-1 text-sm font-black opacity-40 border-neutral-300 text-neutral-400">
-          Tezliklə <ArrowRight className="h-4 w-4" />
+        <span className="relative mt-3 inline-flex w-fit cursor-not-allowed items-center gap-2 border-b-2 pb-0.5 text-sm font-black opacity-40 border-neutral-300 text-neutral-400">
+          Tezliklə <ArrowRight className="h-3.5 w-3.5" />
         </span>
       )}
     </article>
