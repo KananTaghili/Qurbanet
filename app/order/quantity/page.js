@@ -949,7 +949,7 @@ export default function QuantityPage() {
           </div>
 
           {/* ══ RIGHT — xl+ ══ */}
-          <div className="hidden xl:flex flex-col gap-2 self-stretch">
+          <div className="hidden xl:flex flex-col gap-2">
             {weights.length > 0 ? (
               <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-stretch">
                 <div className="flex flex-col gap-2">
@@ -979,7 +979,7 @@ export default function QuantityPage() {
                   <S label="Çatdırılma vaxtı" Icon={Clock}>
                     {TimeSlotBlock({ cols: "grid-cols-2" })}
                   </S>
-                  <div className="mt-auto">{PriceSummary()}</div>
+                  {PriceSummary()}
                 </div>
               </div>
             ) : (
