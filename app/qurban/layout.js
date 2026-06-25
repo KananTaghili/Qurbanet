@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut,
+  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 
@@ -26,7 +26,19 @@ function initials(u) {
 export default function QurbanLayout({ children }) {
   const { user, isGuest, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const handler = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [userMenuOpen]);
 
   const isActive = (href) => {
     if (href === "/qurban") return pathname === "/qurban" || pathname === "/qurban/";
@@ -100,11 +112,55 @@ export default function QurbanLayout({ children }) {
                   Daxil ol
                 </Link>
               ) : (
-                <div className="hidden sm:flex items-center gap-2">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
-                    {initials(user)}
-                  </div>
-                  <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{fullName(user)}</span>
+                <div ref={userMenuRef} className="hidden sm:block relative">
+                  <button
+                    onClick={() => setUserMenuOpen(v => !v)}
+                    className="flex items-center gap-2 rounded-xl px-1.5 py-1 hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
+                      {initials(user)}
+                    </div>
+                    <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{fullName(user)}</span>
+                  </button>
+                  {userMenuOpen && (
+                    <div
+                      className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden z-50"
+                      style={{ background: "#fff", boxShadow: "0 8px 32px rgba(0,0,0,0.18)", border: "1px solid rgba(0,0,0,0.07)", minWidth: 210 }}
+                    >
+                      <div className="px-4 py-3 flex items-center gap-2.5" style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold text-white shrink-0" style={{ background: GREEN }}>
+                          {initials(user)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-bold text-slate-800 truncate">{fullName(user)}</div>
+                          {user?.phone && <div className="text-xs text-slate-400 truncate">{user.phone}</div>}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => { setUserMenuOpen(false); router.push("/settings"); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer border-none bg-transparent"
+                        onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#e8f5e9" }}>
+                          <Settings size={15} style={{ color: GREEN }} />
+                        </div>
+                        <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
+                      </button>
+                      <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
+                      <button
+                        onClick={() => { setUserMenuOpen(false); logout(); router.push("/"); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer border-none bg-transparent"
+                        onMouseEnter={e => e.currentTarget.style.background = "#fff5f5"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#fee2e2" }}>
+                          <LogOut size={15} style={{ color: "#ef4444" }} />
+                        </div>
+                        <span className="text-sm font-semibold" style={{ color: "#ef4444" }}>Çıxış et</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -144,6 +200,11 @@ export default function QurbanLayout({ children }) {
                   </div>
                   <span className="text-[13px] font-semibold text-white/90 truncate">{fullName(user)}</span>
                 </div>
+                <button onClick={() => { setMobileMenuOpen(false); router.push("/settings"); }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all mb-2"
+                  style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                  <Settings size={14} /> Parametrlər
+                </button>
                 <button onClick={() => { setMobileMenuOpen(false); logout(); }}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all"
                   style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
