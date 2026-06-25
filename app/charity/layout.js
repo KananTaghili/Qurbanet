@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
   Plus, Bell, User, ChevronDown, ArrowLeft, X,
   Heart, Menu, Shield, ChevronRight, Mail, Phone, Lock,
-  UserRoundCheck, Video, HeartHandshake,
+  UserRoundCheck, Video, HeartHandshake, Settings, LogOut,
 } from "lucide-react";
 import { CharityLayoutContext } from "./_context";
 import { SIDEBAR_NAV, ANIMAL_IMG_FALLBACK } from "./_lib";
@@ -16,6 +16,54 @@ import api from "../../lib/api";
 
 const userFullName = (user) => [user?.name, user?.lastName].filter(Boolean).join(" ").trim() || "İstifadəçi";
 const initials2 = (name) => (name || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase() || "?";
+
+function CharityUserMenu({ user, onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const router = useRouter();
+  const name = userFullName(user);
+  const ini = initials2(name);
+
+  useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative hidden sm:block">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 hover:bg-white/10 transition-colors"
+      >
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
+          {ini}
+        </div>
+        <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{name}</span>
+        <ChevronDown size={13} className={`text-white/60 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-[calc(100%+6px)] z-[9999] min-w-[180px] rounded-2xl border border-[#f0f0f0] bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.18)]"
+          style={{ animation: "charity-dd-in 0.18s cubic-bezier(.25,.8,.25,1)" }}>
+          <style>{`@keyframes charity-dd-in { from { opacity:0; transform:translateY(-6px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }`}</style>
+          <button
+            onClick={() => { setOpen(false); router.push("/settings"); }}
+            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-semibold text-[#374151] hover:bg-[#f9fafb] transition-colors"
+          >
+            <Settings size={14} className="text-[#6b7280]" /> Parametrlər
+          </button>
+          <button
+            onClick={() => { setOpen(false); onLogout(); }}
+            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-semibold text-[#f20b32] hover:bg-[#fff1f3] transition-colors"
+          >
+            <LogOut size={14} /> Çıxış et
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ─── Forgot Password Inline ─────────────────────────────────── */
 function ForgotPasswordInline({ onBack, onSuccess }) {
@@ -823,7 +871,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
 
 /* ─── Layout ─────────────────────────────────────────────────── */
 export default function CharityLayout({ children }) {
-  const { isGuest, user } = useAuth();
+  const { isGuest, user, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNewOpening, setShowNewOpening] = useState(false);
@@ -927,14 +975,7 @@ export default function CharityLayout({ children }) {
                   Qeydiyyat <ChevronDown size={12} />
                 </Link>
               ) : (
-                <div className="hidden sm:flex items-center gap-2">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
-                    {initials2(userFullName(user))}
-                  </div>
-                  <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">
-                    {userFullName(user)}
-                  </span>
-                </div>
+                <CharityUserMenu user={user} onLogout={logout} />
               )}
             </div>
           </div>
