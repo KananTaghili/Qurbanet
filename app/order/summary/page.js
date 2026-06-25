@@ -335,7 +335,7 @@ export default function SummaryPage() {
       <StepHeader currentStep={3} />
 
       <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden page-scroll">
-        <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[340px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
+        <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
           <C className="lg:overflow-y-auto lg:min-h-0">
             <CHead label={t(lang, "orderInfoCard")} colored />
@@ -348,7 +348,7 @@ export default function SummaryPage() {
                   <span className="text-xs text-text-secondary font-medium shrink-0">
                     {row.label}
                   </span>
-                  <span className="text-xs font-bold text-text-primary text-right whitespace-pre-line">
+                  <span className="text-xs font-bold text-text-primary text-right whitespace-pre-line ml-auto max-w-[58%]">
                     {row.value}
                   </span>
                 </div>
