@@ -604,7 +604,7 @@ export default function DistributionPage() {
   // Pickup location card
   const PickupCard = ({ className = "" }) => (
     <Card className={className}>
-      <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+      <div className="px-3 border-b border-border bg-surface-alt/40">
         <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
           {t(lang, "pickupLocation")}
         </span>
