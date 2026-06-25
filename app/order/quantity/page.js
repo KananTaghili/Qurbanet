@@ -628,7 +628,11 @@ export default function QuantityPage() {
     <button
       type="button"
       onClick={onClick}
+<<<<<<< HEAD
       className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left cursor-pointer transition-all duration-150 border-2
+=======
+      className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left cursor-pointer transition-all duration-150 border-2
+>>>>>>> 846af1b (style(order): increase spacing in cut style and head/feet option cards)
         ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
     >
       <div
@@ -834,7 +838,7 @@ export default function QuantityPage() {
             {/* Doğrama üsulu + Baş & Ayaqlar — alt-alta */}
             {effectiveCutStyles.length > 0 && (
               <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
-                <div className="p-2 grid grid-cols-2 gap-1.5">
+                <div className="p-3 grid grid-cols-2 gap-2">
                   {effectiveCutStyles.map((cs) => (
                     <Opt
                       key={cs.key}
@@ -858,7 +862,7 @@ export default function QuantityPage() {
 
             {needsHead && (
               <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
-                <div className="p-2 grid grid-cols-2 gap-1.5">
+                <div className="p-3 grid grid-cols-2 gap-2">
                   {activeHeadOptions.map((opt) => {
                     const on = (headBuckets[opt.key] || 0) > 0;
                     const fee = opt.fee || 0;
