@@ -429,7 +429,7 @@ export default function DistributionPage() {
     >
       <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center justify-between gap-1">
         <div className="flex items-center gap-1">
-          <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+          <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
             {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
           </span>
           <span className="text-sm font-black text-red-500 leading-none">*</span>
@@ -537,8 +537,7 @@ export default function DistributionPage() {
                     >
                       <div className="flex items-center gap-1.5 px-2.5 py-2.5 border-r border-border bg-surface-alt shrink-0">
                         <span className="text-base leading-none">🇦🇿</span>
-                        <span className="text-xs font-bold text-text-secondary">
-                          +994
+                        <span className="text-[10px] font-bold text-text-secondary">+994
                         </span>
                       </div>
                       <input
@@ -554,7 +553,7 @@ export default function DistributionPage() {
                         placeholder="50 XXX XX XX"
                         inputMode="numeric"
                         maxLength={12}
-                        className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-2.5 py-2.5 font-medium border-none"
+                        className="flex-1 bg-transparent outline-none text-[11px] text-text-primary placeholder:text-text-muted px-2 py-2 font-medium border-none"
                       />
                     </div>
                     {phones.length > 1 && (
@@ -585,7 +584,7 @@ export default function DistributionPage() {
 
             {phoneOnly && (
               <div className="flex flex-col gap-1 mt-1 border-t border-border pt-2">
-                <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                <span className="text-[9px] font-bold text-text-secondary uppercase tracking-wide">
                   {t(lang, "addressNotePlaceholder") ? "Qeyd" : "Qeyd"}
                 </span>
                 <textarea
@@ -593,7 +592,7 @@ export default function DistributionPage() {
                   onChange={(e) => setAddressNote(e.target.value)}
                   placeholder={t(lang, "addressNotePlaceholder")}
                   rows={4}
-                  className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
+                  className="w-full bg-surface-alt border border-border rounded-xl px-2.5 py-2 text-[10px] text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
                 />
               </div>
             )}
@@ -657,7 +656,7 @@ export default function DistributionPage() {
         <div className="flex-1 overflow-y-auto lg:overflow-visible pb-24 lg:pb-4 pt-[124px] lg:pt-0">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-[minmax(0,3.8fr)_minmax(200px,2.5fr)_minmax(0,9fr)]
+                          lg:grid lg:grid-cols-[minmax(0,3.8fr)_minmax(250px,2.5fr)_minmax(0,9fr)]
                           lg:gap-4 lg:items-start"
           >
             {/* ════ LEFT (1fr) ════ */}
@@ -668,7 +667,7 @@ export default function DistributionPage() {
                 className={`hidden lg:block ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
               >
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+                  <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
                     {t(lang, "distMethod")}
                   </span>
                 </div>
@@ -688,7 +687,7 @@ export default function DistributionPage() {
                 className={`lg:hidden ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
               >
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+                  <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
                     {t(lang, "distMethod")}
                   </span>
                 </div>
