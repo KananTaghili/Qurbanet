@@ -427,11 +427,27 @@ export default function DistributionPage() {
     <Card
       className={`${className} ${submitAttempted && !addrOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
     >
-      <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center gap-1">
-        <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-          {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
-        </span>
-        <span className="text-sm font-black text-red-500 leading-none">*</span>
+      <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center justify-between gap-1">
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+            {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
+          </span>
+          <span className="text-sm font-black text-red-500 leading-none">*</span>
+        </div>
+        {phoneOnly && (
+          <button
+            type="button"
+            disabled={phones.length >= 4}
+            onClick={() => setPhones((p) => [...p, ""])}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${
+              phones.length >= 4
+                ? "bg-border text-text-muted cursor-default"
+                : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
+            }`}
+          >
+            <Plus className="w-3 h-3" /> {t(lang, "addPhone")}
+          </button>
+        )}
       </div>
       <div className="p-3 flex flex-col gap-2">
         {!phoneOnly && (
@@ -488,20 +504,22 @@ export default function DistributionPage() {
 
         {!addressOnly && (
           <div className={`flex flex-col gap-1.5 ${!phoneOnly ? "border-t border-border pt-2 mt-auto" : ""}`}>
-            <div className="flex items-center justify-end">
-              <button
-                type="button"
-                disabled={phones.length >= 4}
-                onClick={() => setPhones((p) => [...p, ""])}
-                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                  phones.length >= 4
-                    ? "bg-border text-text-muted cursor-default"
-                    : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
-                }`}
-              >
-                <Plus className="w-3 h-3" /> {t(lang, "addPhone")}
-              </button>
-            </div>
+            {!phoneOnly && (
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  disabled={phones.length >= 4}
+                  onClick={() => setPhones((p) => [...p, ""])}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                    phones.length >= 4
+                      ? "bg-border text-text-muted cursor-default"
+                      : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
+                  }`}
+                >
+                  <Plus className="w-3 h-3" /> {t(lang, "addPhone")}
+                </button>
+              </div>
+            )}
             {phones.map((phone, idx) => {
               const isEmpty = submitAttempted && idx === 0 && !phone.trim();
               const isInvalid =
@@ -574,7 +592,7 @@ export default function DistributionPage() {
                   value={addressNote}
                   onChange={(e) => setAddressNote(e.target.value)}
                   placeholder={t(lang, "addressNotePlaceholder")}
-                  rows={2}
+                  rows={4}
                   className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
                 />
               </div>
@@ -639,45 +657,33 @@ export default function DistributionPage() {
         <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-7
-                          lg:gap-5 lg:items-start"
+                          lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)]
+                          lg:gap-4 lg:items-start"
           >
-            {/* ════ LEFT (col-span-4) ════ */}
-            <div className="flex flex-col gap-3 lg:col-span-4">
-
-              {/* Desktop: sol sütun (Çatdırılma üsulu + altda ünvan/məkan) | sağ sütun (Əlaqə nömrəsi) */}
-              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3 lg:items-stretch">
-                {/* Sol: Çatdırılma üsulu + altda Çatdırılma ünvanı / Götürmə məkanı */}
-                <div className="flex flex-col gap-3">
-                  <Card
-                    className={submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}
-                  >
-                    <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                      <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-                        {t(lang, "distMethod")}
-                      </span>
-                    </div>
-                    {submitAttempted && !selectionOk && (
-                      <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
-                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                        {t(lang, "selectDelivery")}
-                      </div>
-                    )}
-                    {OptionList()}
-                  </Card>
-
-                  {/* Altda: Çatdırılma ünvanı və ya Götürmə məkanı */}
-                  {needsLocation && AddressSection({ addressOnly: true })}
-                  {selectedKey === "ozum" && meatPickupLocation && PickupCard({})}
+            {/* ════ LEFT (1fr) ════ */}
+            {/* Sol sütun (1fr): Çatdırılma üsulu + altda Çatdırılma ünvanı/Götürmə məkanı */}
+            <div className="flex flex-col gap-3">
+              {/* Desktop */}
+              <Card
+                className={`hidden lg:block ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
+              >
+                <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+                    {t(lang, "distMethod")}
+                  </span>
                 </div>
+                {submitAttempted && !selectionOk && (
+                  <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    {t(lang, "selectDelivery")}
+                  </div>
+                )}
+                {OptionList()}
+              </Card>
+              {needsLocation && AddressSection({ className: "hidden lg:block", addressOnly: true })}
+              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "hidden lg:block" })}
 
-                {/* Sağ: Əlaqə nömrəsi (hündürlüyü doldurar) */}
-                {(needsLocation || selectedKey === "ozum")
-                  ? AddressSection({ className: "h-full", phoneOnly: true })
-                  : <div />}
-              </div>
-
-              {/* Mobile: Çatdırılma üsulu tək */}
+              {/* Mobile */}
               <Card
                 className={`lg:hidden ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
               >
@@ -694,19 +700,20 @@ export default function DistributionPage() {
                 )}
                 {OptionList()}
               </Card>
-
-              {/* Pickup info — mobile only */}
-              {selectedKey === "ozum" && meatPickupLocation && (
-                PickupCard({ className: "lg:hidden" })
-              )}
-
-              {/* Address — mobile */}
+              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "lg:hidden" })}
               {needsLocation && AddressSection({ className: "lg:hidden" })}
               {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
             </div>
 
-            {/* ════ RIGHT (col-span-3) — desktop ════ */}
-            <div className="hidden lg:flex flex-col lg:col-span-3">
+            {/* Orta sütun (1fr): Əlaqə nömrəsi — desktop only */}
+            <div className="hidden lg:flex flex-col">
+              {(needsLocation || selectedKey === "ozum")
+                ? AddressSection({ className: "h-full", phoneOnly: true })
+                : null}
+            </div>
+
+            {/* Sağ sütun (1.4fr): Sifariş xülasəsi — desktop only */}
+            <div className="hidden lg:flex flex-col">
 
               <Card>
                 <div className="px-3 py-1.5 border-b border-border bg-surface-alt/40">
