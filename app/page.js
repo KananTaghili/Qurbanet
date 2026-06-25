@@ -197,7 +197,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="hp-main bg-background p-1.5 font-sans text-foreground md:p-4" style={{ height: '100dvh', overflowY: 'auto' }}>
+    <main className="hp-main bg-background p-1.5 font-sans text-foreground md:p-4" style={{ height: '100dvh', overflow: 'hidden' }}>
       <style>{`
         @keyframes hpFadeDown {
           from { opacity: 0; transform: translateY(-18px); }
@@ -240,10 +240,10 @@ export default function HomePage() {
         .hp-main { scrollbar-width: thin; scrollbar-color: #f20b32 transparent; }
       `}</style>
 
-      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
+      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col" style={{ height: 'calc(100dvh - 12px)' }}>
 
         {/* ── Header ── */}
-        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10 sticky top-0" style={{ height: 56, zIndex: 50 }}>
+        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
           <div className="hp-logo">
             <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
           </div>
@@ -273,6 +273,9 @@ export default function HomePage() {
             </button>
           </div>
         </header>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
 
         {/* Mobile nav */}
         {mobileMenuOpen && (
@@ -361,6 +364,7 @@ export default function HomePage() {
           © 2024 MeatBox.az. Bütün hüquqlar qorunur.
         </div>
 
+        </div>{/* end scrollable content */}
       </section>
     </main>
   );
