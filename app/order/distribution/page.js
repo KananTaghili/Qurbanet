@@ -657,7 +657,7 @@ export default function DistributionPage() {
         <div className="flex-1 overflow-y-auto lg:overflow-visible pb-24 lg:pb-4 pt-[124px] lg:pt-0">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-[minmax(0,3.5fr)_minmax(0,1.5fr)_minmax(0,10fr)]
+                          lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(200px,2.5fr)_minmax(0,9fr)]
                           lg:gap-4 lg:items-start"
           >
             {/* ════ LEFT (1fr) ════ */}
