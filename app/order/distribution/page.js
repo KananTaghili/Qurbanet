@@ -636,13 +636,13 @@ export default function DistributionPage() {
             <div className="flex flex-col gap-3 lg:col-span-4">
 
               {/* Desktop: Çatdırılma üsulu + Götürmə məkanı yan-yana */}
-              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3 lg:items-start">
+              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3 lg:items-stretch">
                 <Card
-                  className={
+                  className={`h-full ${
                     submitAttempted && !selectionOk
                       ? "ring-2 ring-red-400 border-transparent"
                       : ""
-                  }
+                  }`}
                 >
                   <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
                     <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
@@ -660,7 +660,7 @@ export default function DistributionPage() {
 
                 {/* Götürmə məkanı — desktop, sağında */}
                 {selectedKey === "ozum" && meatPickupLocation
-                  ? PickupCard({})
+                  ? PickupCard({ className: "h-full" })
                   : <div />}
               </div>
 
