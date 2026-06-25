@@ -478,7 +478,7 @@ export default function DistributionPage() {
           </>
         )}
 
-        <div className={`flex flex-col gap-1.5 ${!phoneOnly ? "border-t border-border pt-2 mt-1" : ""}`}>
+        <div className={`flex flex-col gap-1.5 ${!phoneOnly ? "border-t border-border pt-2 mt-auto" : ""}`}>
           <div className="flex items-center justify-between mb-0.5">
             <div className="flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5 text-text-secondary" />
