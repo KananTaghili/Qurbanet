@@ -197,7 +197,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="hp-main bg-background p-3 font-sans text-foreground md:p-7" style={{ height: '100dvh', overflowY: 'auto' }}>
+    <main className="hp-main bg-background p-1.5 font-sans text-foreground md:p-4" style={{ height: '100dvh', overflowY: 'auto' }}>
       <style>{`
         @keyframes hpFadeDown {
           from { opacity: 0; transform: translateY(-18px); }
