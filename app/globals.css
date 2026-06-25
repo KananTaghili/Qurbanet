@@ -222,7 +222,7 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
   .desktop-only         { display: flex !important; }
   .bottom-nav-wrap      { display: none !important; }
   .mobile-green-header  { display: none !important; }
-  .mobile-back-header   { display: flex !important; position: static !important; top: auto !important; left: auto !important; right: auto !important; z-index: auto !important; }
+  .mobile-back-header   { display: none !important; }
   .mobile-step-header   { position: static; top: auto; z-index: auto; background: transparent; border-bottom: none; }
 
   /* Fixed action bars must start after the sidebar, not at viewport edge */

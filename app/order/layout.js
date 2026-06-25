@@ -82,23 +82,8 @@ function Drawer() {
 export default function OrderLayout({ children }) {
   return (
     <MobileMenuProvider>
-      <div
-        className="flex bg-background font-sans text-foreground overflow-hidden"
-        style={{ height: "100dvh" }}
-      >
-        {/* Desktop sidebar — hidden on mobile via Sidebar's own classes */}
-        <Sidebar />
-
-        {/* Main content area */}
-        <div className="flex-1 min-w-0 flex flex-col p-3 md:p-7 overflow-hidden">
-          <div
-            className="flex-1 overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex flex-col"
-          >
-            <Drawer />
-            {children}
-          </div>
-        </div>
-      </div>
+      <Drawer />
+      {children}
     </MobileMenuProvider>
   );
 }
