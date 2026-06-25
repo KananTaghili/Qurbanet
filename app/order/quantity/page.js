@@ -731,7 +731,7 @@ export default function QuantityPage() {
         <div
           className="p-2.5 xl:p-4
                         xl:grid xl:grid-cols-[320px_1fr] 2xl:grid-cols-[360px_1fr]
-                        xl:gap-3.5 xl:items-stretch"
+                        xl:gap-3.5 xl:items-start"
         >
           {/* ══ LEFT ══ */}
           <div className="flex flex-col gap-2">
@@ -949,7 +949,7 @@ export default function QuantityPage() {
           </div>
 
           {/* ══ RIGHT — xl+ ══ */}
-          <div className="hidden xl:flex flex-col gap-2 h-full">
+          <div className="hidden xl:flex flex-col gap-2 self-stretch">
             {weights.length > 0 ? (
               <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-stretch">
                 <div className="flex flex-col gap-2">
