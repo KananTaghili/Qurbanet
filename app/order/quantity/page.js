@@ -76,6 +76,7 @@ export default function QuantityPage() {
   const { updateOrder } = useOrder();
 
   const [animal, setAnimal] = useState(null);
+  const [modalMsg, setModalMsg] = useState(null);
   const [deliveryWindows, setDeliveryWindows] = useState(TIME_SLOTS);
   const [mode, setMode] = useState("tam");
   const [qty, setQty] = useState(1);
@@ -318,18 +319,18 @@ export default function QuantityPage() {
   const handleContinue = () => {
     setSubmitAttempted(true);
     if (!selectedDate) {
-      alert("Kəsim tarixini seçin.");
+      setModalMsg("Kəsim tarixini seçin.");
       return;
     }
     if (!timeSlot) {
-      alert("Çatdırılma vaxtını seçin.");
+      setModalMsg("Çatdırılma vaxtını seçin.");
       return;
     }
     if (effectiveCutStyles.length > 0 && totalCutCount === 0) {
       return;
     }
     if (needsHead && headAssigned === 0) {
-      alert("Baş & ayaqlar üçün bir seçim edin.");
+      setModalMsg("Baş & ayaqlar üçün bir seçim edin.");
       return;
     }
 
@@ -681,6 +682,23 @@ export default function QuantityPage() {
       className="flex flex-col flex-1 min-h-0"
       style={{ background: "#f2f5f2" }}
     >
+      {/* Info Modal */}
+      {modalMsg && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setModalMsg(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 mx-4 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-50 border-2 border-amber-200 mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-amber-500" />
+            </div>
+            <p className="text-center text-[15px] font-semibold text-text-primary mb-5">{modalMsg}</p>
+            <button
+              onClick={() => setModalMsg(null)}
+              className="w-full py-2.5 rounded-xl bg-primary text-white text-[13px] font-extrabold border-none cursor-pointer hover:opacity-90 transition-all"
+            >
+              Anladım
+            </button>
+          </div>
+        </div>
+      )}
       <BackHeader
         title="Miqdar seçin"
         onBack={() => router.replace("/")}
