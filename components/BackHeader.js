@@ -7,8 +7,7 @@ export default function BackHeader({ title, onBack, onMenu }) {
   const handleBack = onBack || (() => router.back());
 
   return (
-    <div className="mobile-back-header mobile-only"
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'var(--primary)', borderBottom: 'none' }}>
+    <div className="mobile-back-header">
       {onMenu && (
         <button
           onClick={onMenu}
