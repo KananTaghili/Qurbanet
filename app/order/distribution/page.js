@@ -632,53 +632,74 @@ export default function DistributionPage() {
                           lg:grid lg:grid-cols-7
                           lg:gap-5 lg:items-start"
           >
-            {/* ════ LEFT ════ */}
-            <div className="flex flex-col gap-3 lg:col-span-2">
+            {/* ════ LEFT (col-span-4) ════ */}
+            <div className="flex flex-col gap-3 lg:col-span-4">
+
+              {/* Desktop: Çatdırılma üsulu + Götürmə məkanı yan-yana */}
+              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3 lg:items-start">
+                <Card
+                  className={
+                    submitAttempted && !selectionOk
+                      ? "ring-2 ring-red-400 border-transparent"
+                      : ""
+                  }
+                >
+                  <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+                    <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+                      {t(lang, "distMethod")}
+                    </span>
+                  </div>
+                  {submitAttempted && !selectionOk && (
+                    <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      {t(lang, "selectDelivery")}
+                    </div>
+                  )}
+                  {OptionList()}
+                </Card>
+
+                {/* Götürmə məkanı — desktop, sağında */}
+                {selectedKey === "ozum" && meatPickupLocation
+                  ? PickupCard({})
+                  : <div />}
+              </div>
+
+              {/* Mobile: Çatdırılma üsulu tək */}
               <Card
-                className={
-                  submitAttempted && !selectionOk
-                    ? "ring-2 ring-red-400 border-transparent"
-                    : ""
-                }
+                className={`lg:hidden ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
               >
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
                   <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
                     {t(lang, "distMethod")}
                   </span>
                 </div>
-
                 {submitAttempted && !selectionOk && (
                   <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
                     <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                     {t(lang, "selectDelivery")}
                   </div>
                 )}
-
                 {OptionList()}
               </Card>
 
-              {/* Pickup info — mobile */}
+              {/* Pickup info — mobile only */}
               {selectedKey === "ozum" && meatPickupLocation && (
                 PickupCard({ className: "lg:hidden" })
-              )}
-              {/* Pickup info — desktop (sol sütun, altda) */}
-              {selectedKey === "ozum" && meatPickupLocation && (
-                PickupCard({ className: "hidden lg:block" })
               )}
 
               {/* Address — mobile */}
               {needsLocation && AddressSection({ className: "lg:hidden" })}
               {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
 
-              {/* Əlaqə nömrəsi — desktop (sol sütun, ən altda) */}
+              {/* Əlaqə nömrəsi — desktop, bu 2-nin altında tam en */}
               {selectedKey === "ozum" && AddressSection({ className: "hidden lg:block", phoneOnly: true })}
               {needsLocation && AddressSection({ className: "hidden lg:block" })}
             </div>
 
-            {/* ════ RIGHT — desktop ════ */}
-            <div className="hidden lg:flex flex-col lg:col-span-5 lg:h-full">
+            {/* ════ RIGHT (col-span-3) — desktop ════ */}
+            <div className="hidden lg:flex flex-col lg:col-span-3">
 
-              <Card className="flex-1">
+              <Card>
                 <div className="px-3 py-1.5 border-b border-border bg-surface-alt/40">
                   <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
                     {t(lang, "orderSummaryCard")}
