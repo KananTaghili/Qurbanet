@@ -629,10 +629,7 @@ export default function QuantityPage() {
       type="button"
       onClick={onClick}
 <<<<<<< HEAD
-      className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left cursor-pointer transition-all duration-150 border-2
-=======
-      className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left cursor-pointer transition-all duration-150 border-2
->>>>>>> 846af1b (style(order): increase spacing in cut style and head/feet option cards)
+      className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left cursor-pointer transition-all duration-150 border-2
         ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
     >
       <div
@@ -642,7 +639,7 @@ export default function QuantityPage() {
         {selected && <div className="w-1 h-1 rounded-full bg-white" />}
       </div>
       <div className="flex-1 min-w-0">
-        <span className="text-[11px] font-semibold leading-none block text-text-primary">
+        <span className={`text-[11px] font-semibold leading-none block ${selected ? "text-primary" : "text-text-primary"}`}>
           {label}
         </span>
         {sub && (
