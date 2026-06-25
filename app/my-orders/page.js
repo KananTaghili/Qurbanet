@@ -2,23 +2,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ClipboardList, Video, Heart, ArrowRight, X, HelpCircle, BookOpen, Beef, LogOut } from 'lucide-react';
+import { ClipboardList, Video, Heart, ArrowRight } from 'lucide-react';
 import BackHeader from '../../components/BackHeader';
 import StatusBadge from '../../components/StatusBadge';
-import BottomNav from '../../components/BottomNav';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { t } from '../../lib/i18n';
 
-const GREEN = '#1c5e20';
-const DRAWER_NAV = [
-  { icon: Beef,          label: 'Heyvan Seçimi',  href: '/qurban' },
-  { icon: ClipboardList, label: 'Sifarişlərim',   href: '/my-orders' },
-  { icon: HelpCircle,    label: 'Necə işləyir?',  href: '/how-it-works' },
-  { icon: BookOpen,      label: 'Qaydalar',        href: '/qurban-rules' },
-];
 
 function fmtDate(ds, months) {
   if (!ds) return '—';
@@ -148,8 +140,6 @@ export default function MyOrdersPage() {
   const [charityOrders, setCharityOrders] = useState([]);
   const [loading,       setLoading]       = useState(true);
   const [fetchError,    setFetchError]    = useState(false);
-  const [menuOpen,      setMenuOpen]      = useState(false);
-  const { logout } = useAuth();
 
   // true only for explicit guests (isGuest flag), NOT for real users without a name
   const isActualGuest = !authLoading && (!token || user?.isGuest === true);
@@ -220,53 +210,7 @@ export default function MyOrdersPage() {
 
   return (
     <div className="flex flex-col flex-1">
-      <BackHeader title={t(lang, 'ordersTitle')} onMenu={() => setMenuOpen(true)} />
-
-      {/* Mobile drawer backdrop */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-[60] bg-black/50 mobile-only" onClick={() => setMenuOpen(false)} />
-      )}
-      {/* Mobile drawer panel */}
-      <div className={`fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out mobile-only ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ backgroundColor: GREEN }}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-          <span className="text-white font-bold text-[15px]">Menyu</span>
-          <button onClick={() => setMenuOpen(false)}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
-            <X size={18} />
-          </button>
-        </div>
-        <nav className="flex-1 px-3 py-3 space-y-0.5">
-          {DRAWER_NAV.map(({ icon: Icon, label, href }) => (
-            <Link key={href} href={href} onClick={() => setMenuOpen(false)}
-              className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all ${
-                router && typeof window !== 'undefined' && window.location.pathname === href
-                  ? 'bg-white/15 text-white font-semibold'
-                  : 'text-green-100/70 hover:bg-white/10 hover:text-white'
-              }`}>
-              <Icon size={16} />
-              {label}
-            </Link>
-          ))}
-        </nav>
-        {user && (
-          <div className="px-4 pb-6 border-t border-white/10 pt-4">
-            <div className="flex items-center gap-3 px-1 mb-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[12px] font-bold text-white">
-                {([user?.name, user?.lastName].filter(Boolean).join(' ') || '?').split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()).join('')}
-              </div>
-              <span className="text-[13px] font-semibold text-white/90 truncate">
-                {[user?.name, user?.lastName].filter(Boolean).join(' ')}
-              </span>
-            </div>
-            <button onClick={() => { setMenuOpen(false); logout(); }}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all"
-              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-              <LogOut size={14} /> Çıxış
-            </button>
-          </div>
-        )}
-      </div>
+      <BackHeader title={t(lang, 'ordersTitle')} />
 
       <div className="flex-1 page-scroll">
         {loading ? (
@@ -316,7 +260,6 @@ export default function MyOrdersPage() {
         )}
       </div>
 
-      <BottomNav />
     </div>
   );
 }

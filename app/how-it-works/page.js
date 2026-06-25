@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import BackHeader from "../../components/BackHeader";
-import BottomNav from "../../components/BottomNav";
 import { useLanguage } from "../../context/LanguageContext";
 import { t, HOW_IT_WORKS_TEXT } from "../../lib/i18n";
 
@@ -226,7 +225,6 @@ export default function HowItWorksPage() {
         </div>
       </div>
 
-      <BottomNav />
     </div>
   );
 }
