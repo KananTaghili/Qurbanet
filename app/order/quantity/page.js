@@ -468,7 +468,7 @@ export default function QuantityPage() {
       )}
 
       {/* Custom date toggle */}
-      <div ref={calendarRef} className="relative">
+      <div ref={calendarRef} className="relative" style={{ zIndex: 50 }}>
       <button
         onClick={() => setShowCalendar((v) => !v)}
         className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-semibold cursor-pointer transition-all
@@ -489,7 +489,7 @@ export default function QuantityPage() {
 
       {/* Floating calendar */}
       {showCalendar && (
-        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 border border-border rounded-xl p-3 bg-white shadow-lg">
+        <div className="absolute left-0 right-0 top-full mt-1.5 border border-border rounded-xl p-3 bg-white shadow-lg" style={{ zIndex: 9999 }}>
           <div className="flex items-center justify-between mb-2.5">
             <button
               onClick={() => {
