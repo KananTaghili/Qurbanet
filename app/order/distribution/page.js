@@ -661,10 +661,6 @@ export default function DistributionPage() {
               {selectedKey === "ozum" && meatPickupLocation && (
                 PickupCard({ className: "lg:hidden" })
               )}
-              {/* Pickup info — desktop (left column) */}
-              {selectedKey === "ozum" && meatPickupLocation && (
-                PickupCard({ className: "hidden lg:block" })
-              )}
 
               {/* Address — mobile */}
               {needsLocation && AddressSection({ className: "lg:hidden" })}
@@ -673,8 +669,14 @@ export default function DistributionPage() {
 
             {/* ════ RIGHT — desktop ════ */}
             <div className="hidden lg:flex flex-col gap-3 lg:col-span-5">
+              {/* ozum: Götürmə məkanı + Əlaqə nömrəsi yan-yana */}
+              {selectedKey === "ozum" && (
+                <div className="grid grid-cols-2 gap-3">
+                  {meatPickupLocation ? PickupCard({}) : <div />}
+                  {AddressSection({ phoneOnly: true })}
+                </div>
+              )}
               {needsLocation && AddressSection({})}
-              {selectedKey === "ozum" && AddressSection({ phoneOnly: true })}
 
               <Card>
                 <div className="px-3 py-1.5 border-b border-border bg-surface-alt/40">
