@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Clock, AlertTriangle, Beef, ArrowRight } from "lucide-react";
 import BackHeader from "../../../components/BackHeader";
@@ -409,6 +409,18 @@ export default function QuantityPage() {
     ? `${new Date(selectedDate).getDate()} ${AZ_MONTHS[new Date(selectedDate).getMonth()]} ${new Date(selectedDate).getFullYear()}`
     : null;
 
+  const calendarRef = useRef(null);
+  useEffect(() => {
+    if (!showCalendar) return;
+    const handler = (e) => {
+      if (calendarRef.current && !calendarRef.current.contains(e.target)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showCalendar]);
+
   const CalendarBlock = () => (
     <div className="p-2 flex flex-col gap-1.5">
       {/* Quick picks */}
@@ -456,6 +468,7 @@ export default function QuantityPage() {
       )}
 
       {/* Custom date toggle */}
+      <div ref={calendarRef} className="relative">
       <button
         onClick={() => setShowCalendar((v) => !v)}
         className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-semibold cursor-pointer transition-all
@@ -474,9 +487,9 @@ export default function QuantityPage() {
         <span className="text-xs opacity-50">{showCalendar ? "▲" : "▼"}</span>
       </button>
 
-      {/* Inline calendar */}
+      {/* Floating calendar */}
       {showCalendar && (
-        <div className="border border-border rounded-xl p-3 bg-surface">
+        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 border border-border rounded-xl p-3 bg-white shadow-lg">
           <div className="flex items-center justify-between mb-2.5">
             <button
               onClick={() => {
@@ -552,6 +565,7 @@ export default function QuantityPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 
