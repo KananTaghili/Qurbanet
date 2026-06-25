@@ -324,7 +324,7 @@ export default function DistributionPage() {
             >
               <meta.Icon className="w-3.5 h-3.5" style={{ color: meta.color }} />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
               <div className="text-[10px] font-bold text-text-primary truncate">
                 {distLabel(key, data)}
               </div>
