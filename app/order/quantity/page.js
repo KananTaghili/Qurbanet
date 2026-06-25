@@ -936,7 +936,7 @@ export default function QuantityPage() {
               </S>
             </div>
 
-            {/* Date / Time — mobile */}
+            {/* Date / Time + Price — mobile */}
             <div className="xl:hidden flex flex-col gap-2">
               <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                 {CalendarBlock()}
@@ -944,6 +944,7 @@ export default function QuantityPage() {
               <S label="Çatdırılma vaxtı" Icon={Clock}>
                 {TimeSlotBlock({ cols: "grid-cols-3" })}
               </S>
+              {PriceSummary()}
             </div>
           </div>
 
@@ -998,7 +999,7 @@ export default function QuantityPage() {
 
       {/* ══ Mobile action bar ══ */}
       <div
-        className="xl:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3"
+        className="hidden"
         style={{ background: "linear-gradient(90deg,#1B5E20,#2E7D32)" }}
       >
         <div className="flex-1 min-w-0">
