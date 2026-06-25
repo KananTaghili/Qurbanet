@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
 const { ORDER_STATUS, ORDER_STATUS_LABELS } = require("../config/constants");
 const { success, error } = require("../utils/response");
+const { notify } = require("../utils/notify");
 
 const lookupDeliveryOrder = async (req, res) => {
   try {
@@ -71,6 +72,18 @@ const confirmDelivery = async (req, res) => {
     try {
       getIo().to(`user:${order.user}`).emit("order:updated", { orderId: order._id.toString() });
     } catch (_) {}
+
+    // İstifadəçiyə tamamlanma bildirişi
+    if (order.user) {
+      const num = order.orderNumber ? `#${order.orderNumber}` : "";
+      notify(order.user, {
+        module: "qurban",
+        type:   "order_status",
+        title:  "Sifariş tamamlandı",
+        body:   `Sifarişiniz ${num} çatdırıldı və tamamlandı.`,
+        data:   { orderId: String(order._id), orderNumber: order.orderNumber, status: order.status },
+      }).catch(() => {});
+    }
 
     return success(
       res,

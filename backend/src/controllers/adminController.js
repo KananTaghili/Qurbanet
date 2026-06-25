@@ -13,6 +13,7 @@ const {
 } = require("../config/constants");
 const { success, error } = require("../utils/response");
 const { parsePagination } = require("../utils/pagination");
+const { notify } = require("../utils/notify");
 const {
   getDirSizeBytes,
   enforceStorageQuota,
@@ -544,6 +545,19 @@ const updateOrderStatus = async (req, res) => {
         .emit("order:updated", { orderId: order._id.toString() });
     } catch (_) {}
 
+    // Status dəyişdisə → istifadəçiyə bildiriş
+    if (oldStatus !== status && order.user) {
+      const label = ORDER_STATUS_LABELS[status] || status;
+      const num = order.orderNumber ? `#${order.orderNumber}` : "";
+      notify(order.user, {
+        module: "qurban",
+        type:   "order_status",
+        title:  "Sifariş statusu dəyişdi",
+        body:   `Sifarişiniz ${num} "${label}" mərhələsinə keçdi.`,
+        data:   { orderId: String(order._id), orderNumber: order.orderNumber, status },
+      }).catch(() => {});
+    }
+
     return success(
       res,
       { order: formatAdminOrder(order) },
@@ -598,6 +612,18 @@ const uploadMedia = async (req, res) => {
         .to(`user:${order.user}`)
         .emit("order:updated", { orderId: order._id.toString() });
     } catch (_) {}
+
+    // İstifadəçiyə kəsim media bildirişi
+    if (order.user) {
+      const num = order.orderNumber ? `#${order.orderNumber}` : "";
+      notify(order.user, {
+        module: "qurban",
+        type:   "order_media",
+        title:  "Kəsim media yükləndi",
+        body:   `Sifarişinizə ${num} kəsim şəkil/videosu əlavə olundu.`,
+        data:   { orderId: String(order._id), orderNumber: order.orderNumber },
+      }).catch(() => {});
+    }
 
     return success(
       res,

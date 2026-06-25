@@ -4,6 +4,33 @@ const AppSettings = require("../models/AppSettings");
 const { createPayment, getTransactionStatus, getAzPaymentErrorMessage } = require("../utils/epoint");
 const { success, error } = require("../utils/response");
 const { parsePagination } = require("../utils/pagination");
+const { notify } = require("../utils/notify");
+
+// Kampaniyanın bildiriş alıcıları: açan + ödəniş etmiş ianəçilər (qeydiyyatlı, unikal)
+const campaignRecipients = (c) => {
+  const ids = [];
+  if (c.opener?.userId) ids.push(c.opener.userId);
+  (c.donations || []).forEach((d) => {
+    if (d.userId && d.paymentStatus === "paid") ids.push(d.userId);
+  });
+  return ids;
+};
+
+// Kampaniya bildirişi göndər (alıcılar avtomatik hesablanır)
+// data — dil-neytral parametrlər: frontend cari dildə şablondan render edə bilsin
+const notifyCampaign = (c, type, title, body = "") =>
+  notify(campaignRecipients(c), {
+    module: "charity",
+    type,
+    title,
+    body,
+    data: {
+      campaignId:     String(c._id),
+      campaignNumber: c.campaignNumber,
+      animalName:     c.animal?.nameAz || "",
+      status:         c.status,
+    },
+  });
 
 const BACKEND_URL  = () => process.env.BACKEND_URL  || "http://localhost:4000";
 const FRONTEND_URL = () => process.env.FRONTEND_URL || "http://localhost:3000";
@@ -123,6 +150,7 @@ const publicCampaign = (c) => {
     participantCount: paidDonations.length,
     status:           c.status,
     completedAt:      c.completedAt,
+    deliveredAt:      c.deliveredAt,
     createdAt:        c.createdAt,
     opener: {
       name:        c.opener.isAnonymous ? null : c.opener.name,
@@ -138,7 +166,7 @@ const publicCampaign = (c) => {
       note:        d.isAnonymous ? null : d.note,
       paidAt:      d.paidAt,
     })),
-    media: c.status === "completed" ? c.media : [],
+    media: (c.status === "completed" || c.status === "delivered") ? c.media : [],
   };
 };
 
@@ -170,7 +198,7 @@ exports.getCampaigns = async (req, res) => {
 exports.getCompletedCampaigns = async (req, res) => {
   try {
     const { page, limit } = parsePagination(req.query);
-    const filter = { status: "completed" };
+    const filter = { status: { $in: ["completed", "delivered"] } };
     const total  = await CharityCampaign.countDocuments(filter);
     const items  = await CharityCampaign.find(filter)
       .sort({ completedAt: -1 })
@@ -193,9 +221,10 @@ exports.getCampaignById = async (req, res) => {
     const c = await CharityCampaign.findById(req.params.id);
     if (!c) return error(res, "Kampaniya tapılmadı", 404);
 
-    // Public görünən: tamamlanmış VƏ ya ödənişi başlamış aktiv kampaniyalar
+    // Public görünən: tamamlanmış/çatdırılmış VƏ ya ödənişi başlamış aktiv kampaniyalar
     const isPublic =
       c.status === "completed" ||
+      c.status === "delivered" ||
       (c.status === "collecting" && c.collectedAmount > 0);
 
     if (!isPublic) {
@@ -476,8 +505,19 @@ exports.handleCampaignSuccess = async (campaignId, donationId) => {
     // İlk uğurlu ödəniş → kampaniya aktiv olur
     if (campaign.status === "pending_payment") campaign.status = "collecting";
     recalcCollected(campaign);
+    const wasCollecting = campaign.status === "collecting";
     checkCompletion(campaign);
     await campaign.save();
+
+    // Bu ödənişlə kampaniya tam yığılıb tamamlandısa → iştirakçılara bildiriş
+    if (wasCollecting && campaign.status === "completed") {
+      notifyCampaign(
+        campaign,
+        "campaign_completed",
+        "Qurban tamamlandı",
+        `İştirak etdiyiniz ${campaign.animal?.nameAz} qurbanı (#${campaign.campaignNumber}) tam yığıldı.`,
+      ).catch(() => {});
+    }
 
     const role = donation.isOpener ? "opener" : "donor";
     return { ok: true, redirectUrl: `${FRONTEND_URL()}/charity/campaign-result?campaignId=${campaign._id}&role=${role}&payment=success&amount=${donation.amount}` };
@@ -559,16 +599,37 @@ exports.adminGetCampaign = async (req, res) => {
 exports.adminUpdateStatus = async (req, res) => {
   try {
     const { status, adminNote } = req.body;
-    const allowed = ["collecting", "completed", "cancelled"];
+    const allowed = ["collecting", "completed", "delivered", "cancelled"];
     if (!allowed.includes(status)) return error(res, "Düzgün status göndərin", 400);
 
     const c = await CharityCampaign.findById(req.params.id);
     if (!c) return error(res, "Tapılmadı", 404);
 
+    const prevStatus = c.status;
     c.status = status;
     if (status === "completed" && !c.completedAt) c.completedAt = new Date();
+    // "delivered" tamamlanmadan da seçilə bilər — completedAt-i də təyin et
+    if (status === "delivered") {
+      if (!c.completedAt) c.completedAt = new Date();
+      if (!c.deliveredAt) c.deliveredAt = new Date();
+    }
     if (adminNote !== undefined) c.adminNote = adminNote;
     await c.save();
+
+    // Status dəyişdisə → iştirakçılara bildiriş
+    if (prevStatus !== status) {
+      const animalName = c.animal?.nameAz || "Qurban";
+      const num = `#${c.campaignNumber}`;
+      const MAP = {
+        completed: ["Qurban tamamlandı", `İştirak etdiyiniz ${animalName} qurbanı (${num}) tamamlandı.`],
+        delivered: ["Ehtiyac sahiblərinə çatdırıldı", `İştirak etdiyiniz ${animalName} qurbanı (${num}) ehtiyac sahiblərinə çatdırıldı.`],
+        cancelled: ["Açılış ləğv edildi", `İştirak etdiyiniz ${animalName} qurbanı (${num}) ləğv edildi.`],
+        collecting:["Açılış yenidən aktivdir", `${animalName} qurbanı (${num}) yenidən aktivdir.`],
+      };
+      const [title, body] = MAP[status] || ["Status dəyişdi", `${animalName} qurbanı (${num}) statusu yeniləndi.`];
+      notifyCampaign(c, `campaign_${status}`, title, body).catch(() => {});
+    }
+
     return success(res, c, "Status yeniləndi");
   } catch (err_) {
     console.error(err_);
@@ -604,6 +665,15 @@ exports.adminAddMedia = async (req, res) => {
 
     c.media.push(...newMedia);
     await c.save();
+
+    // İştirakçılara media bildirişi
+    notifyCampaign(
+      c,
+      "campaign_media",
+      "Kəsim media yükləndi",
+      `İştirak etdiyiniz ${c.animal?.nameAz || "qurban"} qurbanına (#${c.campaignNumber}) yeni media əlavə olundu.`,
+    ).catch(() => {});
+
     return success(res, { media: c.media }, `${req.files.length} media faylı yükləndi`);
   } catch (err_) {
     console.error(err_);

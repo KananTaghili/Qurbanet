@@ -123,7 +123,7 @@ GET /api/campaigns/completed?page=1&limit=20
 
 **Auth:** yoxdur (public)
 **Harada istifadə:** "Tamamlanmış" menyusu.
-**Məntiq:** Yalnız `status = "completed"`. `completedAt` üzrə azalan sıra.
+**Məntiq:** `status = "completed"` VƏ ya `status = "delivered"`. `completedAt` üzrə azalan sıra.
 
 **Response:** 1.2 ilə eyni struktur (`campaigns` + `pagination`).
 Tamamlanmışlarda `media` massivi də doludur (kəsim şəkil/video).
@@ -140,7 +140,7 @@ GET /api/campaigns/:id
 **Harada istifadə:** Kampaniya detal səhifəsi (ianəçilər siyahısı, progress, media).
 
 **Görünmə qaydası:**
-- **Public görünür:** `status = "completed"`, və ya `status = "collecting"` VƏ `collectedAmount > 0`.
+- **Public görünür:** `status = "completed"`/`"delivered"`, və ya `status = "collecting"` VƏ `collectedAmount > 0`.
 - **Ləğv edilmiş (`cancelled`) / ödənilməmiş (abandoned) kampaniya public görünmür** →
   yalnız iştirakçısı (açan və ya ianəçi, `Authorization: Bearer <USER_JWT>` ilə) görə bilər.
   Başqa hər kəsə **404** qaytarılır (mövcudluğu gizlənir).
@@ -349,8 +349,9 @@ Bu səhifə `GET /api/campaigns/:id` ilə kampaniyanı çəkib təsdiq ekranı g
   "remainingAmount": 280,
   "percent": 30,                 // 0–100 arası tam ədəd
   "participantCount": 1,         // ödənilmiş ianələrin sayı
-  "status": "collecting",        // collecting | completed | cancelled
+  "status": "collecting",        // collecting | completed | delivered | cancelled
   "completedAt": null,
+  "deliveredAt": null,           // ehtiyac sahiblərinə çatdırıldığı tarix (delivered olduqda)
   "createdAt": "2026-06-15T...",
   "opener": {
     "name": "Kanan",             // anonimdirsə null
@@ -385,7 +386,7 @@ Bu səhifə `GET /api/campaigns/:id` ilə kampaniyanı çəkib təsdiq ekranı g
 ```
 GET /api/admin/charity-campaigns?page=1&limit=20&status=collecting
 ```
-`status` istəyə bağlı filtr (`collecting` | `completed` | `cancelled`).
+`status` istəyə bağlı filtr (`collecting` | `completed` | `delivered` | `cancelled`).
 
 **Response:** `{ campaigns: [PublicCampaign...], pagination: {...} }`
 **Harada istifadə:** Admin paneldə kampaniyalar siyahısı.
@@ -412,8 +413,9 @@ PUT /api/admin/charity-campaigns/:id/status
 ```json
 { "status": "completed", "adminNote": "İstəyə bağlı qeyd" }
 ```
-**Validasiya:** `status` yalnız `collecting|completed|cancelled` → əks halda **400**.
-`completed` edildikdə `completedAt` avtomatik təyin olunur.
+**Validasiya:** `status` yalnız `collecting|completed|delivered|cancelled` → əks halda **400**.
+`completed` edildikdə `completedAt`, `delivered` edildikdə `completedAt` + `deliveredAt` avtomatik təyin olunur.
+`delivered` = "Ehtiyac sahiblərinə çatdırıldı" — tamamlanmadan da seçilə bilər (ikisi də təyin olunur).
 **Harada istifadə:** Admin kampaniyanı tamamlandı/ləğv etdi kimi işarələyəndə.
 
 ---
@@ -537,3 +539,161 @@ completedAt    : tamamlanma tarixi
 | Kəsim media | `POST /admin/charity-campaigns/:id/media`, `DELETE .../media/:index` |
 | Kampaniya tənzimləmələri | `GET/PUT /admin/settings` (campaign* sahələri) |
 | Heyvanın xeyriyyə çəkisi | `PUT /admin/categories/:id` (`charityWeightKey`) |
+
+---
+
+# Bildiriş Sistemi (In-App Notifications)
+
+Yalnız in-app bildiriş (push YOXDUR — gələcəkdə `src/utils/notify.js` içindəki "FUTURE: push"
+blokundan əlavə oluna bilər). Bildirişlər istifadəçi əməliyyatlar etdikcə avtomatik yaranır.
+
+## Auth
+Bütün bildiriş endpointləri **`authenticate`** tələb edir: `Authorization: Bearer <USER_JWT>`.
+
+## Modul (tab) dəyərləri
+`qurban` | `charity` | `meat` (hələ yoxdur) | `news` (gələcək).
+Frontend tabları: **Hamısı** (module yoxdur/`all`), **Qurbanlıq** (`qurban`), **Xeyriyyə** (`charity`).
+Ət (`meat`) hazır olanda 4-cü tab əlavə olunur.
+
+## Notification obyekti
+```json
+{
+  "_id": "...",
+  "module": "charity",            // qurban | charity | meat | news
+  "type": "campaign_completed",   // hadisə tipi (aşağıda)
+  "title": "Qurban tamamlandı",
+  "body": "İştirak etdiyiniz Quzu qurbanı (#XYR-2026-00007) tamamlandı.",
+  "read": false,
+  "data": { "campaignId": "...", "campaignNumber": "...", "status": "completed" },
+  "createdAt": "2026-06-16T..."
+}
+```
+`data` linkləmə üçündür: charity → `campaignId`, qurban → `orderId`.
+
+---
+
+## 1. Bildiriş siyahısı
+
+```
+GET /api/notifications?module=&status=&search=&page=&limit=
+```
+- `module`: `all`(default) | `qurban` | `charity` | `meat` | `news`
+- `status`: `all`(default) | `read` | `unread`
+- `search`: başlıq/mətndə axtarış
+- `page`/`limit`: pagination (limit max 50)
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "notifications": [ /* Notification[] */ ],
+    "unreadTotal": 3,
+    "pagination": { "total": 12, "page": 1, "totalPages": 1 }
+  }
+}
+```
+
+## 2. Oxunmamış sayğacı (qırmızı nişan + tab sayğacları)
+
+```
+GET /api/notifications/unread-count
+```
+**Response 200:**
+```json
+{ "success": true, "data": { "total": 3, "byModule": { "qurban": 1, "charity": 2 } } }
+```
+`total > 0` olduqda bildiriş ikonunun yanında **qırmızı nişan** göstərin.
+`byModule` ilə hər tabın yanında say göstərə bilərsiniz.
+
+## 3. Bir bildirişi oxundu et (açılanda)
+
+```
+PATCH /api/notifications/:id/read
+```
+Bildirişə klik olunanda çağırılır. **Response:** yenilənmiş obyekt.
+
+## 4. Hamısını oxundu et
+
+```
+PATCH /api/notifications/read-all
+Body (istəyə bağlı): { "module": "charity" }
+```
+`module` verilməsə bütün bildirişlər, verilsə yalnız həmin modul oxundu olur.
+**Response:** `{ "modified": 5 }`
+
+---
+
+## Avtomatik yaranan bildirişlər (event-lər)
+
+### Qurbanlıq (`module: "qurban"`)
+| type | Nə vaxt | Başlıq |
+|------|---------|--------|
+| `order_paid` | Sifariş ödənişi uğurla tamamlananda | Ödəniş qəbul edildi |
+| `order_status` | Sifariş statusu dəyişəndə | Sifariş statusu dəyişdi |
+| `order_media` | Sifarişə kəsim media əlavə olunanda | Kəsim media yükləndi |
+
+### Xeyriyyə (`module: "charity"`)
+| type | Nə vaxt | Başlıq |
+|------|---------|--------|
+| `campaign_completed` | Kampaniya tam yığılıb tamamlananda | Qurban tamamlandı |
+| `campaign_delivered` | Ehtiyac sahiblərinə çatdırılanda | Ehtiyac sahiblərinə çatdırıldı |
+| `campaign_cancelled` | Kampaniya ləğv ediləndə | Açılış ləğv edildi |
+| `campaign_collecting` | Yenidən aktiv ediləndə | Açılış yenidən aktivdir |
+| `campaign_media` | Kampaniyaya media əlavə olunanda | Kəsim media yükləndi |
+
+**Alıcılar (charity):** kampaniyanı açan + ödəniş etmiş bütün ianəçilər (yalnız qeydiyyatlı,
+unikal). Qeydiyyatsız (guest) iştirakçılar in-app bildiriş ala bilmir (hesabları yoxdur).
+
+**Qeyd:** Bildirişlər avtomatik yaranır — frontend/admin əlavə bir şey etməməlidir,
+sadəcə yuxarıdakı endpointlərlə oxuyub göstərməlidir. Canlı yenilənmə üçün socket
+hadisəsi də göndərilir: `notification_new` (istifadəçinin `user:<id>` otağına) — frontend
+bunu eşidib sayğacı yeniləyə bilər (məcburi deyil; səhifə yüklənəndə `unread-count` çağırmaq kifayətdir).
+
+---
+
+## Bildirişlərdə çoxdillilik (i18n) — BACKEND tərəfdə
+
+Lokallaşdırma tam **backend-də** olur. Backend bildirişi dil-neytral (`type` + `data`)
+saxlayır və **oxunarkən istifadəçinin dilinə uyğun hazır `title`/`body` qaytarır.**
+Frontend heç bir tərcümə etmir — sadəcə gələn `title`/`body`-ni göstərir.
+
+### Backend dili necə bilir
+`GET /api/notifications` çağırışında dil bu ardıcıllıqla müəyyən olunur:
+1. `?lang=az|en|ru` query parametri (varsa) — VƏ bu zaman `User.language` da yenilənir
+2. Yoxdursa → saxlanılmış `User.language`
+3. Yoxdursa → `az` (default)
+
+**Frontend:** sadəcə cari tətbiq dilini `?lang=` ilə göndərir (məs. `GET /api/notifications?lang=ru`).
+Dili dəyişib yenidən sorğu göndərdikdə bütün bildirişlər (köhnələr daxil) yeni dildə gəlir.
+
+`User.language` saxlanıldığı üçün **gələcək push** da istifadəçinin son dilini biləcək
+(server-tərəf, request olmadan).
+
+### type → `data` parametrləri (şablonlar `src/utils/notificationI18n.js`-dədir)
+
+| type | module | data parametrləri |
+|------|--------|-------------------|
+| `order_paid`        | qurban  | `orderNumber`, `orderId` |
+| `order_status`      | qurban  | `orderNumber`, `orderId`, `status` (etiket dildə status-dan qurulur) |
+| `order_media`       | qurban  | `orderNumber`, `orderId` |
+| `campaign_completed`| charity | `animalName`, `campaignNumber`, `campaignId` |
+| `campaign_delivered`| charity | `animalName`, `campaignNumber`, `campaignId` |
+| `campaign_cancelled`| charity | `animalName`, `campaignNumber`, `campaignId` |
+| `campaign_collecting`| charity| `animalName`, `campaignNumber`, `campaignId` |
+| `campaign_media`    | charity | `animalName`, `campaignNumber`, `campaignId` |
+
+> `order_status`-da `data.status` (məs. `delivering`) açarı gəlir — etiket backend-də
+> status→label lüğətindən cari dildə qurulur (`Çatdırılır`/`Delivering`/`Доставляется`).
+
+### Şablonlar harada
+Bütün mətn şablonları (AZ/EN/RU) backend-də: **`src/utils/notificationI18n.js`**.
+Yeni dil və ya mətn dəyişikliyi yalnız orada edilir — frontend toxunulmur.
+
+Misal cavab (`GET /api/notifications?lang=en`):
+```json
+{ "type": "campaign_completed",
+  "title": "Sacrifice completed",
+  "body": "The Quzu sacrifice (#XYR-2026-00007) you joined is completed.",
+  "data": { "animalName": "Quzu", "campaignNumber": "XYR-2026-00007", "status": "completed" } }
+```

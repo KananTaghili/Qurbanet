@@ -37,7 +37,7 @@ const charityCampaignSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending_payment", "collecting", "completed", "cancelled"],
+      enum: ["pending_payment", "collecting", "completed", "delivered", "cancelled"],
       default: "pending_payment",
     },
 
@@ -63,6 +63,7 @@ const charityCampaignSchema = new mongoose.Schema(
 
     adminNote:   { type: String, trim: true, maxlength: 1000 },
     completedAt: { type: Date },
+    deliveredAt: { type: Date },  // ehtiyac sahiblərinə çatdırıldığı tarix
   },
   { timestamps: true },
 );

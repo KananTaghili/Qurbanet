@@ -46,6 +46,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    // İstifadəçinin seçdiyi dil — bildirişlər (və gələcəkdə push) bu dildə göndərilir
+    language: {
+      type: String,
+      enum: ["az", "en", "ru"],
+      default: "az",
+    },
   },
   {
     timestamps: true,

@@ -15,6 +15,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
 const charityOrderRoutes    = require("./src/routes/charityOrderRoutes");
 const charityCampaignRoutes = require("./src/routes/charityCampaignRoutes");
+const notificationRoutes    = require("./src/routes/notificationRoutes");
 const adminRoutes = require("./src/routes/adminRoutes");
 const appConfigRoutes = require("./src/routes/appConfigRoutes");
 const epointRoutes = require("./src/routes/epointRoutes");
@@ -111,6 +112,7 @@ app.post(
 );
 app.use("/api/charity-orders", charityOrderRoutes);
 app.use("/api/campaigns",     charityCampaignRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 
 // ─── Health Check / Up ──────────────────────────────────────────────────────

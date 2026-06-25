@@ -9,6 +9,7 @@ const {
   getAzPaymentErrorMessage,
 } = require("../utils/epoint");
 const { success, error } = require("../utils/response");
+const { notify } = require("../utils/notify");
 
 const BACKEND_URL = () => process.env.BACKEND_URL || "http://localhost:4000";
 const FRONTEND_URL = () => process.env.FRONTEND_URL || "https://qurbanet.az";
@@ -82,6 +83,19 @@ const applyPaid = async (type, order, transaction) => {
   try {
     getIo().emit("new_order", { order });
   } catch (_) {}
+
+  // İstifadəçiyə ödəniş bildirişi
+  if (order.user) {
+    const num = order.orderNumber ? `#${order.orderNumber}` : "";
+    notify(order.user, {
+      module: "qurban",
+      type:   "order_paid",
+      title:  "Ödəniş qəbul edildi",
+      body:   `Qurbanlıq sifarişiniz ${num} üçün ödəniş uğurla tamamlandı.`,
+      data:   { orderId: String(order._id), orderNumber: order.orderNumber, status: order.status },
+    }).catch(() => {});
+  }
+
   console.log(`[EPoint] Sifariş ödənildi: ${order._id}`);
 };
 
