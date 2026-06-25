@@ -905,18 +905,19 @@ export default function QuantityPage() {
           {/* ══ DESKTOP xl+ — 3-col flat grid ══ */}
           {weights.length > 0 ? (
             <div className="hidden xl:grid xl:grid-cols-[300px_1fr_minmax(280px,320px)] xl:gap-3 xl:items-stretch">
-              {/* Row 1 — Col 1: Animal */}
+              {/* ── Row 1 ── */}
+              {/* Col 1: Animal */}
               <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
                 {animalCard()}
               </div>
-              {/* Row 1 — Col 2: Diri çəki */}
+              {/* Col 2: Diri çəki */}
               <S label="Diri çəki kateqoriyası">
                 <div className="p-2 grid grid-cols-2 gap-1.5">
                   {weights.map((w) => <WPill key={w.key || w.labelAz} w={w} />)}
                 </div>
               </S>
-              {/* Col 3 — spans all rows */}
-              <div className="flex flex-col gap-3 row-span-3">
+              {/* Col 3: Kəsim + Çatdırılma + Price — spans all 3 rows */}
+              <div className="flex flex-col gap-2 row-span-3">
                 <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                   {CalendarBlock()}
                 </S>
@@ -925,8 +926,10 @@ export default function QuantityPage() {
                 </S>
                 <div className="mt-auto">{PriceSummary()}</div>
               </div>
-              {/* Row 2 — Col 1: Doğrama üsulu */}
-              {effectiveCutStyles.length > 0 && (
+
+              {/* ── Row 2 ── */}
+              {/* Col 1: Doğrama üsulu (or spacer) */}
+              {effectiveCutStyles.length > 0 ? (
                 <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
                   <div className="p-3 grid grid-cols-2 gap-2">
                     {effectiveCutStyles.map((cs) => (
@@ -936,8 +939,8 @@ export default function QuantityPage() {
                     ))}
                   </div>
                 </S>
-              )}
-              {/* Row 2 — Col 2: Qeydlər */}
+              ) : <div />}
+              {/* Col 2: Qeydlər */}
               <S label="Qeydlər">
                 <div className="p-2 h-full">
                   <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
@@ -945,8 +948,10 @@ export default function QuantityPage() {
                     className="field-input resize-none w-full h-full text-sm" />
                 </div>
               </S>
-              {/* Row 3 — Col 1: Baş & Ayaqlar */}
-              {needsHead && (
+
+              {/* ── Row 3 ── */}
+              {/* Col 1: Baş & Ayaqlar (or spacer) */}
+              {needsHead ? (
                 <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
                   <div className="p-3 grid grid-cols-2 gap-2">
                     {activeHeadOptions.map((opt) => {
@@ -960,7 +965,9 @@ export default function QuantityPage() {
                     })}
                   </div>
                 </S>
-              )}
+              ) : <div />}
+              {/* Col 2: spacer for row 3 */}
+              <div />
             </div>
           ) : (
             <div className="hidden xl:grid xl:grid-cols-[300px_1fr] xl:gap-3 xl:items-start">
