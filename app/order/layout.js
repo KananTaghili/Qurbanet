@@ -221,10 +221,10 @@ function InnerLayout({ children }) {
           {/* Scrollable content */}
           <style>{`
             .order-scroll::-webkit-scrollbar { width: 16px; }
-            .order-scroll::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 999px; margin: 8px 0 0 0; }
-            .order-scroll::-webkit-scrollbar-thumb { background: #1c5e20; border-radius: 999px; border: 5px solid #1a1a1a; background-clip: padding-box; }
-            .order-scroll::-webkit-scrollbar-thumb:hover { background: #2e7d32; border: 5px solid #1a1a1a; background-clip: padding-box; }
-            .order-scroll { overflow-y: auto; scrollbar-color: #1c5e20 #1a1a1a; }
+            .order-scroll::-webkit-scrollbar-track { background: #1c5e20; border-radius: 999px; margin: 8px 0 0 0; }
+            .order-scroll::-webkit-scrollbar-thumb { background: #6abf69; border-radius: 999px; border: 5px solid #1c5e20; background-clip: padding-box; }
+            .order-scroll::-webkit-scrollbar-thumb:hover { background: #81c784; border: 5px solid #1c5e20; background-clip: padding-box; }
+            .order-scroll { overflow-y: auto; scrollbar-color: #6abf69 #1c5e20; }
           `}</style>
           <div className="order-scroll flex-1 overflow-y-auto min-h-0" style={{ marginBottom: 15 }}>
             {children}
