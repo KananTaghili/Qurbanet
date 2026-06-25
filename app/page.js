@@ -243,7 +243,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
 
         {/* ── Header ── */}
-        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10" style={{ height: 56, position: "relative", zIndex: 50 }}>
+        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10 sticky top-0" style={{ height: 56, zIndex: 50 }}>
           <div className="hp-logo">
             <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
           </div>
