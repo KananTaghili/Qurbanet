@@ -87,11 +87,11 @@ export default function SiteLayout({ children }) {
   const handleLogout = async () => { await logout(); router.push("/"); };
 
   return (
-    <main className="min-h-screen bg-background p-3 font-sans text-foreground md:p-7">
-      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl">
+    <main className="bg-background p-1.5 font-sans text-foreground md:p-4 overflow-hidden" style={{ height: "100dvh" }}>
+      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
 
         {/* Header */}
-        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10" style={{ height: 56, position: "relative", zIndex: 50 }}>
+        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
           <Link href="/">
             <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
           </Link>
@@ -132,7 +132,9 @@ export default function SiteLayout({ children }) {
           </div>
         )}
 
-        {/* Page content */}
+        {/* Scrollable content + footer */}
+        <div className="hp-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
+
         {children}
 
         {/* Footer */}
@@ -165,6 +167,7 @@ export default function SiteLayout({ children }) {
           © 2024 MeatBox.az. Bütün hüquqlar qorunur.
         </div>
 
+        </div>{/* end scrollable */}
       </section>
     </main>
   );
