@@ -845,75 +845,63 @@ export default function QuantityPage() {
               </S>
             )}
 
-            {/* Doğrama üsulu + Baş & Ayaqlar — yan-yana, eyni hündürlük */}
-            {(effectiveCutStyles.length > 0 || needsHead) && (
-              <div className="flex gap-2 items-stretch">
-                {effectiveCutStyles.length > 0 && (
-                  <div className="flex-1 min-w-0 flex flex-col">
-                    <S
-                      label="Doğrama üsulu"
-                      error={cutStyleError ? "Seçim edin" : null}
-                      className="h-full"
-                    >
-                      <div className="p-2 flex flex-col gap-1">
-                        {effectiveCutStyles.map((cs) => (
-                          <Opt
-                            key={cs.key}
-                            selected={(cutStyles[cs.key] || 0) > 0}
-                            onClick={() =>
-                              setCutStyles(() => {
-                                const z = Object.fromEntries(
-                                  effectiveCutStyles.map((c) => [c.key, 0]),
-                                );
-                                return { ...z, [cs.key]: qty };
-                              })
-                            }
-                            label={cs.labelAz}
-                            sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : null}
-                          />
-                        ))}
-                      </div>
-                    </S>
-                  </div>
-                )}
-
-                {needsHead && (
-                  <div className="flex-1 min-w-0 flex flex-col">
-                    <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null} className="h-full">
-                      <div className="p-2 grid grid-cols-2 gap-1.5">
-                        {activeHeadOptions.map((opt) => {
-                          const on = (headBuckets[opt.key] || 0) > 0;
-                          const fee = opt.fee || 0;
-                          return (
-                            <Opt
-                              key={opt.key}
-                              selected={on}
-                              onClick={() => {
-                                const hZ = Object.fromEntries(
-                                  Object.keys(headBuckets).map((k) => [k, 0]),
-                                );
-                                const fZ = Object.fromEntries(
-                                  Object.keys(feetBuckets).map((k) => [k, 0]),
-                                );
-                                if (on) {
-                                  setHeadBuckets(hZ);
-                                  setFeetBuckets(fZ);
-                                } else {
-                                  setHeadBuckets({ ...hZ, [opt.key]: headTotal });
-                                  setFeetBuckets({ ...fZ, [opt.key]: feetTotal });
-                                }
-                              }}
-                              label={opt.labelAz}
-                              sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
-                              subGreen={fee === 0}
-                            />
+            {/* Doğrama üsulu + Baş & Ayaqlar — alt-alta */}
+            {effectiveCutStyles.length > 0 && (
+              <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
+                <div className="p-2 flex flex-col gap-1">
+                  {effectiveCutStyles.map((cs) => (
+                    <Opt
+                      key={cs.key}
+                      selected={(cutStyles[cs.key] || 0) > 0}
+                      onClick={() =>
+                        setCutStyles(() => {
+                          const z = Object.fromEntries(
+                            effectiveCutStyles.map((c) => [c.key, 0]),
                           );
-                        })}
-                      </div>
-                    </S>
-                  </div>
-                )}
-              </div>
+                          return { ...z, [cs.key]: qty };
+                        })
+                      }
+                      label={cs.labelAz}
+                      sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : null}
+                    />
+                  ))}
+                </div>
+              </S>
+            )}
+
+            {needsHead && (
+              <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                <div className="p-2 grid grid-cols-2 gap-1.5">
+                  {activeHeadOptions.map((opt) => {
+                    const on = (headBuckets[opt.key] || 0) > 0;
+                    const fee = opt.fee || 0;
+                    return (
+                      <Opt
+                        key={opt.key}
+                        selected={on}
+                        onClick={() => {
+                          const hZ = Object.fromEntries(
+                            Object.keys(headBuckets).map((k) => [k, 0]),
+                          );
+                          const fZ = Object.fromEntries(
+                            Object.keys(feetBuckets).map((k) => [k, 0]),
+                          );
+                          if (on) {
+                            setHeadBuckets(hZ);
+                            setFeetBuckets(fZ);
+                          } else {
+                            setHeadBuckets({ ...hZ, [opt.key]: headTotal });
+                            setFeetBuckets({ ...fZ, [opt.key]: feetTotal });
+                          }
+                        }}
+                        label={opt.labelAz}
+                        sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
+                        subGreen={fee === 0}
+                      />
+                    );
+                  })}
+                </div>
+              </S>
             )}
 
             {/* Qeydlər — mobile-da Doğrama+Baş altında */}
@@ -944,18 +932,24 @@ export default function QuantityPage() {
 
           {/* ══ RIGHT — xl+ ══ */}
           <div className="hidden xl:flex flex-col gap-2">
-            {weights.length > 0 && (
-              <S label="Diri çəki kateqoriyası">
-                <div className="p-2 grid grid-cols-1 gap-1.5">
-                  {weights.map((w) => (
-                    <WPill key={w.key || w.labelAz} w={w} />
-                  ))}
-                </div>
+            {weights.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2 items-start">
+                <S label="Diri çəki kateqoriyası">
+                  <div className="p-2 flex flex-col gap-1.5">
+                    {weights.map((w) => (
+                      <WPill key={w.key || w.labelAz} w={w} />
+                    ))}
+                  </div>
+                </S>
+                <S label="Kəsim tarixi" Icon={CalendarDays}>
+                  <CalendarBlock />
+                </S>
+              </div>
+            ) : (
+              <S label="Kəsim tarixi" Icon={CalendarDays}>
+                <CalendarBlock />
               </S>
             )}
-            <S label="Kəsim tarixi" Icon={CalendarDays}>
-              <CalendarBlock />
-            </S>
             <S label="Çatdırılma vaxtı" Icon={Clock}>
               <TimeSlotBlock cols="grid-cols-2" />
             </S>
