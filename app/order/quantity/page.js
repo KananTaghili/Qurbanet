@@ -612,6 +612,53 @@ export default function QuantityPage() {
     </div>
   );
 
+  /* ─── Animal card inner content ─── */
+  const animalCard = () => (
+    <>
+      <div className="flex items-stretch min-h-[90px]">
+        <div className="w-[160px] sm:w-[190px] flex-shrink-0 overflow-hidden"
+          style={{ background: "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)" }}>
+          {animal.imageUrl ? (
+            <img src={animal.imageUrl} alt={animal.nameAz} className="w-full h-full object-contain" style={{ transform: "scale(1.06)" }} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Beef className="w-8 h-8" style={{ color: "#1B5E20", opacity: 0.3 }} />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0 flex flex-col justify-between px-3 py-2.5">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-text-muted">Seçilmiş heyvan</p>
+            <h2 className="text-[15px] font-extrabold text-text-primary mt-0.5 leading-tight">{animal.nameAz}</h2>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-[22px] font-black text-primary leading-none tracking-tight">{effectivePrice}</span>
+              <span className="text-[11px] font-semibold text-text-muted ml-0.5">AZN{!isSingle ? " / əd." : ""}</span>
+            </div>
+          </div>
+          {!isSingle && (
+            <div className="flex items-center justify-between mt-1.5">
+              <span className="text-[9px] font-bold uppercase tracking-wide text-text-muted">Miqdar</span>
+              <div className="flex items-center gap-1.5">
+                <QtyBtn onClick={() => setQty((q) => Math.max(1, q - 1))} disabled={qty <= 1}>−</QtyBtn>
+                <span className="w-6 text-center text-lg font-black text-primary">{qty}</span>
+                <QtyBtn onClick={() => setQty((q) => mode === "serikli" ? Math.min(maxShares, q + 1) : Math.min(maxQty, q + 1))}
+                  disabled={(mode === "serikli" && qty >= maxShares) || (mode !== "serikli" && qty >= maxQty)}>+</QtyBtn>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      {!isSingle && (
+        <div className="flex items-center justify-between px-3 py-1.5 border-t border-[#f0f0f0]" style={{ background: "rgba(27,94,32,0.04)" }}>
+          <span className="text-[10px] text-text-muted font-medium">
+            {mode === "serikli" ? `${qty}/${maxShares} pay` : `${qty} × ${effectivePrice} AZN`}
+          </span>
+          <span className="text-[12px] font-extrabold text-primary">= {basePrice} AZN</span>
+        </div>
+      )}
+    </>
+  );
+
   /* ─── Section card ─── */
   const S = ({ label, Icon, error, hideOnXl = false, className: sCls = "", overflow = "hidden", children }) => (
     <div
@@ -729,106 +776,12 @@ export default function QuantityPage() {
           scrollbarColor: "#1B5E20 transparent",
         }}
       >
-        <div
-          className="p-2.5 xl:p-4 flex-1
-                        xl:grid xl:grid-cols-[320px_1fr] 2xl:grid-cols-[360px_1fr]
-                        xl:gap-3.5 xl:items-stretch"
-        >
-          {/* ══ LEFT ══ */}
-          <div className="flex flex-col gap-2">
+        <div className="p-2.5 xl:p-4">
+          {/* ══ LEFT — mobile only ══ */}
+          <div className="flex flex-col gap-2 xl:hidden">
             {/* Animal hero card */}
             <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
-              <div className="flex items-stretch min-h-[90px]">
-                <div
-                  className="w-[160px] sm:w-[190px] flex-shrink-0 overflow-hidden"
-                  style={{
-                    background:
-                      "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)",
-                  }}
-                >
-                  {animal.imageUrl ? (
-                    <img
-                      src={animal.imageUrl}
-                      alt={animal.nameAz}
-                      className="w-full h-full object-contain"
-                      style={{ transform: "scale(1.06)" }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Beef
-                        className="w-8 h-8"
-                        style={{ color: "#1B5E20", opacity: 0.3 }}
-                      />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col justify-between px-3 py-2.5">
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-text-muted">
-                      Seçilmiş heyvan
-                    </p>
-                    <h2 className="text-[15px] font-extrabold text-text-primary mt-0.5 leading-tight">
-                      {animal.nameAz}
-                    </h2>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-[22px] font-black text-primary leading-none tracking-tight">
-                        {effectivePrice}
-                      </span>
-                      <span className="text-[11px] font-semibold text-text-muted ml-0.5">
-                        AZN{!isSingle ? " / əd." : ""}
-                      </span>
-                    </div>
-                  </div>
-                  {!isSingle && (
-                    <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-[9px] font-bold uppercase tracking-wide text-text-muted">
-                        Miqdar
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <QtyBtn
-                          onClick={() => setQty((q) => Math.max(1, q - 1))}
-                          disabled={qty <= 1}
-                        >
-                          −
-                        </QtyBtn>
-                        <span className="w-6 text-center text-lg font-black text-primary">
-                          {qty}
-                        </span>
-                        <QtyBtn
-                          onClick={() =>
-                            setQty((q) =>
-                              mode === "serikli"
-                                ? Math.min(maxShares, q + 1)
-                                : Math.min(maxQty, q + 1),
-                            )
-                          }
-                          disabled={
-                            (mode === "serikli" && qty >= maxShares) ||
-                            (mode !== "serikli" && qty >= maxQty)
-                          }
-                        >
-                          +
-                        </QtyBtn>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              {!isSingle && (
-                <div
-                  className="flex items-center justify-between px-3 py-1.5 border-t border-[#f0f0f0]"
-                  style={{ background: "rgba(27,94,32,0.04)" }}
-                >
-                  <span className="text-[10px] text-text-muted font-medium">
-                    {mode === "serikli"
-                      ? `${qty}/${maxShares} pay`
-                      : `${qty} × ${effectivePrice} AZN`}
-                  </span>
-                  <span className="text-[12px] font-extrabold text-primary">
-                    = {basePrice} AZN
-                  </span>
-                </div>
-              )}
+              {animalCard()}
             </div>
 
             {/* Sifariş növü */}
@@ -949,41 +902,21 @@ export default function QuantityPage() {
             </div>
           </div>
 
-          {/* ══ RIGHT — xl+ ══ */}
-          <div className="hidden xl:flex flex-col gap-2 h-full">
-            {weights.length > 0 ? (
-              <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-stretch">
-                <div className="flex flex-col gap-2 h-full">
-                  <S label="Diri çəki kateqoriyası">
-                    <div className="p-2 grid grid-cols-2 gap-1.5 auto-rows-fr">
-                      {weights.map((w) => (
-                        <WPill key={w.key || w.labelAz} w={w} />
-                      ))}
-                    </div>
-                  </S>
-                  <S label="Qeydlər" className="flex-1">
-                    <div className="p-2 h-full">
-                      <textarea
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Xüsusi istəklərinizi qeyd edin..."
-                        className="field-input resize-none w-full h-full text-sm min-h-[72px]"
-                      />
-                    </div>
-                  </S>
-                </div>
-                <div className="flex flex-col gap-2 h-full">
-                  <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
-                    {CalendarBlock()}
-                  </S>
-                  <S label="Çatdırılma vaxtı" Icon={Clock} className="flex-1">
-                    {TimeSlotBlock({ cols: "grid-cols-2" })}
-                  </S>
-                  <div className="mt-auto">{PriceSummary()}</div>
-                </div>
+          {/* ══ DESKTOP xl+ — 3-col flat grid ══ */}
+          {weights.length > 0 ? (
+            <div className="hidden xl:grid xl:grid-cols-[300px_1fr_minmax(280px,320px)] xl:gap-3 xl:items-stretch">
+              {/* Row 1 — Col 1: Animal */}
+              <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
+                {animalCard()}
               </div>
-            ) : (
-              <>
+              {/* Row 1 — Col 2: Diri çəki */}
+              <S label="Diri çəki kateqoriyası">
+                <div className="p-2 grid grid-cols-2 gap-1.5">
+                  {weights.map((w) => <WPill key={w.key || w.labelAz} w={w} />)}
+                </div>
+              </S>
+              {/* Col 3 — spans all rows */}
+              <div className="flex flex-col gap-3 row-span-3">
                 <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                   {CalendarBlock()}
                 </S>
@@ -991,9 +924,89 @@ export default function QuantityPage() {
                   {TimeSlotBlock({ cols: "grid-cols-2" })}
                 </S>
                 <div className="mt-auto">{PriceSummary()}</div>
-              </>
-            )}
-          </div>
+              </div>
+              {/* Row 2 — Col 1: Doğrama üsulu */}
+              {effectiveCutStyles.length > 0 && (
+                <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
+                  <div className="p-3 grid grid-cols-2 gap-2">
+                    {effectiveCutStyles.map((cs) => (
+                      <Opt key={cs.key} selected={(cutStyles[cs.key] || 0) > 0}
+                        onClick={() => { if ((cutStyles[cs.key] || 0) > 0) return; setCutStyles(() => { const z = Object.fromEntries(effectiveCutStyles.map((c) => [c.key, 0])); return { ...z, [cs.key]: qty }; }); }}
+                        label={cs.labelAz} sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"} subGreen={cs.fee === 0} />
+                    ))}
+                  </div>
+                </S>
+              )}
+              {/* Row 2 — Col 2: Qeydlər */}
+              <S label="Qeydlər">
+                <div className="p-2 h-full">
+                  <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Xüsusi istəklərinizi qeyd edin..." rows={4}
+                    className="field-input resize-none w-full h-full text-sm" />
+                </div>
+              </S>
+              {/* Row 3 — Col 1: Baş & Ayaqlar */}
+              {needsHead && (
+                <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                  <div className="p-3 grid grid-cols-2 gap-2">
+                    {activeHeadOptions.map((opt) => {
+                      const on = (headBuckets[opt.key] || 0) > 0;
+                      const fee = opt.fee || 0;
+                      return (
+                        <Opt key={opt.key} selected={on}
+                          onClick={() => { if (on) return; const hZ = Object.fromEntries(Object.keys(headBuckets).map((k) => [k, 0])); const fZ = Object.fromEntries(Object.keys(feetBuckets).map((k) => [k, 0])); setHeadBuckets({ ...hZ, [opt.key]: headTotal }); setFeetBuckets({ ...fZ, [opt.key]: feetTotal }); }}
+                          label={opt.labelAz} sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"} subGreen={fee === 0} />
+                      );
+                    })}
+                  </div>
+                </S>
+              )}
+            </div>
+          ) : (
+            <div className="hidden xl:grid xl:grid-cols-[300px_1fr] xl:gap-3 xl:items-start">
+              {/* No weights: animal + right col */}
+              <div className="flex flex-col gap-2">
+                <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
+                  {animalCard()}
+                </div>
+                {effectiveCutStyles.length > 0 && (
+                  <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
+                    <div className="p-3 grid grid-cols-2 gap-2">
+                      {effectiveCutStyles.map((cs) => (
+                        <Opt key={cs.key} selected={(cutStyles[cs.key] || 0) > 0}
+                          onClick={() => { if ((cutStyles[cs.key] || 0) > 0) return; setCutStyles(() => { const z = Object.fromEntries(effectiveCutStyles.map((c) => [c.key, 0])); return { ...z, [cs.key]: qty }; }); }}
+                          label={cs.labelAz} sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"} subGreen={cs.fee === 0} />
+                      ))}
+                    </div>
+                  </S>
+                )}
+                {needsHead && (
+                  <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                    <div className="p-3 grid grid-cols-2 gap-2">
+                      {activeHeadOptions.map((opt) => {
+                        const on = (headBuckets[opt.key] || 0) > 0;
+                        const fee = opt.fee || 0;
+                        return (
+                          <Opt key={opt.key} selected={on}
+                            onClick={() => { if (on) return; const hZ = Object.fromEntries(Object.keys(headBuckets).map((k) => [k, 0])); const fZ = Object.fromEntries(Object.keys(feetBuckets).map((k) => [k, 0])); setHeadBuckets({ ...hZ, [opt.key]: headTotal }); setFeetBuckets({ ...fZ, [opt.key]: feetTotal }); }}
+                            label={opt.labelAz} sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"} subGreen={fee === 0} />
+                        );
+                      })}
+                    </div>
+                  </S>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
+                  {CalendarBlock()}
+                </S>
+                <S label="Çatdırılma vaxtı" Icon={Clock}>
+                  {TimeSlotBlock({ cols: "grid-cols-2" })}
+                </S>
+                {PriceSummary()}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
