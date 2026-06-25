@@ -953,6 +953,7 @@ export default function QuantityPage() {
                   <S label="Çatdırılma vaxtı" Icon={Clock}>
                     <TimeSlotBlock cols="grid-cols-2" />
                   </S>
+                  <PriceSummary />
                 </div>
               </div>
             ) : (
@@ -963,22 +964,9 @@ export default function QuantityPage() {
                 <S label="Çatdırılma vaxtı" Icon={Clock}>
                   <TimeSlotBlock cols="grid-cols-2" />
                 </S>
-                <S label="Qeydlər">
-                  <div className="p-2">
-                    <textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Xüsusi istəklərinizi qeyd edin..."
-                      rows={3}
-                      className="field-input resize-none w-full text-sm"
-                    />
-                  </div>
-                </S>
+                <PriceSummary />
               </>
             )}
-            <div className="mt-auto">
-              <PriceSummary />
-            </div>
           </div>
         </div>
       </div>
