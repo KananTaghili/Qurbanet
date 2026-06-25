@@ -12,7 +12,7 @@ import { PiKnifeBold } from "react-icons/pi";
 const GREEN = "#1c5e20";
 
 const SIDEBAR_NAV = [
-  { icon: Beef,          label: "Heyvan Seçimi", lines: ["Heyvan", "Seçimi"],  href: "/qurban" },
+  { icon: Beef,          label: "Əsas",           lines: ["Əsas"],             href: "/qurban" },
   { icon: ClipboardList, label: "Sifarişlərim",  lines: ["Sifarişlərim"],      href: "/my-orders" },
   { icon: HelpCircle,    label: "Necə işləyir",  lines: ["Necə", "İşləyir?"], href: "/how-it-works" },
   { icon: BookOpen,      label: "Qaydalar",       lines: ["Qaydalar"],          href: "/qurban-rules" },
@@ -98,7 +98,7 @@ export default function QurbanLayout({ children }) {
                   style={{ height: 28, width: "auto", objectFit: "contain" }} />
               </div>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1">
-                Heyvan Seçimi
+                Qurbanlıq Sifarişi
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
