@@ -133,20 +133,18 @@ export default function QurbanPage() {
   return (
     <div className="flex flex-col flex-1 bg-bg min-h-full w-full">
       {/* Mobile list */}
-      <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-4">
+      <div className="md:hidden flex flex-col w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-4 gap-2.5 xs:gap-3 sm:gap-4">
         {loading ? (
           <Spinner />
         ) : animals.length === 0 ? (
           <EmptyState lang={lang} />
         ) : (
-          <div className="flex flex-col gap-2.5 xs:gap-3 sm:gap-4">
-            {animals.map((a) => (
-              <MobileAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
-            ))}
-          </div>
+          animals.map((a) => (
+            <MobileAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
+          ))
         )}
-        {!loading && animals.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+        {!loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
               <div key={labelKey} className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-3 py-2.5 shadow-card">
                 <div className="w-9 h-9 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
@@ -164,7 +162,7 @@ export default function QurbanPage() {
 
       {/* Desktop grid */}
       <div
-        className={`hidden md:flex flex-col w-full${!loading && animals.length === 0 ? ' flex-1 overflow-hidden' : ' gap-4 lg:gap-5 xl:gap-6 pb-5 md:pb-6 lg:pb-8'}`}
+        className="hidden md:flex flex-col w-full gap-4 lg:gap-5 xl:gap-6 pb-5 md:pb-6 lg:pb-8"
         style={{ paddingTop: 20, paddingLeft: 28, paddingRight: 28 }}
       >
         {loading ? (
@@ -178,7 +176,7 @@ export default function QurbanPage() {
             ))}
           </div>
         )}
-        {animals.length > 0 && (
+        {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 lg:mt-2">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
               <div key={labelKey} className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-4 py-3 shadow-card">
