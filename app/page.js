@@ -287,7 +287,7 @@ export default function HomePage() {
         )}
 
         {/* ── Hero ── */}
-        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5">
+        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5" style={{ minHeight: 220 }}>
           <Image src="/home_main_image.png" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center calc(70% + 40px)" }} priority />
           <div className="relative mx-auto max-w-3xl text-center">
             {/* logo card deactivated
