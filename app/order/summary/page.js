@@ -36,7 +36,7 @@ function Spinner({ label }) {
 function SectionHead({ label, badge, top }) {
   return (
     <div
-      className={`px-3 py-1.5 bg-surface-alt/50 flex items-center justify-between ${top ? "border-t border-border/60" : ""}`}
+      className={`px-3 py-2 bg-surface-alt/50 flex items-center justify-between ${top ? "border-t border-border/60" : ""}`}
     >
       <span className="text-[10px] font-extrabold text-text-secondary uppercase tracking-wider">
         {label}
@@ -53,7 +53,7 @@ function SectionHead({ label, badge, top }) {
 function PriceItem({ label, sub, value, isFree, sep, freeLabel }) {
   return (
     <div
-      className={`flex items-center justify-between px-3 py-2 gap-2 ${sep ? "border-b border-border/40" : ""}`}
+      className={`flex items-center justify-between px-3 py-3 gap-2 ${sep ? "border-b border-border/40" : ""}`}
     >
       <div className="flex-1 min-w-0">
         <p className="text-[11px] font-bold text-text-primary leading-tight">
@@ -358,17 +358,17 @@ export default function SummaryPage() {
 
           {/* ── RIGHT: Price breakdown ───────────────────────────────── */}
           <div className="mt-4 lg:mt-0 flex flex-col gap-3 lg:min-h-0 lg:overflow-hidden">
-            <C className="border-primary/20 shadow-lg lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+            <C className="border-primary/20 shadow-lg lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:flex lg:flex-col">
               <CHead label={t(lang, "priceCalcCard")} colored />
 
               {/* Animal base price + Delivery — 2-column top row */}
               <div className="grid grid-cols-2 divide-x divide-border/60 border-b border-border/60 bg-surface-alt/20">
-                <div className="flex items-center justify-between px-3 py-2">
+                <div className="flex items-center justify-between px-3 py-3">
                   <div>
                     <p className="text-xs font-bold text-text-primary">
                       {animal?.nameAz || t(lang, "animalRow2")}
                     </p>
-                    <p className="text-[11px] text-text-secondary mt-0.5">
+                    <p className="text-[11px] text-text-secondary mt-1">
                       {mode === "serikli"
                         ? `${qty}/${animal?.totalShares || "?"} ${t(lang, "shares")}`
                         : `${qty} ${t(lang, "pcsLabel")} × ${Math.round(animalBasePrice / qty)} AZN`}
@@ -378,7 +378,7 @@ export default function SummaryPage() {
                     {animalBasePrice} AZN
                   </span>
                 </div>
-                <div className="flex items-center justify-between px-3 py-2">
+                <div className="flex items-center justify-between px-3 py-3">
                   <div>
                     <p className="text-xs font-bold text-text-primary">
                       {isCharityDist
@@ -387,7 +387,7 @@ export default function SummaryPage() {
                         ? t(lang, "distLabel_catdirilsin")
                         : t(lang, "pickupSelf")}
                     </p>
-                    <p className="text-[11px] text-text-secondary mt-0.5">
+                    <p className="text-[11px] text-text-secondary mt-1">
                       {t(lang, "deliveryTypeRow")}
                     </p>
                   </div>
@@ -406,7 +406,6 @@ export default function SummaryPage() {
                 activeHeadRows.length > 0 ||
                 activeFeetRows.length > 0) && (
                 <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50">
-                  {/* Cut Styles */}
                   {activeCutRows.length > 0 && (
                     <div>
                       <SectionHead label={t(lang, "cutMethodSection")} />
@@ -426,7 +425,6 @@ export default function SummaryPage() {
                     </div>
                   )}
 
-                  {/* Head + Feet Processing — merged by option key */}
                   {(activeHeadRows.length > 0 || activeFeetRows.length > 0) && (() => {
                     const allKeys = [...new Set([
                       ...activeHeadRows.map(o => o.key),
@@ -464,9 +462,8 @@ export default function SummaryPage() {
                 </div>
               )}
 
-
-              {/* Total */}
-              <div className="flex justify-between items-center px-4 py-4 bg-primary-surface/20">
+              {/* Total — pinned to bottom */}
+              <div className="mt-auto flex justify-between items-center px-4 py-4 bg-primary-surface/20 border-t border-primary/10">
                 <div className="flex flex-col">
                   <span className="font-black text-text-primary text-xs uppercase tracking-wider">
                     {t(lang, "totalAmountHeader")}
