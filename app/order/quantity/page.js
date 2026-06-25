@@ -582,14 +582,9 @@ export default function QuantityPage() {
         <div className="min-w-0">
           <p className="text-[9px] font-bold text-white/50 uppercase tracking-[0.15em]">Ümumi məbləğ</p>
           <div className="flex items-baseline gap-1 mt-0.5">
-            <span className="text-2xl font-black text-white tracking-tight leading-none">{totalPrice}</span>
-            <span className="text-sm font-bold text-white/60">AZN</span>
+            <span className="text-3xl font-black text-white tracking-tight leading-none">{totalPrice}</span>
+            <span className="text-base font-bold text-white/60">AZN</span>
           </div>
-          <p className="text-[9px] text-white/40 mt-0.5 truncate">
-            {mode === "serikli"
-              ? `${animal.nameAz} · ${qty}/${maxShares} pay${partsFee > 0 ? ` + ${partsFee.toFixed(0)} AZN` : ""}`
-              : `${animal.nameAz} × ${qty}${selectedWeight ? ` · ${selectedWeight.labelAz || selectedWeight.label}` : ""}`}
-          </p>
         </div>
         <button
           onClick={handleContinue}
