@@ -916,16 +916,10 @@ export default function QuantityPage() {
                   {weights.map((w) => <WPill key={w.key || w.labelAz} w={w} />)}
                 </div>
               </S>
-              {/* Col 3: Kəsim + Çatdırılma + Price — spans all 3 rows */}
-              <div className="flex flex-col gap-2 row-span-3">
-                <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
-                  {CalendarBlock()}
-                </S>
-                <S label="Çatdırılma vaxtı" Icon={Clock}>
-                  {TimeSlotBlock({ cols: "grid-cols-2" })}
-                </S>
-                <div className="mt-auto">{PriceSummary()}</div>
-              </div>
+              {/* Col 3 Row 1: Kəsim tarixi */}
+              <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
+                {CalendarBlock()}
+              </S>
 
               {/* ── Row 2 ── */}
               {/* Col 1: Doğrama üsulu (or spacer) */}
@@ -940,13 +934,17 @@ export default function QuantityPage() {
                   </div>
                 </S>
               ) : <div />}
-              {/* Col 2: Qeydlər */}
+              {/* Col 2 Row 2: Qeydlər */}
               <S label="Qeydlər">
                 <div className="p-2 h-full">
                   <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
                     placeholder="Xüsusi istəklərinizi qeyd edin..." rows={4}
                     className="field-input resize-none w-full h-full text-sm" />
                 </div>
+              </S>
+              {/* Col 3 Row 2: Çatdırılma vaxtı */}
+              <S label="Çatdırılma vaxtı" Icon={Clock}>
+                {TimeSlotBlock({ cols: "grid-cols-2" })}
               </S>
 
               {/* ── Row 3 ── */}
@@ -966,8 +964,10 @@ export default function QuantityPage() {
                   </div>
                 </S>
               ) : <div />}
-              {/* Col 2: spacer for row 3 */}
+              {/* Col 2 Row 3: spacer */}
               <div />
+              {/* Col 3 Row 3: PriceSummary */}
+              {PriceSummary()}
             </div>
           ) : (
             <div className="hidden xl:grid xl:grid-cols-[300px_1fr] xl:gap-3 xl:items-start">
