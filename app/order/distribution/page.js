@@ -474,13 +474,15 @@ export default function DistributionPage() {
               </p>
             )}
 
-            <textarea
-              value={addressNote}
-              onChange={(e) => setAddressNote(e.target.value)}
-              placeholder={t(lang, "addressNotePlaceholder")}
-              rows={2}
-              className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2.5 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
-            />
+            {!addressOnly && (
+              <textarea
+                value={addressNote}
+                onChange={(e) => setAddressNote(e.target.value)}
+                placeholder={t(lang, "addressNotePlaceholder")}
+                rows={2}
+                className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2.5 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
+              />
+            )}
           </>
         )}
 
