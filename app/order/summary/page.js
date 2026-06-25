@@ -378,14 +378,14 @@ export default function SummaryPage() {
                 </span>
               </div>
 
-              {/* Cut / head / feet sections */}
+              {/* Cut / head / feet sections — 2-column grid */}
               {(activeCutRows.length > 0 ||
                 activeHeadRows.length > 0 ||
                 activeFeetRows.length > 0) && (
-                <>
+                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50">
                   {/* Cut Styles */}
                   {activeCutRows.length > 0 && (
-                    <div className="border-b border-border/50">
+                    <div>
                       <SectionHead label={t(lang, "cutMethodSection")} />
                       <div className="flex flex-col">
                         {activeCutRows.map((cs, i) => (
@@ -422,7 +422,7 @@ export default function SummaryPage() {
                       return { key, opt, sub: parts.join(" və "), totalFee };
                     });
                     return (
-                      <div className="border-b border-border/50">
+                      <div>
                         <SectionHead label="Baş və Ayaqlar" />
                         {rows.map((r, i) => (
                           <PriceItem
@@ -438,7 +438,7 @@ export default function SummaryPage() {
                       </div>
                     );
                   })()}
-                </>
+                </div>
               )}
 
               {/* Delivery / Distribution fee */}
