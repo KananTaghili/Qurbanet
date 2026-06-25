@@ -935,13 +935,26 @@ export default function QuantityPage() {
           <div className="hidden xl:flex flex-col gap-2">
             {weights.length > 0 ? (
               <div className="grid grid-cols-[calc(50%+50px)_1fr] gap-2 items-start">
-                <S label="Diri çəki kateqoriyası">
-                  <div className="p-2 grid grid-cols-2 gap-1.5">
-                    {weights.map((w) => (
-                      <WPill key={w.key || w.labelAz} w={w} />
-                    ))}
-                  </div>
-                </S>
+                <div className="flex flex-col gap-2">
+                  <S label="Diri çəki kateqoriyası">
+                    <div className="p-2 grid grid-cols-2 gap-1.5">
+                      {weights.map((w) => (
+                        <WPill key={w.key || w.labelAz} w={w} />
+                      ))}
+                    </div>
+                  </S>
+                  <S label="Qeydlər">
+                    <div className="p-2">
+                      <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Xüsusi istəklərinizi qeyd edin..."
+                        rows={3}
+                        className="field-input resize-none w-full text-sm"
+                      />
+                    </div>
+                  </S>
+                </div>
                 <div className="flex flex-col gap-2">
                   <S label="Kəsim tarixi" Icon={CalendarDays}>
                     <CalendarBlock />
@@ -959,19 +972,19 @@ export default function QuantityPage() {
                 <S label="Çatdırılma vaxtı" Icon={Clock}>
                   <TimeSlotBlock cols="grid-cols-2" />
                 </S>
+                <S label="Qeydlər">
+                  <div className="p-2">
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Xüsusi istəklərinizi qeyd edin..."
+                      rows={3}
+                      className="field-input resize-none w-full text-sm"
+                    />
+                  </div>
+                </S>
               </>
             )}
-            <S label="Qeydlər">
-              <div className="p-2">
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Xüsusi istəklərinizi qeyd edin..."
-                  rows={2}
-                  className="field-input resize-none w-full text-sm"
-                />
-              </div>
-            </S>
             <PriceSummary />
           </div>
         </div>
