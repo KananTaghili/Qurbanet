@@ -429,7 +429,7 @@ export default function DistributionPage() {
     >
       <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center justify-between gap-1">
         <div className="flex items-center gap-1">
-          <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
+          <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
             {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
           </span>
           <span className="text-sm font-black text-red-500 leading-none">*</span>
