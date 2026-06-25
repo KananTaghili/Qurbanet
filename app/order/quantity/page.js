@@ -339,6 +339,7 @@ export default function QuantityPage() {
       return;
     }
     if (effectiveCutStyles.length > 0 && totalCutCount === 0) {
+      setModalMsg("Doğrama üsulunu seçin.");
       return;
     }
     if (needsHead && headAssigned === 0) {
