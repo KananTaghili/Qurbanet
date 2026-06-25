@@ -904,7 +904,7 @@ export default function QuantityPage() {
 
           {/* ══ DESKTOP xl+ — 3-col flat grid ══ */}
           {weights.length > 0 ? (
-            <div className="hidden xl:grid xl:grid-cols-[300px_1fr_minmax(280px,320px)] xl:gap-3 xl:items-stretch">
+            <div className="hidden xl:grid xl:grid-cols-[320px_1fr_minmax(280px,320px)] xl:gap-3 xl:items-stretch">
               {/* ── Row 1 ── */}
               {/* Col 1: Animal */}
               <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
