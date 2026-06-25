@@ -509,281 +509,259 @@ export default function QuantityPage() {
     </div>
   );
 
+  /* ─── Price Summary (desktop right col) ─── */
   const PriceSummary = () => (
-    <div className="bg-primary rounded-2xl p-4 text-white shadow-[0_4px_20px_rgba(27,94,32,0.30)]">
-      <p className="text-[11px] font-semibold opacity-70 mb-0.5">Ümumi məbləğ</p>
-      <p className="text-3xl font-extrabold tracking-tight">{totalPrice} AZN</p>
-      <p className="text-[10px] opacity-60 mt-0.5 mb-4 leading-relaxed">
-        {mode === "serikli"
-          ? `${animal.nameAz} · ${qty}/${maxShares} pay${partsFee > 0 ? ` + baş/ayaq ${partsFee.toFixed(0)} AZN` : ""}`
-          : `${animal.nameAz} × ${qty} ədəd${selectedWeight ? ` · ${selectedWeight.labelAz || selectedWeight.label}` : ""}`}
-      </p>
-      <button
-        onClick={handleContinue}
-        className="w-full bg-white text-primary border-none rounded-xl py-2.5 text-sm font-extrabold cursor-pointer transition-all active:scale-[0.98]"
-      >
-        Davam et →
-      </button>
+    <div className="rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(27,94,32,0.22)]"
+      style={{ background: "linear-gradient(145deg,#1B5E20 0%,#2E7D32 60%,#388E3C 100%)" }}>
+      <div className="p-5">
+        <p className="text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] mb-2">Ümumi məbləğ</p>
+        <div className="flex items-end gap-2 mb-1">
+          <span className="text-4xl font-black text-white tracking-tight leading-none">{totalPrice}</span>
+          <span className="text-lg font-bold text-white/60 mb-0.5">AZN</span>
+        </div>
+        <p className="text-[10px] text-white/40 leading-relaxed mt-1">
+          {mode === "serikli"
+            ? `${animal.nameAz} · ${qty}/${maxShares} pay${partsFee > 0 ? ` + ${partsFee.toFixed(0)} AZN` : ""}`
+            : `${animal.nameAz} × ${qty}${selectedWeight ? ` · ${selectedWeight.labelAz || selectedWeight.label}` : ""}`}
+        </p>
+      </div>
+      <div className="px-4 pb-4">
+        <button onClick={handleContinue}
+          className="w-full bg-white text-primary rounded-xl py-3 text-[13px] font-extrabold border-none cursor-pointer transition-all active:scale-[0.98] hover:bg-green-50 shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
+          Davam et →
+        </button>
+      </div>
     </div>
   );
 
-  /* ── inline section card ── */
-  const Sec = ({ label, Icon, error, children, hideOnXl = false, className = "" }) => (
-    <div className={`bg-white rounded-2xl border overflow-hidden shadow-sm ${error ? "border-red-300 ring-1 ring-red-300" : "border-border"} ${hideOnXl ? "xl:hidden" : ""} ${className}`}>
-      <div className={`px-4 py-2 flex items-center justify-between gap-2 border-b ${error ? "border-red-200 bg-red-50/40" : "border-border bg-surface-alt/60"}`}>
-        <span className="flex items-center gap-1.5 text-[10px] font-bold text-text-secondary tracking-widest uppercase">
-          {Icon && <Icon className="w-3.5 h-3.5 flex-shrink-0" />}
+  /* ─── Section card ─── */
+  const S = ({ label, Icon, error, hideOnXl = false, children }) => (
+    <div className={`bg-white rounded-2xl overflow-hidden ${hideOnXl ? "xl:hidden" : ""}
+      ${error ? "shadow-[0_0_0_1.5px_#f87171,0_2px_8px_rgba(248,113,113,0.12)]" : "shadow-[0_1px_4px_rgba(0,0,0,0.06),0_2px_12px_rgba(0,0,0,0.04)]"}`}>
+      <div className={`flex items-center justify-between px-4 py-2.5 border-b ${error ? "border-red-100 bg-red-50/60" : "border-[#f0f0f0]"}`}>
+        <span className="flex items-center gap-2 text-[10px] font-bold tracking-[0.13em] uppercase"
+          style={{ color: error ? "#ef4444" : "#9ca3af" }}>
+          {Icon && <Icon className="w-3.5 h-3.5" />}
           {label}
         </span>
-        {error && (
-          <span className="flex items-center gap-1 text-[10px] font-bold text-red-500 shrink-0">
-            <AlertTriangle className="w-3 h-3" />{error}
-          </span>
-        )}
+        {error && <span className="flex items-center gap-1 text-[10px] font-bold text-red-500">
+          <AlertTriangle className="w-3 h-3" />{error}
+        </span>}
       </div>
       {children}
     </div>
   );
 
-  /* ── option row (cut style / head&feet) ── */
-  const OptionRow = ({ selected, onClick, label, sub, subGreen = false }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 border-2 transition-all text-left cursor-pointer ${
-        selected ? "border-primary bg-primary-surface" : "border-border bg-surface-alt hover:border-primary/30"
-      }`}
-    >
-      <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${selected ? "border-primary bg-primary" : "border-slate-300"}`}>
-        {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+  /* ─── Option row (radio style) ─── */
+  const Opt = ({ selected, onClick, label, sub, subGreen = false }) => (
+    <button type="button" onClick={onClick}
+      className={`w-full flex items-center gap-3 rounded-xl px-3 py-[11px] text-left cursor-pointer transition-all duration-150
+        ${selected
+          ? "bg-primary shadow-[0_2px_8px_rgba(27,94,32,0.25)]"
+          : "bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}>
+      <div className={`w-[18px] h-[18px] rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
+        ${selected ? "border-white bg-white/20" : "border-[#d1d5db]"}`}>
+        {selected && <div className="w-2 h-2 rounded-full bg-white" />}
       </div>
       <div className="flex-1 min-w-0">
-        <span className="text-[12px] font-semibold text-text-primary leading-tight block">{label}</span>
-        {sub && <span className={`text-[10px] font-bold ${subGreen ? "text-emerald-600" : "text-primary"}`}>{sub}</span>}
+        <span className={`text-[12.5px] font-semibold leading-tight block ${selected ? "text-white" : "text-text-primary"}`}>{label}</span>
+        {sub && <span className={`text-[10px] font-bold ${selected ? "text-white/60" : subGreen ? "text-emerald-600" : "text-primary"}`}>{sub}</span>}
       </div>
     </button>
   );
 
-  /* ── weight pill ── */
-  const WeightPill = ({ w }) => {
+  /* ─── Weight pill ─── */
+  const WPill = ({ w }) => {
     const lbl = w.labelAz || w.label || w.key;
-    const sel = selectedWeight?.key === w.key || selectedWeight?.labelAz === w.labelAz;
+    const on = selectedWeight?.key === w.key || selectedWeight?.labelAz === w.labelAz;
     return (
-      <button
-        onClick={() => setSelectedWeight(w)}
-        className={`flex flex-col items-start gap-0.5 px-3 py-2 rounded-xl border-2 cursor-pointer transition-all ${sel ? "border-primary bg-primary-surface text-primary" : "border-border bg-surface-alt text-text-primary hover:border-primary/30"}`}
-      >
-        <span className="text-[11px] font-bold leading-tight">{lbl} — {w.price} AZN</span>
-        {getMeatWeight(lbl) && <span className={`text-[9px] font-semibold ${sel ? "text-primary/70" : "text-text-muted"}`}>{getMeatWeight(lbl)}</span>}
+      <button onClick={() => setSelectedWeight(w)}
+        className={`flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150
+          ${on ? "bg-primary shadow-[0_2px_10px_rgba(27,94,32,0.28)]" : "bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}>
+        <span className={`text-[11px] font-bold leading-tight ${on ? "text-white" : "text-text-primary"}`}>{lbl} — {w.price} AZN</span>
+        {getMeatWeight(lbl) && <span className={`text-[9px] font-semibold ${on ? "text-white/60" : "text-text-muted"}`}>{getMeatWeight(lbl)}</span>}
       </button>
     );
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-bg">
+    <div className="flex flex-col flex-1 min-h-0" style={{ background: "#f2f5f2" }}>
       <BackHeader title="Miqdar seçin" onBack={() => router.replace("/")} onMenu={openMenu} />
       <StepHeader currentStep={1} />
 
-      {/* ── scrollable content ── */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="max-w-full mx-auto px-3 sm:px-5 py-3
-                        xl:grid xl:grid-cols-[1fr_340px] 2xl:grid-cols-[1fr_380px]
-                        xl:gap-5 xl:px-6 xl:py-5 xl:items-start">
+      {/* ── Scrollable body ── */}
+      <div className="order-scroll flex-1 overflow-y-auto min-h-0"
+        style={{ scrollbarWidth: "thin", scrollbarColor: "#1B5E20 transparent" }}>
+        <div className="p-3 xl:p-5
+                        xl:grid xl:grid-cols-[1fr_300px] 2xl:grid-cols-[1fr_320px]
+                        xl:gap-4 xl:items-start">
 
-          {/* ════ LEFT ════ */}
-          <div className="flex flex-col gap-3 min-w-0">
+          {/* ══ LEFT ══ */}
+          <div className="flex flex-col gap-3">
 
-            {/* Animal card */}
-            <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-              <div className="flex items-stretch min-h-[108px]">
-                {/* Image */}
-                <div className="w-[130px] sm:w-[155px] flex-shrink-0 overflow-hidden"
-                  style={{ background: "linear-gradient(135deg,#f0faf0 0%,#e8f5e9 100%)" }}>
-                  {animal.imageUrl ? (
-                    <img src={animal.imageUrl} alt={animal.nameAz}
-                      className="w-full h-full object-contain" style={{ transform: "scale(1.05)" }} />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Beef className="w-10 h-10 text-primary/25" />
-                    </div>
-                  )}
+            {/* Animal hero card */}
+            <div className="bg-white rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.06),0_2px_12px_rgba(0,0,0,0.04)]">
+              <div className="flex items-stretch min-h-[104px]">
+                <div className="w-[120px] sm:w-[140px] flex-shrink-0 relative overflow-hidden"
+                  style={{ background: "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)" }}>
+                  {animal.imageUrl
+                    ? <img src={animal.imageUrl} alt={animal.nameAz}
+                        className="w-full h-full object-contain" style={{ transform: "scale(1.08)" }} />
+                    : <div className="w-full h-full flex items-center justify-center">
+                        <Beef className="w-9 h-9" style={{ color: "#1B5E20", opacity: 0.3 }} />
+                      </div>}
                 </div>
-
-                {/* Info */}
                 <div className="flex-1 min-w-0 flex flex-col justify-between px-4 py-3">
                   <div>
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Seçilmiş heyvan</p>
-                    <h2 className="text-[17px] sm:text-lg font-extrabold text-text-primary mt-0.5 leading-tight">{animal.nameAz}</h2>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-2xl sm:text-3xl font-extrabold text-primary leading-none">{effectivePrice}</span>
-                      <span className="text-xs text-text-muted font-semibold">AZN{!isSingle ? " / ədəd" : ""}</span>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-text-muted">Seçilmiş heyvan</p>
+                    <h2 className="text-base font-extrabold text-text-primary mt-0.5 leading-tight">{animal.nameAz}</h2>
+                    <div className="flex items-baseline gap-1 mt-1.5">
+                      <span className="text-[26px] font-black text-primary leading-none tracking-tight">{effectivePrice}</span>
+                      <span className="text-xs font-semibold text-text-muted ml-0.5">AZN{!isSingle ? " / əd." : ""}</span>
                     </div>
                   </div>
                   {!isSingle && (
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-wide">Miqdar</span>
-                      <div className="flex items-center gap-2">
-                        <QtyBtn onClick={() => setQty((q) => Math.max(1, q - 1))} disabled={qty <= 1}>−</QtyBtn>
-                        <span className="w-7 text-center text-xl font-extrabold text-primary">{qty}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wide text-text-muted">Miqdar</span>
+                      <div className="flex items-center gap-1.5">
+                        <QtyBtn onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1}>−</QtyBtn>
+                        <span className="w-6 text-center text-lg font-black text-primary">{qty}</span>
                         <QtyBtn
-                          onClick={() => setQty((q) => mode === "serikli" ? Math.min(maxShares, q + 1) : Math.min(maxQty, q + 1))}
-                          disabled={(mode === "serikli" && qty >= maxShares) || (mode !== "serikli" && qty >= maxQty)}
-                        >+</QtyBtn>
+                          onClick={() => setQty(q => mode === "serikli" ? Math.min(maxShares, q+1) : Math.min(maxQty, q+1))}
+                          disabled={(mode==="serikli"&&qty>=maxShares)||(mode!=="serikli"&&qty>=maxQty)}>+</QtyBtn>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
-
               {!isSingle && (
-                <div className="px-4 py-2 border-t border-border bg-primary/5 flex items-center justify-between">
-                  <span className="text-[11px] text-text-secondary font-medium">
+                <div className="flex items-center justify-between px-4 py-2 border-t border-[#f0f0f0]"
+                  style={{ background: "rgba(27,94,32,0.04)" }}>
+                  <span className="text-[11px] text-text-muted font-medium">
                     {mode === "serikli" ? `${qty}/${maxShares} pay` : `${qty} × ${effectivePrice} AZN`}
                   </span>
-                  <span className="text-sm font-extrabold text-primary">Cəmi: {basePrice} AZN</span>
+                  <span className="text-[13px] font-extrabold text-primary">= {basePrice} AZN</span>
                 </div>
               )}
             </div>
 
             {/* Sifariş növü */}
             {!animal.orderMode && animal.totalShares > 1 && animal.serikliEnabled && (
-              <Sec label="Sifariş növü">
+              <S label="Sifariş növü">
                 <div className="p-3 flex gap-2">
-                  {[{ k: "tam", l: "Tam heyvan" }, { k: "serikli", l: `Şərikli (/${maxShares})` }].map((m) => (
+                  {[{k:"tam",l:"Tam heyvan"},{k:"serikli",l:`Şərikli (/${maxShares})`}].map(m => (
                     <button key={m.k} onClick={() => setMode(m.k)}
-                      className={`flex-1 py-2.5 rounded-xl text-[12px] font-bold border-2 transition-all cursor-pointer ${
-                        mode === m.k ? "border-primary bg-primary text-white" : "border-border bg-surface-alt text-text-secondary"
-                      }`}>{m.l}</button>
+                      className={`flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-150 cursor-pointer
+                        ${mode===m.k ? "bg-primary text-white shadow-[0_2px_8px_rgba(27,94,32,0.25)]" : "bg-[#f7f8f7] text-text-secondary hover:bg-[#eef5ee]"}`}>
+                      {m.l}
+                    </button>
                   ))}
                 </div>
-              </Sec>
+              </S>
             )}
 
-            {/* Diri çəki (mobile) */}
+            {/* Diri çəki — mobile only */}
             {weights.length > 0 && (
-              <Sec label="Diri çəki kateqoriyası" hideOnXl>
+              <S label="Diri çəki kateqoriyası" hideOnXl>
                 <div className="p-3 grid grid-cols-2 gap-2">
-                  {weights.map((w) => <WeightPill key={w.key || w.labelAz} w={w} />)}
+                  {weights.map(w => <WPill key={w.key||w.labelAz} w={w} />)}
                 </div>
-              </Sec>
+              </S>
             )}
 
             {/* Doğrama üsulu */}
             {effectiveCutStyles.length > 0 && (
-              <Sec label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
-                <div className="p-3 flex flex-col gap-2">
-                  {effectiveCutStyles.map((cs) => (
-                    <OptionRow
-                      key={cs.key}
-                      selected={(cutStyles[cs.key] || 0) > 0}
+              <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
+                <div className="p-3 flex flex-col gap-1.5">
+                  {effectiveCutStyles.map(cs => (
+                    <Opt key={cs.key}
+                      selected={(cutStyles[cs.key]||0)>0}
                       onClick={() => setCutStyles(() => {
-                        const z = Object.fromEntries(effectiveCutStyles.map((c) => [c.key, 0]));
-                        return { ...z, [cs.key]: qty };
+                        const z = Object.fromEntries(effectiveCutStyles.map(c=>[c.key,0]));
+                        return {...z,[cs.key]:qty};
                       })}
                       label={cs.labelAz}
-                      sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : null}
-                    />
+                      sub={cs.fee > 0 ? `+${cs.fee*qty} AZN` : null} />
                   ))}
                 </div>
-              </Sec>
+              </S>
             )}
 
             {/* Baş & Ayaqlar */}
             {needsHead && (
-              <Sec label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
-                <div className="p-3 flex flex-col gap-2">
-                  {activeHeadOptions.map((opt) => {
-                    const sel = (headBuckets[opt.key] || 0) > 0;
+              <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                <div className="p-3 flex flex-col gap-1.5">
+                  {activeHeadOptions.map(opt => {
+                    const on = (headBuckets[opt.key]||0) > 0;
                     const fee = opt.fee || 0;
                     return (
-                      <OptionRow
-                        key={opt.key}
-                        selected={sel}
+                      <Opt key={opt.key} selected={on}
                         onClick={() => {
-                          const hZ = Object.fromEntries(Object.keys(headBuckets).map((k) => [k, 0]));
-                          const fZ = Object.fromEntries(Object.keys(feetBuckets).map((k) => [k, 0]));
-                          if (sel) { setHeadBuckets(hZ); setFeetBuckets(fZ); }
-                          else { setHeadBuckets({ ...hZ, [opt.key]: headTotal }); setFeetBuckets({ ...fZ, [opt.key]: feetTotal }); }
+                          const hZ = Object.fromEntries(Object.keys(headBuckets).map(k=>[k,0]));
+                          const fZ = Object.fromEntries(Object.keys(feetBuckets).map(k=>[k,0]));
+                          if (on) { setHeadBuckets(hZ); setFeetBuckets(fZ); }
+                          else { setHeadBuckets({...hZ,[opt.key]:headTotal}); setFeetBuckets({...fZ,[opt.key]:feetTotal}); }
                         }}
                         label={opt.labelAz}
-                        sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
-                        subGreen={fee === 0}
-                      />
+                        sub={fee > 0 ? `+${fee*qty} AZN` : "Pulsuz"}
+                        subGreen={fee === 0} />
                     );
                   })}
                 </div>
-              </Sec>
+              </S>
             )}
 
             {/* Date / Time / Notes — mobile */}
             <div className="xl:hidden flex flex-col gap-3">
-              <Sec label="Kəsim tarixi" Icon={CalendarDays}>
-                <CalendarBlock />
-              </Sec>
-              <Sec label="Çatdırılma vaxtı" Icon={Clock}>
-                <TimeSlotBlock cols="grid-cols-3" />
-              </Sec>
-              <Sec label="Qeydlər">
+              <S label="Kəsim tarixi" Icon={CalendarDays}><CalendarBlock /></S>
+              <S label="Çatdırılma vaxtı" Icon={Clock}><TimeSlotBlock cols="grid-cols-3" /></S>
+              <S label="Qeydlər">
                 <div className="p-3">
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
+                  <textarea value={notes} onChange={e=>setNotes(e.target.value)}
                     placeholder="Xüsusi istəklərinizi qeyd edin..."
-                    rows={3}
-                    className="field-input resize-none w-full text-sm"
-                  />
+                    rows={3} className="field-input resize-none w-full text-sm" />
                 </div>
-              </Sec>
+              </S>
             </div>
           </div>
 
-          {/* ════ RIGHT — xl+ ════ */}
+          {/* ══ RIGHT — xl+ ══ */}
           <div className="hidden xl:flex flex-col gap-3">
             {weights.length > 0 && (
-              <Sec label="Diri çəki kateqoriyası">
-                <div className="p-3 grid grid-cols-2 gap-2">
-                  {weights.map((w) => <WeightPill key={w.key || w.labelAz} w={w} />)}
+              <S label="Diri çəki kateqoriyası">
+                <div className="p-3 grid grid-cols-1 gap-2">
+                  {weights.map(w => <WPill key={w.key||w.labelAz} w={w} />)}
                 </div>
-              </Sec>
+              </S>
             )}
-            <Sec label="Kəsim tarixi" Icon={CalendarDays}>
-              <CalendarBlock />
-            </Sec>
-            <Sec label="Çatdırılma vaxtı" Icon={Clock}>
-              <TimeSlotBlock cols="grid-cols-2" />
-            </Sec>
-            <Sec label="Qeydlər">
+            <S label="Kəsim tarixi" Icon={CalendarDays}><CalendarBlock /></S>
+            <S label="Çatdırılma vaxtı" Icon={Clock}><TimeSlotBlock cols="grid-cols-2" /></S>
+            <S label="Qeydlər">
               <div className="p-3">
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                <textarea value={notes} onChange={e=>setNotes(e.target.value)}
                   placeholder="Xüsusi istəklərinizi qeyd edin..."
-                  rows={3}
-                  className="field-input resize-none w-full text-sm"
-                />
+                  rows={2} className="field-input resize-none w-full text-sm" />
               </div>
-            </Sec>
+            </S>
             <PriceSummary />
           </div>
         </div>
       </div>
 
-      {/* ════ MOBILE action bar (non-fixed, at bottom of flex col) ════ */}
+      {/* ══ Mobile action bar ══ */}
       <div className="xl:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3"
-        style={{ background: "var(--primary)" }}>
-        <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-[10px] font-semibold text-white/60 uppercase tracking-wide">Cəmi məbləğ</span>
-          <span className="text-xl font-extrabold text-white leading-tight">{totalPrice} AZN</span>
+        style={{ background: "linear-gradient(90deg,#1B5E20,#2E7D32)" }}>
+        <div className="flex-1 min-w-0">
+          <p className="text-[9px] font-bold text-white/50 uppercase tracking-[0.12em]">Cəmi məbləğ</p>
+          <p className="text-xl font-black text-white leading-tight tracking-tight">{totalPrice} AZN</p>
           {!isSingle && (
-            <span className="text-[10px] text-white/50 truncate">
+            <p className="text-[10px] text-white/40 truncate">
               {mode === "serikli" ? `${qty}/${maxShares} pay` : `${qty} × ${effectivePrice} AZN`}
-            </span>
+            </p>
           )}
         </div>
-        <button
-          onClick={handleContinue}
-          className="flex-shrink-0 bg-white text-primary rounded-2xl py-3 px-6 text-sm font-extrabold border-none cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
-        >
+        <button onClick={handleContinue}
+          className="flex-shrink-0 bg-white text-primary rounded-xl py-3 px-5 text-[13px] font-extrabold border-none cursor-pointer whitespace-nowrap active:scale-95 transition-transform shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
           Davam et →
         </button>
       </div>
