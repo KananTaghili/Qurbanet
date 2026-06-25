@@ -182,7 +182,7 @@ export default function SummaryPage() {
             value: isCharityDist
               ? getDistLabel(selectedDistKey)
               : deliveryType === "delivery"
-              ? t(lang, "homeDelivery")
+              ? t(lang, "distLabel_catdirilsin")
               : t(lang, "pickupSelf"),
           },
           ...(deliveryType === "delivery" && address
@@ -384,7 +384,7 @@ export default function SummaryPage() {
                       {isCharityDist
                         ? getDistLabel(selectedDistKey)
                         : deliveryType === "delivery"
-                        ? t(lang, "homeDelivery")
+                        ? t(lang, "distLabel_catdirilsin")
                         : t(lang, "pickupSelf")}
                     </p>
                     <p className="text-[11px] text-text-secondary mt-0.5">
