@@ -647,35 +647,36 @@ export default function DistributionPage() {
             {/* ════ LEFT (col-span-4) ════ */}
             <div className="flex flex-col gap-3 lg:col-span-4">
 
-              {/* Desktop: Çatdırılma üsulu + Götürmə məkanı yan-yana */}
+              {/* Desktop: sol sütun (Çatdırılma üsulu + altda ünvan/məkan) | sağ sütun (Əlaqə nömrəsi) */}
               <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3 lg:items-stretch">
-                <Card
-                  className={`h-full ${
-                    submitAttempted && !selectionOk
-                      ? "ring-2 ring-red-400 border-transparent"
-                      : ""
-                  }`}
-                >
-                  <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                    <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-                      {t(lang, "distMethod")}
-                    </span>
-                  </div>
-                  {submitAttempted && !selectionOk && (
-                    <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
-                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                      {t(lang, "selectDelivery")}
+                {/* Sol: Çatdırılma üsulu + altda Çatdırılma ünvanı / Götürmə məkanı */}
+                <div className="flex flex-col gap-3">
+                  <Card
+                    className={submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}
+                  >
+                    <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+                      <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+                        {t(lang, "distMethod")}
+                      </span>
                     </div>
-                  )}
-                  {OptionList()}
-                </Card>
+                    {submitAttempted && !selectionOk && (
+                      <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        {t(lang, "selectDelivery")}
+                      </div>
+                    )}
+                    {OptionList()}
+                  </Card>
 
-                {/* Sağ slot: ozum → Götürmə məkanı, catdirilsin → Çatdırılma ünvanı (telefonsuz) */}
-                {selectedKey === "ozum" && meatPickupLocation
-                  ? PickupCard({ className: "h-full" })
-                  : needsLocation
-                    ? AddressSection({ className: "h-full", addressOnly: true })
-                    : <div />}
+                  {/* Altda: Çatdırılma ünvanı və ya Götürmə məkanı */}
+                  {needsLocation && AddressSection({ addressOnly: true })}
+                  {selectedKey === "ozum" && meatPickupLocation && PickupCard({})}
+                </div>
+
+                {/* Sağ: Əlaqə nömrəsi (hündürlüyü doldurar) */}
+                {(needsLocation || selectedKey === "ozum")
+                  ? AddressSection({ className: "h-full", phoneOnly: true })
+                  : <div />}
               </div>
 
               {/* Mobile: Çatdırılma üsulu tək */}
@@ -704,10 +705,6 @@ export default function DistributionPage() {
               {/* Address — mobile */}
               {needsLocation && AddressSection({ className: "lg:hidden" })}
               {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
-
-              {/* Əlaqə nömrəsi — desktop, bu 2-nin altında tam en */}
-              {selectedKey === "ozum" && AddressSection({ className: "hidden lg:block", phoneOnly: true })}
-              {needsLocation && AddressSection({ className: "hidden lg:block", phoneOnly: true })}
             </div>
 
             {/* ════ RIGHT (col-span-3) — desktop ════ */}
