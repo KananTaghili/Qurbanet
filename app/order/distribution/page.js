@@ -302,7 +302,7 @@ export default function DistributionPage() {
 
   // Renders the radio option list (used in both mobile and desktop)
   const OptionList = () => (
-    <div className="px-2 py-1 flex flex-col gap-1">
+    <div className="px-2 py-1 flex flex-col gap-1 [&>button]:flex-1">
       {deliveryKeys.map((key) => {
         const meta = OPTION_META[key];
         const data = optionData[key] || {};
@@ -312,38 +312,38 @@ export default function DistributionPage() {
             key={key}
             type="button"
             onClick={() => setSelectedKey(key)}
-            className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
               isSelected
                 ? "border-primary bg-primary/5"
                 : "border-border bg-white hover:border-primary/30"
             }`}
           >
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
               style={{ background: meta.light }}
             >
-              <meta.Icon className="w-4 h-4" style={{ color: meta.color }} />
+              <meta.Icon className="w-3.5 h-3.5" style={{ color: meta.color }} />
             </div>
-            <div className="flex-1">
-              <div className="text-[11px] font-bold text-text-primary">
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-text-primary truncate">
                 {distLabel(key, data)}
               </div>
               <div
-                className="text-[10px] font-semibold"
+                className="text-[9px] font-semibold"
                 style={{ color: meta.color }}
               >
                 {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, "free")}
               </div>
-              <div className="text-[9px] text-amber-600 font-medium leading-none">
+              <div className="text-[8px] text-amber-600 font-medium leading-none">
                 {key === "catdirilsin" ? "Yalnız Bakı və ətrafı" : " "}
               </div>
             </div>
             <div
-              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+              className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                 isSelected ? "border-primary bg-primary" : "border-border"
               }`}
             >
-              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+              {isSelected && <div className="w-1 h-1 rounded-full bg-white" />}
             </div>
           </button>
         );
@@ -386,7 +386,7 @@ export default function DistributionPage() {
                 style={{ color: isDisabled ? "#d1d5db" : meta.color }}
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div
                 className={`text-sm font-bold ${isDisabled ? "text-text-muted" : "text-text-primary"}`}
               >
@@ -404,7 +404,7 @@ export default function DistributionPage() {
               </div>
             </div>
             <div
-              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+              className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                 isDisabled
                   ? "border-border/40"
                   : isSelected
@@ -654,10 +654,10 @@ export default function DistributionPage() {
         />
         <StepHeader currentStep={2} />
 
-        <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
+        <div className="flex-1 overflow-y-auto lg:overflow-visible pb-24 lg:pb-4 pt-[124px] lg:pt-0">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-[4fr_2fr_9fr]
+                          lg:grid lg:grid-cols-[3.5fr_1.5fr_10fr]
                           lg:gap-4 lg:items-start"
           >
             {/* ════ LEFT (1fr) ════ */}
