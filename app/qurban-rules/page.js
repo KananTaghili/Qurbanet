@@ -2,8 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 import {
   BookOpen, CheckCircle2, Users, Beef,
-  Flower2, ShieldAlert, HandHeart,
-  ChevronDown, Hash,
+  Star, ShieldAlert, HandHeart,
+  ChevronDown,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import { useLanguage } from "../../context/LanguageContext";
@@ -16,7 +16,7 @@ const SECTION_META = [
   { Icon: Users,        accent: "#6b21a8", light: "#f3e8ff", gFrom: "#581c87", gTo: "#7e22ce" },
   { Icon: Beef,         accent: "#9a3412", light: "#fee2e2", gFrom: "#7c2d12", gTo: "#9a3412" },
   { Icon: PiKnifeBold,  accent: "#065f46", light: "#d1fae5", gFrom: "#064e3b", gTo: "#065f46" },
-  { Icon: Flower2,      accent: "#3f6212", light: "#ecfccb", gFrom: "#365314", gTo: "#4d7c0f" },
+  { Icon: Star,         accent: "#92400e", light: "#fef3c7", gFrom: "#78350f", gTo: "#92400e" },
   { Icon: ShieldAlert,  accent: "#991b1b", light: "#fee2e2", gFrom: "#7f1d1d", gTo: "#b91c1c" },
 ];
 
