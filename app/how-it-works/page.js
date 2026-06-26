@@ -89,20 +89,20 @@ function StepCard({ step, cfg, idx, reverse }) {
         className={`relative flex items-center justify-center shrink-0 ${reverse ? "md:order-2" : ""}`}
         style={{
           width: "100%",
-          minHeight: 220,
+          minHeight: 150,
           background: `linear-gradient(135deg, ${cfg.gFrom} 0%, ${cfg.gTo} 100%)`,
-          flex: "0 0 42%",
+          flex: "0 0 36%",
         }}
       >
         {/* Large decorative number */}
         <span
           className="absolute font-black select-none"
           style={{
-            fontSize: "clamp(80px, 14vw, 140px)",
+            fontSize: "clamp(60px, 10vw, 110px)",
             color: "rgba(255,255,255,0.08)",
             lineHeight: 1,
-            bottom: -10,
-            right: 10,
+            bottom: -8,
+            right: 8,
             letterSpacing: "-4px",
           }}
         >
@@ -111,7 +111,7 @@ function StepCard({ step, cfg, idx, reverse }) {
 
         {/* Step badge */}
         <span
-          className="absolute top-4 left-4 px-3 py-1 rounded-full text-[11px] font-bold text-white/90"
+          className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white/90"
           style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(4px)" }}
         >
           {step.label}
@@ -119,23 +119,23 @@ function StepCard({ step, cfg, idx, reverse }) {
 
         {/* Icon circle */}
         <div
-          className="relative z-10 flex items-center justify-center rounded-full shadow-2xl"
+          className="relative z-10 flex items-center justify-center rounded-full shadow-xl"
           style={{
-            width: 88, height: 88,
+            width: 68, height: 68,
             background: "rgba(255,255,255,0.15)",
             border: "2px solid rgba(255,255,255,0.3)",
             backdropFilter: "blur(8px)",
           }}
         >
-          <Icon size={40} color="#fff" strokeWidth={1.5} />
+          <Icon size={30} color="#fff" strokeWidth={1.5} />
         </div>
       </div>
 
       {/* ── Content panel ── */}
-      <div className={`flex flex-col justify-center px-6 py-7 flex-1 ${reverse ? "md:order-1" : ""}`}>
+      <div className={`flex flex-col justify-center px-5 py-4 flex-1 ${reverse ? "md:order-1" : ""}`}>
         {/* Step title */}
         <h2
-          className="text-xl font-extrabold mb-2 leading-tight"
+          className="text-base font-extrabold mb-1.5 leading-tight"
           style={{ color: cfg.color }}
         >
           {step.title}
@@ -143,27 +143,27 @@ function StepCard({ step, cfg, idx, reverse }) {
 
         {/* Accent line */}
         <div
-          className="mb-3 rounded-full"
-          style={{ width: 36, height: 3, background: cfg.mid }}
+          className="mb-2.5 rounded-full"
+          style={{ width: 28, height: 2.5, background: cfg.mid }}
         />
 
         {/* Description */}
-        <p className="text-sm leading-relaxed text-slate-500 mb-4">
+        <p className="text-[13px] leading-relaxed text-slate-500 mb-3">
           {step.desc}
         </p>
 
         {/* Points */}
         {step.points?.length > 0 && (
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-1.5">
             {step.points.map((pt, pi) => (
-              <li key={pi} className="flex items-start gap-2.5">
+              <li key={pi} className="flex items-start gap-2">
                 <CheckCircle2
-                  size={15}
+                  size={13}
                   className="shrink-0 mt-0.5"
                   style={{ color: cfg.mid }}
                   strokeWidth={2.5}
                 />
-                <span className="text-sm font-semibold text-slate-700 leading-snug">{pt}</span>
+                <span className="text-[13px] font-semibold text-slate-700 leading-snug">{pt}</span>
               </li>
             ))}
           </ul>
@@ -208,39 +208,39 @@ export default function HowItWorksPage() {
         }
       `}</style>
 
-      <div className="flex flex-col gap-5 px-4 py-5 md:px-6 md:py-6">
+      <div className="flex flex-col gap-3 px-4 py-4 md:px-6 md:py-5">
 
         {/* ── HERO ───────────────────────────────────────────────────────────── */}
         <div
           ref={heroRef}
-          className="hiw-hero relative overflow-hidden rounded-3xl px-6 py-8 md:px-10 md:py-10"
+          className="hiw-hero relative overflow-hidden rounded-2xl px-5 py-5 md:px-8 md:py-6"
           style={{ background: "linear-gradient(135deg, #14532d 0%, #1c5e20 55%, #166534 100%)" }}
         >
           {/* Background decorative circles */}
-          <div style={{ position:"absolute", top:-40, right:-40, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,0.04)" }} />
-          <div style={{ position:"absolute", bottom:-30, left:-20, width:150, height:150, borderRadius:"50%", background:"rgba(255,255,255,0.03)" }} />
+          <div style={{ position:"absolute", top:-40, right:-40, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.04)" }} />
+          <div style={{ position:"absolute", bottom:-24, left:-16, width:120, height:120, borderRadius:"50%", background:"rgba(255,255,255,0.03)" }} />
 
           <div className="relative z-10">
-            <p className="text-[11px] font-bold tracking-[0.25em] text-white/50 uppercase mb-2">
+            <p className="text-[10px] font-bold tracking-[0.25em] text-white/50 uppercase mb-1">
               QurbanEt
             </p>
-            <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-2">
+            <h1 className="text-xl md:text-2xl font-black text-white leading-tight mb-1">
               {t(lang, "howItWorksHero")}
             </h1>
-            <p className="text-sm md:text-base text-white/65 leading-relaxed max-w-lg mb-6">
+            <p className="text-[13px] text-white/65 leading-relaxed max-w-lg mb-3">
               {t(lang, "howItWorksHeroDesc")}
             </p>
 
             {/* Stat pills */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {HERO_STATS.map(({ Icon, label }) => (
                 <div
                   key={label}
-                  className="flex items-center gap-2 rounded-full px-3.5 py-1.5"
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1"
                   style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)" }}
                 >
-                  <Icon size={13} color="#86efac" strokeWidth={2} />
-                  <span className="text-[12px] font-semibold text-white/85">{label}</span>
+                  <Icon size={11} color="#86efac" strokeWidth={2} />
+                  <span className="text-[11px] font-semibold text-white/85">{label}</span>
                 </div>
               ))}
             </div>
@@ -248,9 +248,9 @@ export default function HowItWorksPage() {
         </div>
 
         {/* ── STEPS ──────────────────────────────────────────────────────────── */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2.5">
           {steps.map((step, i) => (
-            <div key={i} className="flex flex-col gap-3">
+            <div key={i} className="flex flex-col gap-2">
               <StepCard
                 step={step}
                 cfg={STEP_CFG[i]}
@@ -270,14 +270,14 @@ export default function HowItWorksPage() {
         </div>
 
         {/* ── CTA ────────────────────────────────────────────────────────────── */}
-        <div className="flex justify-center pb-2">
+        <div className="flex justify-center pt-1 pb-1">
           <Link
             href="/qurban"
-            className="inline-flex items-center gap-2 rounded-2xl px-7 py-3.5 text-sm font-bold text-white shadow-lg transition-transform hover:scale-[1.03] active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-transform hover:scale-[1.03] active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, #14532d, #1c5e20)" }}
           >
             Sifarişə başla
-            <ArrowRight size={15} strokeWidth={2.5} />
+            <ArrowRight size={14} strokeWidth={2.5} />
           </Link>
         </div>
 
