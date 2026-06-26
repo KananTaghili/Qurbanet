@@ -215,7 +215,7 @@ function HeroBanner({ router, isMobile }) {
         alt="Qurbanlıq heyvanlar"
         className="absolute inset-y-0 right-0 h-full w-[55%] lg:w-[62%] object-cover object-right hidden lg:block"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] via-[#edf5ef]/92 via-[45%] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] from-[38%] via-[#edf5ef]/80 via-[60%] to-transparent" />
       <div className="relative z-10 max-w-lg">
         <h2 className={`font-extrabold leading-tight text-[#082d15] mb-3 lg:mb-4 ${isMobile ? "text-xl" : "text-2xl lg:text-3xl"}`}>
           Süfrəniz bərəkətli,
