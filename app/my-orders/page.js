@@ -7,7 +7,7 @@ import {
   CheckCircle2, Truck, XCircle, Clock,
   CreditCard, Package, RefreshCw,
   ShoppingBag, Wallet, Activity, Scale,
-  Scissors, ChevronDown, Star, SlidersHorizontal, PocketPocketKnife,
+  Scissors, ChevronDown, Star, SlidersHorizontal, PocketKnife,
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
