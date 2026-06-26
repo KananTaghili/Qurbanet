@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -7,7 +7,7 @@ import {
   CheckCircle2, Truck, XCircle, Clock,
   CreditCard, Package, RefreshCw,
   ShoppingBag, Wallet, Activity, Scale,
-  Scissors, ChevronDown, Filter, Star,
+  Scissors, ChevronDown, Star, SlidersHorizontal,
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
@@ -194,6 +194,65 @@ function OrderCard({ item, lang }) {
   );
 }
 
+/* ── Status Filter Dropdown ────────────────────── */
+function StatusFilter({ tabs, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = tabs.find(t => t.key === value) || tabs[0];
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-[13px] transition-all"
+        style={{ background: '#fff', border: `2px solid ${open ? BRAND : '#d4edda'}`, color: BRAND, boxShadow: open ? `0 0 0 3px ${BRAND}18` : '0 2px 8px rgba(28,94,32,0.08)' }}>
+        <current.Icon size={14} strokeWidth={2.2} />
+        <span>{current.label}</span>
+        <span className="px-1.5 py-0.5 rounded-lg text-[10px] font-extrabold" style={{ background: '#e8f5e9', color: BRAND }}>
+          {current.count}
+        </span>
+        <ChevronDown size={13} strokeWidth={2.5} className="transition-transform" style={{ transform: open ? 'rotate(180deg)' : 'none', opacity: 0.6 }} />
+      </button>
+
+      {open && (
+        <div className="absolute top-[calc(100%+6px)] left-0 z-50 rounded-2xl overflow-hidden"
+          style={{ background: '#fff', boxShadow: '0 8px 32px rgba(28,94,32,0.14)', border: '1.5px solid #e0ede0', minWidth: 200 }}>
+          {tabs.map((tab, i) => {
+            const TabIcon = tab.Icon;
+            const active = tab.key === value;
+            return (
+              <button key={tab.key} onClick={() => { onChange(tab.key); setOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all text-left"
+                style={{
+                  background: active ? '#f0f9f0' : (i % 2 === 0 ? '#fff' : '#fafafa'),
+                  color: active ? BRAND : '#374151',
+                  borderLeft: active ? `3px solid ${BRAND}` : '3px solid transparent',
+                }}>
+                <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: active ? '#e8f5e9' : '#f3f4f6' }}>
+                  <TabIcon size={14} strokeWidth={2.2} style={{ color: active ? BRAND : '#6b7280' }} />
+                </div>
+                <span className="flex-1">{tab.label}</span>
+                <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold"
+                  style={{ background: active ? '#d1fae5' : '#f3f4f6', color: active ? BRAND : '#6b7280' }}>
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Stat Card ─────────────────────────────────── */
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -340,27 +399,9 @@ export default function MyOrdersPage() {
                 <StatCard icon={Wallet}        label="Ödənilmiş məbləğ" value={`${totalAmount.toFixed(2)} AZN`} sub="Cəmi"        />
               </div>
 
-              {/* Status filter select */}
+              {/* Status filter */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="relative inline-flex items-center">
-                  <Filter size={14} className="absolute left-3 pointer-events-none" style={{ color: BRAND }} />
-                  <select
-                    value={filter}
-                    onChange={e => setFilter(e.target.value)}
-                    className="appearance-none pl-8 pr-9 py-2.5 rounded-xl text-[13px] font-bold focus:outline-none cursor-pointer"
-                    style={{ background: '#f0f7f0', color: BRAND, border: `1.5px solid #c8e6c9` }}
-                  >
-                    {TABS.map(tab => (
-                      <option key={tab.key} value={tab.key}>
-                        {tab.label} ({tab.count})
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 pointer-events-none" style={{ color: BRAND }} />
-                </div>
-                <span className="text-[12px] text-gray-400 font-medium">
-                  {filtered.length} nəticə
-                </span>
+                <StatusFilter tabs={TABS} value={filter} onChange={setFilter} />
               </div>
 
               {/* Cards */}
