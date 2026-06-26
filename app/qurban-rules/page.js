@@ -46,38 +46,52 @@ function Section({ section, idx, open, onToggle, id }) {
     <div
       id={id}
       ref={ref}
-      className="qr-card overflow-hidden rounded-2xl border transition-shadow"
+      className="qr-card overflow-hidden rounded-2xl border transition-all duration-200"
       style={{
-        borderColor: open ? accent + "40" : "#e5e7eb",
-        boxShadow: open ? `0 4px 24px ${accent}18` : "0 1px 4px rgba(0,0,0,0.06)",
+        borderColor: open ? accent + "50" : "#e5e7eb",
+        boxShadow: open ? `0 4px 24px ${accent}1a` : "0 1px 4px rgba(0,0,0,0.06)",
         background: "#fff",
       }}
     >
-      {/* ── Trigger ── */}
+      {/* ── Trigger — doubles as coloured header when open ── */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-3 px-4 py-3.5 text-left"
-        style={{ background: open ? light + "80" : "transparent" }}
+        className="w-full relative overflow-hidden flex items-center gap-3 px-4 py-3.5 text-left transition-all duration-300"
+        style={{
+          background: open
+            ? `linear-gradient(135deg, ${gFrom} 0%, ${gTo} 100%)`
+            : "transparent",
+        }}
       >
-        {/* Icon badge */}
+        {/* Decorative big number — only when open */}
+        {open && (
+          <span
+            className="absolute right-10 font-black select-none leading-none"
+            style={{ fontSize: 68, color: "rgba(255,255,255,0.08)", bottom: -10, letterSpacing: -2 }}
+          >
+            {num}
+          </span>
+        )}
+
+        {/* Icon */}
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: open ? accent : light, transition: "background 0.2s" }}
+          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200"
+          style={{ background: open ? "rgba(255,255,255,0.18)" : light }}
         >
           <Icon size={16} color={open ? "#fff" : accent} />
         </div>
 
-        {/* Number + title */}
-        <div className="flex-1 min-w-0 flex items-center gap-2">
+        {/* Number + title — title wraps, never truncates */}
+        <div className="flex-1 min-w-0 flex items-start gap-2">
           <span
-            className="text-[10px] font-black tabular-nums shrink-0"
-            style={{ color: accent + "80" }}
+            className="text-[10px] font-black tabular-nums shrink-0 mt-0.5"
+            style={{ color: open ? "rgba(255,255,255,0.55)" : accent + "80" }}
           >
             {num}
           </span>
           <span
-            className="text-[13px] font-bold leading-snug truncate"
-            style={{ color: open ? accent : "#1e293b" }}
+            className="text-[13px] font-bold leading-snug"
+            style={{ color: open ? "#fff" : "#1e293b" }}
           >
             {title}
           </span>
@@ -87,7 +101,7 @@ function Section({ section, idx, open, onToggle, id }) {
         <div
           className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all duration-200"
           style={{
-            background: open ? accent : "#f1f5f9",
+            background: open ? "rgba(255,255,255,0.2)" : "#f1f5f9",
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
           }}
         >
@@ -95,50 +109,25 @@ function Section({ section, idx, open, onToggle, id }) {
         </div>
       </button>
 
-      {/* ── Expanded body ── */}
+      {/* ── Items list — no repeated header ── */}
       {open && (
-        <div style={{ borderTop: `1px solid ${accent}20` }}>
-          {/* Colored header band */}
-          <div
-            className="relative overflow-hidden px-5 py-4 flex items-center gap-3"
-            style={{ background: `linear-gradient(135deg, ${gFrom} 0%, ${gTo} 100%)` }}
-          >
-            {/* Decorative big number */}
-            <span
-              className="absolute right-3 font-black select-none leading-none"
-              style={{ fontSize: 72, color: "rgba(255,255,255,0.07)", bottom: -8, letterSpacing: -2 }}
+        <ul className="flex flex-col" style={{ borderTop: `1px solid ${accent}20` }}>
+          {items.map((item, pi) => (
+            <li
+              key={pi}
+              className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50"
+              style={{ borderBottom: pi < items.length - 1 ? `1px solid ${accent}0d` : "none" }}
             >
-              {num}
-            </span>
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(4px)" }}
-            >
-              <Icon size={20} color="#fff" />
-            </div>
-            <h2 className="text-[14px] font-extrabold text-white leading-snug relative z-10">
-              {title}
-            </h2>
-          </div>
-
-          {/* Items list */}
-          <ul className="flex flex-col divide-y" style={{ divideColor: accent + "10" }}>
-            {items.map((item, pi) => (
-              <li
-                key={pi}
-                className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50"
+              <span
+                className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white mt-0.5"
+                style={{ background: accent }}
               >
-                <span
-                  className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white mt-0.5"
-                  style={{ background: accent }}
-                >
-                  {pi + 1}
-                </span>
-                <p className="text-[12.5px] text-slate-600 leading-relaxed flex-1">{item}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+                {pi + 1}
+              </span>
+              <p className="text-[12.5px] text-slate-600 leading-relaxed flex-1">{item}</p>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
