@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "../components/NotificationBell";
 
 /* ── Slogan ────────────────────────────────────────────── */
 function Slogan({ compact = false }) {
@@ -259,7 +260,13 @@ export default function HomePage() {
             ))}
           </nav>
 
-          <div className="hp-user flex items-center gap-4">
+          <div className="hp-user flex items-center gap-3">
+            <NotificationBell
+              accentColor="#f20b32"
+              ringColor="#ffffff"
+              iconColor="#374151"
+              hoverClass="hover:bg-black/5"
+            />
             {!isGuest ? (
               <UserMenu user={user} onLogout={handleLogout} />
             ) : (

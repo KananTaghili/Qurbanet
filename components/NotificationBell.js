@@ -195,7 +195,12 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
 
 // ── NotificationBell (exported) ───────────────────────────────────────────────
 
-export default function NotificationBell({ accentColor = "#1c5e20", ringColor = "#1c5e20" }) {
+export default function NotificationBell({
+  accentColor = "#1c5e20",
+  ringColor   = "#1c5e20",
+  iconColor   = "#ffffff",
+  hoverClass  = "hover:bg-white/10",
+}) {
   const { isGuest } = useAuth();
   const { unreadCount } = useNotifications();
   const [open, setOpen] = useState(false);
@@ -216,10 +221,10 @@ export default function NotificationBell({ accentColor = "#1c5e20", ringColor = 
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors relative"
+        className={`w-8 h-8 rounded-full flex items-center justify-center ${hoverClass} transition-colors relative`}
         aria-label="Bildirişlər"
       >
-        <Bell size={16} className="text-white" />
+        <Bell size={16} style={{ color: iconColor }} />
         {badge && (
           <span
             className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full text-white text-[9px] font-black px-1"
