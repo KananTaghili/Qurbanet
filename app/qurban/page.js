@@ -134,7 +134,8 @@ export default function QurbanPage() {
     <div className="flex flex-col flex-1 bg-bg min-h-full w-full">
       {/* Mobile list */}
       <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-4">
-        <div className="flex flex-col flex-1 gap-2.5 xs:gap-3 sm:gap-4">
+        <HeroBanner router={router} isMobile />
+        <div className="flex flex-col flex-1 gap-2.5 xs:gap-3 sm:gap-4 mt-3">
           {loading ? (
             <Spinner />
           ) : animals.length === 0 ? (
@@ -167,17 +168,22 @@ export default function QurbanPage() {
         className="hidden md:flex flex-col w-full gap-4 lg:gap-5 xl:gap-6 pb-5 md:pb-6 lg:pb-8"
         style={{ paddingTop: 20, paddingLeft: 28, paddingRight: 28 }}
       >
-        {loading ? (
-          <Spinner />
-        ) : animals.length === 0 ? (
-          <EmptyState lang={lang} />
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
-            {animals.map((a) => (
-              <DesktopAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
-            ))}
-          </div>
-        )}
+        <HeroBanner router={router} />
+        <div>
+          <h3 className="text-xl font-extrabold text-text-primary mb-0.5">Qurbanlığınızı Seçin</h3>
+          <p className="text-xs text-text-muted mb-4">Qurbanlıq heyvan növünü seçərək sifarişinizi tamamlayın</p>
+          {loading ? (
+            <Spinner />
+          ) : animals.length === 0 ? (
+            <EmptyState lang={lang} />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
+              {animals.map((a) => (
+                <DesktopAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
+              ))}
+            </div>
+          )}
+        </div>
         {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 lg:mt-2">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
@@ -195,6 +201,39 @@ export default function QurbanPage() {
         )}
       </div>
     </div>
+  );
+}
+
+/* ───────────────────────────────────────────────
+   Hero Banner
+   ─────────────────────────────────────────────── */
+function HeroBanner({ router, isMobile }) {
+  return (
+    <section className={`relative overflow-hidden rounded-2xl bg-[#e9f1eb] shadow-sm ${isMobile ? "p-5" : "p-6 lg:p-8"}`}>
+      <img
+        src="/qurban%20sifari%C5%9Fi%20(3).png"
+        alt="Qurbanlıq heyvanlar"
+        className="absolute inset-y-0 right-0 h-full w-[55%] lg:w-[62%] object-cover object-right hidden lg:block"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] via-[#edf5ef]/92 via-[45%] to-transparent" />
+      <div className="relative z-10 max-w-lg">
+        <h2 className={`font-extrabold leading-tight text-[#082d15] mb-3 lg:mb-4 ${isMobile ? "text-xl" : "text-2xl lg:text-3xl"}`}>
+          Süfrəniz bərəkətli,
+          <br />
+          <span style={{ color: BRAND }}>Qurbanınız qəbul olsun!</span>
+        </h2>
+        <p className="mb-4 lg:mb-5 max-w-md text-sm leading-6 text-[#52675a]">
+          Qurbanlıq heyvanınızı seçin, halal kəsim və çatdırılma prosesini rahatlıqla bizə həvalə edin.
+        </p>
+        <button
+          onClick={() => router.push("/qurban-rules")}
+          className="inline-flex items-center gap-2 rounded-xl px-5 lg:px-6 py-2.5 lg:py-3 text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5"
+          style={{ backgroundColor: BRAND }}
+        >
+          Qurbanın Əhkamlarını Öyrən <ChevronRight size={16} strokeWidth={2.5} />
+        </button>
+      </div>
+    </section>
   );
 }
 
