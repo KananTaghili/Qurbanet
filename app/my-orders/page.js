@@ -7,7 +7,7 @@ import {
   CheckCircle2, Truck, XCircle, Clock,
   CreditCard, Package, RefreshCw,
   ShoppingBag, Wallet, Activity, Scale,
-  Scissors, ChevronDown, Filter,
+  Scissors, ChevronDown, Filter, Star,
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
@@ -44,7 +44,14 @@ const STATUS_CFG = {
   cancelled:        { label: 'Ləğv edildi',         bg: '#F3F4F6', color: '#6B7280', dot: '#9CA3AF', Icon: XCircle,      step: -1, group: 'cancelled' },
 };
 
-const PIPELINE_LABELS = ['Gözləmə', 'Təsdiq', 'Kəsim', 'Hazırlıq', 'Çatdırılma', 'Tamamlandı'];
+const PIPELINE_STEPS = [
+  { label: 'Gözləmə',    Icon: Clock        },
+  { label: 'Təsdiq',     Icon: CheckCircle2 },
+  { label: 'Kəsim',      Icon: Scissors     },
+  { label: 'Hazırlıq',   Icon: Package      },
+  { label: 'Çatdırılma', Icon: Truck        },
+  { label: 'Tamamlandı', Icon: Star         },
+];
 
 const CHARITY_DIST_KEYS = {
   usaqlar_evi:       'distLabel_usaqlar_evi',
@@ -56,20 +63,26 @@ const CHARITY_DIST_KEYS = {
 function Pipeline({ step }) {
   if (step < 0) return null;
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex flex-col gap-1">
       <div className="flex gap-0.5">
-        {PIPELINE_LABELS.map((_, i) => (
+        {PIPELINE_STEPS.map((_, i) => (
           <div key={i} className="h-1.5 flex-1 rounded-full"
             style={{ background: i <= step ? BRAND : '#e5e7eb' }} />
         ))}
       </div>
       <div className="flex">
-        {PIPELINE_LABELS.map((label, i) => (
-          <span key={i} className="text-[8px] font-medium flex-1 text-center"
-            style={{ color: i <= step ? BRAND : '#9ca3af' }}>
-            {label}
-          </span>
-        ))}
+        {PIPELINE_STEPS.map(({ label, Icon }, i) => {
+          const done = i <= step;
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+              <Icon size={9} strokeWidth={2.2} style={{ color: done ? BRAND : '#d1d5db' }} />
+              <span className="text-[7.5px] font-semibold leading-none"
+                style={{ color: done ? BRAND : '#9ca3af' }}>
+                {label}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
