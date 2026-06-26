@@ -6,13 +6,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  Plus, Bell, User, ChevronDown, ArrowLeft, X,
+  Plus, User, ChevronDown, ArrowLeft, X,
   Heart, Menu, Shield, ChevronRight, Mail, Phone, Lock,
   UserRoundCheck, Video, HeartHandshake, Settings, LogOut,
 } from "lucide-react";
 import { CharityLayoutContext } from "./_context";
 import { SIDEBAR_NAV, ANIMAL_IMG_FALLBACK } from "./_lib";
 import api from "../../lib/api";
+import NotificationBell from "../../components/NotificationBell";
 
 const userFullName = (user) => [user?.name, user?.lastName].filter(Boolean).join(" ").trim() || "İstifadəçi";
 const initials2 = (name) => (name || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase() || "?";
@@ -965,10 +966,7 @@ export default function CharityLayout({ children }) {
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors relative">
-                <Bell size={16} className="text-white" />
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full ring-1 ring-[#301586]" />
-              </button>
+              <NotificationBell accentColor="#301586" ringColor="#301586" />
               {isGuest ? (
                 <Link href="/auth/register"
                   className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#301586] text-[12px] font-semibold hover:bg-purple-50 transition-all shadow-sm">

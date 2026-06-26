@@ -2,6 +2,7 @@ import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { OrderProvider } from "../context/OrderContext";
 import { LanguageProvider } from "../context/LanguageContext";
+import { NotificationProvider } from "../context/NotificationContext";
 import ClientShell from "../components/ClientShell";
 import VersionChecker from "../components/VersionChecker";
 
@@ -56,8 +57,10 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <OrderProvider>
             <LanguageProvider>
-              <ClientShell>{children}</ClientShell>
-              <VersionChecker />
+              <NotificationProvider>
+                <ClientShell>{children}</ClientShell>
+                <VersionChecker />
+              </NotificationProvider>
             </LanguageProvider>
           </OrderProvider>
         </AuthProvider>

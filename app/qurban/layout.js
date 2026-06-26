@@ -5,8 +5,9 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings,
+  ArrowLeft, Menu, X, Beef, ClipboardList, HelpCircle, BookOpen, LogOut, Settings,
 } from "lucide-react";
+import NotificationBell from "../../components/NotificationBell";
 import { PiKnifeBold } from "react-icons/pi";
 
 const GREEN = "#1c5e20";
@@ -102,10 +103,7 @@ export default function QurbanLayout({ children }) {
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors relative">
-                <Bell size={16} className="text-white" />
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full ring-1 ring-[#1c5e20]" />
-              </button>
+              <NotificationBell accentColor="#1c5e20" ringColor="#1c5e20" />
               {isGuest ? (
                 <Link href="/auth/login"
                   className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#1c5e20] text-[12px] font-semibold hover:bg-green-50 transition-all shadow-sm">
