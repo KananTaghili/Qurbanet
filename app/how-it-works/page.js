@@ -89,9 +89,9 @@ function StepCard({ step, cfg, idx, reverse }) {
         className={`relative flex items-center justify-center shrink-0 ${reverse ? "md:order-2" : ""}`}
         style={{
           width: "100%",
-          minHeight: 150,
+          minHeight: 175,
           background: `linear-gradient(135deg, ${cfg.gFrom} 0%, ${cfg.gTo} 100%)`,
-          flex: "0 0 36%",
+          flex: "0 0 38%",
         }}
       >
         {/* Large decorative number */}
@@ -121,21 +121,21 @@ function StepCard({ step, cfg, idx, reverse }) {
         <div
           className="relative z-10 flex items-center justify-center rounded-full shadow-xl"
           style={{
-            width: 68, height: 68,
+            width: 76, height: 76,
             background: "rgba(255,255,255,0.15)",
             border: "2px solid rgba(255,255,255,0.3)",
             backdropFilter: "blur(8px)",
           }}
         >
-          <Icon size={30} color="#fff" strokeWidth={1.5} />
+          <Icon size={34} color="#fff" strokeWidth={1.5} />
         </div>
       </div>
 
       {/* ── Content panel ── */}
-      <div className={`flex flex-col justify-center px-5 py-4 flex-1 ${reverse ? "md:order-1" : ""}`}>
+      <div className={`flex flex-col justify-center px-5 py-5 flex-1 ${reverse ? "md:order-1" : ""}`}>
         {/* Step title */}
         <h2
-          className="text-base font-extrabold mb-1.5 leading-tight"
+          className="text-[17px] font-extrabold mb-2 leading-tight"
           style={{ color: cfg.color }}
         >
           {step.title}
@@ -143,12 +143,12 @@ function StepCard({ step, cfg, idx, reverse }) {
 
         {/* Accent line */}
         <div
-          className="mb-2.5 rounded-full"
-          style={{ width: 28, height: 2.5, background: cfg.mid }}
+          className="mb-3 rounded-full"
+          style={{ width: 30, height: 2.5, background: cfg.mid }}
         />
 
         {/* Description */}
-        <p className="text-[13px] leading-relaxed text-slate-500 mb-3">
+        <p className="text-[13px] leading-relaxed text-slate-500 mb-3.5">
           {step.desc}
         </p>
 
@@ -208,12 +208,12 @@ export default function HowItWorksPage() {
         }
       `}</style>
 
-      <div className="flex flex-col gap-3 px-4 py-4 md:px-6 md:py-5">
+      <div className="flex flex-col gap-4 px-4 py-5 md:px-6 md:py-6">
 
         {/* ── HERO ───────────────────────────────────────────────────────────── */}
         <div
           ref={heroRef}
-          className="hiw-hero relative overflow-hidden rounded-2xl px-5 py-5 md:px-8 md:py-6"
+          className="hiw-hero relative overflow-hidden rounded-2xl px-6 py-6 md:px-9 md:py-7"
           style={{ background: "linear-gradient(135deg, #14532d 0%, #1c5e20 55%, #166534 100%)" }}
         >
           {/* Background decorative circles */}
@@ -221,13 +221,13 @@ export default function HowItWorksPage() {
           <div style={{ position:"absolute", bottom:-24, left:-16, width:120, height:120, borderRadius:"50%", background:"rgba(255,255,255,0.03)" }} />
 
           <div className="relative z-10">
-            <p className="text-[10px] font-bold tracking-[0.25em] text-white/50 uppercase mb-1">
+            <p className="text-[11px] font-bold tracking-[0.25em] text-white/50 uppercase mb-1.5">
               QurbanEt
             </p>
-            <h1 className="text-xl md:text-2xl font-black text-white leading-tight mb-1">
+            <h1 className="text-xl md:text-2xl font-black text-white leading-tight mb-1.5">
               {t(lang, "howItWorksHero")}
             </h1>
-            <p className="text-[13px] text-white/65 leading-relaxed max-w-lg mb-3">
+            <p className="text-[13px] text-white/65 leading-relaxed max-w-lg mb-4">
               {t(lang, "howItWorksHeroDesc")}
             </p>
 
@@ -248,9 +248,9 @@ export default function HowItWorksPage() {
         </div>
 
         {/* ── STEPS ──────────────────────────────────────────────────────────── */}
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
           {steps.map((step, i) => (
-            <div key={i} className="flex flex-col gap-2">
+            <div key={i} className="flex flex-col gap-2.5">
               <StepCard
                 step={step}
                 cfg={STEP_CFG[i]}
