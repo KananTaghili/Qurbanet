@@ -7,7 +7,7 @@ import {
   CheckCircle2, Truck, XCircle, Clock,
   CreditCard, Package, RefreshCw,
   ShoppingBag, Wallet, Activity, Scale,
-  Scissors, ChevronDown, Star, SlidersHorizontal,
+  Scissors, ChevronDown, Star, SlidersHorizontal, Knife,
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
@@ -37,7 +37,7 @@ const STATUS_CFG = {
   pending_payment:  { label: 'Ödəniş gözlənilir',  bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
   confirmed:        { label: 'Təsdiqləndi',         bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 2, group: 'active'    },
   paid:             { label: 'Ödənilib',            bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 2, group: 'active'    },
-  slaughtering:     { label: 'Kəsilir',             bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: Scissors,     step: 3, group: 'active'    },
+  slaughtering:     { label: 'Kəsilir',             bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: Knife,        step: 3, group: 'active'    },
   preparing:        { label: 'Hazırlanır',          bg: '#D1FAE5', color: '#065F46', dot: '#10B981', Icon: Package,      step: 4, group: 'active'    },
   delivering:       { label: 'Çatdırılır',          bg: '#DBEAFE', color: '#1E3A8A', dot: '#2563EB', Icon: Truck,        step: 5, group: 'active'    },
   completed:        { label: 'Tamamlandı',          bg: '#D1FAE5', color: '#14532D', dot: '#22C55E', Icon: CheckCircle2, step: 6, group: 'completed' },
@@ -47,7 +47,7 @@ const STATUS_CFG = {
 const PIPELINE_STEPS = [
   { label: 'Gözləmə',    Icon: Clock        },
   { label: 'Təsdiq',     Icon: CheckCircle2 },
-  { label: 'Kəsim',      Icon: Scissors     },
+  { label: 'Kəsim',      Icon: Knife        },
   { label: 'Hazırlıq',   Icon: Package      },
   { label: 'Çatdırılma', Icon: Truck        },
   { label: 'Tamamlandı', Icon: Star         },
@@ -74,15 +74,15 @@ function Pipeline({ step }) {
               {/* left connector */}
               <div className="flex-1 h-[2px]" style={{ background: i === 0 ? 'transparent' : (done ? BRAND : '#e5e7eb') }} />
               {/* icon circle */}
-              <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center"
+              <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center"
                 style={{ background: done ? BRAND : '#e9eee9', border: `2px solid ${done ? BRAND : '#d1d5db'}` }}>
-                <Icon size={10} strokeWidth={2.4} style={{ color: done ? '#fff' : '#9ca3af' }} />
+                <Icon size={14} strokeWidth={2.3} style={{ color: done ? '#fff' : '#9ca3af' }} />
               </div>
               {/* right connector */}
               <div className="flex-1 h-[2px]" style={{ background: isLast ? 'transparent' : (done && i < step ? BRAND : '#e5e7eb') }} />
             </div>
             {/* label */}
-            <span className="mt-1 text-[7.5px] font-semibold leading-none text-center"
+            <span className="mt-1.5 text-[9.5px] font-bold leading-none text-center"
               style={{ color: done ? BRAND : '#9ca3af' }}>
               {label}
             </span>
