@@ -165,19 +165,19 @@ export default function QurbanPage() {
 
       {/* Desktop grid */}
       <div
-        className="hidden md:flex flex-col w-full gap-4 lg:gap-5 xl:gap-6 pb-5 md:pb-6 lg:pb-8"
-        style={{ paddingTop: 20, paddingLeft: 28, paddingRight: 28 }}
+        className="hidden md:flex flex-col w-full gap-3 lg:gap-4 pb-4 md:pb-5 lg:pb-6"
+        style={{ paddingTop: 16, paddingLeft: 28, paddingRight: 28 }}
       >
         <HeroBanner router={router} />
         <div>
-          <h3 className="text-xl font-extrabold text-text-primary mb-0.5">Qurbanlığınızı Seçin</h3>
-          <p className="text-xs text-text-muted mb-4">Qurbanlıq heyvan növünü seçərək sifarişinizi tamamlayın</p>
+          <h3 className="text-lg font-extrabold text-text-primary mb-0.5">Qurbanlığınızı Seçin</h3>
+          <p className="text-xs text-text-muted mb-3">Qurbanlıq heyvan növünü seçərək sifarişinizi tamamlayın</p>
           {loading ? (
             <Spinner />
           ) : animals.length === 0 ? (
             <EmptyState lang={lang} />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 md:gap-3 lg:gap-4">
               {animals.map((a) => (
                 <DesktopAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
               ))}
@@ -185,7 +185,7 @@ export default function QurbanPage() {
           )}
         </div>
         {!loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 lg:mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {FEATURES.map(({ Icon, labelKey, subKey }) => (
               <div key={labelKey} className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-4 py-3 shadow-card">
                 <div className="w-10 h-10 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
@@ -209,7 +209,7 @@ export default function QurbanPage() {
    ─────────────────────────────────────────────── */
 function HeroBanner({ router, isMobile }) {
   return (
-    <section className={`relative overflow-hidden rounded-2xl bg-[#e9f1eb] shadow-sm ${isMobile ? "p-5" : "p-6 lg:p-8"}`}>
+    <section className={`relative overflow-hidden rounded-2xl bg-[#e9f1eb] shadow-sm ${isMobile ? "p-4" : "p-5 lg:p-6"}`}>
       <img
         src="/qurban%20sifari%C5%9Fi%20(3).png"
         alt="Qurbanlıq heyvanlar"
@@ -217,12 +217,12 @@ function HeroBanner({ router, isMobile }) {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] from-[38%] via-[#edf5ef]/80 via-[60%] to-transparent" />
       <div className="relative z-10 max-w-lg">
-        <h2 className={`font-extrabold leading-tight text-[#082d15] mb-3 lg:mb-4 ${isMobile ? "text-xl" : "text-2xl lg:text-3xl"}`}>
+        <h2 className={`font-extrabold leading-tight text-[#082d15] mb-2 ${isMobile ? "text-xl" : "text-2xl lg:text-[28px]"}`}>
           Süfrəniz bərəkətli,
           <br />
           <span style={{ color: BRAND }}>Qurbanınız qəbul olsun!</span>
         </h2>
-        <p className="mb-4 lg:mb-5 max-w-md text-sm leading-6 text-[#52675a]">
+        <p className="mb-3 max-w-md text-sm leading-[1.55] text-[#52675a]">
           Qurbanlıq heyvanınızı seçin, halal kəsim və çatdırılma prosesini rahatlıqla bizə həvalə edin.
         </p>
         <button
@@ -377,7 +377,7 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
       <div
         className={`
           bg-white overflow-hidden
-          h-[140px] md:h-[150px] lg:h-[170px] xl:h-[185px]
+          h-[120px] md:h-[130px] lg:h-[145px] xl:h-[160px]
           flex items-center justify-center
           ${isQoyun ? "" : "px-2 lg:px-2.5"}
         `}
@@ -394,19 +394,19 @@ function DesktopAnimalCard({ animal, onSelect, lang }) {
         )}
       </div>
 
-      <div className="p-3 md:p-3.5 lg:p-4">
-        <div className="text-[15px] md:text-base lg:text-[17px] font-extrabold text-text-primary mb-1 lg:mb-1.5 tracking-tight truncate">
+      <div className="p-2.5 md:p-3 lg:p-3.5">
+        <div className="text-[14px] md:text-[15px] lg:text-base font-extrabold text-text-primary mb-0.5 tracking-tight truncate">
           {animalName(animal, lang)}
         </div>
         {animal.pricePerShare != null && (
-          <div className="flex items-baseline gap-1 mb-2 lg:mb-2.5">
-            <span className="text-xl md:text-[22px] lg:text-2xl xl:text-[26px] font-extrabold text-primary">
+          <div className="flex items-baseline gap-1 mb-1.5 lg:mb-2">
+            <span className="text-lg md:text-xl lg:text-[22px] xl:text-2xl font-extrabold text-primary">
               <PriceTag price={animal.pricePerShare} lang={lang} />
             </span>
           </div>
         )}
         <div
-          className={`w-full rounded-xl py-2 lg:py-2.5 text-[13px] lg:text-sm font-bold text-center flex items-center justify-center gap-1 lg:gap-1.5 ${
+          className={`w-full rounded-xl py-1.5 lg:py-2 text-[13px] font-bold text-center flex items-center justify-center gap-1 ${
             inactive
               ? "bg-gray-300 text-gray-500"
               : "bg-primary text-white shadow-[0_2px_8px_rgba(27,94,32,0.25)]"
