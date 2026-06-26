@@ -213,8 +213,8 @@ function HeroBanner({ router, isMobile }) {
       <img
         src="/qurban%20sifari%C5%9Fi%20(3).png"
         alt="Qurbanlıq heyvanlar"
-        className="absolute inset-y-0 right-0 h-full w-[68%] lg:w-[72%] object-contain object-center hidden lg:block"
-        style={{ transform: "scale(1.5)", transformOrigin: "center center" }}
+        className="absolute inset-y-0 right-0 h-full w-[68%] lg:w-[72%] object-contain object-right hidden lg:block"
+        style={{ transform: "scale(1.5)", transformOrigin: "right center" }}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] from-[38%] via-[#edf5ef]/80 via-[60%] to-transparent" />
       <div className="relative z-10 max-w-lg">
