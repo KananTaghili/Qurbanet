@@ -6,7 +6,53 @@ import { useAuth } from "../context/AuthContext";
 import { useNotifications } from "../context/NotificationContext";
 import api from "../lib/api";
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── CSS (injected once) ───────────────────────────────────────────────────────
+const NB_STYLES = `
+  @keyframes nb-bell-ring {
+    0%   { transform: rotate(0deg)   scale(1);    }
+    8%   { transform: rotate(0deg)   scale(1.18); }
+    18%  { transform: rotate(20deg)  scale(1.12); }
+    30%  { transform: rotate(-18deg) scale(1.08); }
+    42%  { transform: rotate(14deg)  scale(1.05); }
+    54%  { transform: rotate(-10deg) scale(1.03); }
+    66%  { transform: rotate(6deg)   scale(1.01); }
+    78%  { transform: rotate(-3deg)  scale(1);    }
+    90%  { transform: rotate(1deg)   scale(1);    }
+    100% { transform: rotate(0deg)   scale(1);    }
+  }
+  @keyframes nb-badge-pop {
+    0%   { transform: scale(0)   opacity(0); }
+    55%  { transform: scale(1.35); }
+    75%  { transform: scale(0.88); }
+    90%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  @keyframes nb-panel-in {
+    from { opacity: 0; transform: scale(0.93) translateY(-10px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+  }
+  @keyframes nb-tab-slide {
+    from { opacity: 0; transform: translateX(var(--nb-from, 12px)); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .nb-ring     { animation: nb-bell-ring 0.72s cubic-bezier(.36,1.1,.54,1) both; transform-origin: top center; }
+  .nb-panel-in { animation: nb-panel-in  0.2s  cubic-bezier(.25,.8,.25,1)  both; transform-origin: top right; }
+  .nb-tab-in   { animation: nb-tab-slide 0.19s cubic-bezier(.25,.8,.25,1)  both; }
+  .nb-badge-in { animation: nb-badge-pop 0.38s cubic-bezier(.34,1.56,.64,1) both; }
+`;
+
+let _nbStyleInjected = false;
+function useNbStyles() {
+  useEffect(() => {
+    if (_nbStyleInjected) return;
+    const el = document.createElement("style");
+    el.textContent = NB_STYLES;
+    document.head.appendChild(el);
+    _nbStyleInjected = true;
+  }, []);
+}
+
+// ── helpers ───────────────────────────────────────────────────────────────────
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -29,15 +75,16 @@ function navPath(n) {
 }
 
 const MODULE_TABS = [
-  { key: "all",     label: "Hamısı"    },
-  { key: "qurban",  label: "Qurban"    },
+  { key: "all",     label: "Hamısı"   },
+  { key: "qurban",  label: "Qurban"   },
   { key: "charity", label: "Xeyriyyə" },
 ];
+const TAB_IDX = { all: 0, qurban: 1, charity: 2 };
 
 const MODULE_ICON = {
-  qurban:  <Beef    size={13} />,
-  charity: <Heart   size={13} />,
-  meat:    <Package size={13} />,
+  qurban:  <Beef      size={13} />,
+  charity: <Heart     size={13} />,
+  meat:    <Package   size={13} />,
   news:    <Newspaper size={13} />,
 };
 
@@ -45,12 +92,14 @@ const MODULE_ICON = {
 
 function NotificationPanel({ accentColor, ringColor, onClose }) {
   const router = useRouter();
-  const { markRead, markAllRead, fetchUnread } = useNotifications();
+  const { markRead, markAllRead } = useNotifications();
 
-  const [tab,           setTab]           = useState("all");
-  const [notifications, setNotifications] = useState([]);
-  const [loading,       setLoading]       = useState(true);
-  const [marking,       setMarking]       = useState(false);
+  const [tab,           setTab]     = useState("all");
+  const [tabDir,        setTabDir]  = useState(1);   // +1 = right, -1 = left
+  const prevTabRef                  = useRef("all");
+  const [notifications, setNots]    = useState([]);
+  const [loading,       setLoading] = useState(true);
+  const [marking,       setMarking] = useState(false);
 
   const fetchList = useCallback(async (module) => {
     setLoading(true);
@@ -58,15 +107,19 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
       const params = { limit: 30, page: 1 };
       if (module && module !== "all") params.module = module;
       const res = await api.get("/notifications", { params });
-      if (res.data?.success) setNotifications(res.data.data.notifications || []);
-    } catch (_) {
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
+      if (res.data?.success) setNots(res.data.data.notifications || []);
+    } catch (_) { setNots([]); }
+    finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchList(tab); }, [tab, fetchList]);
+
+  const changeTab = (key) => {
+    const dir = TAB_IDX[key] >= TAB_IDX[prevTabRef.current] ? 1 : -1;
+    setTabDir(dir);
+    prevTabRef.current = key;
+    setTab(key);
+  };
 
   const handleClick = async (n) => {
     onClose();
@@ -85,7 +138,7 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
 
   return (
     <div
-      className="absolute right-0 z-[9999] flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.22)]"
+      className="nb-panel-in absolute right-0 z-[9999] flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.22)]"
       style={{ top: "calc(100% + 10px)", width: 340, maxHeight: 480 }}
       onClick={e => e.stopPropagation()}
     >
@@ -114,80 +167,91 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-100 px-3 pt-1">
-        {MODULE_TABS.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className="flex-1 py-2 text-[11px] font-semibold transition-colors"
-            style={{
-              color:       tab === key ? accentColor : "#94a3b8",
-              borderBottom: tab === key ? `2px solid ${accentColor}` : "2px solid transparent",
-            }}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="flex border-b border-slate-100 px-3 pt-1 gap-1">
+        {MODULE_TABS.map(({ key, label }) => {
+          const active = tab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => changeTab(key)}
+              className="flex-1 relative py-2 text-[11px] font-semibold transition-colors duration-200"
+              style={{ color: active ? accentColor : "#94a3b8" }}
+            >
+              {label}
+              {/* Animated underline indicator */}
+              <span
+                className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-all duration-250"
+                style={{
+                  background:   active ? accentColor : "transparent",
+                  transform:    active ? "scaleX(1)" : "scaleX(0)",
+                  transformOrigin: "center",
+                  transition: "transform 0.22s cubic-bezier(.4,0,.2,1), background 0.15s",
+                }}
+              />
+            </button>
+          );
+        })}
       </div>
 
-      {/* List */}
+      {/* Content — key = tab so it remounts and re-animates on every tab change */}
       <div className="flex-1 overflow-y-auto" style={{ maxHeight: 360 }}>
-        {loading ? (
-          <div className="flex items-center justify-center py-10">
-            <div
-              className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
-              style={{ borderColor: `${accentColor}40`, borderTopColor: accentColor }}
-            />
-          </div>
-        ) : notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 gap-2">
-            <Bell size={28} className="text-slate-200" />
-            <p className="text-[12px] text-slate-400 font-medium">Bildiriş yoxdur</p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-slate-50">
-            {notifications.map((n) => (
-              <li key={n._id}>
-                <button
-                  onClick={() => handleClick(n)}
-                  className="w-full text-left px-4 py-3 flex items-start gap-3 transition-colors hover:bg-slate-50"
-                >
-                  {/* Module icon */}
-                  <div
-                    className="mt-0.5 w-7 h-7 shrink-0 flex items-center justify-center rounded-full"
-                    style={{ background: `${accentColor}18`, color: accentColor }}
+        <div
+          key={tab}
+          className="nb-tab-in"
+          style={{ "--nb-from": `${tabDir * 14}px` }}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center py-10">
+              <div
+                className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
+                style={{ borderColor: `${accentColor}40`, borderTopColor: accentColor }}
+              />
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 gap-2">
+              <Bell size={28} className="text-slate-200" />
+              <p className="text-[12px] text-slate-400 font-medium">Bildiriş yoxdur</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-50">
+              {notifications.map((n) => (
+                <li key={n._id}>
+                  <button
+                    onClick={() => handleClick(n)}
+                    className="w-full text-left px-4 py-3 flex items-start gap-3 transition-colors hover:bg-slate-50"
                   >
-                    {MODULE_ICON[n.module] || <Bell size={13} />}
-                  </div>
-
-                  {/* Text */}
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className="text-[12px] leading-snug truncate"
-                      style={{ fontWeight: n.read ? 500 : 700, color: n.read ? "#64748b" : "#1e293b" }}
-                    >
-                      {n.title}
-                    </p>
-                    {n.body && (
-                      <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2 leading-snug">{n.body}</p>
-                    )}
-                    <p className="text-[10px] mt-1" style={{ color: accentColor + "99" }}>
-                      {timeAgo(n.createdAt)}
-                    </p>
-                  </div>
-
-                  {/* Unread dot */}
-                  {!n.read && (
                     <div
-                      className="mt-1.5 w-2 h-2 shrink-0 rounded-full"
-                      style={{ background: accentColor }}
-                    />
-                  )}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                      className="mt-0.5 w-7 h-7 shrink-0 flex items-center justify-center rounded-full"
+                      style={{ background: `${accentColor}18`, color: accentColor }}
+                    >
+                      {MODULE_ICON[n.module] || <Bell size={13} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-[12px] leading-snug truncate"
+                        style={{ fontWeight: n.read ? 500 : 700, color: n.read ? "#64748b" : "#1e293b" }}
+                      >
+                        {n.title}
+                      </p>
+                      {n.body && (
+                        <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2 leading-snug">{n.body}</p>
+                      )}
+                      <p className="text-[10px] mt-1" style={{ color: accentColor + "99" }}>
+                        {timeAgo(n.createdAt)}
+                      </p>
+                    </div>
+                    {!n.read && (
+                      <div
+                        className="mt-1.5 w-2 h-2 shrink-0 rounded-full"
+                        style={{ background: accentColor }}
+                      />
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -201,11 +265,38 @@ export default function NotificationBell({
   iconColor   = "#ffffff",
   hoverClass  = "hover:bg-white/10",
 }) {
+  useNbStyles();
+
   const { isGuest } = useAuth();
   const { unreadCount } = useNotifications();
-  const [open, setOpen] = useState(false);
-  const ref  = useRef(null);
 
+  const [open,    setOpen]    = useState(false);
+  const [ringing, setRinging] = useState(false);
+  const [badgeKey, setBadgeKey] = useState(0); // changes to retrigger badge pop
+
+  const ref         = useRef(null);
+  const prevCount   = useRef(unreadCount);
+  const ringTimer   = useRef(null);
+
+  // Bell ring + badge pop when a new notification arrives
+  useEffect(() => {
+    if (unreadCount > prevCount.current) {
+      // Retrigger ring animation
+      setRinging(false);
+      clearTimeout(ringTimer.current);
+      // small delay so class removal flushes first
+      ringTimer.current = setTimeout(() => {
+        setRinging(true);
+        setBadgeKey(k => k + 1);
+        ringTimer.current = setTimeout(() => setRinging(false), 750);
+      }, 20);
+    }
+    prevCount.current = unreadCount;
+  }, [unreadCount]);
+
+  useEffect(() => () => clearTimeout(ringTimer.current), []);
+
+  // Close on outside click
   useEffect(() => {
     if (!open) return;
     const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -215,7 +306,7 @@ export default function NotificationBell({
 
   if (isGuest) return null;
 
-  const badge = unreadCount > 0;
+  const hasBadge = unreadCount > 0;
 
   return (
     <div ref={ref} className="relative">
@@ -224,10 +315,15 @@ export default function NotificationBell({
         className={`w-8 h-8 rounded-full flex items-center justify-center ${hoverClass} transition-colors relative`}
         aria-label="Bildirişlər"
       >
-        <Bell size={16} style={{ color: iconColor }} />
-        {badge && (
+        <Bell
+          size={16}
+          style={{ color: iconColor }}
+          className={ringing ? "nb-ring" : ""}
+        />
+        {hasBadge && (
           <span
-            className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full text-white text-[9px] font-black px-1"
+            key={badgeKey}
+            className="nb-badge-in absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full text-white text-[9px] font-black px-1"
             style={{ background: "#ef4444", boxShadow: `0 0 0 2px ${ringColor}` }}
           >
             {unreadCount > 99 ? "99+" : unreadCount}
