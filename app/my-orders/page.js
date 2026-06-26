@@ -63,15 +63,27 @@ const CHARITY_DIST_KEYS = {
 function Pipeline({ step }) {
   if (step < 0) return null;
   return (
-    <div className="flex gap-0.5">
+    <div className="flex items-start">
       {PIPELINE_STEPS.map(({ label, Icon }, i) => {
         const done = i <= step;
+        const isLast = i === PIPELINE_STEPS.length - 1;
         return (
-          <div key={i} className="flex-1 flex items-center justify-center gap-1 rounded-md px-1 py-1.5 transition-all"
-            style={{ background: done ? BRAND : '#e9eee9' }}>
-            <Icon size={9} strokeWidth={2.4} style={{ color: done ? '#fff' : '#9ca3af', flexShrink: 0 }} />
-            <span className="text-[7.5px] font-bold leading-none truncate"
-              style={{ color: done ? '#fff' : '#9ca3af' }}>
+          <div key={i} className="flex-1 flex flex-col items-center">
+            {/* line + circle row */}
+            <div className="flex items-center w-full">
+              {/* left connector */}
+              <div className="flex-1 h-[2px]" style={{ background: i === 0 ? 'transparent' : (done ? BRAND : '#e5e7eb') }} />
+              {/* icon circle */}
+              <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center"
+                style={{ background: done ? BRAND : '#e9eee9', border: `2px solid ${done ? BRAND : '#d1d5db'}` }}>
+                <Icon size={10} strokeWidth={2.4} style={{ color: done ? '#fff' : '#9ca3af' }} />
+              </div>
+              {/* right connector */}
+              <div className="flex-1 h-[2px]" style={{ background: isLast ? 'transparent' : (done && i < step ? BRAND : '#e5e7eb') }} />
+            </div>
+            {/* label */}
+            <span className="mt-1 text-[7.5px] font-semibold leading-none text-center"
+              style={{ color: done ? BRAND : '#9ca3af' }}>
               {label}
             </span>
           </div>
