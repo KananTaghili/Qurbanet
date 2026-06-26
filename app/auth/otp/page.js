@@ -23,6 +23,8 @@ export default function OtpPage() {
   const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
   const [identifierType, setIdentifierType] = useState('phone');
   const [isLogin, setIsLogin] = useState(false);
+
+  const onlyLetters = (val) => val.replace(/[^a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s\-]/g, '');
   const inputs = useRef([]);
   const nameRef = useRef(null);
   const passwordRef = useRef(null);
@@ -91,8 +93,10 @@ export default function OtpPage() {
     const otp = autoCode || code.join('');
     if (otp.length < 4) { setError('4 rəqəmli kodu daxil edin.'); return; }
     if (!isLogin) {
-      if (name.trim().length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
-      if (lastName.trim().length < 2) { setError('Soyad ən az 2 simvol olmalıdır.'); return; }
+      if (name.trim().length < 2) { setError('Ad ən az 2 hərf olmalıdır.'); return; }
+      if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s\-]+$/.test(name.trim())) { setError('Ad yalnız hərf ola bilər.'); return; }
+      if (lastName.trim().length < 2) { setError('Soyad ən az 2 hərf olmalıdır.'); return; }
+      if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s\-]+$/.test(lastName.trim())) { setError('Soyad yalnız hərf ola bilər.'); return; }
       if (!password || password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır.'); return; }
     }
     if (submittingRef.current) return;
@@ -306,7 +310,7 @@ export default function OtpPage() {
                       name="given-name"
                       autoComplete="given-name"
                       value={name}
-                      onChange={(e) => { setName(e.target.value); setError(''); }}
+                      onChange={(e) => { setName(onlyLetters(e.target.value)); setError(''); }}
                       placeholder="Məsələn: Əli"
                       autoCapitalize="words"
                       maxLength={60}
@@ -321,7 +325,7 @@ export default function OtpPage() {
                       name="family-name"
                       autoComplete="family-name"
                       value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
+                      onChange={(e) => { setLastName(onlyLetters(e.target.value)); setError(''); }}
                       placeholder="Məsələn: Hüseynov"
                       autoCapitalize="words"
                       maxLength={60}
