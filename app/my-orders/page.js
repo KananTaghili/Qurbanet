@@ -63,27 +63,20 @@ const CHARITY_DIST_KEYS = {
 function Pipeline({ step }) {
   if (step < 0) return null;
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex gap-0.5">
-        {PIPELINE_STEPS.map((_, i) => (
-          <div key={i} className="h-1.5 flex-1 rounded-full"
-            style={{ background: i <= step ? BRAND : '#e5e7eb' }} />
-        ))}
-      </div>
-      <div className="flex">
-        {PIPELINE_STEPS.map(({ label, Icon }, i) => {
-          const done = i <= step;
-          return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-              <Icon size={9} strokeWidth={2.2} style={{ color: done ? BRAND : '#d1d5db' }} />
-              <span className="text-[7.5px] font-semibold leading-none"
-                style={{ color: done ? BRAND : '#9ca3af' }}>
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+    <div className="flex gap-0.5">
+      {PIPELINE_STEPS.map(({ label, Icon }, i) => {
+        const done = i <= step;
+        return (
+          <div key={i} className="flex-1 flex items-center justify-center gap-1 rounded-md px-1 py-1.5 transition-all"
+            style={{ background: done ? BRAND : '#e9eee9' }}>
+            <Icon size={9} strokeWidth={2.4} style={{ color: done ? '#fff' : '#9ca3af', flexShrink: 0 }} />
+            <span className="text-[7.5px] font-bold leading-none truncate"
+              style={{ color: done ? '#fff' : '#9ca3af' }}>
+              {label}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
