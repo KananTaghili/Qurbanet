@@ -7,7 +7,7 @@ import {
   CheckCircle2, Truck, XCircle, Clock,
   CreditCard, Package, RefreshCw,
   ShoppingBag, Wallet, Activity, Scale,
-  Scissors,
+  Scissors, ChevronDown, Filter,
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
@@ -124,9 +124,9 @@ function OrderCard({ item, lang }) {
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-[15px] font-extrabold text-[#071b0d] leading-tight">{title}</h3>
             {/* Status badge with icon */}
-            <span className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold"
-              style={{ background: cfg.bg, color: cfg.color }}>
-              <StatusIcon size={11} strokeWidth={2.2} />
+            <span className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold"
+              style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
+              <StatusIcon size={13} strokeWidth={2.3} style={{ color: cfg.dot }} />
               {cfg.label}
             </span>
           </div>
@@ -322,24 +322,27 @@ export default function MyOrdersPage() {
                 <StatCard icon={Wallet}        label="Ödənilmiş məbləğ" value={`${totalAmount.toFixed(2)} AZN`} sub="Cəmi"        />
               </div>
 
-              {/* Status tabs */}
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
-                {TABS.map(tab => {
-                  const TabIcon = tab.Icon;
-                  const active = filter === tab.key;
-                  return (
-                    <button key={tab.key} onClick={() => setFilter(tab.key)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-bold transition-all"
-                      style={active ? { background: BRAND, color: '#fff' } : { background: '#f0f7f0', color: '#4b7a4f' }}>
-                      <TabIcon size={13} strokeWidth={2.2} />
-                      {tab.label}
-                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-lg"
-                        style={active ? { background: 'rgba(255,255,255,0.22)', color: '#fff' } : { background: '#d1fae5', color: BRAND }}>
-                        {tab.count}
-                      </span>
-                    </button>
-                  );
-                })}
+              {/* Status filter select */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative inline-flex items-center">
+                  <Filter size={14} className="absolute left-3 pointer-events-none" style={{ color: BRAND }} />
+                  <select
+                    value={filter}
+                    onChange={e => setFilter(e.target.value)}
+                    className="appearance-none pl-8 pr-9 py-2.5 rounded-xl text-[13px] font-bold focus:outline-none cursor-pointer"
+                    style={{ background: '#f0f7f0', color: BRAND, border: `1.5px solid #c8e6c9` }}
+                  >
+                    {TABS.map(tab => (
+                      <option key={tab.key} value={tab.key}>
+                        {tab.label} ({tab.count})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3 pointer-events-none" style={{ color: BRAND }} />
+                </div>
+                <span className="text-[12px] text-gray-400 font-medium">
+                  {filtered.length} nəticə
+                </span>
               </div>
 
               {/* Cards */}
