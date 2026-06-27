@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, HelpCircle, BookOpen, LogOut, Settings,
+  ArrowLeft, Menu, X, Beef, ClipboardList, HelpCircle, BookOpen, LogOut, Settings, User,
 } from "lucide-react";
 import NotificationBell from "../../components/NotificationBell";
 import { PiKnifeBold } from "react-icons/pi";
@@ -101,9 +101,9 @@ export default function QurbanLayout({ children }) {
             <div className="flex items-center gap-2 shrink-0">
               <NotificationBell accentColor="#1c5e20" ringColor="#1c5e20" />
               {isGuest ? (
-                <Link href="/auth/login"
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#1c5e20] text-[12px] font-semibold hover:bg-green-50 transition-all shadow-sm">
-                  Daxil ol
+                <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`}
+                  className="flex items-center gap-2 text-[13px] font-semibold text-white hover:text-white/70 transition-colors">
+                  <User size={16} /> Daxil ol
                 </Link>
               ) : (
                 <div ref={userMenuRef} className="block relative">

@@ -966,9 +966,8 @@ export default function CharityLayout({ children }) {
               <NotificationBell accentColor="#301586" ringColor="#301586" />
               {isGuest ? (
                 <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`}
-                  className="hidden sm:flex items-center gap-2 text-sm font-semibold text-white hover:text-white/70 transition-colors">
-                  <User size={18} />
-                  <span>Daxil ol</span>
+                  className="hidden sm:flex items-center gap-2 text-[13px] font-semibold text-white hover:text-white/70 transition-colors">
+                  <User size={16} /> Daxil ol
                 </Link>
               ) : (
                 <CharityUserMenu user={user} onLogout={logout} />
