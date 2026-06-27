@@ -73,17 +73,17 @@ function Pipeline({ step }) {
             {/* line + circle row */}
             <div className="flex items-center w-full">
               {/* left connector */}
-              <div className="flex-1 h-[2px]" style={{ background: i === 0 ? 'transparent' : (done ? BRAND : '#e5e7eb') }} />
+              <div className="flex-1 h-[1.5px] sm:h-[2px]" style={{ background: i === 0 ? 'transparent' : (done ? BRAND : '#e5e7eb') }} />
               {/* icon circle */}
-              <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center"
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full shrink-0 flex items-center justify-center"
                 style={{ background: done ? BRAND : '#e9eee9', border: `2px solid ${done ? BRAND : '#d1d5db'}` }}>
-                <Icon size={14} style={{ color: done ? '#fff' : '#9ca3af' }} />
+                <Icon size={11} style={{ color: done ? '#fff' : '#9ca3af' }} />
               </div>
               {/* right connector */}
-              <div className="flex-1 h-[2px]" style={{ background: isLast ? 'transparent' : (done && i < step ? BRAND : '#e5e7eb') }} />
+              <div className="flex-1 h-[1.5px] sm:h-[2px]" style={{ background: isLast ? 'transparent' : (done && i < step ? BRAND : '#e5e7eb') }} />
             </div>
             {/* label */}
-            <span className="mt-1.5 text-[9.5px] font-bold leading-none text-center"
+            <span className="mt-1 text-[7.5px] sm:text-[9.5px] font-bold leading-none text-center"
               style={{ color: done ? BRAND : '#9ca3af' }}>
               {label}
             </span>
@@ -121,72 +121,73 @@ function OrderCard({ item, lang }) {
         style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8' }}>
 
         {/* Left image */}
-        <div className="relative shrink-0 w-[130px] md:w-[150px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 140 }}>
+        <div className="relative shrink-0 w-[100px] sm:w-[130px] md:w-[150px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 130 }}>
           {isCharity ? (
             <div className="w-full h-full flex items-center justify-center">
-              <Heart size={40} style={{ color: BRAND, opacity: 0.2 }} />
+              <Heart size={32} style={{ color: BRAND, opacity: 0.2 }} />
             </div>
           ) : (
             <img src={imgSrc} alt={title} className="w-full h-full object-cover"
               style={{ objectPosition: 'center 15%' }} />
           )}
-          <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
+          <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1"
             style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
-            <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
+            <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
           </div>
         </div>
 
         {/* Right content */}
-        <div className="flex-1 min-w-0 px-4 py-3 flex flex-col justify-between gap-2">
+        <div className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col justify-between gap-1.5 sm:gap-2">
 
           {/* Title + status */}
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[15px] font-extrabold text-[#071b0d] leading-tight">{title}</h3>
+          <div className="flex items-start justify-between gap-1.5 sm:gap-2">
+            <h3 className="text-[13px] sm:text-[15px] font-extrabold text-[#071b0d] leading-tight">{title}</h3>
             {/* Status badge with icon */}
-            <span className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold"
+            <span className="shrink-0 inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-bold"
               style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
-              <StatusIcon size={13} strokeWidth={2.3} style={{ color: cfg.dot }} />
-              {cfg.label}
+              <StatusIcon size={11} strokeWidth={2.3} style={{ color: cfg.dot }} />
+              <span className="hidden xs:inline sm:inline">{cfg.label}</span>
+              <span className="xs:hidden sm:hidden" style={{ maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>{cfg.label}</span>
             </span>
           </div>
 
           {/* Info chips */}
-          <div className="flex flex-wrap gap-1.5">
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
+          <div className="flex flex-wrap gap-1 sm:gap-1.5">
+            <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold"
               style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-              <ShoppingBag size={10} strokeWidth={2} />
+              <ShoppingBag size={9} strokeWidth={2} />
               {qty} {t(lang, 'animalUnit')}
             </div>
             {amount != null && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
+              <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold"
                 style={{ background: '#f0f7f0', color: BRAND }}>
-                <Wallet size={10} strokeWidth={2} />
+                <Wallet size={9} strokeWidth={2} />
                 {amount} AZN
               </div>
             )}
             {weight && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
+              <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold"
                 style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-                <Scale size={10} strokeWidth={2} />
-                <span className="text-gray-400 font-semibold">Diri Çəkisi:</span> {weight} kq
+                <Scale size={9} strokeWidth={2} />
+                <span className="text-gray-400 font-semibold hidden sm:inline">Diri Çəkisi:</span> {weight} kq
               </div>
             )}
             {item.mediaFiles?.length > 0 && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-600">
-                <Video size={10} strokeWidth={2} /> Video
+              <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold bg-blue-50 text-blue-600">
+                <Video size={9} strokeWidth={2} /> Video
               </div>
             )}
           </div>
 
           {/* Date + pipeline + CTA */}
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex items-end justify-between gap-2 sm:gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-gray-400 mb-1.5">{fmtDate(item.createdAt, months)}</p>
+              <p className="text-[9px] sm:text-[10px] text-gray-400 mb-1 sm:mb-1.5">{fmtDate(item.createdAt, months)}</p>
               {!isCharity && <Pipeline step={cfg.step} />}
             </div>
-            <span className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold py-1.5 px-3 rounded-xl transition-all group-hover:gap-1.5"
+            <span className="shrink-0 inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl transition-all group-hover:gap-1.5"
               style={{ color: BRAND, background: '#e8f5e9' }}>
-              {t(lang, 'viewDetail')} <ArrowRight size={12} />
+              {t(lang, 'viewDetail')} <ArrowRight size={11} />
             </span>
           </div>
         </div>
@@ -257,15 +258,15 @@ function StatusFilter({ tabs, value, onChange }) {
 /* ── Stat Card ─────────────────────────────────── */
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
-    <div className="bg-white rounded-2xl px-4 py-3.5 flex items-center gap-3"
+    <div className="bg-white rounded-xl sm:rounded-2xl px-2.5 sm:px-4 py-2.5 sm:py-3.5 flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3"
       style={{ boxShadow: '0 2px 12px rgba(28,94,32,0.07)', border: '1.5px solid #e8f0e8' }}>
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#e8f5e9' }}>
-        <Icon size={18} color={BRAND} strokeWidth={1.8} />
+      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0" style={{ background: '#e8f5e9' }}>
+        <Icon size={15} color={BRAND} strokeWidth={1.8} />
       </div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-semibold text-gray-400 leading-none mb-1">{label}</p>
-        <p className="text-lg font-extrabold text-[#071b0d] leading-none">{value}</p>
-        {sub && <p className="text-[10px] text-gray-400 mt-0.5">{sub}</p>}
+      <div className="min-w-0 text-center sm:text-left">
+        <p className="text-[9px] sm:text-[10px] font-semibold text-gray-400 leading-none mb-0.5 sm:mb-1 truncate">{label}</p>
+        <p className="text-sm sm:text-lg font-extrabold text-[#071b0d] leading-none truncate">{value}</p>
+        {sub && <p className="text-[9px] sm:text-[10px] text-gray-400 mt-0.5 hidden sm:block">{sub}</p>}
       </div>
     </div>
   );
@@ -349,7 +350,7 @@ export default function MyOrdersPage() {
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 overflow-y-auto">
-        <div className="px-5 md:px-7 pt-5 pb-6 max-w-4xl mx-auto w-full">
+        <div className="px-4 sm:px-5 md:px-7 pt-4 sm:pt-5 pb-6 max-w-4xl mx-auto w-full">
 
           <div className="mb-4">
             <h1 className="text-xl font-extrabold text-[#071b0d]">{t(lang, 'ordersTitle')}</h1>
@@ -394,7 +395,7 @@ export default function MyOrdersPage() {
           ) : (
             <>
               {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-5">
                 <StatCard icon={ClipboardList} label="Ümumi sifariş"   value={allItems.length}                   sub="Bugünə kimi" />
                 <StatCard icon={Activity}      label="Aktiv sifariş"   value={activeCount}                       sub="Davam edir"  />
                 <StatCard icon={Wallet}        label="Ödənilmiş məbləğ" value={`${totalAmount.toFixed(2)} AZN`} sub="Cəmi"        />
