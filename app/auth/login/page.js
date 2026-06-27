@@ -188,7 +188,7 @@ export default function LoginPage() {
       </section>
 
       {/* Right panel — form */}
-      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px" }}
+      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px", overflowX: "hidden" }}
         className="h-full overflow-y-auto"
       >
         <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: "100%", paddingTop: 8, paddingBottom: 8 }}>

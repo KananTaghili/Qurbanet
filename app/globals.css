@@ -430,5 +430,5 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
 
 ::-webkit-scrollbar { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
+::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #c5001e; }
