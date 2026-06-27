@@ -144,12 +144,6 @@ export default function QurbanRulesPage() {
 
   const toggle = (i) => setOpenIndex((prev) => (prev === i ? null : i));
 
-  const scrollToSection = (i) => {
-    const el = document.getElementById(`qr-section-${i}`);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    toggle(i);
-  };
-
   return (
     <>
       <style>{`
@@ -204,34 +198,6 @@ export default function QurbanRulesPage() {
             </div>
           </div>
 
-          {/* ── Chapter index strip ── */}
-          <div
-            className="qr-index flex gap-2 px-5 pb-4 overflow-x-auto"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
-          >
-            {sections.map(({ Icon, accent, light }, i) => (
-              <button
-                key={i}
-                onClick={() => scrollToSection(i)}
-                className="shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all"
-                style={{
-                  background: openIndex === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.12)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                }}
-              >
-                <span
-                  className="text-[10px] font-black"
-                  style={{ color: openIndex === i ? accent : "rgba(255,255,255,0.7)" }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <Icon
-                  size={11}
-                  color={openIndex === i ? accent : "rgba(255,255,255,0.6)"}
-                />
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* ── SECTIONS — 2 col desktop ──────────────────────────────────────── */}

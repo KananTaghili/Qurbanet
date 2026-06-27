@@ -133,7 +133,7 @@ export default function LoginPage() {
           href="/"
           style={{
             position: "absolute", top: 20, left: 20,
-            width: 36, height: 36, borderRadius: 12,
+            width: 36, height: 36, borderRadius: "50%",
             background: "rgba(255,255,255,0.15)",
             display: "flex", alignItems: "center", justifyContent: "center",
             color: "#fff",
@@ -193,7 +193,7 @@ export default function LoginPage() {
       >
         {/* Mobile back button */}
         <Link href="/" className="lg:hidden self-start mb-1"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: 12, background: "rgba(255,255,255,0.18)", color: "#fff" }}>
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", color: "#fff" }}>
           <ArrowLeft size={18} />
         </Link>
 
