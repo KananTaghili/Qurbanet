@@ -928,7 +928,7 @@ export default function CharityLayout({ children }) {
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md" style={{ background: "rgba(255,255,255,0.15)" }}>
                   <Heart size={11} style={{ color: "rgba(255,255,255,0.85)" }} />
                 </div>
-                <p className="text-[11px] font-semibold leading-tight text-white/80">Birlikdə xeyir, birlikdə paylaşaq</p>
+                <p className="text-[11px] font-semibold leading-tight text-white/80">Yaxşılıq elə ki, başına gəlsin.</p>
               </div>
               <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
               <div className="px-2 pb-2 pt-1.5">

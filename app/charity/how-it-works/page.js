@@ -80,7 +80,7 @@ export default function NecePage() {
             <Heart size={15} strokeWidth={2} />
           </div>
           <div>
-            <div className="text-[12px] font-extrabold text-[#241a4d]">Birlikdə xeyir, birlikdə paylaşaq</div>
+            <div className="text-[12px] font-extrabold text-[#241a4d]">Yaxşılıq elə ki, başına gəlsin.</div>
             <div className="mt-0.5 text-[11px] text-[#8778a8]">Tam şəffaflıq · Halal kəsim · Ehtiyac sahiblərinə çatdırılır</div>
           </div>
         </div>
