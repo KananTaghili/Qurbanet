@@ -965,9 +965,10 @@ export default function CharityLayout({ children }) {
             <div className="flex items-center gap-2 shrink-0">
               <NotificationBell accentColor="#301586" ringColor="#301586" />
               {isGuest ? (
-                <Link href={`/auth/register?from=${encodeURIComponent(pathname)}`}
-                  className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#301586] text-[12px] font-semibold hover:bg-purple-50 transition-all shadow-sm">
-                  Qeydiyyat <ChevronDown size={12} />
+                <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`}
+                  className="hidden sm:flex items-center gap-2 text-sm font-semibold text-white hover:text-white/70 transition-colors">
+                  <User size={18} />
+                  <span>Daxil ol</span>
                 </Link>
               ) : (
                 <CharityUserMenu user={user} onLogout={logout} />
@@ -1012,9 +1013,9 @@ export default function CharityLayout({ children }) {
             {/* Bottom: user info or register */}
             <div className="px-4 pb-6 border-t border-white/10 pt-4">
               {isGuest ? (
-                <Link href={`/auth/register?from=${encodeURIComponent(pathname)}`} onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-xl bg-white text-[#301586] text-[13px] font-semibold hover:bg-purple-50 transition-all">
-                  Qeydiyyat
+                <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`} onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-white text-[#301586] text-[13px] font-semibold hover:bg-purple-50 transition-all">
+                  <User size={16} /> Daxil ol
                 </Link>
               ) : (
                 <>
