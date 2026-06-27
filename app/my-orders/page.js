@@ -13,8 +13,9 @@ function KnifeIconThin({ size = 14, style }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={style}>
-      <path d="M17 3L7 13l-3 7 7-3L21 7l-4-4z" />
-      <line x1="7" y1="13" x2="4" y2="20" />
+      <path d="M21 3L9 15" />
+      <path d="M9 15c-2 2-5 2-6 3s0 3 1 2 1-4 3-6" />
+      <path d="M5 20l-2 2" />
     </svg>
   );
 }
