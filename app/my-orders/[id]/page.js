@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
-  ClipboardList, CheckCircle2, Package, Truck, Star,
+  CheckCircle2, Package, Truck, Star,
   MapPin, ExternalLink, ImageIcon, X, Banknote, FileText,
   ShoppingBag, Download, Play, Clock, CreditCard, XCircle,
   ChevronLeft, ChevronRight, Scale,
@@ -69,28 +69,40 @@ const CUT_LABELS = {
   qazan_yemekleri: "Qazan yeməkləri", qiyma: "Qiyma",
 };
 
-/* ── Pipeline — identical to list page ── */
-function Pipeline({ step }) {
+/* ── Vertical Timeline ── */
+function VerticalTimeline({ step }) {
   if (step < 0) return null;
   return (
-    <div className="flex items-start">
+    <div className="flex flex-col">
       {PIPELINE_STEPS.map(({ label, Icon }, i) => {
-        const done = i <= step;
+        const done   = i <= step;
+        const active = i === step;
         const isLast = i === PIPELINE_STEPS.length - 1;
         return (
-          <div key={i} className="flex-1 flex flex-col items-center">
-            <div className="flex items-center w-full">
-              <div className="flex-1 h-[2px]" style={{ background: i === 0 ? 'transparent' : (done ? BRAND : '#e5e7eb') }} />
-              <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center"
-                style={{ background: done ? BRAND : '#e9eee9', border: `2px solid ${done ? BRAND : '#d1d5db'}` }}>
+          <div key={i} className="flex gap-3">
+            {/* icon + connector */}
+            <div className="flex flex-col items-center shrink-0">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{
+                  background: done ? BRAND : '#f0f7f0',
+                  border: `2px solid ${done ? BRAND : '#d1d5db'}`,
+                  boxShadow: active ? `0 0 0 4px ${BRAND}22` : 'none',
+                }}>
                 <Icon size={14} style={{ color: done ? '#fff' : '#9ca3af' }} />
               </div>
-              <div className="flex-1 h-[2px]" style={{ background: isLast ? 'transparent' : (done && i < step ? BRAND : '#e5e7eb') }} />
+              {!isLast && (
+                <div className="w-[2px] flex-1 my-1" style={{ background: done && i < step ? BRAND : '#e5e7eb', minHeight: 20 }} />
+              )}
             </div>
-            <span className="mt-1.5 text-[9.5px] font-bold leading-none text-center"
-              style={{ color: done ? BRAND : '#9ca3af' }}>
-              {label}
-            </span>
+            {/* label */}
+            <div className={`pt-1 ${isLast ? '' : 'pb-4'}`}>
+              <p className="text-[13px] font-bold leading-none" style={{ color: done ? '#071b0d' : '#9ca3af' }}>
+                {label}
+              </p>
+              {active && (
+                <p className="text-[10px] font-semibold mt-0.5" style={{ color: BRAND }}>Hal-hazırda</p>
+              )}
+            </div>
           </div>
         );
       })}
@@ -171,12 +183,12 @@ function GalleryModal({ items, startIdx, onClose, token }) {
   return (
     <div className="fixed inset-0 flex flex-col" style={{ zIndex: 99999, background: "rgba(0,0,0,0.85)" }} onClick={onClose}>
       <div className="flex items-center justify-between px-5 py-4 shrink-0" onClick={e => e.stopPropagation()}>
-        <button onClick={dl} className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-white"
+        <button onClick={dl} className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-white border-0 cursor-pointer"
           style={{ background: "rgba(255,255,255,0.15)" }}>
           <Download size={14} /> Yüklə
         </button>
         <span className="text-white font-bold text-sm">{idx + 1} / {items.length}</span>
-        <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center text-white"
+        <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center text-white border-0 cursor-pointer"
           style={{ background: "rgba(255,255,255,0.15)" }}>
           <X size={18} />
         </button>
@@ -184,7 +196,7 @@ function GalleryModal({ items, startIdx, onClose, token }) {
       <div className="flex-1 flex items-center justify-center relative" onClick={e => e.stopPropagation()}>
         {idx > 0 && (
           <button onClick={() => setIdx(i => Math.max(0, i - 1))}
-            className="absolute left-4 z-10 w-10 h-10 rounded-full flex items-center justify-center text-white"
+            className="absolute left-4 z-10 w-10 h-10 rounded-full flex items-center justify-center text-white border-0 cursor-pointer"
             style={{ background: "rgba(255,255,255,0.15)" }}>
             <ChevronLeft size={22} />
           </button>
@@ -203,7 +215,7 @@ function GalleryModal({ items, startIdx, onClose, token }) {
         </div>
         {idx < items.length - 1 && (
           <button onClick={() => setIdx(i => Math.min(items.length - 1, i + 1))}
-            className="absolute right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center text-white"
+            className="absolute right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center text-white border-0 cursor-pointer"
             style={{ background: "rgba(255,255,255,0.15)" }}>
             <ChevronRight size={22} />
           </button>
@@ -291,16 +303,17 @@ export default function OrderDetailPage() {
   const totalAmt     = order.totalPrice ?? order.totalAmount ?? 0;
   const orderNum     = order.orderNumber || id.slice(-6).toUpperCase();
   const allMedia     = order.media || [];
-  const weight       = order.animal?.weightRange || order.lambSelection?.weightRange || order.weightRange || null;
+  const weight       = order.weightRange || order.lambSelection?.weightRange || order.animal?.weightRange || null;
   const isSelfPickup = ["ozun_gotur", "ozum"].includes(order.distribution?.type) || order.selfPickup;
 
   const detailRows = [
     { label: "Sifariş növü",     value: order.orderMode === "serikli" ? "Şərikli" : "Tam heyvan" },
     { label: "Miqdar",           value: `${order.quantity || 1} ədəd` },
+    ...(weight ? [{ label: "Diri Çəki", value: `${weight} kq` }] : []),
     { label: "Çatdırılma",       value: DIST_LABELS[order.distribution?.type] || "—" },
     { label: "Kəsim tarixi",     value: fmtDate(order.slaughterDate) },
     { label: "Çatdırılma vaxtı", value: order.deliveryWindow || "—" },
-    ...(order.distribution?.location  ? [{ label: "Ünvan",   value: order.distribution.location }] : []),
+    ...(order.distribution?.location ? [{ label: "Ünvan",   value: order.distribution.location }] : []),
     ...(order.distribution?.phones?.length > 0 ? [{ label: "Nömrə", value: order.distribution.phones.join(", ") }] : []),
     ...(order.distribution?.note      ? [{ label: "Qeyd",    value: order.distribution.note }] : []),
     ...(order.contactInfo ? [
@@ -318,7 +331,8 @@ export default function OrderDetailPage() {
   })();
 
   const cardStyle = { boxShadow: '0 2px 12px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8' };
-  const sectionHead = (Icon, label, iconBg = '#e8f5e9', iconColor = BRAND) => (
+
+  const SectionHead = ({ Icon, label, iconBg = '#e8f5e9', iconColor = BRAND }) => (
     <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-100">
       <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: iconBg }}>
         <Icon size={15} style={{ color: iconColor }} />
@@ -334,15 +348,27 @@ export default function OrderDetailPage() {
       <div className="flex-1 overflow-y-auto pb-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex flex-col gap-3">
 
-          {/* ── HERO CARD ─────────────────────────────────── */}
+          {/* ── HERO CARD: image LEFT, info RIGHT ── */}
           <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-            <div className="flex" style={{ minHeight: 170 }}>
+            <div className="flex" style={{ minHeight: 180 }}>
 
-              {/* LEFT: order info */}
-              <div className="flex-1 min-w-0 p-4 flex flex-col justify-between">
+              {/* LEFT: animal photo */}
+              <div className="relative shrink-0 w-[140px] md:w-[180px] overflow-hidden"
+                style={{ background: '#f0f7f0' }}>
+                <img src={animalImg} alt={animalName}
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center 15%' }} />
+                <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }}>
+                  <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
+                </div>
+              </div>
+
+              {/* RIGHT: info */}
+              <div className="flex-1 min-w-0 px-4 py-4 flex flex-col justify-between gap-3">
                 <div className="flex flex-col gap-2">
                   <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Sifariş nömrəsi</p>
-                  <p className="font-mono font-black text-[#071b0d] text-[15px] leading-none">{orderNum}</p>
+                  <p className="font-mono font-black text-[#071b0d] text-[14px] leading-none">{orderNum}</p>
                   <span className="self-start inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold"
                     style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
                     <StatusIcon size={11} style={{ color: cfg.dot }} />
@@ -350,42 +376,36 @@ export default function OrderDetailPage() {
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-0.5">
-                  <p className="text-[11px] text-gray-400 font-medium">{animalName}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[26px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
+                <div>
+                  <p className="text-[11px] text-gray-400 font-medium mb-0.5">{animalName}</p>
+                  <div className="flex items-baseline gap-1 flex-wrap">
+                    <span className="text-[24px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
                     <span className="text-sm font-bold text-gray-400">AZN</span>
+                    {weight && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg ml-1"
+                        style={{ background: '#f0f7f0', color: BRAND }}>
+                        <Scale size={9} />
+                        {weight} kq
+                      </span>
+                    )}
                   </div>
-                  {weight && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold mt-1" style={{ color: BRAND }}>
-                      <Scale size={10} />
-                      Diri Çəkisi: <b>{weight} kq</b>
-                    </span>
-                  )}
                   <p className="text-[10px] text-gray-400 mt-1">{fmtDate(order.createdAt)}</p>
                 </div>
               </div>
-
-              {/* RIGHT: animal photo */}
-              <div className="relative w-[150px] md:w-[190px] shrink-0 overflow-hidden"
-                style={{ background: '#f0f7f0' }}>
-                <img src={animalImg} alt={animalName}
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: 'center 15%' }} />
-                <div className="absolute inset-0"
-                  style={{ background: 'linear-gradient(to left, transparent 55%, rgba(255,255,255,0.55))' }} />
-              </div>
-            </div>
-
-            {/* Pipeline strip */}
-            <div className="px-4 py-3 border-t border-gray-100">
-              <Pipeline step={step} />
             </div>
           </div>
 
-          {/* ── ORDER DETAILS CARD ────────────────────────── */}
+          {/* ── STATUS STEPS CARD (vertical) ── */}
           <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-            {sectionHead(FileText, "Sifariş məlumatları")}
+            <SectionHead Icon={CheckCircle2} label="Sifariş gedişatı" />
+            <div className="px-4 py-4">
+              <VerticalTimeline step={step} />
+            </div>
+          </div>
+
+          {/* ── ORDER DETAILS CARD ── */}
+          <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
+            <SectionHead Icon={FileText} label="Sifariş məlumatları" />
             {detailRows.map((row, i) => (
               <InfoRow key={row.label} label={row.label} value={row.value}
                 last={i === detailRows.length - 1 && cutEntries.length === 0} />
@@ -402,10 +422,10 @@ export default function OrderDetailPage() {
             )}
           </div>
 
-          {/* ── MEDIA CARD ────────────────────────────────── */}
+          {/* ── MEDIA CARD ── */}
           {allMedia.length > 0 && (
             <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-              {sectionHead(ImageIcon, "Foto / Video")}
+              <SectionHead Icon={ImageIcon} label="Foto / Video" />
               <div className="p-4">
                 <StepMedia items={allMedia}
                   onOpen={(items, idx) => setGallery({ items, idx })} token={token} />
@@ -413,10 +433,10 @@ export default function OrderDetailPage() {
             </div>
           )}
 
-          {/* ── CASH PICKUP CODE ──────────────────────────── */}
+          {/* ── CASH PICKUP CODE ── */}
           {order.cashPickupCode && (
             <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-              {sectionHead(Banknote, "Yerində ödəniş kodu", "#fef9ec", "#d97706")}
+              <SectionHead Icon={Banknote} label="Yerində ödəniş kodu" iconBg="#fef9ec" iconColor="#d97706" />
               <div className="px-4 py-5 flex flex-col items-center gap-3">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mağazada göstərin</p>
                 <div className="rounded-2xl px-8 py-3"
@@ -444,10 +464,10 @@ export default function OrderDetailPage() {
             </div>
           )}
 
-          {/* ── MEAT PICKUP LOCATION ──────────────────────── */}
+          {/* ── MEAT PICKUP ── */}
           {isSelfPickup && meatPickupLocation && (
             <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-              {sectionHead(ShoppingBag, "Əti götürmə")}
+              <SectionHead Icon={ShoppingBag} label="Əti götürmə" />
               <div className="p-4 flex flex-col gap-3">
                 <div className="flex items-start gap-2 rounded-xl border px-3 py-2.5"
                   style={{ background: '#f0f9f0', borderColor: `${BRAND}30` }}>
@@ -457,7 +477,7 @@ export default function OrderDetailPage() {
                 {meatPickupLocation.lat && meatPickupLocation.lng && (
                   <a href={`https://www.google.com/maps?q=${meatPickupLocation.lat},${meatPickupLocation.lng}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm no-underline transition-colors"
+                    className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm no-underline"
                     style={{ border: `2px solid ${BRAND}`, color: BRAND }}>
                     <ExternalLink size={14} /> Google Maps-də aç
                   </a>
@@ -466,10 +486,10 @@ export default function OrderDetailPage() {
             </div>
           )}
 
-          {/* ── DELIVERY CONFIRM CODE ─────────────────────── */}
+          {/* ── DELIVERY CONFIRM CODE ── */}
           {order.deliveryConfirmCode && (
             <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-              {sectionHead(Truck, "Çatdırılma kodu", "#eff6ff", "#3b82f6")}
+              <SectionHead Icon={Truck} label="Çatdırılma kodu" iconBg="#eff6ff" iconColor="#3b82f6" />
               <div className="px-4 py-5 flex flex-col items-center gap-2">
                 <div className="rounded-2xl px-8 py-3"
                   style={{ background: "linear-gradient(135deg,#eff6ff,#dbeafe)", border: "1.5px solid rgba(59,130,246,0.25)" }}>
@@ -482,10 +502,10 @@ export default function OrderDetailPage() {
             </div>
           )}
 
-          {/* ── REVIEW ────────────────────────────────────── */}
+          {/* ── REVIEW ── */}
           {order.status === "completed" && (
             <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-              {sectionHead(Star, "Rəy bildirin", "#fef9ec", "#f59e0b")}
+              <SectionHead Icon={Star} label="Rəy bildirin" iconBg="#fef9ec" iconColor="#f59e0b" />
               <div className="p-4">
                 <div className="flex justify-center gap-3 mb-4">
                   {[1, 2, 3, 4, 5].map(star => (
@@ -502,7 +522,7 @@ export default function OrderDetailPage() {
                       className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm resize-none outline-none mb-3"
                       style={{ fontFamily: 'inherit' }} />
                     <button onClick={handleReview} disabled={!rating || reviewing}
-                      className="w-full py-2.5 rounded-xl text-white text-sm font-bold transition-opacity disabled:opacity-50"
+                      className="w-full py-2.5 rounded-xl text-white text-sm font-bold transition-opacity disabled:opacity-50 border-0 cursor-pointer"
                       style={{ background: BRAND }}>
                       {reviewing ? "Göndərilir..." : "Rəyi göndər"}
                     </button>
