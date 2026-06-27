@@ -77,7 +77,7 @@ function Pipeline({ step }) {
               {/* icon circle */}
               <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center"
                 style={{ background: done ? BRAND : '#e9eee9', border: `2px solid ${done ? BRAND : '#d1d5db'}` }}>
-                <Icon size={20} style={{ color: done ? '#fff' : '#9ca3af' }} />
+                <Icon size={14} style={{ color: done ? '#fff' : '#9ca3af' }} />
               </div>
               {/* right connector */}
               <div className="flex-1 h-[2px]" style={{ background: isLast ? 'transparent' : (done && i < step ? BRAND : '#e5e7eb') }} />
