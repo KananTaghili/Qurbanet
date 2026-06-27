@@ -136,7 +136,7 @@ export default function RegisterPage() {
           href="/"
           style={{
             position: "absolute", top: 20, left: 20,
-            width: 36, height: 36, borderRadius: 12,
+            width: 36, height: 36, borderRadius: "50%",
             background: "rgba(255,255,255,0.15)",
             display: "flex", alignItems: "center", justifyContent: "center",
             color: "#fff",
@@ -191,9 +191,16 @@ export default function RegisterPage() {
       </section>
 
       {/* Right panel — form */}
-      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px", gap: 20 }}
+      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px", overflowX: "hidden" }}
         className="h-full overflow-y-auto"
       >
+        {/* Mobile back button */}
+        <Link href="/" className="lg:hidden self-start mb-1"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, minWidth: 36, minHeight: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", color: "#fff", flexShrink: 0 }}>
+          <ArrowLeft size={18} />
+        </Link>
+
+        <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: "100%", paddingTop: 8, paddingBottom: 8 }}>
         {/* Mobile branding — above card, hidden on desktop */}
         <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
           <div className="auth-mobile-logo" style={{ width: 160 }}>
@@ -209,7 +216,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div className={`auth-card${isExiting ? " auth-card-out" : ""}`} style={{
+        <div className={`auth-card auth-card-pad${isExiting ? " auth-card-out" : ""}`} style={{
           width: "100%",
           maxWidth: 365,
           borderRadius: 20,
@@ -379,6 +386,7 @@ export default function RegisterPage() {
             </button>
           </form>
         </div>
+        </div>{/* end margin:auto wrapper */}
       </section>
 
       <style>{`
@@ -412,6 +420,9 @@ export default function RegisterPage() {
         .auth-btn-outline { transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease; }
         .auth-btn-outline:hover { background: #f9fafb !important; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important; }
         .auth-btn-outline:active { transform: translateY(0) scale(0.98); }
+        @media (max-width: 420px) {
+          .auth-card-pad { padding: 24px 20px !important; }
+        }
         @media (min-width: 1024px) {
           .auth-grid-cols { grid-template-columns: 1.22fr 0.78fr !important; }
         }
