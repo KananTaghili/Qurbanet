@@ -1,4 +1,5 @@
 'use client';
+import { RiKnifeLine } from 'react-icons/ri';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -9,16 +10,6 @@ import {
   ShoppingBag, Wallet, Activity, Scale,
   Scissors, ChevronDown, Star, SlidersHorizontal,
 } from 'lucide-react';
-function KnifeIconThin({ size = 14, style }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={style}>
-      <path d="M21 3L9 15" />
-      <path d="M9 15c-2 2-5 2-6 3s0 3 1 2 1-4 3-6" />
-      <path d="M5 20l-2 2" />
-    </svg>
-  );
-}
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
 import { useLanguage } from '../../context/LanguageContext';
@@ -47,7 +38,7 @@ const STATUS_CFG = {
   pending_payment:  { label: 'Ödəniş gözlənilir',  bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
   confirmed:        { label: 'Təsdiqləndi',         bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 2, group: 'active'    },
   paid:             { label: 'Ödənilib',            bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 2, group: 'active'    },
-  slaughtering:     { label: 'Kəsilir',             bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: KnifeIconThin,      step: 3, group: 'active'    },
+  slaughtering:     { label: 'Kəsilir',             bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: RiKnifeLine,      step: 3, group: 'active'    },
   preparing:        { label: 'Hazırlanır',          bg: '#D1FAE5', color: '#065F46', dot: '#10B981', Icon: Package,      step: 4, group: 'active'    },
   delivering:       { label: 'Çatdırılır',          bg: '#DBEAFE', color: '#1E3A8A', dot: '#2563EB', Icon: Truck,        step: 5, group: 'active'    },
   completed:        { label: 'Tamamlandı',          bg: '#D1FAE5', color: '#14532D', dot: '#22C55E', Icon: CheckCircle2, step: 6, group: 'completed' },
@@ -57,7 +48,7 @@ const STATUS_CFG = {
 const PIPELINE_STEPS = [
   { label: 'Gözləmə',    Icon: Clock        },
   { label: 'Təsdiq',     Icon: CheckCircle2 },
-  { label: 'Kəsim',      Icon: KnifeIconThin  },
+  { label: 'Kəsim',      Icon: RiKnifeLine  },
   { label: 'Hazırlıq',   Icon: Package      },
   { label: 'Çatdırılma', Icon: Truck        },
   { label: 'Tamamlandı', Icon: Star         },
