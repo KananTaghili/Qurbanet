@@ -116,7 +116,13 @@ function OrderCard({ item, lang }) {
   const imgSrc    = isCharity ? null : (item.animal?.imageUrl || ANIMAL_IMAGES[item.animalType] || '/qoyun.jpg');
 
   return (
-    <Link href={href} className="no-underline block group">
+    <Link href={href} className="no-underline block group relative">
+      {/* Status icon — circle, floating outside card at top-right corner */}
+      <div className="absolute -top-3 -right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center shadow-md"
+        style={{ background: BRAND }}>
+        <StatusIcon size={18} style={{ color: '#fff' }} />
+      </div>
+
       <div className="bg-white rounded-2xl overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl"
         style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8', display: 'flex', flexDirection: 'column' }}>
 
@@ -161,20 +167,8 @@ function OrderCard({ item, lang }) {
           {/* Content */}
           <div className="flex-1 min-w-0 px-3 md:px-4 py-3 flex flex-col justify-between gap-2 relative">
 
-            {/* Big status icon — top-right corner */}
-            <div className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: cfg.bg }}>
-              <StatusIcon size={18} style={{ color: cfg.dot }} />
-            </div>
-
             {/* Title */}
-            <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight pr-11">{title}</h3>
-
-            {/* Status label (text only, small) */}
-            <span className="self-start text-[10px] font-bold px-2 py-0.5 rounded-lg"
-              style={{ background: cfg.bg, color: cfg.color }}>
-              {cfg.label}
-            </span>
+            <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight pr-4">{title}</h3>
 
             {/* Info chips */}
             <div className="flex flex-wrap gap-1">
