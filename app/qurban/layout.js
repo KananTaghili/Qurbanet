@@ -109,7 +109,7 @@ export default function QurbanLayout({ children }) {
                 <div ref={userMenuRef} className="block relative">
                   <button
                     onClick={() => setUserMenuOpen(v => !v)}
-                    className="flex items-center gap-2 rounded-xl px-1.5 py-1 hover:bg-white/10 transition-colors cursor-pointer"
+                    className="flex items-center gap-2 cursor-pointer bg-transparent border-0"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
                       {initials(user)}
