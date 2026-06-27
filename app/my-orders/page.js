@@ -117,78 +117,68 @@ function OrderCard({ item, lang }) {
 
   return (
     <Link href={href} className="no-underline block group relative">
-      {/* Status icon — circle, floating outside card at top-right corner */}
-      <div className="absolute -top-3 -right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center shadow-md"
+      {/* Status icon — green circle floating outside card at top-right, moves up on hover */}
+      <div className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-transform duration-200 group-hover:-translate-y-0.5"
         style={{ background: BRAND }}>
-        <StatusIcon size={18} style={{ color: '#fff' }} />
+        <StatusIcon size={15} style={{ color: '#fff' }} />
       </div>
 
       <div className="bg-white rounded-2xl overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl"
         style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Main row: image + content */}
+        {/* Image — mobile: full-width top, desktop: left panel */}
         <div className="flex flex-col md:flex-row">
 
-          {/* Image — mobile: 110px wide strip, desktop: full-height left panel */}
-          <div className="relative shrink-0 md:w-[150px] overflow-hidden flex"
-            style={{ background: '#f0f7f0' }}>
-            {/* mobile: side-by-side top row */}
-            <div className="flex md:hidden w-[110px] shrink-0 relative" style={{ minHeight: 120 }}>
-              {isCharity ? (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Heart size={28} style={{ color: BRAND, opacity: 0.2 }} />
-                </div>
-              ) : (
-                <img src={imgSrc} alt={title} className="w-full h-full object-cover"
-                  style={{ objectPosition: 'center 15%' }} />
-              )}
-              <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
-                <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
+          {/* Mobile: full-width image on top */}
+          <div className="md:hidden relative w-full overflow-hidden" style={{ height: 130, background: '#f0f7f0' }}>
+            {isCharity ? (
+              <div className="w-full h-full flex items-center justify-center">
+                <Heart size={36} style={{ color: BRAND, opacity: 0.2 }} />
               </div>
+            ) : (
+              <img src={imgSrc} alt={title} className="w-full h-full object-cover"
+                style={{ objectPosition: 'center 20%' }} />
+            )}
+            <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
+              <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
             </div>
-            {/* desktop: full height image */}
-            <div className="hidden md:block w-full relative" style={{ minHeight: 160 }}>
-              {isCharity ? (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Heart size={40} style={{ color: BRAND, opacity: 0.2 }} />
-                </div>
-              ) : (
-                <img src={imgSrc} alt={title} className="w-full h-full object-cover"
-                  style={{ objectPosition: 'center 15%' }} />
-              )}
-              <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
-                <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
+          </div>
+
+          {/* Desktop: left panel image */}
+          <div className="hidden md:block relative shrink-0 w-[150px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 160 }}>
+            {isCharity ? (
+              <div className="w-full h-full flex items-center justify-center">
+                <Heart size={40} style={{ color: BRAND, opacity: 0.2 }} />
               </div>
+            ) : (
+              <img src={imgSrc} alt={title} className="w-full h-full object-cover"
+                style={{ objectPosition: 'center 15%' }} />
+            )}
+            <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
+              <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0 px-3 md:px-4 py-3 flex flex-col justify-between gap-2 relative">
-
-            {/* Title */}
-            <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight pr-4">{title}</h3>
-
-            {/* Info chips */}
+          <div className="flex-1 min-w-0 px-3 md:px-4 py-3 flex flex-col gap-2">
+            <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight pr-6">{title}</h3>
             <div className="flex flex-wrap gap-1">
               <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
                 style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-                <ShoppingBag size={9} />
-                {qty} {t(lang, 'animalUnit')}
+                <ShoppingBag size={9} /> {qty} {t(lang, 'animalUnit')}
               </div>
               {amount != null && (
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
                   style={{ background: '#f0f7f0', color: BRAND }}>
-                  <Wallet size={9} />
-                  {amount} AZN
+                  <Wallet size={9} /> {amount} AZN
                 </div>
               )}
               {weight && (
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
                   style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-                  <Scale size={9} />
-                  Diri Çəki: {weight}
+                  <Scale size={9} /> Diri Çəki: {weight}
                 </div>
               )}
               {item.mediaFiles?.length > 0 && (
@@ -197,25 +187,24 @@ function OrderCard({ item, lang }) {
                 </div>
               )}
             </div>
-
             <p className="text-[10px] text-gray-400">{fmtDate(item.createdAt, months)}</p>
           </div>
         </div>
 
-        {/* BOTTOM: pipeline full-width + CTA */}
+        {/* BOTTOM: pipeline + CTA (CTA hidden on mobile) */}
         {!isCharity && (
           <div className="px-3 pt-2 pb-3 border-t border-gray-100 flex items-center gap-2">
             <div className="flex-1 min-w-0">
               <Pipeline step={cfg.step} />
             </div>
-            <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold py-1.5 px-2.5 rounded-lg transition-all group-hover:gap-1.5"
+            <span className="hidden md:inline-flex shrink-0 items-center gap-1 text-[10px] font-bold py-1.5 px-2.5 rounded-lg transition-all group-hover:gap-1.5"
               style={{ color: BRAND, background: '#e8f5e9' }}>
               {t(lang, 'viewDetail')} <ArrowRight size={10} />
             </span>
           </div>
         )}
         {isCharity && (
-          <div className="px-3 pb-3 flex justify-end">
+          <div className="hidden md:flex px-3 pb-3 justify-end">
             <span className="inline-flex items-center gap-1 text-[10px] font-bold py-1.5 px-2.5 rounded-lg"
               style={{ color: BRAND, background: '#e8f5e9' }}>
               {t(lang, 'viewDetail')} <ArrowRight size={10} />
