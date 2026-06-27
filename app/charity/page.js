@@ -168,7 +168,8 @@ function AnimalCard({ animal, onDonate, onClick }) {
 function DesktopAnimalCard({ animal, onDonate, onClick }) {
   const [copied, setCopied] = useState(false);
   const toNum = (v) => Number(String(v).replace(/[^0-9.]/g, ""));
-  const paidPct = Math.round((toNum(animal.shareMin) / Math.max(toNum(animal.target), 1)) * 100);
+  const _target = toNum(animal.target);
+  const paidPct = _target > 0 ? Math.round((toNum(animal.shareMin) / _target) * 100) : 0;
   const handleShare = async (e) => {
     e.stopPropagation();
     try { await navigator.clipboard.writeText(window.location.href); } catch {}
