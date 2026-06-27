@@ -191,6 +191,12 @@ export default function LoginPage() {
       <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px", overflowX: "hidden" }}
         className="h-full overflow-y-auto"
       >
+        {/* Mobile back button */}
+        <Link href="/" className="lg:hidden self-start mb-1"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: 12, background: "rgba(255,255,255,0.18)", color: "#fff" }}>
+          <ArrowLeft size={18} />
+        </Link>
+
         <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: "100%", paddingTop: 8, paddingBottom: 8 }}>
         {/* Mobile branding — above card, hidden on desktop */}
         <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
