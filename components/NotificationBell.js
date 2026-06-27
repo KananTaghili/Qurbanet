@@ -132,8 +132,8 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
 
   return (
     <div
-      className="nb-panel-in absolute right-0 z-[9999] flex flex-col rounded-2xl border border-black/10 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.22)]"
-      style={{ top: "calc(100% + 10px)", width: 340, maxHeight: 480 }}
+      className="nb-panel-in fixed z-[9999] flex flex-col rounded-2xl border border-black/10 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.22)]"
+      style={{ top: 66, right: 8, width: 'min(340px, calc(100vw - 16px))', maxHeight: 480 }}
       onClick={e => e.stopPropagation()}
     >
       {/* Header */}
