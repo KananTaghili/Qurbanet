@@ -112,7 +112,7 @@ function OrderCard({ item, lang }) {
   const orderNum  = item.orderNumber || `QRB-${new Date(item.createdAt || Date.now()).getFullYear()}-${String(itemId).slice(-5).toUpperCase()}`;
   const qty       = item.quantity || item.sharedPortion || 1;
   const amount    = item.totalPrice ?? item.totalAmount ?? null;
-  const weight    = item.weightCategoryLabel || item.animal?.weightRange || item.lambSelection?.weightRange || item.weightRange || null;
+  const weight    = item.lambSelection?.weightCategoryLabel || item.weightCategoryLabel || item.animal?.weightRange || item.lambSelection?.weightRange || item.weightRange || null;
   const imgSrc    = isCharity ? null : (item.animal?.imageUrl || ANIMAL_IMAGES[item.animalType] || '/qoyun.jpg');
 
   return (

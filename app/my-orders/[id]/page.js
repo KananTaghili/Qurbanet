@@ -303,7 +303,7 @@ export default function OrderDetailPage() {
   const totalAmt     = order.totalPrice ?? order.totalAmount ?? 0;
   const orderNum     = order.orderNumber || id.slice(-6).toUpperCase();
   const allMedia     = order.media || [];
-  const weight       = order.weightCategoryLabel || order.weightRange || order.lambSelection?.weightRange || order.animal?.weightRange || null;
+  const weight       = order.lambSelection?.weightCategoryLabel || order.weightCategoryLabel || order.weightRange || order.lambSelection?.weightRange || order.animal?.weightRange || null;
   const isSelfPickup = ["ozun_gotur", "ozum"].includes(order.distribution?.type) || order.selfPickup;
 
   const detailRows = [
