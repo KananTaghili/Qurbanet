@@ -37,6 +37,10 @@ const NB_CSS = `
   .nb-badge-in { animation: nb-badge-pop 0.38s cubic-bezier(.34,1.56,.64,1) both; }
   .nb-panel-in { animation: nb-panel-in  0.22s cubic-bezier(.25,.8,.25,1)   both; transform-origin: top right; }
   .nb-list-in  { animation: nb-list-in   0.2s  cubic-bezier(.25,.8,.25,1)   both; }
+  .nb-scroll::-webkit-scrollbar              { width: 4px; }
+  .nb-scroll::-webkit-scrollbar-track        { background: transparent; }
+  .nb-scroll::-webkit-scrollbar-thumb        { background: var(--nb-accent, #888); border-radius: 99px; }
+  .nb-scroll { scrollbar-width: thin; scrollbar-color: var(--nb-accent, #888) transparent; }
 `;
 let _injected = false;
 function useNbCss() {
@@ -183,7 +187,7 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
       </div>
 
       {/* Content — scrollbar only when content actually overflows */}
-      <div style={{ overflowY: "auto", minHeight: 0 }}>
+      <div className="nb-scroll" style={{ overflowY: "auto", minHeight: 0, "--nb-accent": accentColor }}>
         {initialLoad ? (
           /* First-time spinner — only shown once */
           <div className="flex items-center justify-center py-14">
