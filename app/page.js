@@ -255,8 +255,10 @@ export default function HomePage() {
           style={{ background: "#1a0a08" }}
         >
           <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-            <Image src="/mb_logo_right_white.png" alt="MeatBox" width={120} height={30}
-              style={{ height: 26, width: "auto", objectFit: "contain" }} />
+            <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+              <Image src="/mb_logo_right_white.png" alt="MeatBox" width={120} height={30}
+                style={{ height: 26, width: "auto", objectFit: "contain" }} />
+            </Link>
             <button onClick={() => setMobileMenuOpen(false)}
               className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
               <X size={18} />
