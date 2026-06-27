@@ -112,7 +112,7 @@ function OrderCard({ item, lang }) {
   const orderNum  = item.orderNumber || `QRB-${new Date(item.createdAt || Date.now()).getFullYear()}-${String(itemId).slice(-5).toUpperCase()}`;
   const qty       = item.quantity || item.sharedPortion || 1;
   const amount    = item.totalPrice ?? item.totalAmount ?? null;
-  const weight    = item.animal?.weightRange || item.lambSelection?.weightRange || item.weightRange || null;
+  const weight    = item.weightCategoryLabel || item.animal?.weightRange || item.lambSelection?.weightRange || item.weightRange || null;
   const imgSrc    = isCharity ? null : (item.animal?.imageUrl || ANIMAL_IMAGES[item.animalType] || '/qoyun.jpg');
 
   return (
@@ -137,44 +137,43 @@ function OrderCard({ item, lang }) {
         </div>
 
         {/* Right content */}
-        <div className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col justify-between gap-1.5 sm:gap-2">
+        <div className="flex-1 min-w-0 px-4 py-3 flex flex-col justify-between gap-2">
 
           {/* Title + status */}
           <div className="flex items-start justify-between gap-1.5 sm:gap-2">
             <h3 className="text-[13px] sm:text-[15px] font-extrabold text-[#071b0d] leading-tight">{title}</h3>
             {/* Status badge with icon */}
-            <span className="shrink-0 inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-bold"
+            <span className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold"
               style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
-              <StatusIcon size={11} strokeWidth={2.3} style={{ color: cfg.dot }} />
-              <span className="hidden xs:inline sm:inline">{cfg.label}</span>
-              <span className="xs:hidden sm:hidden" style={{ maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>{cfg.label}</span>
+              <StatusIcon size={11} style={{ color: cfg.dot }} />
+              {cfg.label}
             </span>
           </div>
 
           {/* Info chips */}
-          <div className="flex flex-wrap gap-1 sm:gap-1.5">
-            <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold"
+          <div className="flex flex-wrap gap-1.5">
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
               style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-              <ShoppingBag size={9} strokeWidth={2} />
+              <ShoppingBag size={10} strokeWidth={2} />
               {qty} {t(lang, 'animalUnit')}
             </div>
             {amount != null && (
-              <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold"
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
                 style={{ background: '#f0f7f0', color: BRAND }}>
-                <Wallet size={9} strokeWidth={2} />
+                <Wallet size={10} strokeWidth={2} />
                 {amount} AZN
               </div>
             )}
             {weight && (
-              <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold"
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
                 style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-                <Scale size={9} strokeWidth={2} />
-                <span className="text-gray-400 font-semibold hidden sm:inline">Diri Çəkisi:</span> {weight} kq
+                <Scale size={10} strokeWidth={2} />
+                Diri Çəki: {weight}
               </div>
             )}
             {item.mediaFiles?.length > 0 && (
-              <div className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold bg-blue-50 text-blue-600">
-                <Video size={9} strokeWidth={2} /> Video
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-600">
+                <Video size={10} strokeWidth={2} /> Video
               </div>
             )}
           </div>

@@ -303,13 +303,13 @@ export default function OrderDetailPage() {
   const totalAmt     = order.totalPrice ?? order.totalAmount ?? 0;
   const orderNum     = order.orderNumber || id.slice(-6).toUpperCase();
   const allMedia     = order.media || [];
-  const weight       = order.weightRange || order.lambSelection?.weightRange || order.animal?.weightRange || null;
+  const weight       = order.weightCategoryLabel || order.weightRange || order.lambSelection?.weightRange || order.animal?.weightRange || null;
   const isSelfPickup = ["ozun_gotur", "ozum"].includes(order.distribution?.type) || order.selfPickup;
 
   const detailRows = [
     { label: "Sifariş növü",     value: order.orderMode === "serikli" ? "Şərikli" : "Tam heyvan" },
     { label: "Miqdar",           value: `${order.quantity || 1} ədəd` },
-    ...(weight ? [{ label: "Diri Çəki", value: `${weight} kq` }] : []),
+    ...(weight ? [{ label: "Diri Çəki", value: weight }] : []),
     { label: "Çatdırılma",       value: DIST_LABELS[order.distribution?.type] || "—" },
     { label: "Kəsim tarixi",     value: fmtDate(order.slaughterDate) },
     { label: "Çatdırılma vaxtı", value: order.deliveryWindow || "—" },
@@ -385,7 +385,7 @@ export default function OrderDetailPage() {
                       <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg ml-1"
                         style={{ background: '#f0f7f0', color: BRAND }}>
                         <Scale size={9} />
-                        {weight} kq
+                        {weight}
                       </span>
                     )}
                   </div>
