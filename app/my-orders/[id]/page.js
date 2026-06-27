@@ -359,23 +359,22 @@ export default function OrderDetailPage() {
             ); })()}
 
             <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-            <div className="flex" style={{ minHeight: 200 }}>
-              {/* LEFT: animal photo — wider */}
-              <div className="relative shrink-0 w-[180px] md:w-[240px] overflow-hidden"
-                style={{ background: '#f0f7f0' }}>
-                <img src={animalImg} alt={animalName}
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: 'center 15%' }} />
-                <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }}>
-                  <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
+              <div className="flex flex-col md:flex-row">
+                {/* PHOTO — full width on mobile, fixed width on desktop */}
+                <div className="relative w-full md:w-[240px] md:shrink-0 overflow-hidden"
+                  style={{ background: '#f0f7f0', height: undefined }}>
+                  <img src={animalImg} alt={animalName}
+                    className="w-full object-cover"
+                    style={{ height: 220, objectPosition: 'center 15%' }} />
+                  <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }}>
+                    <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
+                  </div>
                 </div>
-              </div>
 
-              {/* RIGHT: info — bigger & cleaner */}
-              <div className="flex-1 min-w-0 px-5 py-5 flex flex-col justify-center">
-                <div className="flex flex-col gap-1.5">
-                  <p className="text-[18px] font-black text-[#071b0d]">{animalName}</p>
+                {/* INFO */}
+                <div className="flex-1 min-w-0 px-5 py-5 flex flex-col justify-center gap-1.5">
+                  <p className="text-[18px] font-black text-[#071b0d] leading-snug">{animalName}</p>
                   <div className="flex items-baseline gap-1.5 flex-wrap">
                     <span className="text-[32px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
                     <span className="text-[15px] font-bold text-gray-400">AZN</span>
@@ -386,11 +385,9 @@ export default function OrderDetailPage() {
                       <Scale size={11} /> {weight}
                     </span>
                   )}
-                  <p className="text-[11px] text-gray-400 mt-1">{fmtDate(order.createdAt)}</p>
+                  <p className="text-[11px] text-gray-400">{fmtDate(order.createdAt)}</p>
                 </div>
               </div>
-            </div>
-
             </div>{/* end bg-white card */}
           </div>{/* end relative wrapper */}
 
