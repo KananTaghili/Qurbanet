@@ -21,8 +21,16 @@ import {
   Play,
   Clock,
 } from "lucide-react";
-import { RiKnifeLine } from "react-icons/ri";
 import BackHeader from "../../../components/BackHeader";
+
+function KnifeIcon({ size = 14, className }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}
+      xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.78 2.29a1 1 0 0 0-1.41 0L3.29 15.37a1 1 0 0 0 0 1.41l3.54 3.54a1 1 0 0 0 1.41 0L21.5 7.04a1 1 0 0 0 0-1.41l-3.72-3.34zM6.83 19.02 4.27 16.5 15.5 5.27l1.29 1.29L6.83 19.02z"/>
+    </svg>
+  );
+}
 import StatusBadge from "../../../components/StatusBadge";
 import api from "../../../lib/api";
 import { useSocket } from "../../../hooks/useSocket";
@@ -49,7 +57,7 @@ const STATUS_COLOR = {
 const TIMELINE_STEPS = [
   { key: "placed",       label: "Sifariş verildi", shortLabel: "Verildi",   Icon: ClipboardList, stage: null },
   { key: "confirmed",    label: "Təsdiqləndi",     shortLabel: "Təsdiqləndi", Icon: CheckCircle,   stage: null },
-  { key: "slaughtering", label: "Kəsilir",          shortLabel: "Kəsilir",    Icon: RiKnifeLine,   stage: "slaughter" },
+  { key: "slaughtering", label: "Kəsilir",          shortLabel: "Kəsilir",    Icon: KnifeIcon,   stage: "slaughter" },
   { key: "preparing",    label: "Hazırlanır",       shortLabel: "Hazırlanır", Icon: Package,       stage: null },
   { key: "delivering",   label: "Çatdırılır",       shortLabel: "Çatdırılır", Icon: Truck,         stage: "delivery" },
   { key: "completed",    label: "Tamamlandı",       shortLabel: "Tamamlandı", Icon: Star,          stage: null },
