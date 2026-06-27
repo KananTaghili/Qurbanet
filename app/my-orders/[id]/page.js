@@ -352,7 +352,7 @@ export default function OrderDetailPage() {
           <div className="relative" style={{ paddingTop: '1rem' }}>
             {/* Green circle status icon — floats above card top-right */}
             {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon; return (
-              <div className="absolute top-0 right-0 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+              <div className="absolute top-0 -right-3 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                 style={{ background: BRAND }}>
                 <PipeIcon size={22} style={{ color: '#fff' }} />
               </div>
@@ -373,12 +373,7 @@ export default function OrderDetailPage() {
               </div>
 
               {/* RIGHT: info — bigger & cleaner */}
-              <div className="flex-1 min-w-0 px-5 py-5 flex flex-col justify-between">
-                <div>
-                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sifariş nömrəsi</p>
-                  <p className="font-mono font-black text-[#071b0d] text-[15px] leading-none">{orderNum}</p>
-                </div>
-
+              <div className="flex-1 min-w-0 px-5 py-5 flex flex-col justify-center">
                 <div className="flex flex-col gap-1.5">
                   <p className="text-[18px] font-black text-[#071b0d]">{animalName}</p>
                   <div className="flex items-baseline gap-1.5 flex-wrap">
@@ -395,6 +390,7 @@ export default function OrderDetailPage() {
                 </div>
               </div>
             </div>
+
             </div>{/* end bg-white card */}
           </div>{/* end relative wrapper */}
 
