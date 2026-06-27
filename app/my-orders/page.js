@@ -117,79 +117,91 @@ function OrderCard({ item, lang }) {
 
   return (
     <Link href={href} className="no-underline block group">
-      <div className="bg-white rounded-2xl overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl flex"
+      <div className="bg-white rounded-2xl overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl flex flex-col"
         style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8' }}>
 
-        {/* Left image */}
-        <div className="relative shrink-0 w-[100px] sm:w-[130px] md:w-[150px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 130 }}>
-          {isCharity ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <Heart size={32} style={{ color: BRAND, opacity: 0.2 }} />
-            </div>
-          ) : (
-            <img src={imgSrc} alt={title} className="w-full h-full object-cover"
-              style={{ objectPosition: 'center 15%' }} />
-          )}
-          <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
-            <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
-          </div>
-        </div>
-
-        {/* Right content */}
-        <div className="flex-1 min-w-0 px-4 py-3 flex flex-col justify-between gap-2">
-
-          {/* Title + status */}
-          <div className="flex items-start justify-between gap-1.5 sm:gap-2">
-            <h3 className="text-[13px] sm:text-[15px] font-extrabold text-[#071b0d] leading-tight">{title}</h3>
-            {/* Status badge with icon */}
-            <span className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold"
-              style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
-              <StatusIcon size={11} style={{ color: cfg.dot }} />
-              {cfg.label}
-            </span>
-          </div>
-
-          {/* Info chips */}
-          <div className="flex flex-wrap gap-1.5">
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
-              style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-              <ShoppingBag size={10} strokeWidth={2} />
-              {qty} {t(lang, 'animalUnit')}
-            </div>
-            {amount != null && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
-                style={{ background: '#f0f7f0', color: BRAND }}>
-                <Wallet size={10} strokeWidth={2} />
-                {amount} AZN
+        {/* TOP: image left + info right */}
+        <div className="flex">
+          {/* Image */}
+          <div className="relative shrink-0 w-[110px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 120 }}>
+            {isCharity ? (
+              <div className="w-full h-full flex items-center justify-center">
+                <Heart size={32} style={{ color: BRAND, opacity: 0.2 }} />
               </div>
+            ) : (
+              <img src={imgSrc} alt={title} className="w-full h-full object-cover"
+                style={{ objectPosition: 'center 15%' }} />
             )}
-            {weight && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold"
+            <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
+              <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0 px-3 py-3 flex flex-col justify-between gap-2">
+            {/* Title + status */}
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight">{title}</h3>
+              <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold"
+                style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
+                <StatusIcon size={10} style={{ color: cfg.dot }} />
+                {cfg.label}
+              </span>
+            </div>
+
+            {/* Info chips */}
+            <div className="flex flex-wrap gap-1">
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
                 style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-                <Scale size={10} strokeWidth={2} />
-                Diri Çəki: {weight}
+                <ShoppingBag size={9} />
+                {qty} {t(lang, 'animalUnit')}
               </div>
-            )}
-            {item.mediaFiles?.length > 0 && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-600">
-                <Video size={10} strokeWidth={2} /> Video
-              </div>
-            )}
-          </div>
-
-          {/* Date + pipeline + CTA */}
-          <div className="flex items-end justify-between gap-2 sm:gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="text-[9px] sm:text-[10px] text-gray-400 mb-1 sm:mb-1.5">{fmtDate(item.createdAt, months)}</p>
-              {!isCharity && <Pipeline step={cfg.step} />}
+              {amount != null && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
+                  style={{ background: '#f0f7f0', color: BRAND }}>
+                  <Wallet size={9} />
+                  {amount} AZN
+                </div>
+              )}
+              {weight && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
+                  style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
+                  <Scale size={9} />
+                  Diri Çəki: {weight}
+                </div>
+              )}
+              {item.mediaFiles?.length > 0 && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600">
+                  <Video size={9} /> Video
+                </div>
+              )}
             </div>
-            <span className="shrink-0 inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl transition-all group-hover:gap-1.5"
-              style={{ color: BRAND, background: '#e8f5e9' }}>
-              {t(lang, 'viewDetail')} <ArrowRight size={11} />
-            </span>
+
+            <p className="text-[10px] text-gray-400">{fmtDate(item.createdAt, months)}</p>
           </div>
         </div>
+
+        {/* BOTTOM: pipeline full-width + CTA */}
+        {!isCharity && (
+          <div className="px-3 pt-2 pb-3 border-t border-gray-100 flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <Pipeline step={cfg.step} />
+            </div>
+            <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold py-1.5 px-2.5 rounded-lg transition-all group-hover:gap-1.5"
+              style={{ color: BRAND, background: '#e8f5e9' }}>
+              {t(lang, 'viewDetail')} <ArrowRight size={10} />
+            </span>
+          </div>
+        )}
+        {isCharity && (
+          <div className="px-3 pb-3 flex justify-end">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold py-1.5 px-2.5 rounded-lg"
+              style={{ color: BRAND, background: '#e8f5e9' }}>
+              {t(lang, 'viewDetail')} <ArrowRight size={10} />
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );
