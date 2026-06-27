@@ -118,19 +118,17 @@ function OrderCard({ item, lang }) {
   return (
     <Link href={href} className="no-underline block group relative">
       {/* Status icon — green circle floating outside card at top-right, moves up on hover */}
-      <div className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-transform duration-200 group-hover:-translate-y-0.5"
+      <div className="absolute -top-4 -right-4 z-10 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:-translate-y-0.5"
         style={{ background: BRAND }}>
-        <StatusIcon size={15} style={{ color: '#fff' }} />
+        <StatusIcon size={20} style={{ color: '#fff' }} />
       </div>
 
       <div className="bg-white rounded-2xl overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl"
-        style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8', display: 'flex', flexDirection: 'column' }}>
+        style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8' }}>
 
-        {/* Image — mobile: full-width top, desktop: left panel */}
-        <div className="flex flex-col md:flex-row">
-
-          {/* Mobile: full-width image on top */}
-          <div className="md:hidden relative w-full overflow-hidden" style={{ height: 130, background: '#f0f7f0' }}>
+        {/* ── MOBILE layout: image top full-width, content + pipeline below ── */}
+        <div className="md:hidden flex flex-col">
+          <div className="relative w-full overflow-hidden" style={{ height: 130, background: '#f0f7f0' }}>
             {isCharity ? (
               <div className="w-full h-full flex items-center justify-center">
                 <Heart size={36} style={{ color: BRAND, opacity: 0.2 }} />
@@ -144,9 +142,40 @@ function OrderCard({ item, lang }) {
               <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
             </div>
           </div>
+          <div className="px-3 py-3 flex flex-col gap-2">
+            <h3 className="text-[17px] font-extrabold text-[#071b0d] leading-tight pr-6">{title}</h3>
+            <div className="flex flex-wrap gap-1">
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold" style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
+                <ShoppingBag size={9} /> {qty} {t(lang, 'animalUnit')}
+              </div>
+              {amount != null && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold" style={{ background: '#f0f7f0', color: BRAND }}>
+                  <Wallet size={9} /> {amount} AZN
+                </div>
+              )}
+              {weight && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold" style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
+                  <Scale size={9} /> Diri Çəki: {weight}
+                </div>
+              )}
+              {item.mediaFiles?.length > 0 && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600">
+                  <Video size={9} /> Video
+                </div>
+              )}
+            </div>
+            <p className="text-[10px] text-gray-400">{fmtDate(item.createdAt, months)}</p>
+          </div>
+          {!isCharity && (
+            <div className="px-3 pt-1 pb-3 border-t border-gray-100">
+              <Pipeline step={cfg.step} />
+            </div>
+          )}
+        </div>
 
-          {/* Desktop: left panel image */}
-          <div className="hidden md:block relative shrink-0 w-[200px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 160 }}>
+        {/* ── DESKTOP layout: image left, all content + pipeline right ── */}
+        <div className="hidden md:flex flex-row">
+          <div className="relative shrink-0 w-[200px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 170 }}>
             {isCharity ? (
               <div className="w-full h-full flex items-center justify-center">
                 <Heart size={40} style={{ color: BRAND, opacity: 0.2 }} />
@@ -160,57 +189,48 @@ function OrderCard({ item, lang }) {
               <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
             </div>
           </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0 px-3 md:px-4 py-3 flex flex-col gap-2">
+          <div className="flex-1 min-w-0 px-4 py-3 flex flex-col justify-between gap-2">
             <h3 className="text-[17px] font-extrabold text-[#071b0d] leading-tight pr-6">{title}</h3>
-            <div className="flex flex-wrap gap-1">
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
-                style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-                <ShoppingBag size={9} /> {qty} {t(lang, 'animalUnit')}
+            <div className="flex flex-wrap gap-1.5">
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold" style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
+                <ShoppingBag size={10} /> {qty} {t(lang, 'animalUnit')}
               </div>
               {amount != null && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
-                  style={{ background: '#f0f7f0', color: BRAND }}>
-                  <Wallet size={9} /> {amount} AZN
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold" style={{ background: '#f0f7f0', color: BRAND }}>
+                  <Wallet size={10} /> {amount} AZN
                 </div>
               )}
               {weight && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
-                  style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
-                  <Scale size={9} /> Diri Çəki: {weight}
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold" style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
+                  <Scale size={10} /> Diri Çəki: {weight}
                 </div>
               )}
               {item.mediaFiles?.length > 0 && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600">
-                  <Video size={9} /> Video
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-600">
+                  <Video size={10} /> Video
                 </div>
               )}
             </div>
-            <p className="text-[10px] text-gray-400">{fmtDate(item.createdAt, months)}</p>
+            <p className="text-[10px] text-gray-400 -mb-1">{fmtDate(item.createdAt, months)}</p>
+            {!isCharity && (
+              <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0"><Pipeline step={cfg.step} /></div>
+                <span className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold py-1.5 px-3 rounded-xl transition-all group-hover:gap-1.5"
+                  style={{ color: BRAND, background: '#e8f5e9' }}>
+                  {t(lang, 'viewDetail')} <ArrowRight size={11} />
+                </span>
+              </div>
+            )}
+            {isCharity && (
+              <div className="flex justify-end">
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold py-1.5 px-3 rounded-xl"
+                  style={{ color: BRAND, background: '#e8f5e9' }}>
+                  {t(lang, 'viewDetail')} <ArrowRight size={11} />
+                </span>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* BOTTOM: pipeline + CTA (CTA hidden on mobile) */}
-        {!isCharity && (
-          <div className="px-3 pt-2 pb-3 border-t border-gray-100 flex items-center gap-2">
-            <div className="flex-1 min-w-0">
-              <Pipeline step={cfg.step} />
-            </div>
-            <span className="hidden md:inline-flex shrink-0 items-center gap-1 text-[10px] font-bold py-1.5 px-2.5 rounded-lg transition-all group-hover:gap-1.5"
-              style={{ color: BRAND, background: '#e8f5e9' }}>
-              {t(lang, 'viewDetail')} <ArrowRight size={10} />
-            </span>
-          </div>
-        )}
-        {isCharity && (
-          <div className="hidden md:flex px-3 pb-3 justify-end">
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold py-1.5 px-2.5 rounded-lg"
-              style={{ color: BRAND, background: '#e8f5e9' }}>
-              {t(lang, 'viewDetail')} <ArrowRight size={10} />
-            </span>
-          </div>
-        )}
       </div>
     </Link>
   );
@@ -427,7 +447,7 @@ export default function MyOrdersPage() {
               </div>
 
               {/* Cards */}
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-5">
                 {filtered.length === 0 ? (
                   <div className="text-center py-10 text-gray-400 text-sm">Bu kateqoriyada sifariş yoxdur</div>
                 ) : filtered.map(item => (
