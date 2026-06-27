@@ -874,6 +874,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
 export default function CharityLayout({ children }) {
   const { isGuest, user, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNewOpening, setShowNewOpening] = useState(false);
   const [preselectedAnimal, setPreselectedAnimal] = useState(null);
@@ -1016,12 +1017,23 @@ export default function CharityLayout({ children }) {
                   Qeydiyyat
                 </Link>
               ) : (
-                <div className="flex items-center gap-3 px-1">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[12px] font-bold text-white">
-                    {initials2(userFullName(user))}
+                <>
+                  <div className="flex items-center gap-3 px-1 mb-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[12px] font-bold text-white">
+                      {initials2(userFullName(user))}
+                    </div>
+                    <span className="text-[13px] font-semibold text-white/90 truncate flex-1">{userFullName(user)}</span>
+                    <button onClick={() => { setMobileMenuOpen(false); router.push("/settings"); }}
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70 shrink-0">
+                      <Settings size={16} />
+                    </button>
                   </div>
-                  <span className="text-[13px] font-semibold text-white/90 truncate">{userFullName(user)}</span>
-                </div>
+                  <button onClick={() => { setMobileMenuOpen(false); logout(); }}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all"
+                    style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                    <LogOut size={14} /> Çıxış
+                  </button>
+                </>
               )}
             </div>
           </div>
