@@ -102,11 +102,11 @@ export default function QurbanLayout({ children }) {
               <NotificationBell accentColor="#1c5e20" ringColor="#1c5e20" />
               {isGuest ? (
                 <Link href="/auth/login"
-                  className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#1c5e20] text-[12px] font-semibold hover:bg-green-50 transition-all shadow-sm">
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#1c5e20] text-[12px] font-semibold hover:bg-green-50 transition-all shadow-sm">
                   Daxil ol
                 </Link>
               ) : (
-                <div ref={userMenuRef} className="hidden sm:block relative">
+                <div ref={userMenuRef} className="block relative">
                   <button
                     onClick={() => setUserMenuOpen(v => !v)}
                     className="flex items-center gap-2 rounded-xl px-1.5 py-1 hover:bg-white/10 transition-colors cursor-pointer"
@@ -114,7 +114,7 @@ export default function QurbanLayout({ children }) {
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
                       {initials(user)}
                     </div>
-                    <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{fullName(user)}</span>
+                    <span className="hidden sm:inline text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{fullName(user)}</span>
                   </button>
                   {userMenuOpen && (
                     <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.18)", padding: "6px", minWidth: 180, zIndex: 9999 }}>
