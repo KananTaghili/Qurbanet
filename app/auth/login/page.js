@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, Phone, Mail, KeyRound, ArrowLeft, ArrowRight, Beef } from "lucide-react";
@@ -40,6 +40,7 @@ const features = [
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isGuest, isLoading: authLoading } = useAuth();
   const [mode, setMode] = useState("phone");
   const [phone, setPhone] = useState("");
@@ -88,8 +89,9 @@ export default function LoginPage() {
       if (res.data.success) {
         const { token, user, needsName } = res.data.data;
         login(token, user);
-        if (needsName || !user.name) router.push("/auth/name");
-        else router.push("/");
+        const from = searchParams.get("from") || "/";
+        if (needsName || !user.name) router.push(`/auth/name?from=${encodeURIComponent(from)}`);
+        else router.push(from);
       }
     } catch (err) {
       if (err.name === "AbortError" || err.code === "ERR_CANCELED") return;

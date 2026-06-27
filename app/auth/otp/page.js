@@ -81,6 +81,7 @@ export default function OtpPage() {
     sessionStorage.removeItem('otp_identifier_type');
     sessionStorage.removeItem('otp_phone');
     sessionStorage.removeItem('otp_flow');
+    sessionStorage.removeItem('otp_from');
   };
 
   const handleBack = () => {
@@ -133,8 +134,9 @@ export default function OtpPage() {
           }
         }
 
+        const otpFrom = sessionStorage.getItem('otp_from') || '/';
         clearOtpSession();
-        router.push('/');
+        router.push(otpFrom);
       }
     } catch (err) {
       if (err.name === 'AbortError' || err.code === 'ERR_CANCELED') return;

@@ -965,7 +965,7 @@ export default function CharityLayout({ children }) {
             <div className="flex items-center gap-2 shrink-0">
               <NotificationBell accentColor="#301586" ringColor="#301586" />
               {isGuest ? (
-                <Link href="/auth/register"
+                <Link href={`/auth/register?from=${encodeURIComponent(pathname)}`}
                   className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#301586] text-[12px] font-semibold hover:bg-purple-50 transition-all shadow-sm">
                   Qeydiyyat <ChevronDown size={12} />
                 </Link>
@@ -1012,7 +1012,7 @@ export default function CharityLayout({ children }) {
             {/* Bottom: user info or register */}
             <div className="px-4 pb-6 border-t border-white/10 pt-4">
               {isGuest ? (
-                <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)}
+                <Link href={`/auth/register?from=${encodeURIComponent(pathname)}`} onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-xl bg-white text-[#301586] text-[13px] font-semibold hover:bg-purple-50 transition-all">
                   Qeydiyyat
                 </Link>

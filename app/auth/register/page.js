@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, ArrowRight, ArrowLeft, MessageSquare, Beef } from "lucide-react";
@@ -40,6 +40,7 @@ const features = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isGuest, isLoading: authLoading } = useAuth();
   const [mode, setMode] = useState("phone");
   const [phone, setPhone] = useState("");
@@ -87,6 +88,8 @@ export default function RegisterPage() {
       await api.post("/auth/send-otp", { ...body, isRegister: true }, { signal: abortRef.current.signal });
       sessionStorage.setItem("otp_identifier", identifier);
       sessionStorage.setItem("otp_identifier_type", mode === "email" ? "email" : "phone");
+      const from = searchParams.get("from");
+      if (from) sessionStorage.setItem("otp_from", from);
       router.push("/auth/otp");
     } catch (err) {
       if (err.name === "AbortError" || err.code === "ERR_CANCELED") return;

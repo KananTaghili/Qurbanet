@@ -1,12 +1,13 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
 
 export default function NamePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, token, user } = useAuth();
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -27,7 +28,7 @@ export default function NamePage() {
       const freshToken = res.data.data?.token || token;
       const updatedUser = res.data.data?.user || { ...user, name: trimmedName };
       login(freshToken, updatedUser);
-      router.push('/');
+      router.push(searchParams.get('from') || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'Xəta baş verdi. Yenidən cəhd edin.');
     } finally {

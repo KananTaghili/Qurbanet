@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Eye, EyeOff, AlertCircle, Phone, Mail, KeyRound, ArrowLeft } from "lucide-react";
@@ -25,6 +25,7 @@ const ErrorBox = ({ msg }) =>
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
 
   const [step, setStep] = useState("identifier"); // "identifier" | "otp" | "reset"
@@ -176,7 +177,7 @@ export default function ForgotPasswordPage() {
         sessionStorage.removeItem("forgot_phone");
         sessionStorage.removeItem("forgot_email");
         sessionStorage.removeItem("forgot_identifier_type");
-        router.push("/");
+        router.push(searchParams.get("from") || "/");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Şifrə yenilənə bilmədi.");
