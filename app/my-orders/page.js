@@ -392,7 +392,7 @@ export default function MyOrdersPage() {
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 overflow-y-auto">
-        <div className="px-4 sm:px-5 md:px-7 pt-4 sm:pt-5 pb-6 max-w-4xl mx-auto w-full">
+        <div className="px-5 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 max-w-4xl mx-auto w-full">
 
           <div className="mb-4">
             <h1 className="text-xl font-extrabold text-[#071b0d]">{t(lang, 'ordersTitle')}</h1>
