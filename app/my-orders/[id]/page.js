@@ -7,7 +7,6 @@ import {
   ShoppingBag, Download, Play, Clock, CreditCard, XCircle,
   ChevronLeft, ChevronRight, Scale,
 } from "lucide-react";
-import BackHeader from "../../../components/BackHeader";
 import api from "../../../lib/api";
 import { useSocket } from "../../../hooks/useSocket";
 import { useAuth } from "../../../context/AuthContext";
@@ -343,8 +342,6 @@ export default function OrderDetailPage() {
 
   return (
     <div className="flex flex-col flex-1" style={{ background: '#f4f7f4' }}>
-      <BackHeader title={`Sifariş #${orderNum}`} />
-
       <div className="flex-1 overflow-y-auto pb-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex flex-col gap-3">
 
