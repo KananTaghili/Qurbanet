@@ -91,6 +91,7 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
 
   const [tab,          setTab]    = useState("all");
   const [indicatorPct, setInd]    = useState(0);
+  const [scrollable,   setScrollable] = useState(false);
   const [listKey,      setListKey] = useState(0); // retriggers list animation
   const [nots,         setNots]   = useState([]);
   const [initialLoad,  setInitial] = useState(true); // spinner only on first open
@@ -111,6 +112,9 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
 
   // Initial fetch
   useEffect(() => { fetchList("all"); }, [fetchList]);
+
+  // Delay scroll until panel open animation finishes (220ms)
+  useEffect(() => { const t = setTimeout(() => setScrollable(true), 260); return () => clearTimeout(t); }, []);
 
   const changeTab = (key) => {
     if (key === tab) return;
@@ -187,7 +191,7 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
       </div>
 
       {/* Content — scrollbar only when content actually overflows */}
-      <div className="nb-scroll" style={{ overflowY: "auto", minHeight: 0, "--nb-accent": accentColor }}>
+      <div className="nb-scroll" style={{ overflowY: scrollable ? "auto" : "hidden", minHeight: 0, "--nb-accent": accentColor }}>
         {initialLoad ? (
           /* First-time spinner — only shown once */
           <div className="flex items-center justify-center py-14">
