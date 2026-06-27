@@ -94,10 +94,6 @@ export default function QurbanLayout({ children }) {
               <Link href="/" className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
                 <ArrowLeft size={18} className="text-white" />
               </Link>
-              <div className="flex items-center gap-2 lg:hidden shrink-0">
-                <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={80} height={44}
-                  style={{ height: 28, width: "auto", objectFit: "contain" }} />
-              </div>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1">
                 Qurbanlıq Sifarişi
               </span>
