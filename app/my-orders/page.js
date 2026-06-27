@@ -117,38 +117,64 @@ function OrderCard({ item, lang }) {
 
   return (
     <Link href={href} className="no-underline block group">
-      <div className="bg-white rounded-2xl overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl flex flex-col"
-        style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8' }}>
+      <div className="bg-white rounded-2xl overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl"
+        style={{ boxShadow: '0 3px 16px rgba(28,94,32,0.08)', border: '1.5px solid #e8f0e8', display: 'flex', flexDirection: 'column' }}>
 
-        {/* TOP: image left + info right */}
-        <div className="flex">
-          {/* Image */}
-          <div className="relative shrink-0 w-[110px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 120 }}>
-            {isCharity ? (
-              <div className="w-full h-full flex items-center justify-center">
-                <Heart size={32} style={{ color: BRAND, opacity: 0.2 }} />
+        {/* Main row: image + content */}
+        <div className="flex flex-col md:flex-row">
+
+          {/* Image — mobile: 110px wide strip, desktop: full-height left panel */}
+          <div className="relative shrink-0 md:w-[150px] overflow-hidden flex"
+            style={{ background: '#f0f7f0' }}>
+            {/* mobile: side-by-side top row */}
+            <div className="flex md:hidden w-[110px] shrink-0 relative" style={{ minHeight: 120 }}>
+              {isCharity ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Heart size={28} style={{ color: BRAND, opacity: 0.2 }} />
+                </div>
+              ) : (
+                <img src={imgSrc} alt={title} className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center 15%' }} />
+              )}
+              <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
+                <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
               </div>
-            ) : (
-              <img src={imgSrc} alt={title} className="w-full h-full object-cover"
-                style={{ objectPosition: 'center 15%' }} />
-            )}
-            <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1"
-              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
-              <p className="font-mono text-[8px] font-bold text-white/90 truncate">{orderNum}</p>
+            </div>
+            {/* desktop: full height image */}
+            <div className="hidden md:block w-full relative" style={{ minHeight: 160 }}>
+              {isCharity ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Heart size={40} style={{ color: BRAND, opacity: 0.2 }} />
+                </div>
+              ) : (
+                <img src={imgSrc} alt={title} className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center 15%' }} />
+              )}
+              <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52), transparent)' }}>
+                <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
+              </div>
             </div>
           </div>
 
-          {/* Info */}
-          <div className="flex-1 min-w-0 px-3 py-3 flex flex-col justify-between gap-2">
-            {/* Title + status */}
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight">{title}</h3>
-              <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold"
-                style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
-                <StatusIcon size={10} style={{ color: cfg.dot }} />
-                {cfg.label}
-              </span>
+          {/* Content */}
+          <div className="flex-1 min-w-0 px-3 md:px-4 py-3 flex flex-col justify-between gap-2 relative">
+
+            {/* Big status icon — top-right corner */}
+            <div className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: cfg.bg }}>
+              <StatusIcon size={18} style={{ color: cfg.dot }} />
             </div>
+
+            {/* Title */}
+            <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight pr-11">{title}</h3>
+
+            {/* Status label (text only, small) */}
+            <span className="self-start text-[10px] font-bold px-2 py-0.5 rounded-lg"
+              style={{ background: cfg.bg, color: cfg.color }}>
+              {cfg.label}
+            </span>
 
             {/* Info chips */}
             <div className="flex flex-wrap gap-1">
