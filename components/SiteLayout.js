@@ -196,15 +196,15 @@ export default function SiteLayout({ children }) {
           <div className="flex-1">{children}</div>
 
           {/* Footer */}
-          <footer className="grid gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-center">
-            <div>
+          <footer className="grid grid-cols-2 gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-start">
+            <div className="col-span-2 md:col-span-1">
               <Image src="/mb_logo_footer.png" alt="MeatBox footer" width={160} height={40}
                 style={{ objectFit: "contain", objectPosition: "left", height: 40, width: "auto" }} />
             </div>
             <div>
               <h4 className="font-bold">Linklər</h4>
               <div className="mt-3 flex flex-col gap-1 text-sm text-white/70">
-                {nav.slice(0, 3).map(item => (
+                {nav.map(item => (
                   <Link key={item.to} href={item.to} className="hover:text-white transition-colors">{item.label}</Link>
                 ))}
               </div>
@@ -216,7 +216,7 @@ export default function SiteLayout({ children }) {
                 <span>info@meatbox.az</span>
               </div>
             </div>
-            <div>
+            <div className="col-span-2 md:col-span-1">
               <h4 className="mb-3 font-bold">Ödəniş üsulları</h4>
               <PaymentLogos />
             </div>

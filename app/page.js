@@ -395,8 +395,8 @@ export default function HomePage() {
         </section>
 
         {/* ── Footer ── */}
-        <footer className="hp-footer grid gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-center">
-          <div>
+        <footer className="hp-footer grid grid-cols-2 gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-start">
+          <div className="col-span-2 md:col-span-1">
             <Image src="/mb_logo_footer.png" alt="MeatBox footer loqo" width={160} height={40} style={{ objectFit: "contain", objectPosition: "left", height: 40, width: "auto" }} />
           </div>
           <div>
@@ -415,7 +415,7 @@ export default function HomePage() {
               <span>info@meatbox.az</span>
             </div>
           </div>
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="mb-3 font-bold">Ödəniş üsulları</h4>
             <PaymentLogos />
           </div>
