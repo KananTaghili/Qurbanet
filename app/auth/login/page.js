@@ -193,7 +193,7 @@ export default function LoginPage() {
       >
         {/* Mobile back button */}
         <Link href="/" className="lg:hidden self-start mb-1"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", color: "#fff" }}>
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, minWidth: 36, minHeight: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", color: "#fff", flexShrink: 0 }}>
           <ArrowLeft size={18} />
         </Link>
 
