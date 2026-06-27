@@ -243,10 +243,69 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
 
+        {/* ── Mobile drawer backdrop ── */}
+        <div
+          className={`md:hidden fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+
+        {/* ── Mobile drawer panel ── */}
+        <div
+          className={`md:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+          style={{ background: "#1a0a08" }}
+        >
+          <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+            <Image src="/mb_logo_right_white.png" alt="MeatBox" width={120} height={30}
+              style={{ height: 26, width: "auto", objectFit: "contain" }} />
+            <button onClick={() => setMobileMenuOpen(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
+              <X size={18} />
+            </button>
+          </div>
+          <nav className="flex-1 px-3 py-3 flex flex-col gap-0.5">
+            {nav.map(item => (
+              <Link key={item.to} href={item.to} onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-all ${pathname === item.to ? "bg-white/15 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="px-4 pb-6 border-t border-white/10 pt-4">
+            {isGuest ? (
+              <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white no-underline"
+                style={{ background: "#f20b32" }}>
+                <User size={15} /> Daxil ol
+              </Link>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 px-1 mb-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[12px] font-bold text-white">
+                    {user?.name?.[0]?.toUpperCase() || "?"}
+                  </div>
+                  <span className="text-[13px] font-semibold text-white/90 truncate">
+                    {[user?.name, user?.lastName].filter(Boolean).join(" ")}
+                  </span>
+                </div>
+                <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all"
+                  style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                  <LogOut size={14} /> Çıxış
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* ── Header ── */}
-        <header className="flex items-center justify-between bg-white px-6 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
-          <div className="hp-logo">
-            <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
+        <header className="flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
+          <div className="flex items-center gap-2">
+            <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors" onClick={() => setMobileMenuOpen(true)}>
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="hp-logo">
+              <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
+            </div>
           </div>
 
           <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
@@ -275,23 +334,11 @@ export default function HomePage() {
                 <span className="hidden md:inline">Daxil ol</span>
               </Link>
             )}
-            <button className="md:hidden" onClick={() => setMobileMenuOpen(v => !v)}>
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
           </div>
         </header>
 
         {/* Scrollable content */}
         <div className="hp-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
-
-        {/* Mobile nav */}
-        {mobileMenuOpen && (
-          <div className="flex flex-col gap-1 bg-white px-6 pb-4 text-sm font-medium md:hidden">
-            {nav.map(item => (
-              <Link key={item.to} href={item.to} onClick={() => setMobileMenuOpen(false)} className={`py-2 text-left transition-colors hover:text-[#f20b32] ${pathname === item.to ? "text-[#f20b32] font-bold" : "text-neutral-700"}`}>{item.label}</Link>
-            ))}
-          </div>
-        )}
 
         {/* ── Hero ── */}
         <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5" style={{ minHeight: 220 }}>
