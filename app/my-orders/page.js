@@ -146,7 +146,7 @@ function OrderCard({ item, lang }) {
           </div>
 
           {/* Desktop: left panel image */}
-          <div className="hidden md:block relative shrink-0 w-[150px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 160 }}>
+          <div className="hidden md:block relative shrink-0 w-[200px] overflow-hidden" style={{ background: '#f0f7f0', minHeight: 160 }}>
             {isCharity ? (
               <div className="w-full h-full flex items-center justify-center">
                 <Heart size={40} style={{ color: BRAND, opacity: 0.2 }} />
