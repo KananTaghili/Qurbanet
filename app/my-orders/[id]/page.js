@@ -348,12 +348,20 @@ export default function OrderDetailPage() {
       <div className="flex-1 overflow-y-auto pb-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex flex-col gap-3">
 
-          {/* ── HERO CARD: image LEFT, info RIGHT ── */}
-          <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-            <div className="flex" style={{ minHeight: 180 }}>
+          {/* ── HERO CARD ── */}
+          <div className="bg-white rounded-2xl overflow-hidden relative" style={cardStyle}>
 
-              {/* LEFT: animal photo */}
-              <div className="relative shrink-0 w-[140px] md:w-[180px] overflow-hidden"
+            {/* Green circle status icon — top-right outside card */}
+            {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon; return (
+              <div className="absolute -top-4 -right-4 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                style={{ background: BRAND }}>
+                <PipeIcon size={22} style={{ color: '#fff' }} />
+              </div>
+            ); })()}
+
+            <div className="flex" style={{ minHeight: 200 }}>
+              {/* LEFT: animal photo — wider */}
+              <div className="relative shrink-0 w-[180px] md:w-[240px] overflow-hidden"
                 style={{ background: '#f0f7f0' }}>
                 <img src={animalImg} alt={animalName}
                   className="w-full h-full object-cover"
@@ -364,32 +372,26 @@ export default function OrderDetailPage() {
                 </div>
               </div>
 
-              {/* RIGHT: info */}
-              <div className="flex-1 min-w-0 px-4 py-4 flex flex-col justify-between gap-3">
-                <div className="flex flex-col gap-2">
-                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Sifariş nömrəsi</p>
-                  <p className="font-mono font-black text-[#071b0d] text-[14px] leading-none">{orderNum}</p>
-                  <span className="self-start inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold"
-                    style={{ background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.dot}30` }}>
-                    <StatusIcon size={11} style={{ color: cfg.dot }} />
-                    {cfg.label}
-                  </span>
+              {/* RIGHT: info — bigger & cleaner */}
+              <div className="flex-1 min-w-0 px-5 py-5 flex flex-col justify-between">
+                <div>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sifariş nömrəsi</p>
+                  <p className="font-mono font-black text-[#071b0d] text-[15px] leading-none">{orderNum}</p>
                 </div>
 
-                <div>
-                  <p className="text-[11px] text-gray-400 font-medium mb-0.5">{animalName}</p>
-                  <div className="flex items-baseline gap-1 flex-wrap">
-                    <span className="text-[24px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
-                    <span className="text-sm font-bold text-gray-400">AZN</span>
-                    {weight && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg ml-1"
-                        style={{ background: '#f0f7f0', color: BRAND }}>
-                        <Scale size={9} />
-                        {weight}
-                      </span>
-                    )}
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-[13px] text-gray-400 font-semibold">{animalName}</p>
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-[32px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
+                    <span className="text-[15px] font-bold text-gray-400">AZN</span>
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-1">{fmtDate(order.createdAt)}</p>
+                  {weight && (
+                    <span className="self-start inline-flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1 rounded-lg"
+                      style={{ background: '#f0f7f0', color: BRAND }}>
+                      <Scale size={11} /> {weight}
+                    </span>
+                  )}
+                  <p className="text-[11px] text-gray-400 mt-1">{fmtDate(order.createdAt)}</p>
                 </div>
               </div>
             </div>
