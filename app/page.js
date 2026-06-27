@@ -283,15 +283,14 @@ export default function HomePage() {
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[12px] font-bold text-white">
                     {user?.name?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-[13px] font-semibold text-white/90 truncate">
+                  <span className="text-[13px] font-semibold text-white/90 truncate flex-1">
                     {[user?.name, user?.lastName].filter(Boolean).join(" ")}
                   </span>
+                  <button onClick={() => { setMobileMenuOpen(false); router.push("/settings"); }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70 shrink-0">
+                    <Settings size={16} />
+                  </button>
                 </div>
-                <button onClick={() => { setMobileMenuOpen(false); router.push("/settings"); }}
-                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all mb-2"
-                  style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
-                  <Settings size={14} /> Parametrlər
-                </button>
                 <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all"
                   style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
