@@ -32,16 +32,16 @@ function CharityUserMenu({ user, onLogout }) {
   }, []);
 
   return (
-    <div ref={ref} className="relative hidden sm:block">
+    <div ref={ref} className="relative block">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 hover:bg-white/10 transition-colors"
+        className="flex items-center gap-2 cursor-pointer bg-transparent border-0"
       >
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white">
           {ini}
         </div>
-        <span className="text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{name}</span>
-        <ChevronDown size={13} className={`text-white/60 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+        <span className="hidden sm:inline text-[12px] font-semibold text-white/90 max-w-[120px] truncate">{name}</span>
+        <ChevronDown size={13} className={`hidden sm:block text-white/60 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
@@ -957,12 +957,8 @@ export default function CharityLayout({ children }) {
               <Link href="/" className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
                 <ArrowLeft size={18} className="text-white" />
               </Link>
-              <div className="flex items-center gap-2 lg:hidden shrink-0">
-                <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={80} height={44}
-                  style={{ height: 28, width: "auto", objectFit: "contain" }} />
-              </div>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1 min-w-0">
-                <span>Kollektiv Qurban</span>
+                Kollektiv Qurban
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
