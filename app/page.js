@@ -287,6 +287,11 @@ export default function HomePage() {
                     {[user?.name, user?.lastName].filter(Boolean).join(" ")}
                   </span>
                 </div>
+                <button onClick={() => { setMobileMenuOpen(false); router.push("/settings"); }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all mb-2"
+                  style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                  <Settings size={14} /> Parametrlər
+                </button>
                 <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all"
                   style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
