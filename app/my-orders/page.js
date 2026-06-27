@@ -163,7 +163,7 @@ function OrderCard({ item, lang }) {
 
           {/* Content */}
           <div className="flex-1 min-w-0 px-3 md:px-4 py-3 flex flex-col gap-2">
-            <h3 className="text-[14px] font-extrabold text-[#071b0d] leading-tight pr-6">{title}</h3>
+            <h3 className="text-[17px] font-extrabold text-[#071b0d] leading-tight pr-6">{title}</h3>
             <div className="flex flex-wrap gap-1">
               <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
                 style={{ background: '#f0f7f0', color: '#2d5a2d' }}>
