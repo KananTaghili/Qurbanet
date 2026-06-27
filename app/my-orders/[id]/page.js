@@ -348,17 +348,17 @@ export default function OrderDetailPage() {
       <div className="flex-1 overflow-y-auto pb-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex flex-col gap-3">
 
-          {/* ── HERO CARD ── */}
-          <div className="bg-white rounded-2xl overflow-hidden relative" style={cardStyle}>
-
-            {/* Green circle status icon — top-right outside card */}
+          {/* ── HERO CARD ── wrapped in relative so icon isn't clipped */}
+          <div className="relative" style={{ paddingTop: '1rem' }}>
+            {/* Green circle status icon — floats above card top-right */}
             {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon; return (
-              <div className="absolute -top-4 -right-4 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+              <div className="absolute top-0 right-0 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                 style={{ background: BRAND }}>
                 <PipeIcon size={22} style={{ color: '#fff' }} />
               </div>
             ); })()}
 
+            <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
             <div className="flex" style={{ minHeight: 200 }}>
               {/* LEFT: animal photo — wider */}
               <div className="relative shrink-0 w-[180px] md:w-[240px] overflow-hidden"
@@ -380,7 +380,7 @@ export default function OrderDetailPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <p className="text-[13px] text-gray-400 font-semibold">{animalName}</p>
+                  <p className="text-[18px] font-black text-[#071b0d]">{animalName}</p>
                   <div className="flex items-baseline gap-1.5 flex-wrap">
                     <span className="text-[32px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
                     <span className="text-[15px] font-bold text-gray-400">AZN</span>
@@ -395,33 +395,37 @@ export default function OrderDetailPage() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>{/* end bg-white card */}
+          </div>{/* end relative wrapper */}
 
-          {/* ── STATUS STEPS CARD (vertical) ── */}
-          <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-            <SectionHead Icon={CheckCircle2} label="Sifariş gedişatı" />
-            <div className="px-4 py-4">
-              <VerticalTimeline step={step} />
+          {/* ── STATUS + DETAILS: side by side on desktop ── */}
+          <div className="flex flex-col md:flex-row gap-3 items-start">
+            {/* LEFT: status steps */}
+            <div className="w-full md:w-[45%] bg-white rounded-2xl overflow-hidden" style={cardStyle}>
+              <SectionHead Icon={CheckCircle2} label="Sifariş gedişatı" />
+              <div className="px-4 py-4">
+                <VerticalTimeline step={step} />
+              </div>
             </div>
-          </div>
 
-          {/* ── ORDER DETAILS CARD ── */}
-          <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
-            <SectionHead Icon={FileText} label="Sifariş məlumatları" />
-            {detailRows.map((row, i) => (
-              <InfoRow key={row.label} label={row.label} value={row.value}
-                last={i === detailRows.length - 1 && cutEntries.length === 0} />
-            ))}
-            {cutEntries.length > 0 && (
-              <>
-                <div className="px-4 pt-3 pb-1.5 border-t border-gray-100">
-                  <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Doğranma növü</span>
-                </div>
-                {cutEntries.map(([k, v], i) => (
-                  <InfoRow key={k} label={CUT_LABELS[k] || k} value={`${v} ədəd`} last={i === cutEntries.length - 1} />
-                ))}
-              </>
-            )}
+            {/* RIGHT: order details */}
+            <div className="w-full md:flex-1 bg-white rounded-2xl overflow-hidden" style={cardStyle}>
+              <SectionHead Icon={FileText} label="Sifariş məlumatları" />
+              {detailRows.map((row, i) => (
+                <InfoRow key={row.label} label={row.label} value={row.value}
+                  last={i === detailRows.length - 1 && cutEntries.length === 0} />
+              ))}
+              {cutEntries.length > 0 && (
+                <>
+                  <div className="px-4 pt-3 pb-1.5 border-t border-gray-100">
+                    <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Doğranma növü</span>
+                  </div>
+                  {cutEntries.map(([k, v], i) => (
+                    <InfoRow key={k} label={CUT_LABELS[k] || k} value={`${v} ədəd`} last={i === cutEntries.length - 1} />
+                  ))}
+                </>
+              )}
+            </div>
           </div>
 
           {/* ── MEDIA CARD ── */}
