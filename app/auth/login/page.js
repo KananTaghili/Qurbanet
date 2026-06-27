@@ -377,7 +377,7 @@ function LoginPageInner() {
             {/* Register link */}
             <button
               type="button"
-              onClick={() => navigate("/auth/register")}
+              onClick={() => navigate(`/auth/register${searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : ""}`)}
               className="auth-btn-outline"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,

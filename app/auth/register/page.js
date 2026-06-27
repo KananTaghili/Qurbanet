@@ -235,7 +235,7 @@ function RegisterPageInner() {
           <div>
             <button
               type="button"
-              onClick={() => navigate("/auth/login")}
+              onClick={() => navigate(`/auth/login${searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : ""}`)}
               style={{ display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 8, fontSize: 12, fontWeight: 700, color: "#6b7280", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0, transition: "opacity 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.opacity = "0.6"}
               onMouseLeave={e => e.currentTarget.style.opacity = "1"}
@@ -327,7 +327,7 @@ function RegisterPageInner() {
                 {error.includes("artıq") && (
                   <button
                     type="button"
-                    onClick={() => router.push("/auth/login")}
+                    onClick={() => router.push(`/auth/login${searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : ""}`)}
                     style={{ display: "block", marginTop: 4, background: "none", border: "none", cursor: "pointer", color: "#c8102e", fontSize: 12, fontWeight: 700, textDecoration: "underline", padding: 0, fontFamily: "inherit" }}
                   >
                     Daxil ol səhifəsinə keç →
@@ -375,7 +375,7 @@ function RegisterPageInner() {
             {/* Login link */}
             <button
               type="button"
-              onClick={() => navigate("/auth/login")}
+              onClick={() => navigate(`/auth/login${searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : ""}`)}
               className="auth-btn-outline"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
