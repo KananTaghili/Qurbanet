@@ -1,11 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
 
-export default function NamePage() {
+function NamePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, token, user } = useAuth();
@@ -125,4 +125,8 @@ export default function NamePage() {
       </div>
     </div>
   );
+}
+
+export default function NamePage() {
+  return <Suspense><NamePageInner /></Suspense>;
 }

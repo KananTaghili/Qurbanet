@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,7 +23,7 @@ const ErrorBox = ({ msg }) =>
     </div>
   ) : null;
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
@@ -533,4 +533,8 @@ export default function ForgotPasswordPage() {
     </div>
     </main>
   );
+}
+
+export default function ForgotPasswordPage() {
+  return <Suspense><ForgotPasswordPageInner /></Suspense>;
 }

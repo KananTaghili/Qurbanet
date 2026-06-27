@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -38,7 +38,7 @@ const features = [
   },
 ];
 
-export default function RegisterPage() {
+function RegisterPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isGuest, isLoading: authLoading } = useAuth();
@@ -440,4 +440,8 @@ export default function RegisterPage() {
     </div>
     </main>
   );
+}
+
+export default function RegisterPage() {
+  return <Suspense><RegisterPageInner /></Suspense>;
 }
