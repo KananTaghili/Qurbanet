@@ -188,9 +188,10 @@ export default function LoginPage() {
       </section>
 
       {/* Right panel — form */}
-      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px", gap: 20 }}
+      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px" }}
         className="h-full overflow-y-auto"
       >
+        <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: "100%", paddingTop: 8, paddingBottom: 8 }}>
         {/* Mobile branding — above card, hidden on desktop */}
         <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
           <div className="auth-mobile-logo" style={{ width: 160 }}>
@@ -382,6 +383,7 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
+        </div>{/* end margin:auto wrapper */}
       </section>
 
       <style>{`
