@@ -118,7 +118,7 @@ function OrderCard({ item, lang }) {
   return (
     <Link href={href} className="no-underline block group relative">
       {/* Status icon — green circle floating outside card at top-right, moves up on hover */}
-      {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon; return (
+      {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, cfg.step)]?.Icon || StatusIcon; return (
         <div className="absolute -top-4 -right-4 z-10 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:-translate-y-0.5"
           style={{ background: BRAND }}>
           <PipeIcon size={20} style={{ color: '#fff' }} />
