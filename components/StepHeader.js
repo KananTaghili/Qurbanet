@@ -24,19 +24,19 @@ export default function StepHeader({ currentStep }) {
       borderBottom: '1px solid var(--border)',
       flexShrink: 0,
     }}>
-      {/* Steps + back button row */}
-      <div style={{ padding: '8px 16px 10px', position: 'relative' }}>
-        {/* Button — pinned to far left */}
+      {/* Steps + back button row — flex, parallel */}
+      <div style={{ padding: '8px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <button
           onClick={() => router.push(backTo)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all hover:opacity-85 active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all hover:opacity-85 active:scale-95 shrink-0"
           style={{ background: '#1c5e20', color: '#fff', border: 'none' }}
         >
           <ArrowLeft size={12} strokeWidth={2.5} />
           Geri Qayıt
         </button>
-        {/* Steps — centered in full width */}
-        <div className="flex items-center" style={{ maxWidth: 600, margin: '0 auto', width: '100%' }}>
+        {/* Steps — flex-1, centered within remaining space */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+        <div className="flex items-center" style={{ width: '100%', maxWidth: 600 }}>
           {STEPS.map((label, i) => {
             const idx = i + 1;
             const done = idx < currentStep;
@@ -73,6 +73,7 @@ export default function StepHeader({ currentStep }) {
               </div>
             );
           })}
+        </div>
         </div>
       </div>
     </div>
