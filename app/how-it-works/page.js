@@ -221,9 +221,6 @@ export default function HowItWorksPage() {
           <div style={{ position:"absolute", bottom:-24, left:-16, width:120, height:120, borderRadius:"50%", background:"rgba(255,255,255,0.03)" }} />
 
           <div className="relative z-10">
-            <p className="text-[11px] font-bold tracking-[0.25em] text-white/50 uppercase mb-1.5">
-              QurbanEt
-            </p>
             <h1 className="text-xl md:text-2xl font-black text-white leading-tight mb-1.5">
               {t(lang, "howItWorksHero")}
             </h1>
