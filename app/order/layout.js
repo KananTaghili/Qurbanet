@@ -118,14 +118,22 @@ function InnerLayout({ children }) {
         <div className="flex-1 flex flex-col min-w-0">
 
           {/* TopBar */}
-          <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-2.5 shrink-0"
-            style={{ backgroundColor: GREEN }}>
-            <div className="flex items-center gap-2 min-w-0">
-              {/* Mobile: menu + back + logo */}
+          <div className="flex items-center justify-between gap-2 px-3 md:px-6 shrink-0"
+            style={{ backgroundColor: GREEN, height: 50, minHeight: 50, maxHeight: 50 }}>
+            <div className="flex items-center gap-2.5 min-w-0">
+              {/* Mobile: menu button */}
               <button className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
                 onClick={openMenu}>
                 <Menu size={18} className="text-white" />
               </button>
+              {/* Desktop: elegant green back button */}
+              <button onClick={() => router.push(backTo)}
+                className="hidden lg:inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-white hover:opacity-85 active:scale-95 transition-all shrink-0"
+                style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
+                <ArrowLeft size={14} strokeWidth={2.2} />
+                Geri qayıt
+              </button>
+              {/* Mobile: back arrow */}
               <button onClick={() => router.push(backTo)}
                 className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
                 <ArrowLeft size={18} className="text-white" />
