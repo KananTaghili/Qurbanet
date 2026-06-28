@@ -100,6 +100,23 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* ── Hadith ── */}
+      <div className="px-3 lg:px-4 pb-3 flex-shrink-0">
+        <div
+          className="rounded-2xl px-4 py-3.5"
+          style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <div className="text-3xl font-serif leading-none mb-1.5" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
+          <p className="text-[12px] lg:text-[13px] font-bold leading-snug italic mb-2.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
+            Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+          </p>
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 8 }} />
+          <p className="text-[10px] lg:text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            Hədis · Buxari, Muslim
+          </p>
+        </div>
+      </div>
+
       {/* ── User / Auth ── */}
       <div className="p-2 flex-shrink-0">
         {isGuest ? (

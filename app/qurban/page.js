@@ -135,7 +135,6 @@ export default function QurbanPage() {
       {/* Mobile list */}
       <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-4">
         <HeroBanner router={router} isMobile />
-        <HadithCard />
         <div className="flex flex-col flex-1 gap-2.5 xs:gap-3 sm:gap-4 mt-3">
           {loading ? (
             <Spinner />
@@ -170,7 +169,6 @@ export default function QurbanPage() {
         style={{ paddingTop: 14, paddingLeft: 28, paddingRight: 28 }}
       >
         <HeroBanner router={router} />
-        <HadithCard />
         <div>
           <h3 className="text-base font-extrabold text-text-primary mb-0.5">Qurbanlığınızı Seçin</h3>
           <p className="text-xs text-text-muted mb-2">Qurbanlıq heyvan növünü seçərək sifarişinizi tamamlayın</p>
@@ -271,27 +269,6 @@ function EmptyState({ lang }) {
         </div>
         <p style={{ position: 'absolute', bottom: 24, left: 0, right: 0, margin: 0 }} className="text-sm font-bold text-text-secondary">Heyvan təyin edilməyib</p>
       </div>
-    </div>
-  );
-}
-
-/* ───────────────────────────────────────────────
-   Hadith Card
-   ─────────────────────────────────────────────── */
-function HadithCard() {
-  return (
-    <div
-      className="rounded-2xl mt-2.5 mb-1 px-5 py-4"
-      style={{ background: '#1c5e20' }}
-    >
-      <div className="text-4xl font-serif leading-none mb-2" style={{ color: 'rgba(255,255,255,0.25)' }}>"</div>
-      <p className="text-[15px] font-bold leading-snug italic mb-3" style={{ color: '#fff' }}>
-        Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
-      </p>
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 10 }} />
-      <p className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.55)' }}>
-        Hədis · Buxari, Muslim
-      </p>
     </div>
   );
 }
