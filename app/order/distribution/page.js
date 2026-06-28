@@ -657,16 +657,15 @@ export default function DistributionPage() {
         />
         <StepHeader currentStep={2} />
 
-        <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-24 lg:pb-0 pt-[124px] lg:pt-0 lg:flex lg:flex-col">
+        <div className="flex-1 min-h-0 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:flex-1 lg:min-h-0
                           lg:grid lg:grid-cols-[minmax(0,3.8fr)_minmax(250px,2.5fr)_minmax(0,9fr)]
                           lg:gap-4 lg:items-start"
           >
             {/* ════ LEFT (1fr) ════ */}
             {/* Sol sütun (1fr): Çatdırılma üsulu + altda Çatdırılma ünvanı/Götürmə məkanı */}
-            <div className="flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto">
+            <div className="flex flex-col gap-3">
               {/* Desktop */}
               <Card
                 className={`hidden lg:block ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
@@ -710,14 +709,14 @@ export default function DistributionPage() {
             </div>
 
             {/* Orta sütun (1fr): Əlaqə nömrəsi — desktop only */}
-            <div className="hidden lg:flex flex-col lg:min-h-0 lg:overflow-y-auto">
+            <div className="hidden lg:flex flex-col">
               {(needsLocation || selectedKey === "ozum")
                 ? AddressSection({ className: "", phoneOnly: true })
                 : null}
             </div>
 
             {/* Sağ sütun (1.4fr): Sifariş xülasəsi — desktop only */}
-            <div className="hidden lg:flex flex-col lg:min-h-0 lg:overflow-y-auto">
+            <div className="hidden lg:flex flex-col">
 
               <Card>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
