@@ -289,6 +289,41 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+// ─── Forgot-password OTP yoxla (şifrəni dəyişmədən) ─────────────────────────
+const verifyForgotOtp = async (req, res) => {
+  try {
+    const { phone: rawPhone, email: rawEmail, code } = req.body;
+    if (!code || !/^\d{4}$/.test(code)) return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
+
+    let otpQuery;
+    if (rawPhone) {
+      const phone = normalizeAzPhone(rawPhone.trim());
+      if (!phone) return error(res, "Düzgün telefon nömrəsi daxil edin.", 400);
+      otpQuery = { phone };
+    } else if (rawEmail) {
+      const email = rawEmail.trim().toLowerCase();
+      if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+      otpQuery = { email };
+    } else {
+      return error(res, "Telefon nömrəsi və ya email tələb olunur.", 400);
+    }
+
+    const otpRecord = await OTP.findOne(otpQuery);
+    if (!otpRecord) return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
+    if (otpRecord.expiresAt < new Date()) { await OTP.deleteMany(otpQuery); return error(res, "OTP kodunun vaxtı keçib.", 400); }
+    if (otpRecord.attempts >= OTP_MAX_ATTEMPTS) { await OTP.deleteMany(otpQuery); return error(res, "Çox sayda yanlış cəhd.", 400); }
+    if (otpRecord.code !== code) {
+      await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
+      return error(res, `Yanlış kod. ${OTP_MAX_ATTEMPTS - otpRecord.attempts - 1} cəhdiniz qalıb.`, 400);
+    }
+
+    return success(res, {}, "Kod doğrulandı.");
+  } catch (err) {
+    console.error("verifyForgotOtp xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
 // ─── Şifrəni sıfırla ─────────────────────────────────────────────────────────
 const resetPassword = async (req, res) => {
   try {
@@ -404,6 +439,7 @@ module.exports = {
   verifyOTP,
   loginWithPassword,
   forgotPassword,
+  verifyForgotOtp,
   resetPassword,
   guestLogin,
   getProfile,

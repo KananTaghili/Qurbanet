@@ -36,6 +36,7 @@ function ForgotPasswordPageInner() {
   const [error, setError] = useState("");
 
   const [code, setCode] = useState(["", "", "", ""]);
+  const [verifying, setVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const inputs = useRef([]);
   const timerRef = useRef(null);
@@ -125,7 +126,6 @@ function ForgotPasswordPageInner() {
     setCode(next);
     setError("");
     if (digit && i < 3) inputs.current[i + 1]?.focus();
-    if (next.every((d) => d)) setStep("reset");
   };
 
   const handleKeyDown = (i, e) => {
@@ -134,7 +134,28 @@ function ForgotPasswordPageInner() {
 
   const handlePaste = (e) => {
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
-    if (pasted.length === 4) { setCode(pasted.split("")); setStep("reset"); }
+    if (pasted.length === 4) setCode(pasted.split(""));
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (verifying) return;
+    const fullCode = code.join("");
+    if (fullCode.length < 4) { setError("Zəhmət olmasa 4 rəqəmli kodu daxil edin."); return; }
+    setVerifying(true);
+    setError("");
+    try {
+      const type = sessionStorage.getItem("forgot_identifier_type") || "phone";
+      const val = sessionStorage.getItem(type === "phone" ? "forgot_phone" : "forgot_email");
+      await api.post("/auth/verify-forgot-otp", type === "phone" ? { phone: val, code: fullCode } : { email: val, code: fullCode });
+      setStep("reset");
+    } catch (err) {
+      setError(err.response?.data?.message || "Yanlış kod.");
+      if (err.response?.status === 400) setCode(["", "", "", ""]);
+      setTimeout(() => inputs.current[0]?.focus(), 50);
+    } finally {
+      setVerifying(false);
+    }
   };
 
   const handleResend = async (e) => {
@@ -389,7 +410,7 @@ function ForgotPasswordPageInner() {
                   {mode === "phone" ? "Nömrənizə" : "Email ünvanınıza"} göndərilən 4 rəqəmli kodu daxil edin.
                 </p>
 
-                <div className="flex flex-col gap-4">
+                <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
                   <div className="flex gap-3 justify-center" onPaste={handlePaste}>
                     {code.map((d, i) => (
                       <input
@@ -409,6 +430,24 @@ function ForgotPasswordPageInner() {
                   <ErrorBox msg={error} />
 
                   <button
+                    type="submit"
+                    disabled={verifying || code.join("").length < 4}
+                    className="auth-btn-primary"
+                    style={{
+                      width: "100%", padding: "14px 0", borderRadius: 14, border: "none",
+                      background: (verifying || code.join("").length < 4) ? "#9CA3AF" : "#f20b32", color: "#fff",
+                      fontSize: 15, fontWeight: 700, cursor: (verifying || code.join("").length < 4) ? "not-allowed" : "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      boxShadow: (verifying || code.join("").length < 4) ? "none" : "0 4px 14px rgba(242,11,50,0.3)",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {verifying
+                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yoxlanılır...</span>
+                      : "Davam et →"}
+                  </button>
+
+                  <button
                     type="button"
                     onClick={handleResend}
                     disabled={resendTimer > 0 || sending}
@@ -424,7 +463,7 @@ function ForgotPasswordPageInner() {
                   >
                     ← Geri qayıt
                   </button>
-                </div>
+                </form>
               </>
             )}
 

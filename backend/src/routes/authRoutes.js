@@ -24,6 +24,9 @@ router.post("/login-password", [
 // POST /api/auth/forgot-password
 router.post("/forgot-password", authController.forgotPassword);
 
+// POST /api/auth/verify-forgot-otp — OTP-ni yoxla (şifrəni dəyişmədən)
+router.post("/verify-forgot-otp", [otpCodeValidation], authController.verifyForgotOtp);
+
 // POST /api/auth/reset-password
 router.post("/reset-password", [
   otpCodeValidation,
