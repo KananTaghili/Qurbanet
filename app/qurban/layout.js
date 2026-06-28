@@ -145,15 +145,19 @@ export default function QurbanLayout({ children }) {
               </Link>
             ))}
           </nav>
-          {/* Hadith */}
-          <div className="px-3 lg:px-4 pb-3 shrink-0">
-            <div className="rounded-2xl px-4 py-3.5" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="text-3xl font-serif leading-none mb-1.5" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
-              <p className="text-[12px] font-bold leading-snug italic mb-2.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
-              </p>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 8 }} />
-              <p className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
+          {/* Hadith box */}
+          <div className="shrink-0 mx-3 mb-3 mt-2">
+            <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <div className="flex items-start gap-2 mb-2">
+                <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
+                <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
+                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+                <span className="text-[9.5px] font-medium text-white/30 shrink-0">Hədis · Buxari, Muslim</span>
+              </div>
             </div>
           </div>
         </aside>
@@ -339,15 +343,19 @@ export default function QurbanLayout({ children }) {
                 </Link>
               ))}
             </nav>
-            {/* Hadith */}
-            <div className="px-3 pb-3 shrink-0">
-              <div className="rounded-2xl px-4 py-3.5" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="text-3xl font-serif leading-none mb-1.5" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
-                <p className="text-[12px] font-bold leading-snug italic mb-2.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
-                </p>
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 8 }} />
-                <p className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
+            {/* Hadith box */}
+            <div className="mx-3 mb-3 mt-2">
+              <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div className="flex items-start gap-2 mb-2">
+                  <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
+                  <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
+                    Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+                  <span className="text-[9.5px] font-medium text-white/30 shrink-0">Hədis · Buxari, Muslim</span>
+                </div>
               </div>
             </div>
             {!isGuest && (
