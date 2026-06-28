@@ -107,6 +107,8 @@ function CardHead({ icon: Icon, title, sub, action }) {
 }
 
 /* ─── Account card ──────────────────────────────────── */
+const LETTERS_RE = /^[a-zA-ZüöğışçəÜÖĞIŞÇƏ\s'-]+$/;
+
 function AccountCard({ user, updateUser, fullHeight }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user.name || "");
@@ -119,6 +121,8 @@ function AccountCard({ user, updateUser, fullHeight }) {
     e.preventDefault();
     setError("");
     if (name.trim().length < 2) { setError("Ad ən az 2 simvol olmalıdır."); return; }
+    if (!LETTERS_RE.test(name.trim())) { setError("Ad yalnız hərflərdən ibarət olmalıdır."); return; }
+    if (lastName.trim() && !LETTERS_RE.test(lastName.trim())) { setError("Soyad yalnız hərflərdən ibarət olmalıdır."); return; }
     setLoading(true);
     try {
       await api.put("/auth/profile", { name: name.trim(), lastName: lastName.trim() });
@@ -145,10 +149,10 @@ function AccountCard({ user, updateUser, fullHeight }) {
         /* ── Edit form ── */
         <div style={{ flex: 1, padding: "16px 18px", display: "flex", flexDirection: "column", gap: 11, overflowY: "auto" }} className="no-sb">
           <Field label="AD *">
-            <TextInput value={name} onChange={e => { setName(e.target.value); setError(""); }} placeholder="Adınızı daxil edin" name="given-name" autoComplete="given-name" autoFocus />
+            <TextInput value={name} onChange={e => { const v = e.target.value; if (v === "" || LETTERS_RE.test(v)) { setName(v); setError(""); } }} placeholder="Adınızı daxil edin" name="given-name" autoComplete="given-name" autoFocus />
           </Field>
           <Field label="SOYAD">
-            <TextInput value={lastName} onChange={e => { setLastName(e.target.value); setError(""); }} placeholder="Soyadınızı daxil edin" name="family-name" autoComplete="family-name" />
+            <TextInput value={lastName} onChange={e => { const v = e.target.value; if (v === "" || LETTERS_RE.test(v)) { setLastName(v); setError(""); } }} placeholder="Soyadınızı daxil edin" name="family-name" autoComplete="family-name" />
           </Field>
           {error && <Alert msg={error} />}
           <div style={{ display: "flex", gap: 8 }}>
