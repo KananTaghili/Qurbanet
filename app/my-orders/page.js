@@ -34,15 +34,15 @@ const ANIMAL_IMAGES = {
 
 const STATUS_CFG = {
   awaiting_payment: { label: 'Ödəniş gözlənilir', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
-  placed:           { label: 'Sifariş verildi',     bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 1, group: 'active'    },
-  pending_payment:  { label: 'Ödəniş gözlənilir',  bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
-  confirmed:        { label: 'Təsdiqləndi',         bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 2, group: 'active'    },
-  paid:             { label: 'Ödənilib',            bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 2, group: 'active'    },
-  slaughtering:     { label: 'Kəsilir',             bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: RiKnifeLine,      step: 3, group: 'active'    },
-  preparing:        { label: 'Hazırlanır',          bg: '#D1FAE5', color: '#065F46', dot: '#10B981', Icon: Package,      step: 4, group: 'active'    },
-  delivering:       { label: 'Çatdırılır',          bg: '#DBEAFE', color: '#1E3A8A', dot: '#2563EB', Icon: Truck,        step: 5, group: 'active'    },
-  completed:        { label: 'Tamamlandı',          bg: '#D1FAE5', color: '#14532D', dot: '#22C55E', Icon: CheckCircle2, step: 6, group: 'completed' },
-  cancelled:        { label: 'Ləğv edildi',         bg: '#F3F4F6', color: '#6B7280', dot: '#9CA3AF', Icon: XCircle,      step: -1, group: 'cancelled' },
+  placed:           { label: 'Sifariş verildi',    bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 0, group: 'active'    },
+  pending_payment:  { label: 'Ödəniş gözlənilir', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
+  confirmed:        { label: 'Təsdiqləndi',        bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 1, group: 'active'    },
+  paid:             { label: 'Ödənilib',           bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 1, group: 'active'    },
+  slaughtering:     { label: 'Kəsilir',            bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: RiKnifeLine,  step: 2, group: 'active'    },
+  preparing:        { label: 'Hazırlanır',         bg: '#D1FAE5', color: '#065F46', dot: '#10B981', Icon: Package,      step: 3, group: 'active'    },
+  delivering:       { label: 'Çatdırılır',         bg: '#DBEAFE', color: '#1E3A8A', dot: '#2563EB', Icon: Truck,        step: 4, group: 'active'    },
+  completed:        { label: 'Tamamlandı',         bg: '#D1FAE5', color: '#14532D', dot: '#22C55E', Icon: CheckCircle2, step: 5, group: 'completed' },
+  cancelled:        { label: 'Ləğv edildi',        bg: '#F3F4F6', color: '#6B7280', dot: '#9CA3AF', Icon: XCircle,      step: -1, group: 'cancelled' },
 };
 
 const PIPELINE_STEPS = [
