@@ -896,9 +896,11 @@ export default function CharityLayout({ children }) {
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden" style={{ backgroundColor: "#301586" }}>
           {/* Back arrow — very top of sidebar */}
-          <div className="px-4 pb-1" style={{ paddingTop: 14 }}>
-            <Link href="/" className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/25 bg-white/10 text-white shadow hover:bg-white/20 transition-colors">
-              <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
+          <div className="px-3 pb-1" style={{ paddingTop: 14 }}>
+            <Link href="/" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-white text-[12px] font-bold shadow-md hover:opacity-90 active:scale-95 transition-all"
+              style={{ background: "linear-gradient(135deg,#B91C1C,#991B1B)" }}>
+              <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+              MeatBox-a Keç
             </Link>
           </div>
           {/* Logo + HeartHandshake icon top-left */}
@@ -955,8 +957,10 @@ export default function CharityLayout({ children }) {
                 <Menu size={18} className="text-white" />
               </button>
               {/* Back arrow — mobile topbar only */}
-              <Link href="/" className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
-                <ArrowLeft size={18} className="text-white" />
+              <Link href="/" className="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-white text-[11px] font-bold shrink-0 hover:opacity-90 active:scale-95 transition-all"
+                style={{ background: "linear-gradient(135deg,#B91C1C,#991B1B)" }}>
+                <ArrowLeft size={14} strokeWidth={2.5} />
+                MeatBox-a Keç
               </Link>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1 min-w-0">
                 Kollektiv Qurban
