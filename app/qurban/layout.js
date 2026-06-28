@@ -85,7 +85,7 @@ export default function QurbanLayout({ children }) {
 
           {/* TopBar */}
           <div className="flex items-center justify-between gap-2 px-3 md:px-6 border-b border-green-900/20 shrink-0"
-            style={{ backgroundColor: GREEN, height: 40, minHeight: 40, maxHeight: 40 }}>
+            style={{ backgroundColor: GREEN, height: 50, minHeight: 50, maxHeight: 50 }}>
             <div className="flex items-center gap-2 min-w-0">
               <button className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
                 onClick={() => setMobileMenuOpen(true)}>
