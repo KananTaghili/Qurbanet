@@ -166,19 +166,6 @@ export default function QurbanLayout({ children }) {
               >
                 <Menu size={18} className="text-white" />
               </button>
-              <Link
-                href="/"
-                className="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold shrink-0 hover:opacity-80 active:scale-95 transition-all"
-                style={{
-                  color: "#fff",
-                  background: "#e02020",
-                  borderRadius: 8,
-                  letterSpacing: "0.02em",
-                }}
-              >
-                <ArrowLeft size={13} strokeWidth={2.5} />
-                MeatBox Xidmətlərinə Keç
-              </Link>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1">
                 Qurbanlıq Sifarişi
               </span>
@@ -295,6 +282,13 @@ export default function QurbanLayout({ children }) {
             className={`lg:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
             style={{ backgroundColor: GREEN }}
           >
+            {/* MeatBox back button — flush top */}
+            <Link href="/" onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-center gap-1.5 shrink-0 text-[11px] font-bold hover:opacity-90 active:scale-[.98] transition-all"
+              style={{ color:"#fff", background:"#e02020", borderRadius:"0 0 10px 10px", letterSpacing:"0.02em", height: 36 }}>
+              <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+              MeatBox Xidmətlərinə Keç
+            </Link>
             <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
               <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                 <Image
