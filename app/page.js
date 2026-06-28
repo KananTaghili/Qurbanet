@@ -349,24 +349,27 @@ export default function HomePage() {
         {/* ── Hero ── */}
         <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5" style={{ minHeight: 220 }}>
           <Image src="/main_home_foto_image_home.jpg" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center center" }} priority />
-          <div className="relative mx-auto max-w-3xl text-center">
-            {/* logo card deactivated
-            <div className="mx-auto w-fit rounded-[2rem] bg-black/45 px-6 py-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm" style={{ position: "relative", top: "-10px" }}>
-              <Image
-                src="/mb_logo_bottom.png"
-                alt="MEATBOX loqosu"
-                width={220} height={176}
-                className="mx-auto h-20 w-28 object-contain drop-shadow-2xl md:h-28 md:w-36"
-              />
-              <div className="mt-2 flex items-center justify-center gap-2 text-white uppercase" style={{ fontFamily: "'Montserrat', 'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontStyle: "italic", fontSize: "11px", letterSpacing: "0.14em" }}>
-                <span>ETİBARLI</span>
-                <span style={{ display:"inline-block", width:4, height:4, borderRadius:"50%", background:"rgba(255,255,255,0.7)", flexShrink:0, fontStyle:"normal" }} />
-                <span>HALAL</span>
-                <span style={{ display:"inline-block", width:4, height:4, borderRadius:"50%", background:"rgba(255,255,255,0.7)", flexShrink:0, fontStyle:"normal" }} />
-                <span>SÜRƏTLİ</span>
+          {/* left gradient for text readability */}
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(100deg,rgba(10,5,2,0.72) 0%,rgba(10,5,2,0.38) 55%,rgba(0,0,0,0) 100%)" }} />
+          <div className="relative h-full flex items-center">
+            <div style={{ maxWidth: 320 }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/55 mb-1">Azərbaycanda №1 Qurban Platforması</p>
+              <h1 className="text-xl md:text-2xl font-black text-white leading-snug mb-3" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
+                Halal, Etibarlı &amp;<br />Sürətli Qurban Xidməti
+              </h1>
+              <div className="flex gap-2 flex-wrap">
+                <Link href="/qurban"
+                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-[12px] font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
+                  style={{ background: "linear-gradient(135deg,#E00000,#8B0000)" }}>
+                  Qurban Sifariş Et
+                </Link>
+                <Link href="/charity"
+                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-[12px] font-bold text-white hover:bg-white/25 active:scale-95 transition-all"
+                  style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(6px)" }}>
+                  Kollektiv Qurban
+                </Link>
               </div>
             </div>
-            */}
           </div>
         </div>
 
