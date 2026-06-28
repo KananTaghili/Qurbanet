@@ -7,6 +7,13 @@ const nextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      { source: "/login", destination: "/auth/login", permanent: true },
+      { source: "/register", destination: "/auth/register", permanent: true },
+    ];
+  },
+
   // Don't cache HTML pages in the browser — static assets (/_next/static/) are
   // content-hashed so they can stay cached indefinitely.
   async headers() {
