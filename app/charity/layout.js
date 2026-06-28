@@ -898,7 +898,7 @@ export default function CharityLayout({ children }) {
           {/* Back arrow — very top of sidebar */}
           <div className="px-3 pb-1" style={{ paddingTop: 14 }}>
             <Link href="/" className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-medium tracking-wide hover:opacity-80 active:scale-95 transition-all"
-              style={{ color:"#fff", border:"none", background:"#ef4444", letterSpacing:"0.02em" }}>
+              style={{ color:"#fff", border:"none", background:"linear-gradient(135deg,#E00000 0%,#8B0000 100%)", letterSpacing:"0.02em" }}>
               <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
               MeatBox-a Keç
             </Link>
@@ -958,7 +958,7 @@ export default function CharityLayout({ children }) {
               </button>
               {/* Back arrow — mobile topbar only */}
               <Link href="/" className="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-medium shrink-0 hover:opacity-80 active:scale-95 transition-all"
-                style={{ color:"#fff", border:"none", background:"#ef4444", letterSpacing:"0.02em" }}>
+                style={{ color:"#fff", border:"none", background:"linear-gradient(135deg,#E00000 0%,#8B0000 100%)", letterSpacing:"0.02em" }}>
                 <ArrowLeft size={13} strokeWidth={2} />
                 MeatBox-a Keç
               </Link>
