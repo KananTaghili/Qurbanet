@@ -71,13 +71,13 @@ function InnerLayout({ children }) {
             </Link>
           </div>
           <div className="flex justify-center pb-4" style={{ marginTop: -1 }}>
-            <div className="relative" style={{ width: 160 }}>
+            <Link href="/" className="relative block" style={{ width: 160 }}>
               <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#1c5e20]/30 bg-white shadow-lg">
                 <PiKnifeBold className="h-7 w-7 text-[#1c5e20]" />
               </div>
               <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={160} height={88}
                 style={{ width: 160, height: "auto", objectFit: "contain" }} priority />
-            </div>
+            </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
             {SIDEBAR_NAV.map(({ icon: Icon, label, href }) => {
@@ -164,8 +164,10 @@ function InnerLayout({ children }) {
           <div className={`lg:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
             style={{ backgroundColor: GREEN }}>
             <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-              <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={130} height={70}
-                style={{ height: "auto", objectFit: "contain" }} />
+              <Link href="/" onClick={closeMenu}>
+                <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={130} height={70}
+                  style={{ height: "auto", objectFit: "contain" }} />
+              </Link>
               <button onClick={closeMenu}
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
                 <X size={18} />
