@@ -17,7 +17,6 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import BackHeader from "../../../components/BackHeader";
 import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
@@ -641,19 +640,15 @@ export default function DistributionPage() {
         />
       )}
       <div className="flex flex-col h-full bg-bg overflow-hidden">
-        <BackHeader
-          title={t(lang, "distribution")}
-          onBack={() => router.push("/order/quantity")}
-          onMenu={openMenu}
-        />
         <StepHeader currentStep={2} />
 
-        <div className="flex-1 min-h-0 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
+        <div className="flex-1 min-h-0 overflow-y-auto pb-24 lg:pb-6">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
                           lg:grid lg:grid-cols-[minmax(10px,4.2fr)_minmax(250px,2.5fr)_minmax(0,8.5fr)]
                           lg:gap-4 lg:items-start"
           >
+            <h2 className="text-base font-bold text-text-primary mb-1 lg:hidden col-span-full">Çatdırılma seçin</h2>
             {/* ════ LEFT (1fr) ════ */}
             {/* Sol sütun (1fr): Çatdırılma üsulu + altda Çatdırılma ünvanı/Götürmə məkanı */}
             <div className="flex flex-col gap-3">

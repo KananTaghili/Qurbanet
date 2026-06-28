@@ -112,7 +112,7 @@ function InnerLayout({ children }) {
                 <ArrowLeft size={18} className="text-white" />
               </button>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1">
-                {pageTitle}
+                Qurbanlıq Sifarişi
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">

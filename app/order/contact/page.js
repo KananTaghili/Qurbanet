@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, MessageSquare, Mail } from "lucide-react";
-import BackHeader from "../../../components/BackHeader";
 import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
@@ -323,7 +322,6 @@ export default function ContactPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title={t(lang, 'contactInfoBack')} onMenu={openMenu} />
       <StepHeader currentStep={2} />
 
       <div className="flex-1 page-scroll">

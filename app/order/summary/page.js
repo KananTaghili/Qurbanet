@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import BackHeader from "../../../components/BackHeader";
 import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
@@ -321,21 +320,11 @@ export default function SummaryPage() {
 
   return (
     <div className="flex flex-col h-full bg-bg overflow-hidden">
-      <BackHeader
-        title={t(lang, "orderSummary")}
-        onBack={() =>
-          router.push(
-            order?.mode === "serikli"
-              ? "/order/quantity"
-              : "/order/distribution",
-          )
-        }
-        onMenu={openMenu}
-      />
       <StepHeader currentStep={3} />
 
       <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden page-scroll">
         <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
+          <h2 className="text-base font-bold text-text-primary mb-1 lg:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
           <C className="lg:overflow-y-auto lg:min-h-0">
             <CHead label={t(lang, "orderInfoCard")} colored />

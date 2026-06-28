@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreditCard, Banknote, Lock } from 'lucide-react';
-import BackHeader from '../../../components/BackHeader';
 import { useMobileMenu } from '../../../context/MobileMenuContext';
 import StepHeader from '../../../components/StepHeader';
 import { useOrder } from '../../../context/OrderContext';
@@ -147,11 +146,11 @@ export default function PaymentPage() {
 
   return (
     <div className="flex flex-col h-full bg-bg overflow-hidden">
-      <BackHeader title={t(lang, 'payment')} onMenu={openMenu} />
       <StepHeader currentStep={3} />
 
       <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden page-scroll">
         <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[1fr_320px] lg:gap-4 lg:items-stretch max-w-5xl mx-auto w-full">
+          <h2 className="text-base font-bold text-text-primary mb-1 lg:hidden col-span-full">{t(lang, 'payment')}</h2>
 
           {/* ── LEFT: Məbləğ + Qiymət tərkibi ── */}
           <div className="flex flex-col gap-3 lg:min-h-0">

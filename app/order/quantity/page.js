@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Clock, AlertTriangle, Beef, ArrowRight } from "lucide-react";
-import BackHeader from "../../../components/BackHeader";
 import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
@@ -761,11 +760,6 @@ export default function QuantityPage() {
           </div>
         </div>
       )}
-      <BackHeader
-        title="Miqdar seçin"
-        onBack={() => router.replace("/")}
-        onMenu={openMenu}
-      />
       <StepHeader currentStep={1} />
 
       {/* ── Scrollable body ── */}
@@ -777,6 +771,7 @@ export default function QuantityPage() {
         }}
       >
         <div className="p-2.5 xl:p-4">
+          <h2 className="text-base font-bold text-text-primary mb-2 lg:hidden">Miqdar seçin</h2>
           {/* ══ LEFT — mobile only ══ */}
           <div className="flex flex-col gap-2 xl:hidden">
             {/* Animal hero card */}
