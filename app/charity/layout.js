@@ -895,16 +895,14 @@ export default function CharityLayout({ children }) {
 
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden" style={{ backgroundColor: "#301586" }}>
-          {/* Back arrow — very top of sidebar */}
-          <div className="px-3 pb-1" style={{ paddingTop: 14 }}>
-            <Link href="/" className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-medium tracking-wide hover:opacity-80 active:scale-95 transition-all"
-              style={{ color:"#fff", border:"none", background:"linear-gradient(135deg,#E00000 0%,#8B0000 100%)", letterSpacing:"0.02em" }}>
-              <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-              MeatBox-a Keç
-            </Link>
-          </div>
+          {/* Back button — flush top, no top radius */}
+          <Link href="/" className="flex w-full items-center justify-center gap-1.5 py-1.5 text-[11px] font-bold hover:opacity-90 active:scale-[.98] transition-all shrink-0"
+            style={{ color:"#fff", background:"#ef4444", borderRadius:"0 0 10px 10px", letterSpacing:"0.02em" }}>
+            <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+            MeatBox Xidmətləri
+          </Link>
           {/* Logo + HeartHandshake icon top-left */}
-          <div className="flex justify-center pb-4" style={{ marginTop: -1 }}>
+          <div className="flex justify-center pb-4 pt-3">
             <Link href="/" className="relative block" style={{ width: 160 }}>
               <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#6820a3]/30 bg-white shadow-lg">
                 <HeartHandshake className="h-7 w-7 text-[#6820a3]" />
@@ -960,7 +958,7 @@ export default function CharityLayout({ children }) {
               <Link href="/" className="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-medium shrink-0 hover:opacity-80 active:scale-95 transition-all"
                 style={{ color:"#fff", border:"none", background:"linear-gradient(135deg,#E00000 0%,#8B0000 100%)", letterSpacing:"0.02em" }}>
                 <ArrowLeft size={13} strokeWidth={2} />
-                MeatBox-a Keç
+                MeatBox Xidmətləri
               </Link>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1 min-w-0">
                 Kollektiv Qurban
