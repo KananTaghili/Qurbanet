@@ -182,10 +182,10 @@ export default function HomePage() {
   const [activeVideo, setActiveVideo] = useState(null);
 
   const nav = [
-    { label: "Haqqımızda", to: "/haqqimizda" },
-    { label: "Xidmətlər",  to: "/xidmetler" },
-    { label: "Necə işləyir?", to: "/nece-isleyir" },
-    { label: "Əlaqə",      to: "/elaqe" },
+    { label: "Haqqımızda", to: "/about" },
+    { label: "Xidmətlər",  to: "/services" },
+    { label: "Necə işləyir?", to: "/process" },
+    { label: "Əlaqə",      to: "/contact" },
   ];
 
   const handleLogout = async () => { await logout(); router.push("/"); };
@@ -408,10 +408,10 @@ export default function HomePage() {
           <div>
             <h4 className="font-bold">Linklər</h4>
             <div className="mt-3 flex flex-col gap-1 text-sm text-white/70">
-              <Link href="/haqqimizda" className="hover:text-white transition-colors">Haqqımızda</Link>
-              <Link href="/xidmetler" className="hover:text-white transition-colors">Xidmətlər</Link>
-              <Link href="/nece-isleyir" className="hover:text-white transition-colors">Necə işləyir?</Link>
-              <Link href="/elaqe" className="hover:text-white transition-colors">Əlaqə</Link>
+              <Link href="/about" className="hover:text-white transition-colors">Haqqımızda</Link>
+              <Link href="/services" className="hover:text-white transition-colors">Xidmətlər</Link>
+              <Link href="/process" className="hover:text-white transition-colors">Necə işləyir?</Link>
+              <Link href="/contact" className="hover:text-white transition-colors">Əlaqə</Link>
             </div>
           </div>
           <div>

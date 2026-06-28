@@ -9,10 +9,10 @@ import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
 const nav = [
-  { label: "Haqqımızda", to: "/haqqimizda" },
-  { label: "Xidmətlər",  to: "/xidmetler" },
-  { label: "Necə işləyir?", to: "/nece-isleyir" },
-  { label: "Əlaqə",      to: "/elaqe" },
+  { label: "Haqqımızda", to: "/about" },
+  { label: "Xidmətlər",  to: "/services" },
+  { label: "Necə işləyir?", to: "/process" },
+  { label: "Əlaqə",      to: "/contact" },
 ];
 
 /* ── UserMenu — exact copy from home page ── */

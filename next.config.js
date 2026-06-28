@@ -9,8 +9,12 @@ const nextConfig = {
 
   async redirects() {
     return [
-      { source: "/login", destination: "/auth/login", permanent: true },
-      { source: "/register", destination: "/auth/register", permanent: true },
+      { source: "/login",        destination: "/auth/login",    permanent: true },
+      { source: "/register",     destination: "/auth/register", permanent: true },
+      { source: "/haqqimizda",   destination: "/about",         permanent: true },
+      { source: "/xidmetler",    destination: "/services",      permanent: true },
+      { source: "/nece-isleyir", destination: "/process",       permanent: true },
+      { source: "/elaqe",        destination: "/contact",       permanent: true },
     ];
   },
 
