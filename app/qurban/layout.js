@@ -145,6 +145,17 @@ export default function QurbanLayout({ children }) {
               </Link>
             ))}
           </nav>
+          {/* Hadith */}
+          <div className="px-3 pb-3 shrink-0">
+            <div className="rounded-xl px-3.5 py-3" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="text-2xl font-serif leading-none mb-1" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
+              <p className="text-[11px] font-bold leading-snug italic mb-2" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+              </p>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 6 }} />
+              <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
+            </div>
+          </div>
         </aside>
 
         {/* ── Main area ── */}
@@ -328,6 +339,17 @@ export default function QurbanLayout({ children }) {
                 </Link>
               ))}
             </nav>
+            {/* Hadith */}
+            <div className="px-3 pb-3 shrink-0">
+              <div className="rounded-xl px-3.5 py-3" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="text-2xl font-serif leading-none mb-1" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
+                <p className="text-[11px] font-bold leading-snug italic mb-2" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+                </p>
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 6 }} />
+                <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
+              </div>
+            </div>
             {!isGuest && (
               <div className="px-4 pb-6 border-t border-white/10 pt-4">
                 <div className="flex items-center gap-3 px-1 mb-3">
