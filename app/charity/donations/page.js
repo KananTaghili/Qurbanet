@@ -77,6 +77,12 @@ function IanelerimContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  useEffect(() => {
+    if (isGuest) {
+      router.replace("/auth/login?from=%2Fcharity%2Fdonations");
+    }
+  }, [isGuest, router]);
+
   const [orders, setOrders]             = useState([]);
   const [loading, setLoading]           = useState(true);
   const [selected, setSelected]         = useState(null);
