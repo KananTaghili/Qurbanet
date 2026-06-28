@@ -58,6 +58,11 @@ function InnerLayout({ children }) {
   const pageTitle = PAGE_TITLES[pathname] || "Sifariş";
   const backTo = BACK_ROUTES[pathname] || "/qurban";
 
+  // Hide "Sifarişlərim" link for guest users (not registered/logged in)
+  const nav = SIDEBAR_NAV.filter(
+    (item) => !(isGuest && item.href === "/my-orders"),
+  );
+
   return (
     <main className="bg-background p-1.5 font-sans text-foreground md:p-4 overflow-hidden" style={{ height: "100dvh" }}>
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
@@ -80,7 +85,7 @@ function InnerLayout({ children }) {
             </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
-            {SIDEBAR_NAV.map(({ icon: Icon, label, href }) => {
+            {nav.map(({ icon: Icon, label, href }) => {
               const active = href === "/qurban"; // order flow = heyvan seçimi aktiv
               return (
                 <Link key={href} href={href}
@@ -188,7 +193,7 @@ function InnerLayout({ children }) {
               </button>
             </div>
             <nav className="flex-1 px-3 py-3 space-y-0.5">
-              {SIDEBAR_NAV.map(({ icon: Icon, label, href }) => (
+              {nav.map(({ icon: Icon, label, href }) => (
                 <Link key={href} href={href} onClick={closeMenu}
                   className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all text-green-100/70 hover:bg-white/10 hover:text-white">
                   <Icon size={16} className="text-green-200/60" />
