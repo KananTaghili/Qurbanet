@@ -149,12 +149,13 @@ const sendEmail = async (toEmail, code, lang = "az") => {
   const isAz = lang === "az";
 
   const subject = isAz
-    ? "QurbanEt — Təsdiqləmə Kodu"
-    : "QurbanEt — Verification Code";
+    ? "MeatBox — Təsdiqləmə Kodu"
+    : "MeatBox — Verification Code";
 
-  const logoUrl = "https://qurbanet.az/logo.png";
-  const green = "#1B6B35";
-  const greenBg = "#F0F7F2";
+  const logoUrl = "https://meatbox.az/meatbox_icon.png";
+  const red = "#B91C1C";
+  const redDark = "#991B1B";
+  const redBg = "#FFF5F5";
 
   const html = `<!DOCTYPE html>
 <html lang="${isAz ? "az" : "en"}">
@@ -162,26 +163,26 @@ const sendEmail = async (toEmail, code, lang = "az") => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>${isAz ? "QurbanEt — Təsdiqləmə Kodu" : "QurbanEt — Verification Code"}</title>
+  <title>${isAz ? "MeatBox — Təsdiqləmə Kodu" : "MeatBox — Verification Code"}</title>
   <style>
     body { margin:0; padding:0; background:#F4F6FA; font-family:'Segoe UI',Arial,sans-serif; -webkit-text-size-adjust:100%; }
     table { border-collapse:collapse; }
     img { border:0; display:block; }
     .wrapper { width:100%; background:#F4F6FA; padding:32px 16px; box-sizing:border-box; }
     .container { width:100%; max-width:600px; margin:0 auto; }
-    .header-td { background:${green}; border-radius:16px 16px 0 0; padding:36px 40px 28px; text-align:center; }
-    .logo-img { width:80px; height:80px; border-radius:14px; object-fit:contain; }
-    .brand-name { margin:0; font-size:32px; font-weight:900; color:#fff; letter-spacing:0.5px; line-height:1.1; }
-    .brand-tagline { margin:4px 0 0; font-size:13px; color:rgba(255,255,255,0.65); font-weight:400; letter-spacing:0.3px; }
+    .header-td { background:linear-gradient(135deg,${red} 0%,${redDark} 100%); border-radius:16px 16px 0 0; padding:36px 40px 28px; text-align:center; }
+    .logo-img { width:72px; height:72px; border-radius:14px; object-fit:contain; background:#fff; padding:6px; }
+    .brand-name { margin:0; font-size:32px; font-weight:900; color:#fff; letter-spacing:1px; line-height:1.1; }
+    .brand-tagline { margin:5px 0 0; font-size:12px; color:rgba(255,255,255,0.60); font-weight:500; letter-spacing:2.5px; text-transform:uppercase; }
     .header-link { margin:14px 0 0; font-size:13px; }
-    .header-link a { color:rgba(255,255,255,0.80); text-decoration:underline; letter-spacing:0.5px; }
+    .header-link a { color:rgba(255,255,255,0.75); text-decoration:underline; letter-spacing:0.5px; }
     .body-td { background:#ffffff; padding:40px 48px 32px; }
     .greeting { margin:0 0 20px; font-size:16px; color:#374151; line-height:1.7; }
     .instruction { margin:0 0 28px; font-size:15px; color:#6B7280; line-height:1.7; }
-    .code-box-td { background:${greenBg}; border-radius:16px; padding:32px 24px; text-align:center; }
-    .code-label { margin:0 0 18px; font-size:12px; color:#6B7280; text-transform:uppercase; letter-spacing:2px; font-weight:700; }
-    .code-inner { display:inline-block; background:#ffffff; border:2.5px solid ${green}; border-radius:14px; padding:20px 48px; box-shadow:0 4px 20px rgba(27,107,53,0.13); }
-    .code-digits { font-size:48px; font-weight:900; color:${green}; letter-spacing:18px; font-family:'Courier New',Courier,monospace; line-height:1; }
+    .code-box-td { background:${redBg}; border-radius:16px; padding:32px 24px; text-align:center; }
+    .code-label { margin:0 0 18px; font-size:11px; color:#9CA3AF; text-transform:uppercase; letter-spacing:3px; font-weight:700; }
+    .code-inner { display:inline-block; background:#ffffff; border:2.5px solid ${red}; border-radius:14px; padding:20px 48px; box-shadow:0 4px 24px rgba(185,28,28,0.15); }
+    .code-digits { font-size:48px; font-weight:900; color:${red}; letter-spacing:18px; font-family:'Courier New',Courier,monospace; line-height:1; }
     .code-valid { margin:18px 0 0; font-size:13px; color:#9CA3AF; }
     .notice { margin:28px 0 0; font-size:14px; color:#6B7280; line-height:1.7; background:#FFFBEB; border-left:4px solid #F59E0B; border-radius:0 10px 10px 0; padding:14px 18px; }
     .divider-td { background:#ffffff; padding:0 48px; }
@@ -189,13 +190,13 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     .footer-contact { margin:0 0 6px; font-size:13px; color:#6B7280; }
     .footer-info { margin:0 0 16px; font-size:13px; color:#374151; }
     .footer-copy { margin:0; font-size:12px; color:#9CA3AF; }
-    .footer-copy a { color:${green}; text-decoration:none; }
+    .footer-copy a { color:${red}; text-decoration:none; }
 
     /* ── Tablet (max-width: 600px) ── */
     @media only screen and (max-width:600px) {
       .wrapper { padding:16px 8px !important; }
       .header-td { padding:28px 20px 22px !important; border-radius:12px 12px 0 0 !important; }
-      .logo-img { width:64px !important; height:64px !important; border-radius:10px !important; }
+      .logo-img { width:58px !important; height:58px !important; border-radius:10px !important; }
       .brand-name { font-size:26px !important; }
       .body-td { padding:28px 24px 24px !important; }
       .code-box-td { padding:24px 16px !important; border-radius:12px !important; }
@@ -209,9 +210,9 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     @media only screen and (max-width:400px) {
       .wrapper { padding:12px 4px !important; }
       .header-td { padding:22px 16px 18px !important; }
-      .logo-img { width:56px !important; height:56px !important; }
+      .logo-img { width:50px !important; height:50px !important; }
       .brand-name { font-size:22px !important; }
-      .brand-tagline { font-size:11px !important; }
+      .brand-tagline { font-size:10px !important; }
       .body-td { padding:22px 16px 18px !important; }
       .greeting { font-size:15px !important; }
       .instruction { font-size:14px !important; }
@@ -233,16 +234,16 @@ const sendEmail = async (toEmail, code, lang = "az") => {
         <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto;">
           <tr>
             <td valign="middle" style="padding-right:16px;">
-              <img src="${logoUrl}" alt="QurbanEt" class="logo-img" width="80" height="80">
+              <img src="${logoUrl}" alt="MeatBox" class="logo-img" width="72" height="72">
             </td>
             <td valign="middle" align="left">
-              <p class="brand-name">QurbanEt</p>
-              <p class="brand-tagline">ETİBARLI · HALAL · SÜRƏTLİ</p>
+              <p class="brand-name">MeatBox</p>
+              <p class="brand-tagline">TƏBİİ · HALAL · SÜRƏTLİ</p>
             </td>
           </tr>
         </table>
         <p class="header-link">
-          <a href="https://qurbanet.az">qurbanet.az</a>
+          <a href="https://meatbox.az">meatbox.az</a>
         </p>
       </td>
     </tr>
@@ -287,22 +288,20 @@ const sendEmail = async (toEmail, code, lang = "az") => {
       <td class="footer-td">
         <p class="footer-contact">${isAz ? "Hər hansı sualınız üçün bizimlə əlaqə saxlayın:" : "For any questions, contact us:"}</p>
         <p class="footer-info">
-          <b>${isAz ? "Dəstək:" : "Support:"}</b> +994 10 399 02 22
-          &nbsp;|&nbsp;
-          <b>E-mail:</b> <a href="mailto:info@qurbanet.az" style="color:${green};text-decoration:none;">info@qurbanet.az</a>
+          <b>E-mail:</b> <a href="mailto:info@meatbox.az" style="color:${red};text-decoration:none;">info@meatbox.az</a>
         </p>
         <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 16px;">
           <tr>
             <!-- Instagram -->
             <td style="padding:0 8px;">
-              <a href="https://www.instagram.com/qurbanet.az/" target="_blank" style="display:inline-block;text-decoration:none;">
+              <a href="https://www.instagram.com/meatbox.az/" target="_blank" style="display:inline-block;text-decoration:none;">
                 <table cellpadding="0" cellspacing="0" role="presentation">
                   <tr>
                     <td style="background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);border-radius:999px;padding:10px 20px;">
                       <table cellpadding="0" cellspacing="0" role="presentation">
                         <tr>
                           <td style="padding-right:7px;vertical-align:middle;">
-                            <img src="https://qurbanet.az/instagram-icon.svg" alt="Instagram" width="16" height="16" style="display:block;vertical-align:middle;">
+                            <img src="https://meatbox.az/instagram-icon.svg" alt="Instagram" width="16" height="16" style="display:block;vertical-align:middle;">
                           </td>
                           <td style="vertical-align:middle;">
                             <span style="color:#fff;font-size:13px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;line-height:1;">Instagram</span>
@@ -316,14 +315,14 @@ const sendEmail = async (toEmail, code, lang = "az") => {
             </td>
             <!-- Facebook -->
             <td style="padding:0 8px;">
-              <a href="https://www.facebook.com/profile.php?id=61589737567463" target="_blank" style="display:inline-block;text-decoration:none;">
+              <a href="https://www.facebook.com/meatbox.az" target="_blank" style="display:inline-block;text-decoration:none;">
                 <table cellpadding="0" cellspacing="0" role="presentation">
                   <tr>
                     <td style="background:#1877F2;border-radius:999px;padding:10px 20px;">
                       <table cellpadding="0" cellspacing="0" role="presentation">
                         <tr>
                           <td style="padding-right:7px;vertical-align:middle;">
-                            <img src="https://qurbanet.az/facebook-icon.svg" alt="Facebook" width="16" height="16" style="display:block;vertical-align:middle;">
+                            <img src="https://meatbox.az/facebook-icon.svg" alt="Facebook" width="16" height="16" style="display:block;vertical-align:middle;">
                           </td>
                           <td style="vertical-align:middle;">
                             <span style="color:#fff;font-size:13px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;line-height:1;">Facebook</span>
@@ -338,10 +337,10 @@ const sendEmail = async (toEmail, code, lang = "az") => {
           </tr>
         </table>
         <p class="footer-copy">
-          &copy; 2026 <b style="color:#6B7280;">QurbanEt</b> &nbsp;&middot;&nbsp;
+          &copy; 2026 <b style="color:#6B7280;">MeatBox</b> &nbsp;&middot;&nbsp;
           ${isAz ? "Bakı şəhəri, Azərbaycan" : "Baku, Azerbaijan"}
           &nbsp;&middot;&nbsp;
-          <a href="https://qurbanet.az">www.qurbanet.az</a>
+          <a href="https://meatbox.az">www.meatbox.az</a>
         </p>
       </td>
     </tr>
@@ -352,8 +351,8 @@ const sendEmail = async (toEmail, code, lang = "az") => {
 </html>`;
 
   const text = isAz
-    ? `QurbanEt — Təsdiqləmə Kodu\n\nHörmətli istifadəçi,\n\nHesabınıza giriş üçün kodunuz: ${code}\n\nKod 5 dəqiqə ərzində etibarlıdır.\n\nDiqqət: Bu sorğunu siz göndərməmisinizsə, bu emaili nəzərə almayın.\n\nQurbanEt | qurbanet.az`
-    : `QurbanEt — Verification Code\n\nDear user,\n\nYour verification code: ${code}\n\nThis code is valid for 5 minutes.\n\nNotice: If you did not request this, please ignore this email.\n\nQurbanEt | qurbanet.az`;
+    ? `MeatBox — Təsdiqləmə Kodu\n\nHörmətli istifadəçi,\n\nHesabınıza giriş üçün kodunuz: ${code}\n\nKod 5 dəqiqə ərzində etibarlıdır.\n\nDiqqət: Bu sorğunu siz göndərməmisinizsə, bu emaili nəzərə almayın.\n\nMeatBox | meatbox.az`
+    : `MeatBox — Verification Code\n\nDear user,\n\nYour verification code: ${code}\n\nThis code is valid for 5 minutes.\n\nNotice: If you did not request this, please ignore this email.\n\nMeatBox | meatbox.az`;
 
   const url = `https://api.bird.com/workspaces/${workspaceId}/channels/${channelId}/messages`;
 
@@ -364,7 +363,7 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     sender: {
       connector: {
         identifierValue: senderEmail,
-        annotations: { name: "QurbanEt.az" },
+        annotations: { name: "MeatBox.az" },
       },
     },
     body: {
