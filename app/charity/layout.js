@@ -903,13 +903,13 @@ export default function CharityLayout({ children }) {
           </div>
           {/* Logo + HeartHandshake icon top-left */}
           <div className="flex justify-center pb-4" style={{ marginTop: -1 }}>
-            <div className="relative" style={{ width: 160 }}>
+            <Link href="/" className="relative block" style={{ width: 160 }}>
               <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#6820a3]/30 bg-white shadow-lg">
                 <HeartHandshake className="h-7 w-7 text-[#6820a3]" />
               </div>
               <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={160} height={88}
                 style={{ width: 160, height: "auto", objectFit: "contain" }} priority />
-            </div>
+            </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
             {visibleNav.map(({ icon: Icon, label, href }) => (
@@ -986,10 +986,10 @@ export default function CharityLayout({ children }) {
             style={{ backgroundColor: "#301586" }}>
             {/* Drawer header */}
             <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-              <div className="flex items-center">
+              <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                 <Image src="/mb_logo_bottom_slogan.png" alt="MeatBox" width={130} height={70}
                   style={{ height: "auto", objectFit: "contain" }} />
-              </div>
+              </Link>
               <button onClick={() => setMobileMenuOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
                 <X size={18} />
