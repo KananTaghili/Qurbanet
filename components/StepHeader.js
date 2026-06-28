@@ -24,21 +24,18 @@ export default function StepHeader({ currentStep }) {
       borderBottom: '1px solid var(--border)',
       flexShrink: 0,
     }}>
-      {/* Back button row */}
-      <div style={{ padding: '8px 16px 0' }}>
-        <button
-          onClick={() => router.push(backTo)}
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all hover:opacity-80 active:scale-95"
-          style={{ background: 'var(--surface-alt)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
-        >
-          <ArrowLeft size={13} strokeWidth={2.2} />
-          Geri qayıt
-        </button>
-      </div>
-
-      {/* Steps — centered, constrained width */}
-      <div style={{ padding: '10px 16px 12px' }}>
-        <div className="flex items-center" style={{ maxWidth: 380, margin: '0 auto' }}>
+      {/* Steps + back button row */}
+      <div style={{ padding: '8px 16px 10px' }}>
+        <div className="flex items-center gap-3" style={{ maxWidth: 420, margin: '0 auto' }}>
+          <button
+            onClick={() => router.push(backTo)}
+            className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all hover:opacity-85 active:scale-95 shrink-0"
+            style={{ background: '#1c5e20', color: '#fff', border: 'none' }}
+          >
+            <ArrowLeft size={12} strokeWidth={2.5} />
+            Geri
+          </button>
+          <div className="flex items-center flex-1">
           {STEPS.map((label, i) => {
             const idx = i + 1;
             const done = idx < currentStep;
@@ -75,6 +72,7 @@ export default function StepHeader({ currentStep }) {
               </div>
             );
           })}
+          </div>
         </div>
       </div>
     </div>
