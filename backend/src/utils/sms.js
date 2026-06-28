@@ -153,194 +153,185 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     : "MeatBox — Verification Code";
 
   const logoUrl = "https://meatbox.az/meatbox_icon.png";
-  const red = "#B91C1C";
-  const redDark = "#991B1B";
-  const redBg = "#FFF5F5";
 
   const html = `<!DOCTYPE html>
 <html lang="${isAz ? "az" : "en"}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${isAz ? "MeatBox — Təsdiqləmə Kodu" : "MeatBox — Verification Code"}</title>
   <style>
-    body { margin:0; padding:0; background:#F4F6FA; font-family:'Segoe UI',Arial,sans-serif; -webkit-text-size-adjust:100%; }
-    table { border-collapse:collapse; }
-    img { border:0; display:block; }
-    .wrapper { width:100%; background:#F4F6FA; padding:32px 16px; box-sizing:border-box; }
-    .container { width:100%; max-width:600px; margin:0 auto; }
-    .header-td { background:linear-gradient(135deg,${red} 0%,${redDark} 100%); border-radius:16px 16px 0 0; padding:36px 40px 28px; text-align:center; }
-    .logo-img { width:72px; height:72px; border-radius:14px; object-fit:contain; background:#fff; padding:6px; }
-    .brand-name { margin:0; font-size:32px; font-weight:900; color:#fff; letter-spacing:1px; line-height:1.1; }
-    .brand-tagline { margin:5px 0 0; font-size:12px; color:rgba(255,255,255,0.60); font-weight:500; letter-spacing:2.5px; text-transform:uppercase; }
-    .body-td { background:#ffffff; padding:40px 48px 32px; }
-    .greeting { margin:0 0 20px; font-size:16px; color:#374151; line-height:1.7; }
-    .instruction { margin:0 0 28px; font-size:15px; color:#6B7280; line-height:1.7; }
-    .code-box-td { background:${redBg}; border-radius:16px; padding:32px 24px; text-align:center; }
-    .code-label { margin:0 0 18px; font-size:11px; color:#9CA3AF; text-transform:uppercase; letter-spacing:3px; font-weight:700; }
-    .code-inner { display:inline-block; background:#ffffff; border:2.5px solid ${red}; border-radius:14px; padding:20px 48px; box-shadow:0 4px 24px rgba(185,28,28,0.15); }
-    .code-digits { font-size:48px; font-weight:900; color:${red}; letter-spacing:18px; font-family:'Courier New',Courier,monospace; line-height:1; }
-    .code-valid { margin:18px 0 0; font-size:13px; color:#9CA3AF; }
-    .notice { margin:28px 0 0; font-size:14px; color:#6B7280; line-height:1.7; background:#FFFBEB; border-left:4px solid #F59E0B; border-radius:0 10px 10px 0; padding:14px 18px; }
-    .divider-td { background:#ffffff; padding:0 48px; }
-    .footer-td { background:#ffffff; border-radius:0 0 16px 16px; padding:24px 40px 32px; text-align:center; }
-    .footer-contact { margin:0 0 6px; font-size:13px; color:#6B7280; }
-    .footer-info { margin:0 0 16px; font-size:13px; color:#374151; }
-    .footer-copy { margin:0; font-size:12px; color:#9CA3AF; }
-    .footer-copy a { color:${red}; text-decoration:none; }
-
-    /* ── Tablet (max-width: 600px) ── */
-    @media only screen and (max-width:600px) {
-      .wrapper { padding:16px 8px !important; }
-      .header-td { padding:28px 20px 22px !important; border-radius:12px 12px 0 0 !important; }
-      .logo-img { width:58px !important; height:58px !important; border-radius:10px !important; }
-      .brand-name { font-size:26px !important; }
-      .body-td { padding:28px 24px 24px !important; }
-      .code-box-td { padding:24px 16px !important; border-radius:12px !important; }
-      .code-inner { padding:16px 32px !important; border-radius:12px !important; }
-      .code-digits { font-size:40px !important; letter-spacing:14px !important; }
-      .divider-td { padding:0 24px !important; }
-      .footer-td { padding:20px 24px 24px !important; border-radius:0 0 12px 12px !important; }
-    }
-
-    /* ── Mobile (max-width: 400px) ── */
-    @media only screen and (max-width:400px) {
-      .wrapper { padding:12px 4px !important; }
-      .header-td { padding:22px 16px 18px !important; }
-      .logo-img { width:50px !important; height:50px !important; }
-      .brand-name { font-size:22px !important; }
-      .brand-tagline { font-size:10px !important; }
-      .body-td { padding:22px 16px 18px !important; }
-      .greeting { font-size:15px !important; }
-      .instruction { font-size:14px !important; }
-      .code-inner { padding:14px 20px !important; }
-      .code-digits { font-size:34px !important; letter-spacing:10px !important; }
-      .notice { font-size:13px !important; padding:12px 14px !important; }
-      .footer-td { padding:16px 16px 20px !important; }
-      .footer-info { font-size:12px !important; }
+    body{margin:0;padding:0;background:#E8E8E8;font-family:'Segoe UI',Arial,sans-serif;-webkit-text-size-adjust:100%;}
+    table{border-collapse:collapse;}
+    img{border:0;display:block;}
+    @media only screen and (max-width:600px){
+      .wr{padding:12px 8px!important;}
+      .hd{padding:22px 20px 18px!important;border-radius:14px 14px 0 0!important;}
+      .logo{width:44px!important;height:44px!important;}
+      .bn{font-size:22px!important;}
+      .bd{padding:22px 18px 18px!important;}
+      .cb{padding:20px 12px!important;border-radius:12px!important;}
+      .ci{padding:12px 24px!important;}
+      .cd{font-size:36px!important;letter-spacing:10px!important;}
+      .sv{padding:18px 14px 22px!important;}
+      .ft{padding:16px 18px 22px!important;border-radius:0 0 14px 14px!important;}
     }
   </style>
 </head>
 <body>
-<div class="wrapper">
-  <table class="container" cellpadding="0" cellspacing="0" role="presentation">
+<div class="wr" style="width:100%;background:#E8E8E8;padding:28px 16px;box-sizing:border-box;">
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:560px;margin:0 auto;">
 
-    <!-- HEADER -->
-    <tr>
-      <td class="header-td">
-        <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto;">
-          <tr>
-            <td valign="middle" style="padding-right:16px;">
-              <img src="${logoUrl}" alt="MeatBox" class="logo-img" width="72" height="72">
-            </td>
-            <td valign="middle" align="left">
-              <p class="brand-name">MeatBox</p>
-              <p class="brand-tagline">TƏBİİ · HALAL · SÜRƏTLİ</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
+  <!-- ══ HEADER ══ -->
+  <tr>
+    <td class="hd" style="background:linear-gradient(140deg,#B91C1C 0%,#7F1D1D 100%);border-radius:18px 18px 0 0;padding:28px 36px 22px;text-align:center;">
+      <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto;">
+        <tr>
+          <td valign="middle" style="padding-right:12px;">
+            <img src="${logoUrl}" class="logo" alt="MeatBox" width="50" height="50"
+              style="width:50px;height:50px;border-radius:11px;background:#fff;padding:5px;object-fit:contain;">
+          </td>
+          <td valign="middle" align="left">
+            <p class="bn" style="margin:0;font-size:26px;font-weight:900;color:#fff;letter-spacing:0.3px;line-height:1.1;">MeatBox</p>
+            <p style="margin:4px 0 0;font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:3px;text-transform:uppercase;">TƏBİİ &nbsp;·&nbsp; HALAL &nbsp;·&nbsp; SÜRƏTLİ</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
 
-    <!-- BODY -->
-    <tr>
-      <td class="body-td">
-        <p class="greeting">${isAz ? "Hörmətli istifadəçi," : "Dear user,"}</p>
-        <p class="instruction">${isAz ? "Hesabınıza daxil olmaq üçün aşağıdakı təsdiqləmə kodundan istifadə edin:" : "Use the verification code below to access your account:"}</p>
+  <!-- ══ BODY ══ -->
+  <tr>
+    <td class="bd" style="background:#ffffff;padding:34px 40px 26px;">
+      <p style="margin:0 0 6px;font-size:15px;color:#1F2937;line-height:1.7;font-weight:600;">${isAz ? "Hörmətli istifadəçi," : "Dear user,"}</p>
+      <p style="margin:0 0 24px;font-size:13.5px;color:#6B7280;line-height:1.75;">${isAz ? "Hesabınıza daxil olmaq üçün aşağıdakı təsdiqləmə kodundan istifadə edin:" : "Use the verification code below to access your account:"}</p>
 
-        <!-- CODE BOX -->
-        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
-          <tr>
-            <td class="code-box-td">
-              <p class="code-label">${isAz ? "Təsdiqləmə Kodu" : "Verification Code"}</p>
-              <div class="code-inner">
-                <span class="code-digits">${code}</span>
-              </div>
-              <p class="code-valid">
-                ${isAz ? 'Bu kod <b style="color:#374151;">5 dəqiqə</b> ərzində etibarlıdır' : 'This code is valid for <b style="color:#374151;">5 minutes</b>'}
-              </p>
-            </td>
-          </tr>
-        </table>
+      <!-- OTP -->
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+          <td class="cb" style="background:#FFF5F5;border-radius:16px;padding:28px 16px;text-align:center;">
+            <p style="margin:0 0 14px;font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:3.5px;font-weight:700;">${isAz ? "Təsdiqləmə Kodu" : "Verification Code"}</p>
+            <div class="ci" style="display:inline-block;background:#fff;border:2px solid #B91C1C;border-radius:14px;padding:16px 40px;box-shadow:0 6px 24px rgba(185,28,28,0.13);">
+              <span class="cd" style="font-size:44px;font-weight:900;color:#B91C1C;letter-spacing:14px;font-family:'Courier New',Courier,monospace;line-height:1;">${code}</span>
+            </div>
+            <p style="margin:14px 0 0;font-size:12px;color:#9CA3AF;">
+              ${isAz ? 'Bu kod <strong style="color:#374151;">5 dəqiqə</strong> ərzində etibarlıdır' : 'Valid for <strong style="color:#374151;">5 minutes</strong>'}
+            </p>
+          </td>
+        </tr>
+      </table>
 
-        <p class="notice">
-          <b style="color:#92400E;">${isAz ? "Diqqət:" : "Notice:"}</b>
-          ${isAz ? " Bu email sistem tərəfindən avtomatik göndərilib. Əgər siz bu sorğunu göndərməmisinizsə, bu emaili nəzərə almayın." : " This email was sent automatically. If you did not request this code, please ignore this email."}
-        </p>
-      </td>
-    </tr>
+      <!-- NOTICE -->
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:20px;">
+        <tr>
+          <td style="background:#FFFBEB;border-left:3px solid #F59E0B;border-radius:0 8px 8px 0;padding:11px 15px;">
+            <p style="margin:0;font-size:12.5px;color:#6B7280;line-height:1.65;">
+              <strong style="color:#92400E;">${isAz ? "Diqqət:" : "Notice:"}</strong>
+              ${isAz ? " Bu email avtomatik göndərilib. Sorğunu siz göndərməmisinizsə, nəzərə almayın." : " This email was sent automatically. Ignore it if you didn't request a code."}
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
 
-    <!-- DIVIDER -->
-    <tr>
-      <td class="divider-td">
-        <hr style="border:0;border-top:1px solid #F3F4F6;margin:0;">
-      </td>
-    </tr>
+  <!-- ══ SERVICES ══ -->
+  <tr>
+    <td class="sv" style="background:#F5F3F1;padding:22px 32px 26px;border-top:1px solid #EAE5E0;">
+      <p style="margin:0 0 14px;font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:2.5px;font-weight:700;text-align:center;">${isAz ? "Xidmətlərimiz" : "Our Services"}</p>
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
 
-    <!-- FOOTER -->
-    <tr>
-      <td class="footer-td">
-        <p class="footer-contact">${isAz ? "Hər hansı sualınız üçün bizimlə əlaqə saxlayın:" : "For any questions, contact us:"}</p>
-        <p class="footer-info">
-          <b>E-mail:</b> <a href="mailto:info@meatbox.az" style="color:${red};text-decoration:none;">info@meatbox.az</a>
-        </p>
-        <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 16px;">
-          <tr>
-            <!-- Instagram -->
-            <td style="padding:0 8px;">
-              <a href="https://www.instagram.com/meatbox.az/" target="_blank" style="display:inline-block;text-decoration:none;">
-                <table cellpadding="0" cellspacing="0" role="presentation">
-                  <tr>
-                    <td style="background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);border-radius:999px;padding:10px 20px;">
-                      <table cellpadding="0" cellspacing="0" role="presentation">
-                        <tr>
-                          <td style="padding-right:7px;vertical-align:middle;">
-                            <img src="https://meatbox.az/instagram-icon.svg" alt="Instagram" width="16" height="16" style="display:block;vertical-align:middle;">
-                          </td>
-                          <td style="vertical-align:middle;">
-                            <span style="color:#fff;font-size:13px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;line-height:1;">Instagram</span>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-              </a>
-            </td>
-            <!-- Facebook -->
-            <td style="padding:0 8px;">
-              <a href="https://www.facebook.com/meatbox.az" target="_blank" style="display:inline-block;text-decoration:none;">
-                <table cellpadding="0" cellspacing="0" role="presentation">
-                  <tr>
-                    <td style="background:#1877F2;border-radius:999px;padding:10px 20px;">
-                      <table cellpadding="0" cellspacing="0" role="presentation">
-                        <tr>
-                          <td style="padding-right:7px;vertical-align:middle;">
-                            <img src="https://meatbox.az/facebook-icon.svg" alt="Facebook" width="16" height="16" style="display:block;vertical-align:middle;">
-                          </td>
-                          <td style="vertical-align:middle;">
-                            <span style="color:#fff;font-size:13px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;line-height:1;">Facebook</span>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-              </a>
-            </td>
-          </tr>
-        </table>
-        <p class="footer-copy">
-          &copy; 2026 <b style="color:#6B7280;">MeatBox</b> &nbsp;&middot;&nbsp;
-          ${isAz ? "Bakı şəhəri, Azərbaycan" : "Baku, Azerbaijan"}
-          &nbsp;&middot;&nbsp;
-          <a href="https://meatbox.az">www.meatbox.az</a>
-        </p>
-      </td>
-    </tr>
+          <!-- Qurbanlıq -->
+          <td width="33%" valign="top" style="padding:0 3px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
+                  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
+                    <tr><td width="32" height="32" bgcolor="#0B6C24" style="border-radius:8px;width:32px;height:32px;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+                  </table>
+                  <p style="margin:0;font-size:11px;font-weight:800;color:#0B6C24;line-height:1.3;">${isAz ? "Qurbanlıq" : "Qurban"}</p>
+                  <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Onlayn sifariş" : "Online order"}</p>
+                </td>
+              </tr>
+            </table>
+          </td>
 
-  </table>
+          <!-- Kollektiv -->
+          <td width="33%" valign="top" style="padding:0 3px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
+                  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
+                    <tr><td width="32" height="32" bgcolor="#6820A3" style="border-radius:8px;width:32px;height:32px;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+                  </table>
+                  <p style="margin:0;font-size:11px;font-weight:800;color:#6820A3;line-height:1.3;">${isAz ? "Kollektiv" : "Collective"}</p>
+                  <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Birlikdə qurban" : "Group qurban"}</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+
+          <!-- Ət Satışı -->
+          <td width="33%" valign="top" style="padding:0 3px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
+                  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
+                    <tr><td width="32" height="32" bgcolor="#C85A13" style="border-radius:8px;width:32px;height:32px;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+                  </table>
+                  <p style="margin:0;font-size:11px;font-weight:800;color:#C85A13;line-height:1.3;">${isAz ? "Ət Satışı" : "Meat Sales"}</p>
+                  <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Evə çatdırılma" : "Home delivery"}</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ══ FOOTER ══ -->
+  <tr>
+    <td class="ft" style="background:#ffffff;border-radius:0 0 18px 18px;border-top:1px solid #F0EEEC;padding:18px 36px 24px;text-align:center;">
+      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">
+        <b>E-mail:</b>&nbsp;<a href="mailto:info@meatbox.az" style="color:#B91C1C;text-decoration:none;font-weight:600;">info@meatbox.az</a>
+      </p>
+      <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 14px;">
+        <tr>
+          <td style="padding:0 4px;">
+            <a href="https://www.instagram.com/meatbox.az/" target="_blank">
+              <table cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border-radius:999px;padding:7px 16px;">
+                    <span style="color:#fff;font-size:11.5px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;">Instagram</span>
+                  </td>
+                </tr>
+              </table>
+            </a>
+          </td>
+          <td style="padding:0 4px;">
+            <a href="https://www.facebook.com/meatbox.az" target="_blank">
+              <table cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td style="background:#1877F2;border-radius:999px;padding:7px 16px;">
+                    <span style="color:#fff;font-size:11.5px;font-weight:700;font-family:'Segoe UI',Arial,sans-serif;white-space:nowrap;">Facebook</span>
+                  </td>
+                </tr>
+              </table>
+            </a>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:0;font-size:11px;color:#9CA3AF;">
+        &copy; 2026 <b style="color:#6B7280;">MeatBox</b> &nbsp;&middot;&nbsp; ${isAz ? "Bakı, Azərbaycan" : "Baku, Azerbaijan"}
+      </p>
+    </td>
+  </tr>
+
+</table>
 </div>
 </body>
 </html>`;
