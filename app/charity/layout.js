@@ -902,7 +902,7 @@ export default function CharityLayout({ children }) {
             MeatBox Xidmətlərinə Keç
           </Link>
           {/* Logo always 30px from top */}
-          <div className="flex justify-center pb-4" style={{ paddingTop: 45 }}>
+          <div className="flex justify-center pb-4" style={{ paddingTop: 48 }}>
             <Link href="/" className="relative block" style={{ width: 160 }}>
               <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#6820a3]/30 bg-white shadow-lg">
                 <HeartHandshake className="h-7 w-7 text-[#6820a3]" />
