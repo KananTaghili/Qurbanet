@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings,
+  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings, Scroll,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import { MobileMenuProvider, useMobileMenu } from "../../context/MobileMenuContext";
@@ -93,6 +93,20 @@ function InnerLayout({ children }) {
               );
             })}
           </nav>
+          <div className="mx-3 mb-3">
+            <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
+              <div className="px-3 py-1.5 flex items-start gap-2">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md mt-0.5" style={{ background: "rgba(255,255,255,0.15)" }}>
+                  <Scroll size={11} style={{ color: "rgba(255,255,255,0.85)" }} />
+                </div>
+                <p className="text-[11px] font-semibold leading-snug text-white/80">Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.</p>
+              </div>
+              <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
+              <div className="px-3 pb-2 pt-1">
+                <span className="text-[10px] font-medium text-white/40">— Hədis (Buxari, Muslim)</span>
+              </div>
+            </div>
+          </div>
         </aside>
 
         {/* ── Main area ── */}
@@ -182,6 +196,20 @@ function InnerLayout({ children }) {
                 </Link>
               ))}
             </nav>
+            <div className="mx-3 mb-3">
+              <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                <div className="px-3 py-1.5 flex items-start gap-2">
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md mt-0.5" style={{ background: "rgba(255,255,255,0.15)" }}>
+                    <Scroll size={11} style={{ color: "rgba(255,255,255,0.85)" }} />
+                  </div>
+                  <p className="text-[11px] font-semibold leading-snug text-white/80">Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.</p>
+                </div>
+                <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
+                <div className="px-3 pb-2 pt-1">
+                  <span className="text-[10px] font-medium text-white/40">— Hədis (Buxari, Muslim)</span>
+                </div>
+              </div>
+            </div>
             {!isGuest && (
               <div className="px-4 pb-6 border-t border-white/10 pt-4">
                 <div className="flex items-center gap-3 px-1 mb-3">
