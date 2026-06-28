@@ -36,7 +36,7 @@ export default function StepHeader({ currentStep }) {
           Geri Qayıt
         </button>
         {/* Steps — centered in full width */}
-        <div className="flex items-center" style={{ maxWidth: 560, margin: '0 auto', width: '100%' }}>
+        <div className="flex items-center" style={{ maxWidth: 680, margin: '0 auto', width: '100%' }}>
           {STEPS.map((label, i) => {
             const idx = i + 1;
             const done = idx < currentStep;
@@ -65,7 +65,7 @@ export default function StepHeader({ currentStep }) {
                 </div>
                 {i < STEPS.length - 1 && (
                   <div style={{
-                    flex: 1, height: 2, margin: '0 48px', marginBottom: 16,
+                    flex: 1, height: 2, margin: '0 80px', marginBottom: 16,
                     background: done ? 'var(--primary)' : 'var(--border)',
                     borderRadius: 1, transition: 'background 0.2s'
                   }} />
