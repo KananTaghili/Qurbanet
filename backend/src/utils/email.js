@@ -18,22 +18,22 @@ const sendEmail = async (to, code) => {
         type: "email",
         email: {
           from: {
-            displayName: "QurbanEt",
-            address: process.env.BIRD_SENDER_EMAIL || "no-reply@mail.qurbanet.az",
+            displayName: "MeatBox",
+            address: process.env.BIRD_SENDER_EMAIL || "no-reply@mail.meatbox.az",
           },
-          subject: "QurbanEt - Doğrulama kodu",
+          subject: "MeatBox - Doğrulama kodu",
           html: `
             <div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:32px;background:#f4f6fa;border-radius:16px;">
-              <h2 style="color:#1B5E20;margin:0 0 8px;">QurbanEt</h2>
+              <h2 style="color:#B91C1C;margin:0 0 8px;">MeatBox</h2>
               <p style="color:#6B7280;margin:0 0 24px;font-size:14px;">Doğrulama kodu</p>
               <div style="background:#fff;border-radius:12px;padding:24px;text-align:center;border:1px solid #eaecf0;">
                 <p style="color:#6B7280;font-size:13px;margin:0 0 8px;">Giriş kodunuz:</p>
-                <div style="font-size:36px;font-weight:800;color:#1B5E20;letter-spacing:8px;">${code}</div>
+                <div style="font-size:36px;font-weight:800;color:#B91C1C;letter-spacing:8px;">${code}</div>
                 <p style="color:#9CA3AF;font-size:12px;margin:16px 0 0;">Bu kod 5 dəqiqə ərzində etibarlıdır.</p>
               </div>
             </div>
           `,
-          text: `QurbanEt giriş kodunuz: ${code}\n\nBu kod 5 dəqiqə ərzində etibarlıdır.`,
+          text: `MeatBox giriş kodunuz: ${code}\n\nBu kod 5 dəqiqə ərzində etibarlıdır.`,
         },
       },
     };
@@ -66,9 +66,9 @@ const sendEmail = async (to, code) => {
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
     await transporter.sendMail({
-      from: `"QurbanEt" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      from: `"MeatBox" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
       to,
-      subject: "QurbanEt - Doğrulama kodu",
+      subject: "MeatBox - Doğrulama kodu",
       text: `Doğrulama kodunuz: ${code}\n\n5 dəqiqə ərzində istifadə edin.`,
     });
     return { success: true };
