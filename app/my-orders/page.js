@@ -34,7 +34,7 @@ const ANIMAL_IMAGES = {
 
 const STATUS_CFG = {
   awaiting_payment: { label: 'Ödəniş gözlənilir', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
-  placed:           { label: 'Gözləmədə',          bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 1, group: 'active'    },
+  placed:           { label: 'Sifariş verildi',     bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 1, group: 'active'    },
   pending_payment:  { label: 'Ödəniş gözlənilir',  bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
   confirmed:        { label: 'Təsdiqləndi',         bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 2, group: 'active'    },
   paid:             { label: 'Ödənilib',            bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 2, group: 'active'    },
@@ -46,12 +46,12 @@ const STATUS_CFG = {
 };
 
 const PIPELINE_STEPS = [
-  { label: 'Gözləmə',    Icon: Clock        },
-  { label: 'Təsdiq',     Icon: CheckCircle2 },
-  { label: 'Kəsim',      Icon: RiKnifeLine  },
-  { label: 'Hazırlıq',   Icon: Package      },
-  { label: 'Çatdırılma', Icon: Truck        },
-  { label: 'Tamamlandı', Icon: Star         },
+  { label: 'Sifariş verildi', Icon: Clock        },
+  { label: 'Təsdiqləndi',     Icon: CheckCircle2 },
+  { label: 'Kəsilir',         Icon: RiKnifeLine  },
+  { label: 'Hazırlanır',      Icon: Package      },
+  { label: 'Çatdırılır',      Icon: Truck        },
+  { label: 'Tamamlandı',      Icon: Star         },
 ];
 
 const CHARITY_DIST_KEYS = {
@@ -59,6 +59,17 @@ const CHARITY_DIST_KEYS = {
   qocalar_evi:       'distLabel_qocalar_evi',
   ehtiyac_sahibleri: 'distLabel_ehtiyac_sahibleri',
 };
+
+/* ── Cancelled Badge ───────────────────────────── */
+function CancelledBadge() {
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+      style={{ background: '#FEE2E2', border: '1.5px solid #FECACA' }}>
+      <XCircle size={15} style={{ color: '#DC2626', flexShrink: 0 }} />
+      <span className="text-[12px] font-bold" style={{ color: '#991B1B' }}>Ləğv edildi</span>
+    </div>
+  );
+}
 
 /* ── Pipeline ──────────────────────────────────── */
 function Pipeline({ step }) {
@@ -170,7 +181,7 @@ function OrderCard({ item, lang }) {
           </div>
           {!isCharity && (
             <div className="px-3 pt-1 pb-3 border-t border-gray-100">
-              <Pipeline step={cfg.step} />
+              {cfg.step < 0 ? <CancelledBadge /> : <Pipeline step={cfg.step} />}
             </div>
           )}
         </div>
@@ -216,7 +227,9 @@ function OrderCard({ item, lang }) {
             <p className="text-[10px] text-gray-400 -mb-1">{fmtDate(item.createdAt, months)}</p>
             {!isCharity && (
               <div className="flex items-center gap-2">
-                <div className="flex-1 min-w-0"><Pipeline step={cfg.step} /></div>
+                <div className="flex-1 min-w-0">
+                  {cfg.step < 0 ? <CancelledBadge /> : <Pipeline step={cfg.step} />}
+                </div>
                 <span className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold py-1.5 px-3 rounded-xl transition-all group-hover:gap-1.5"
                   style={{ color: BRAND, background: '#e8f5e9' }}>
                   {t(lang, 'viewDetail')} <ArrowRight size={11} />
