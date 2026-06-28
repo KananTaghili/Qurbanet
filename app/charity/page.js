@@ -171,7 +171,8 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
   const paidPct = animal.openerPercent ?? 0;
   const handleShare = async (e) => {
     e.stopPropagation();
-    try { await navigator.clipboard.writeText(window.location.href); } catch {}
+    const url = `${window.location.origin}/charity?campaign=${animal.id}`;
+    try { await navigator.clipboard.writeText(url); } catch {}
     setCopied(true); setTimeout(() => setCopied(false), 2600);
   };
   return (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, Users, User, Video, Copy, X } from "lucide-react";
 import api from "../../../lib/api";
 import { mapCompletedCampaign, fmtDate } from "../_lib";
@@ -15,7 +16,9 @@ function CompletedStat({ label, value }) {
   );
 }
 
-export default function TamamlanmisPage() {
+function TamamlanmisPageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [orders, setOrders]             = useState([]);
   const [loading, setLoading]           = useState(true);
   const [selected, setSelected]         = useState(null);
@@ -24,14 +27,22 @@ export default function TamamlanmisPage() {
 
   useEffect(() => {
     api.get("/campaigns/completed")
-      .then(res => setOrders((res.data?.data?.campaigns || []).map(mapCompletedCampaign)))
+      .then(res => {
+        const mapped = (res.data?.data?.campaigns || []).map(mapCompletedCampaign);
+        setOrders(mapped);
+        const detailId = searchParams.get("detail");
+        if (detailId) {
+          const item = mapped.find(o => o.id === detailId);
+          if (item) setSelected(item);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   const handleShare = async (e, item) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/charity/completed#${item.id}`;
+    const url = `${window.location.origin}/charity/completed?detail=${item.id}`;
     try { await navigator.clipboard.writeText(url); } catch {
       const ta = document.createElement("textarea");
       ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
@@ -42,7 +53,17 @@ export default function TamamlanmisPage() {
     window.setTimeout(() => setShareMessage(false), 2600);
   };
 
-  if (selected) return <IaneDetailPage item={selected} onBack={() => setSelected(null)} />;
+  const openDetail = (item) => {
+    setSelected(item);
+    router.push(`/charity/completed?detail=${item.id}`, { scroll: false });
+  };
+
+  const closeDetail = () => {
+    setSelected(null);
+    router.replace("/charity/completed", { scroll: false });
+  };
+
+  if (selected) return <IaneDetailPage item={selected} onBack={closeDetail} />;
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-4 py-2 pb-20 lg:pb-3">
@@ -88,9 +109,9 @@ export default function TamamlanmisPage() {
           const displayAmt = openerDon ? openerDon.amount : item.amount;
           const initials   = (item.organizer || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
           return (
-            <div key={item.id} onClick={() => setSelected(item)}
+            <div key={item.id} onClick={() => openDetail(item)}
               role="button" tabIndex={0}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(item); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openDetail(item); }}
               className="group w-full cursor-pointer overflow-hidden rounded-2xl border border-[#ece6f5] bg-white text-left shadow-[0_5px_16px_rgba(46,23,92,0.06)] transition-shadow hover:shadow-[0_12px_28px_rgba(46,23,92,0.11)]">
 
               {/* ── Mobile layout ── */}
@@ -142,7 +163,7 @@ export default function TamamlanmisPage() {
 
                   {/* Buttons */}
                   <div className="flex gap-1.5">
-                    <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
+                    <button onClick={(e) => { e.stopPropagation(); openDetail(item); }}
                       className="flex flex-1 h-[32px] items-center justify-center gap-1.5 rounded-xl bg-[#4b14bd] text-[11px] font-bold text-white">
                       <Users size={12} /> İştirakçılar
                     </button>
@@ -197,7 +218,7 @@ export default function TamamlanmisPage() {
                       <CheckCircle size={22} className="mx-auto mb-0.5 text-emerald-500" strokeWidth={2} />
                       <div className="text-[11px] font-black text-emerald-600">Açılış tamamlanıb</div>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); setSelected(item); }}
+                    <button onClick={(e) => { e.stopPropagation(); openDetail(item); }}
                       className="flex h-[34px] w-full items-center justify-center gap-2 rounded-[8px] bg-[#4b14bd] text-[12px] font-bold text-white transition hover:bg-[#3d0aa8]">
                       <Users size={15} />İştirakçılara bax
                     </button>
@@ -277,3 +298,5 @@ export default function TamamlanmisPage() {
     </div>
   );
 }
+
+export default function TamamlanmisPage() { return <Suspense><TamamlanmisPageInner /></Suspense>; }
