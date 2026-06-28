@@ -186,13 +186,6 @@ export default function QurbanRulesPage() {
                 {t(lang, "qurbanRulesDesc")}
               </p>
             </div>
-            <div
-              className="shrink-0 hidden sm:flex flex-col items-center justify-center rounded-xl px-3 py-2"
-              style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)" }}
-            >
-              <span className="text-[22px] font-black text-white leading-none">{sections.length}</span>
-              <span className="text-[10px] text-white/60 font-semibold">bölmə</span>
-            </div>
           </div>
 
         </div>
