@@ -146,14 +146,14 @@ export default function QurbanLayout({ children }) {
             ))}
           </nav>
           {/* Hadith */}
-          <div className="px-3 pb-3 shrink-0">
-            <div className="rounded-xl px-3.5 py-3" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="text-2xl font-serif leading-none mb-1" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
-              <p className="text-[11px] font-bold leading-snug italic mb-2" style={{ color: 'rgba(255,255,255,0.85)' }}>
+          <div className="px-3 lg:px-4 pb-3 shrink-0">
+            <div className="rounded-2xl px-4 py-3.5" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="text-3xl font-serif leading-none mb-1.5" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
+              <p className="text-[12px] font-bold leading-snug italic mb-2.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
                 Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
               </p>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 6 }} />
-              <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 8 }} />
+              <p className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
             </div>
           </div>
         </aside>
@@ -341,13 +341,13 @@ export default function QurbanLayout({ children }) {
             </nav>
             {/* Hadith */}
             <div className="px-3 pb-3 shrink-0">
-              <div className="rounded-xl px-3.5 py-3" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="text-2xl font-serif leading-none mb-1" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
-                <p className="text-[11px] font-bold leading-snug italic mb-2" style={{ color: 'rgba(255,255,255,0.85)' }}>
+              <div className="rounded-2xl px-4 py-3.5" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="text-3xl font-serif leading-none mb-1.5" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
+                <p className="text-[12px] font-bold leading-snug italic mb-2.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
                   Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
                 </p>
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 6 }} />
-                <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 8 }} />
+                <p className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>Hədis · Buxari, Muslim</p>
               </div>
             </div>
             {!isGuest && (
