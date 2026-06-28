@@ -117,6 +117,7 @@ export function mapHomeCampaign(c, minDonation) {
   const img = (c.animal?.imageHome?.startsWith?.("http") ? c.animal.imageHome : null)
     || (c.animal?.image?.startsWith?.("http") ? c.animal.image : null)
     || ANIMAL_IMG_FALLBACK[c.animal?.nameAz] || "/qoyun.png";
+  const openerDon = (c.donations || []).find(d => d.isOpener);
   return {
     campaignId: c._id,
     type: c.animal?.nameAz || "Qurban",
@@ -126,6 +127,8 @@ export function mapHomeCampaign(c, minDonation) {
     currency: "AZN",
     organizer: c.opener?.isAnonymous ? "Anonim" : ([c.opener?.name, c.opener?.lastName].filter(Boolean).join(" ") || "—"),
     participants: c.participantCount || 0,
+    openerAmount: openerDon ? fmtAmt(openerDon.amount) : null,
+    openerPercent: openerDon ? Math.round(openerDon.percent || 0) : null,
     shareMin: String(minDonation || 10),
     shareMinRaw: Number(minDonation || 10),
     targetRaw: Number(c.totalAmount || 0),

@@ -167,9 +167,8 @@ function AnimalCard({ animal, onDonate, onClick }) {
 /* ─── Desktop Animal Card (detailed long card) ──────────────── */
 function DesktopAnimalCard({ animal, onDonate, onClick }) {
   const [copied, setCopied] = useState(false);
-  const toNum = (v) => Number(String(v).replace(/[^0-9.]/g, ""));
-  const _target = toNum(animal.target);
-  const paidPct = _target > 0 ? Math.round((toNum(animal.shareMin) / _target) * 100) : 0;
+  const paidAmt = animal.openerAmount ?? animal.shareMin;
+  const paidPct = animal.openerPercent ?? 0;
   const handleShare = async (e) => {
     e.stopPropagation();
     try { await navigator.clipboard.writeText(window.location.href); } catch {}
@@ -214,7 +213,7 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
       <div className="mt-2">
         <div className="mb-0.5 text-[10px] font-medium" style={{ color: "#8a7ba7" }}>Ödədiyi məbləğ</div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[13px] font-bold text-[#241a4d]">{animal.shareMin} {animal.currency}</span>
+          <span className="text-[13px] font-bold text-[#241a4d]">{paidAmt} {animal.currency}</span>
           <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium" style={{ color: "#5521c6" }}>{paidPct}%</span>
         </div>
       </div>
