@@ -1931,7 +1931,8 @@ function HomeContent() {
               <img
                 src="/kollektiv_web_pc_image.png"
                 alt="Xeyriyyə"
-                className="absolute inset-0 w-full h-full object-cover object-center rounded-r-2xl"
+                className="absolute inset-0 w-full h-full object-cover rounded-r-2xl"
+                style={{ objectPosition: "left center" }}
               />
               <div
                 className="absolute inset-0 rounded-r-2xl"
