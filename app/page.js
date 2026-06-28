@@ -349,7 +349,7 @@ export default function HomePage() {
         {/* ── Hero ── */}
         <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5" style={{ minHeight: 220 }}>
           <Image src="/main_home_foto_image_home.jpg" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center 40%" }} priority />
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(105deg,rgba(5,2,0,0.78) 0%,rgba(5,2,0,0.45) 50%,rgba(0,0,0,0.05) 100%)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(100deg,rgba(5,2,0,0.52) 0%,rgba(5,2,0,0.18) 38%,rgba(0,0,0,0) 58%)" }} />
           <div className="relative h-full flex items-center">
             <div style={{ maxWidth: 380 }}>
               <h1 className="font-black text-white leading-[1.15] mb-2"
