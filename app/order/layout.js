@@ -63,14 +63,14 @@ function InnerLayout({ children }) {
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
 
         {/* ── Desktop Sidebar ── */}
-        <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden" style={{ backgroundColor: GREEN }}>
-          <div className="px-4 pb-1" style={{ paddingTop: 14 }}>
-            <Link href={backTo}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/25 bg-white/10 text-white shadow hover:bg-white/20 transition-colors">
-              <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
-            </Link>
-          </div>
-          <div className="flex justify-center pb-4" style={{ marginTop: -1 }}>
+        <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden relative" style={{ backgroundColor: GREEN }}>
+          {/* Back button — absolute at top, overlays logo */}
+          <Link href="/" className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-bold hover:opacity-90 active:scale-[.98] transition-all"
+            style={{ color:"#fff", background:"#e02020", borderRadius:"0 0 10px 10px", letterSpacing:"0.02em" }}>
+            <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+            MeatBox Xidmətlərinə Keç
+          </Link>
+          <div className="flex justify-center pb-4" style={{ paddingTop: 48 }}>
             <Link href="/" className="relative block" style={{ width: 160 }}>
               <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#1c5e20]/30 bg-white shadow-lg">
                 <PiKnifeBold className="h-7 w-7 text-[#1c5e20]" />
