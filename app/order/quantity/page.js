@@ -69,6 +69,36 @@ function getTomorrow() {
   return d;
 }
 
+/* ─── Section card — defined outside to prevent remount on every render ─── */
+function S({ label, Icon, error, hideOnXl = false, className: sCls = "", overflow = "hidden", children }) {
+  return (
+    <div
+      className={`bg-white rounded-xl flex flex-col ${hideOnXl ? "xl:hidden" : ""}
+      ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"} ${sCls}`}
+      style={{ overflow }}
+    >
+      <div
+        className={`flex items-center justify-between px-2.5 py-1 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
+      >
+        <span
+          className="flex items-center gap-1.5 text-[9.5px] font-bold tracking-[0.12em] uppercase"
+          style={{ color: error ? "#ef4444" : "#9ca3af" }}
+        >
+          {Icon && <Icon className="w-3 h-3" />}
+          {label}
+        </span>
+        {error && (
+          <span className="flex items-center gap-1 text-[9.5px] font-bold text-red-500">
+            <AlertTriangle className="w-3 h-3" />
+            {error}
+          </span>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export default function QuantityPage() {
   const router = useRouter();
   const { openMenu } = useMobileMenu();
@@ -656,34 +686,6 @@ export default function QuantityPage() {
         </div>
       )}
     </>
-  );
-
-  /* ─── Section card ─── */
-  const S = ({ label, Icon, error, hideOnXl = false, className: sCls = "", overflow = "hidden", children }) => (
-    <div
-      className={`bg-white rounded-xl flex flex-col ${hideOnXl ? "xl:hidden" : ""}
-      ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"} ${sCls}`}
-      style={{ overflow }}
-    >
-      <div
-        className={`flex items-center justify-between px-2.5 py-1 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
-      >
-        <span
-          className="flex items-center gap-1.5 text-[9.5px] font-bold tracking-[0.12em] uppercase"
-          style={{ color: error ? "#ef4444" : "#9ca3af" }}
-        >
-          {Icon && <Icon className="w-3 h-3" />}
-          {label}
-        </span>
-        {error && (
-          <span className="flex items-center gap-1 text-[9.5px] font-bold text-red-500">
-            <AlertTriangle className="w-3 h-3" />
-            {error}
-          </span>
-        )}
-      </div>
-      {children}
-    </div>
   );
 
   /* ─── Option row (radio style) ─── */
