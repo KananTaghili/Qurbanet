@@ -131,6 +131,11 @@ function RegisterPageInner() {
         />
       </div>
 
+      {/* Mobile-only back to home */}
+      <Link href="/" className="lg:hidden" style={{ position: "absolute", top: 16, left: 16, zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", backdropFilter: "blur(4px)" }}>
+        <ArrowLeft size={18} />
+      </Link>
+
       {/* Left panel */}
       <section style={{ position: "relative", zIndex: 1, color: "#fff" }}
         className="hidden lg:flex flex-col justify-center px-[6vw] py-[4vh] h-full overflow-y-auto"
