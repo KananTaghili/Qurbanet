@@ -179,9 +179,6 @@ export default function QurbanRulesPage() {
               <BookOpen size={22} color="#fff" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold tracking-[0.22em] text-white/45 uppercase mb-1">
-                İslam Hüququ
-              </p>
               <h1 className="text-[18px] md:text-xl font-black text-white leading-tight mb-1">
                 {t(lang, "qurbanRulesTitle")}
               </h1>
