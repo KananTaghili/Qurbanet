@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings, Scroll,
+  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import { MobileMenuProvider, useMobileMenu } from "../../context/MobileMenuContext";
@@ -84,7 +84,7 @@ function InnerLayout({ children }) {
                 style={{ width: 160, height: "auto", objectFit: "contain" }} priority />
             </Link>
           </div>
-          <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
+          <nav className="flex-1 min-h-0 overflow-y-auto px-3 space-y-0.5">
             {nav.map(({ icon: Icon, label, href }) => {
               const active = href === "/qurban"; // order flow = heyvan seçimi aktiv
               return (
@@ -98,17 +98,18 @@ function InnerLayout({ children }) {
               );
             })}
           </nav>
-          <div className="mx-3 mb-3">
-            <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
-              <div className="px-3 py-1.5 flex items-start gap-2">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md mt-0.5" style={{ background: "rgba(255,255,255,0.15)" }}>
-                  <Scroll size={11} style={{ color: "rgba(255,255,255,0.85)" }} />
-                </div>
-                <p className="text-[11px] font-semibold leading-snug text-white/80">Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.</p>
+          {/* Hadith box — shrink-0 so it never compresses nav */}
+          <div className="shrink-0 mx-3 mb-3 mt-2">
+            <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <div className="flex items-start gap-2 mb-2">
+                <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
+                <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
+                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+                </p>
               </div>
-              <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
-              <div className="px-3 pb-2 pt-1">
-                <span className="text-[10px] font-medium text-white/40">— Hədis (Buxari, Muslim)</span>
+              <div className="flex items-center gap-1.5">
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+                <span className="text-[9.5px] font-medium text-white/30 shrink-0">Hədis · Buxari, Muslim</span>
               </div>
             </div>
           </div>
@@ -197,17 +198,17 @@ function InnerLayout({ children }) {
                 </Link>
               ))}
             </nav>
-            <div className="mx-3 mb-3">
-              <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
-                <div className="px-3 py-1.5 flex items-start gap-2">
-                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md mt-0.5" style={{ background: "rgba(255,255,255,0.15)" }}>
-                    <Scroll size={11} style={{ color: "rgba(255,255,255,0.85)" }} />
-                  </div>
-                  <p className="text-[11px] font-semibold leading-snug text-white/80">Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.</p>
+            <div className="mx-3 mb-3 mt-2">
+              <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div className="flex items-start gap-2 mb-2">
+                  <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
+                  <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
+                    Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+                  </p>
                 </div>
-                <div className="mx-3 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
-                <div className="px-3 pb-2 pt-1">
-                  <span className="text-[10px] font-medium text-white/40">— Hədis (Buxari, Muslim)</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+                  <span className="text-[9.5px] font-medium text-white/30 shrink-0">Hədis · Buxari, Muslim</span>
                 </div>
               </div>
             </div>
