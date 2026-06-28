@@ -65,7 +65,7 @@ export default function StepHeader({ currentStep }) {
                 </div>
                 {i < STEPS.length - 1 && (
                   <div style={{
-                    flex: 1, height: 2, margin: '0 20px', marginBottom: 16,
+                    flex: 1, height: 2, margin: '0 48px', marginBottom: 16,
                     background: done ? 'var(--primary)' : 'var(--border)',
                     borderRadius: 1, transition: 'background 0.2s'
                   }} />
