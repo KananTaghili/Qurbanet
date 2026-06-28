@@ -174,8 +174,6 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     .logo-img { width:72px; height:72px; border-radius:14px; object-fit:contain; background:#fff; padding:6px; }
     .brand-name { margin:0; font-size:32px; font-weight:900; color:#fff; letter-spacing:1px; line-height:1.1; }
     .brand-tagline { margin:5px 0 0; font-size:12px; color:rgba(255,255,255,0.60); font-weight:500; letter-spacing:2.5px; text-transform:uppercase; }
-    .header-link { margin:14px 0 0; font-size:13px; }
-    .header-link a { color:rgba(255,255,255,0.75); text-decoration:underline; letter-spacing:0.5px; }
     .body-td { background:#ffffff; padding:40px 48px 32px; }
     .greeting { margin:0 0 20px; font-size:16px; color:#374151; line-height:1.7; }
     .instruction { margin:0 0 28px; font-size:15px; color:#6B7280; line-height:1.7; }
@@ -242,9 +240,6 @@ const sendEmail = async (toEmail, code, lang = "az") => {
             </td>
           </tr>
         </table>
-        <p class="header-link">
-          <a href="https://meatbox.az">meatbox.az</a>
-        </p>
       </td>
     </tr>
 
