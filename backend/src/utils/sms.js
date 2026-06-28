@@ -186,18 +186,8 @@ const sendEmail = async (toEmail, code, lang = "az") => {
   <!-- ══ HEADER ══ -->
   <tr>
     <td class="hd" style="background:linear-gradient(140deg,#B91C1C 0%,#7F1D1D 100%);border-radius:18px 18px 0 0;padding:28px 36px 22px;text-align:center;">
-      <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto;">
-        <tr>
-          <td valign="middle" style="padding-right:12px;">
-            <img src="${logoUrl}" class="logo" alt="MeatBox" width="50" height="50"
-              style="width:50px;height:50px;border-radius:11px;background:#fff;padding:5px;object-fit:contain;">
-          </td>
-          <td valign="middle" align="left">
-            <p class="bn" style="margin:0;font-size:26px;font-weight:900;color:#fff;letter-spacing:0.3px;line-height:1.1;">MeatBox</p>
-            <p style="margin:4px 0 0;font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:3px;text-transform:uppercase;">TƏBİİ &nbsp;·&nbsp; HALAL &nbsp;·&nbsp; SÜRƏTLİ</p>
-          </td>
-        </tr>
-      </table>
+      <img src="${logoUrl}" class="logo" alt="MeatBox" width="72" height="72"
+        style="width:72px;height:72px;border-radius:16px;background:#fff;padding:6px;object-fit:contain;display:inline-block;">
     </td>
   </tr>
 
@@ -249,7 +239,7 @@ const sendEmail = async (toEmail, code, lang = "az") => {
               <tr>
                 <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
                   <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
-                    <tr><td width="32" height="32" bgcolor="#0B6C24" style="border-radius:8px;width:32px;height:32px;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+                    <tr><td width="36" height="36" bgcolor="#0B6C24" style="border-radius:9px;width:36px;height:36px;text-align:center;vertical-align:middle;font-size:18px;line-height:36px;">🐑</td></tr>
                   </table>
                   <p style="margin:0;font-size:11px;font-weight:800;color:#0B6C24;line-height:1.3;">${isAz ? "Qurbanlıq" : "Qurban"}</p>
                   <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Onlayn sifariş" : "Online order"}</p>
@@ -264,7 +254,7 @@ const sendEmail = async (toEmail, code, lang = "az") => {
               <tr>
                 <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
                   <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
-                    <tr><td width="32" height="32" bgcolor="#6820A3" style="border-radius:8px;width:32px;height:32px;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+                    <tr><td width="36" height="36" bgcolor="#6820A3" style="border-radius:9px;width:36px;height:36px;text-align:center;vertical-align:middle;font-size:18px;line-height:36px;">👥</td></tr>
                   </table>
                   <p style="margin:0;font-size:11px;font-weight:800;color:#6820A3;line-height:1.3;">${isAz ? "Kollektiv" : "Collective"}</p>
                   <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Birlikdə qurban" : "Group qurban"}</p>
@@ -279,7 +269,7 @@ const sendEmail = async (toEmail, code, lang = "az") => {
               <tr>
                 <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
                   <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
-                    <tr><td width="32" height="32" bgcolor="#C85A13" style="border-radius:8px;width:32px;height:32px;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+                    <tr><td width="36" height="36" bgcolor="#C85A13" style="border-radius:9px;width:36px;height:36px;text-align:center;vertical-align:middle;font-size:18px;line-height:36px;">🥩</td></tr>
                   </table>
                   <p style="margin:0;font-size:11px;font-weight:800;color:#C85A13;line-height:1.3;">${isAz ? "Ət Satışı" : "Meat Sales"}</p>
                   <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Evə çatdırılma" : "Home delivery"}</p>
