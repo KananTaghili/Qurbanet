@@ -348,25 +348,28 @@ export default function HomePage() {
 
         {/* ── Hero ── */}
         <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5" style={{ minHeight: 220 }}>
-          <Image src="/main_home_foto_image_home.jpg" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center center" }} priority />
-          {/* left gradient for text readability */}
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(100deg,rgba(10,5,2,0.72) 0%,rgba(10,5,2,0.38) 55%,rgba(0,0,0,0) 100%)" }} />
+          <Image src="/main_home_foto_image_home.jpg" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center 40%" }} priority />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(105deg,rgba(5,2,0,0.78) 0%,rgba(5,2,0,0.45) 50%,rgba(0,0,0,0.05) 100%)" }} />
           <div className="relative h-full flex items-center">
-            <div style={{ maxWidth: 320 }}>
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/55 mb-1">Azərbaycanda №1 Qurban Platforması</p>
-              <h1 className="text-xl md:text-2xl font-black text-white leading-snug mb-3" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
-                Halal, Etibarlı &amp;<br />Sürətli Qurban Xidməti
+            <div style={{ maxWidth: 380 }}>
+              <h1 className="font-black text-white leading-[1.15] mb-2"
+                style={{ fontSize: "clamp(22px,4vw,36px)", textShadow: "0 2px 16px rgba(0,0,0,0.55)", fontFamily: "'Plus Jakarta Sans','Manrope',sans-serif" }}>
+                Bərəkətli qurbanlıq,<br />Rahat ət sifarişi!
               </h1>
-              <div className="flex gap-2 flex-wrap">
+              <p className="mb-4 font-bold text-white/75 tracking-[0.18em] uppercase"
+                style={{ fontSize: "clamp(9px,1.2vw,12px)", letterSpacing: "0.18em" }}>
+                ETİBARLI &nbsp;•&nbsp; HALAL &nbsp;•&nbsp; SÜRƏTLİ
+              </p>
+              <div className="flex gap-2.5 flex-wrap">
                 <Link href="/qurban"
-                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-[12px] font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
-                  style={{ background: "linear-gradient(135deg,#E00000,#8B0000)" }}>
-                  Qurban Sifariş Et
+                  className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
+                  style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "#CC0000" }}>
+                  Xidmətlərimiz &nbsp;→
                 </Link>
                 <Link href="/charity"
-                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-[12px] font-bold text-white hover:bg-white/25 active:scale-95 transition-all"
-                  style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(6px)" }}>
-                  Kollektiv Qurban
+                  className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white hover:opacity-90 active:scale-95 transition-all"
+                  style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "rgba(40,35,30,0.75)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(8px)" }}>
+                  Ətraflı məlumat
                 </Link>
               </div>
             </div>
