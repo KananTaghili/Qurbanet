@@ -126,18 +126,6 @@ function InnerLayout({ children }) {
                 onClick={openMenu}>
                 <Menu size={18} className="text-white" />
               </button>
-              {/* Desktop: elegant green back button */}
-              <button onClick={() => router.push(backTo)}
-                className="hidden lg:inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-white hover:opacity-85 active:scale-95 transition-all shrink-0"
-                style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
-                <ArrowLeft size={14} strokeWidth={2.2} />
-                Geri qayıt
-              </button>
-              {/* Mobile: back arrow */}
-              <button onClick={() => router.push(backTo)}
-                className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
-                <ArrowLeft size={18} className="text-white" />
-              </button>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1">
                 Qurbanlıq Sifarişi
               </span>
