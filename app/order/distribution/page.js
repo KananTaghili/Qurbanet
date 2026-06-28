@@ -198,6 +198,12 @@ export default function DistributionPage() {
           options.find((o) => o.key === key),
         ).filter((o) => {
           if (!o) return false;
+          // Show if admin set a per-animal price for this animal
+          const hasSpecificPrice = (o.categorySpecificPrices || []).some(
+            (sp) => (sp.categoryId?._id || sp.categoryId) === animalId,
+          );
+          if (hasSpecificPrice) return true;
+          // Fallback: check applicableCategories
           const cats = o.applicableCategories || [];
           if (cats.length === 0) return false;
           return cats.some((c) => (c._id || c) === animalId);
