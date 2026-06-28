@@ -281,32 +281,17 @@ function EmptyState({ lang }) {
 function HadithCard() {
   return (
     <div
-      className="rounded-2xl mt-2.5 mb-1 px-4 py-3 flex items-start gap-3"
-      style={{
-        background: 'linear-gradient(135deg, #e9f5ea 0%, #f0f9f0 100%)',
-        border: '1px solid rgba(27,94,32,0.15)',
-      }}
+      className="rounded-2xl mt-2.5 mb-1 px-5 py-4"
+      style={{ background: '#1c5e20' }}
     >
-      <div
-        className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-base"
-        style={{ background: 'rgba(27,94,32,0.12)' }}
-      >
-        🕌
-      </div>
-      <div className="min-w-0 flex-1">
-        <p
-          className="text-sm font-bold leading-relaxed mb-1"
-          style={{ color: '#1c5e20', direction: 'rtl', fontFamily: 'serif' }}
-        >
-          «مَا عَمِلَ ابْنُ آدَمَ يَوْمَ النَّحْرِ عَمَلاً أَحَبَّ إِلَى اللَّهِ مِنْ إِهْرَاقَةِ دَمٍ»
-        </p>
-        <p className="text-[11px] text-[#3a6b3e] leading-snug">
-          "Qurban günü Adəm övladının etdiyi əmələrin Allaha ən sevimli olanı qan axıtmaqdır (qurban kəsməkdir)."
-        </p>
-        <p className="text-[10px] mt-1 font-semibold" style={{ color: 'rgba(27,94,32,0.5)' }}>
-          Tirmizi, İbn Macə
-        </p>
-      </div>
+      <div className="text-4xl font-serif leading-none mb-2" style={{ color: 'rgba(255,255,255,0.25)' }}>"</div>
+      <p className="text-[15px] font-bold leading-snug italic mb-3" style={{ color: '#fff' }}>
+        Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+      </p>
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 10 }} />
+      <p className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.55)' }}>
+        Hədis · Buxari, Muslim
+      </p>
     </div>
   );
 }
