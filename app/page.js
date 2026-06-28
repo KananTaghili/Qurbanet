@@ -368,7 +368,7 @@ export default function HomePage() {
                 </Link>
                 <Link href="/charity"
                   className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white hover:opacity-90 active:scale-95 transition-all"
-                  style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "rgba(40,35,30,0.75)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(8px)" }}>
+                  style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.28)", backdropFilter: "blur(8px)" }}>
                   Ətraflı məlumat
                 </Link>
               </div>
