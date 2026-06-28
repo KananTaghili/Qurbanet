@@ -56,7 +56,7 @@ export default function Sidebar() {
       "
     >
       {/* ── Logo ── */}
-      <div className="px-3 lg:px-4 pt-4 lg:pt-5 pb-3 lg:pb-4 flex-shrink-0">
+      <div className="px-3 lg:px-4 pb-3 lg:pb-4 flex-shrink-0" style={{ paddingTop: 'calc(1rem + 5px)' }}>
         <Link href="/qurban" className="flex items-center justify-center no-underline">
           <Image
             src="/mb_logo_bottom_slogan.png"

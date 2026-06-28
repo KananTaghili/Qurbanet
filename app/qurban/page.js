@@ -135,6 +135,7 @@ export default function QurbanPage() {
       {/* Mobile list */}
       <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-4">
         <HeroBanner router={router} isMobile />
+        <HadithCard />
         <div className="flex flex-col flex-1 gap-2.5 xs:gap-3 sm:gap-4 mt-3">
           {loading ? (
             <Spinner />
@@ -169,6 +170,7 @@ export default function QurbanPage() {
         style={{ paddingTop: 14, paddingLeft: 28, paddingRight: 28 }}
       >
         <HeroBanner router={router} />
+        <HadithCard />
         <div>
           <h3 className="text-base font-extrabold text-text-primary mb-0.5">Qurbanlığınızı Seçin</h3>
           <p className="text-xs text-text-muted mb-2">Qurbanlıq heyvan növünü seçərək sifarişinizi tamamlayın</p>
@@ -268,6 +270,42 @@ function EmptyState({ lang }) {
           <Image src="/qoyun_big.png" alt="heyvan yoxdur" width={280} height={280} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         <p style={{ position: 'absolute', bottom: 24, left: 0, right: 0, margin: 0 }} className="text-sm font-bold text-text-secondary">Heyvan təyin edilməyib</p>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────────────────────────────
+   Hadith Card
+   ─────────────────────────────────────────────── */
+function HadithCard() {
+  return (
+    <div
+      className="rounded-2xl mt-2.5 mb-1 px-4 py-3 flex items-start gap-3"
+      style={{
+        background: 'linear-gradient(135deg, #e9f5ea 0%, #f0f9f0 100%)',
+        border: '1px solid rgba(27,94,32,0.15)',
+      }}
+    >
+      <div
+        className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-base"
+        style={{ background: 'rgba(27,94,32,0.12)' }}
+      >
+        🕌
+      </div>
+      <div className="min-w-0 flex-1">
+        <p
+          className="text-sm font-bold leading-relaxed mb-1"
+          style={{ color: '#1c5e20', direction: 'rtl', fontFamily: 'serif' }}
+        >
+          «مَا عَمِلَ ابْنُ آدَمَ يَوْمَ النَّحْرِ عَمَلاً أَحَبَّ إِلَى اللَّهِ مِنْ إِهْرَاقَةِ دَمٍ»
+        </p>
+        <p className="text-[11px] text-[#3a6b3e] leading-snug">
+          "Qurban günü Adəm övladının etdiyi əmələrin Allaha ən sevimli olanı qan axıtmaqdır (qurban kəsməkdir)."
+        </p>
+        <p className="text-[10px] mt-1 font-semibold" style={{ color: 'rgba(27,94,32,0.5)' }}>
+          Tirmizi, İbn Macə
+        </p>
       </div>
     </div>
   );
