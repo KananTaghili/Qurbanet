@@ -128,7 +128,7 @@ function LoginPageInner() {
       </div>
 
       {/* Mobile-only back to home */}
-      <Link href="/" className="lg:hidden" style={{ position: "absolute", top: 16, left: 16, zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", backdropFilter: "blur(4px)" }}>
+      <Link href="/" className="flex lg:hidden" style={{ position: "absolute", top: 16, left: 16, zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", alignItems: "center", justifyContent: "center", color: "#fff", backdropFilter: "blur(4px)" }}>
         <ArrowLeft size={18} />
       </Link>
 
