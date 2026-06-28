@@ -6,29 +6,29 @@ import { NotificationProvider } from "../context/NotificationContext";
 import ClientShell from "../components/ClientShell";
 import VersionChecker from "../components/VersionChecker";
 
-const BASE_URL = "https://qurbanet.az";
+const BASE_URL = "https://meatbox.az";
 
 export const metadata = {
   metadataBase: new URL(BASE_URL),
-  title: "QurbanEt — Etibarli · Halal · Sürətli",
+  title: "MeatBox",
   description:
-    "QurbanEt ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət. Azərbaycanda qurban kəsim platforması.",
-  keywords: ["qurban", "qurbanet", "qurban kes", "halal", "azerbaycan"],
-  icons: { icon: "/logo_test.png", apple: "/logo_test.png" },
+    "MeatBox ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət. Azərbaycanda qurban kəsim platforması.",
+  keywords: ["qurban", "meatbox", "qurban kes", "halal", "azerbaycan", "et"],
+  icons: { icon: "/meatbox_icon.png", apple: "/meatbox_icon.png" },
   openGraph: {
     type: "website",
     url: BASE_URL,
-    siteName: "QurbanEt",
-    title: "QurbanEt — Etibarli · Halal · Sürətli",
+    siteName: "MeatBox",
+    title: "MeatBox",
     description:
-      "QurbanEt ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət. Azərbaycanda qurban kəsim platforması.",
+      "MeatBox ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət. Azərbaycanda qurban kəsim platforması.",
     locale: "az_AZ",
   },
   twitter: {
     card: "summary_large_image",
-    title: "QurbanEt — Etibarli · Halal · Sürətli",
+    title: "MeatBox",
     description:
-      "QurbanEt ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət.",
+      "MeatBox ilə qurbanınızı onlayn sifariş edin. Etibarlı, halal və sürətli xidmət.",
   },
 };
 
