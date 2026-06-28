@@ -377,7 +377,7 @@ export default function DistributionPage() {
             type="button"
             onClick={() => !isDisabled && setSelectedKey(key)}
             disabled={isDisabled}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 w-full text-left transition-all ${
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border-2 w-full text-left transition-all ${
               isDisabled
                 ? "border-border/50 bg-gray-50 cursor-not-allowed opacity-75"
                 : isSelected
@@ -386,23 +386,21 @@ export default function DistributionPage() {
             }`}
           >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
               style={{ background: isDisabled ? "#f3f4f6" : meta.light }}
             >
               <meta.Icon
-                className="w-5 h-5"
+                className="w-3.5 h-3.5"
                 style={{ color: isDisabled ? "#d1d5db" : meta.color }}
               />
             </div>
-            <div className="flex-1 min-w-0">
-              <div
-                className={`text-sm font-bold ${isDisabled ? "text-text-muted" : "text-text-primary"}`}
-              >
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+              <div className="text-[10px] font-bold text-text-primary truncate">
                 {distLabel(key, data)}
               </div>
               <div
-                className={`text-xs font-semibold mt-0.5 ${isDisabled ? "text-text-muted" : ""}`}
-                style={{ color: isDisabled ? undefined : meta.color }}
+                className="text-[9px] font-semibold"
+                style={{ color: isDisabled ? "#9ca3af" : meta.color }}
               >
                 {isDisabled
                   ? t(lang, "deactivated")
@@ -421,7 +419,7 @@ export default function DistributionPage() {
               }`}
             >
               {isSelected && !isDisabled && (
-                <div className="w-2 h-2 rounded-full bg-white" />
+                <div className="w-1 h-1 rounded-full bg-white" />
               )}
             </div>
           </button>
