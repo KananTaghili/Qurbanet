@@ -65,8 +65,8 @@ function InnerLayout({ children }) {
         {/* ── Desktop Sidebar ── */}
         <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden relative" style={{ backgroundColor: GREEN }}>
           {/* Back button — absolute at top, overlays logo */}
-          <Link href="/" className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-bold hover:opacity-90 active:scale-[.98] transition-all"
-            style={{ color:"#fff", background:"#e02020", borderRadius:"0 0 10px 10px", letterSpacing:"0.02em" }}>
+          <Link href="/" className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 text-[11px] font-bold hover:opacity-90 active:scale-[.98] transition-all"
+            style={{ color:"#fff", background:"#e02020", borderRadius:"0 0 10px 10px", letterSpacing:"0.02em", height: 30 }}>
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
             MeatBox Xidmətlərinə Keç
           </Link>
