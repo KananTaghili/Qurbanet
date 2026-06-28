@@ -29,7 +29,7 @@ export default function StepHeader({ currentStep }) {
         <button
           onClick={() => router.push(backTo)}
           className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all hover:opacity-85 active:scale-95 shrink-0"
-          style={{ background: '#1c5e20', color: '#fff', border: 'none' }}
+          style={{ background: '#1c5e20', color: '#fff', border: 'none', marginBottom: 5 }}
         >
           <ArrowLeft size={12} strokeWidth={2.5} />
           Geri Qayıt
