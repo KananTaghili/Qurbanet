@@ -1882,7 +1882,7 @@ function HomeContent() {
           />
           <div className="lg:hidden relative min-h-[180px]">
             <img
-              src="/xeyriye_bg_image.png"
+              src="/kollektiv_mobile_image.png"
               alt="Xeyriyyə"
               className="absolute inset-0 w-full h-full object-cover object-center rounded-xl"
             />
@@ -1929,7 +1929,7 @@ function HomeContent() {
             </div>
             <div className="relative min-h-[130px]">
               <img
-                src="/charity-hero.png"
+                src="/kollektiv_web_pc_image.png"
                 alt="Xeyriyyə"
                 className="absolute inset-0 w-full h-full object-cover object-center rounded-r-2xl"
               />
