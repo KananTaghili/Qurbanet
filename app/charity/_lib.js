@@ -87,7 +87,7 @@ export function mapMyCampaign(c) {
     createdAtRaw: c.createdAt || null,
     organizer: c.iAmOpener ? "Siz açmısınız" : "Siz iştirak etmisiniz",
     participants: c.participantCount || 1,
-    img, videoUrl: video?.url || null, media: c.media || [], iAmOpener: !!c.iAmOpener,
+    img, videoUrl: video?.url || null, media: c.media || [], adminNote: c.adminNote || null, iAmOpener: !!c.iAmOpener,
     weightRange: c.animal?.weightRange || "",
     donations: c.donations || [],
   };
@@ -107,7 +107,7 @@ export function mapCompletedCampaign(c) {
     status: "Tamamlandı",
     organizer: c.opener?.isAnonymous ? "Anonim" : ([c.opener?.name, c.opener?.lastName].filter(Boolean).join(" ") || "—"),
     participants: c.participantCount || 0,
-    img, videoUrl: video?.url || null, media: c.media || [],
+    img, videoUrl: video?.url || null, media: c.media || [], adminNote: c.adminNote || null,
     weightRange: c.animal?.weightRange || "",
     donations: c.donations || [],
   };

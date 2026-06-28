@@ -2,13 +2,14 @@
 import { useState } from "react";
 import {
   ArrowLeft, CalendarDays, Coins, Users, Share2, Video,
-  CheckCircle, X, ChevronDown, Heart,
+  CheckCircle, X, ChevronDown, Heart, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { fmtDate, fmtTime, avatarColor, initials, STATUS_CFG } from "./_lib";
 
 export default function IaneDetailPage({ item, onBack, onDonate }) {
   const [showAll, setShowAll]     = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [mediaIdx, setMediaIdx]   = useState(0);
   const [copied, setCopied]       = useState(false);
 
   const handleShare = async () => {
@@ -120,7 +121,7 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                       <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700">Açılış tamamlanıb</span>
                     </div>
                     <div className="flex flex-col gap-2 flex-1 xl:w-full">
-                      <button onClick={(e) => { e.stopPropagation(); setShowVideo(true); }}
+                      <button onClick={(e) => { e.stopPropagation(); setMediaIdx(0); setShowVideo(true); }}
                         className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#4b14bd] py-2 text-[12px] font-extrabold text-white hover:bg-[#3d0aa8] transition">
                         <Video size={14} /> Kəsim videosu
                       </button>
@@ -281,28 +282,60 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
                 <X size={18} />
               </button>
             </div>
-            {(item.media?.length > 0) ? (
-              <div className="flex flex-col gap-0">
-                {item.media.map((m, i) =>
-                  m.type === "video" ? (
-                    <div key={i} className="aspect-video bg-black">
-                      <video src={m.url} controls autoPlay={i === 0} playsInline className="h-full w-full" style={{ display: "block" }}>
-                        <source src={m.url} type="video/mp4" />
-                      </video>
+            {(item.media?.length > 0) ? (() => {
+              const media = item.media;
+              const cur = media[mediaIdx] || media[0];
+              const total = media.length;
+              const prev = () => setMediaIdx(i => (i - 1 + total) % total);
+              const next = () => setMediaIdx(i => (i + 1) % total);
+              return (
+                <div className="relative bg-black">
+                  {cur.type === "video" ? (
+                    <div className="aspect-video">
+                      <video key={cur.url} src={cur.url} controls autoPlay playsInline className="h-full w-full" style={{ display: "block" }} />
                     </div>
                   ) : (
-                    <img key={i} src={m.url} alt={`Kəsim ${i + 1}`} className="w-full object-cover max-h-72" />
-                  )
-                )}
-              </div>
-            ) : (
-              <div className="aspect-video bg-[#080514] flex flex-col items-center justify-center gap-4">
+                    <div className="flex items-center justify-center" style={{ minHeight: 220 }}>
+                      <img src={cur.url} alt={`Media ${mediaIdx + 1}`} className="w-full object-contain max-h-72" />
+                    </div>
+                  )}
+                  {total > 1 && (
+                    <>
+                      <button onClick={prev}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 transition">
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button onClick={next}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 transition">
+                        <ChevronRight size={20} />
+                      </button>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                        {media.map((_, i) => (
+                          <button key={i} onClick={() => setMediaIdx(i)}
+                            className={`h-1.5 rounded-full transition-all ${i === mediaIdx ? "w-4 bg-white" : "w-1.5 bg-white/40"}`} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })() : (
+              <div className="aspect-video bg-[#080514] flex flex-col items-center justify-center gap-4 px-6">
                 <div className="grid h-16 w-16 place-items-center rounded-full bg-white/5">
                   <Video size={32} className="text-white/20" />
                 </div>
                 <div className="text-center">
-                  <div className="text-[14px] font-bold text-white/40">Media hələ yüklənməyib</div>
-                  <div className="mt-1 text-[12px] text-white/25">Kəsim tamamlandıqdan sonra əlavə ediləcək</div>
+                  {item.adminNote ? (
+                    <>
+                      <div className="text-[14px] font-bold text-white/80">{item.adminNote}</div>
+                      <div className="mt-1 text-[12px] text-white/30">Kəsim mediaları hazırlanır</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-[14px] font-bold text-white/40">Media hələ yüklənməyib</div>
+                      <div className="mt-1 text-[12px] text-white/25">Kəsim tamamlandıqdan sonra əlavə ediləcək</div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
