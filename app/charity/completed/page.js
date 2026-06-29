@@ -167,10 +167,10 @@ function TamamlanmisPageInner() {
                       className="flex flex-1 h-[32px] items-center justify-center gap-1.5 rounded-xl bg-[#4b14bd] text-[11px] font-bold text-white">
                       <Users size={12} /> İştirakçılar
                     </button>
-                    {item.videoUrl && (
+                    {(item.videoUrl || item.adminNote) && (
                       <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
                         className="flex flex-1 h-[32px] items-center justify-center gap-1.5 rounded-xl bg-emerald-600 text-[11px] font-bold text-white">
-                        <Video size={12} /> Video
+                        <Video size={12} /> {item.videoUrl ? "Video" : "Qeyd"}
                       </button>
                     )}
                     <button onClick={(e) => handleShare(e, item)}
@@ -222,10 +222,10 @@ function TamamlanmisPageInner() {
                       className="flex h-[34px] w-full items-center justify-center gap-2 rounded-[8px] bg-[#4b14bd] text-[12px] font-bold text-white transition hover:bg-[#3d0aa8]">
                       <Users size={15} />İştirakçılara bax
                     </button>
-                    {item.videoUrl && (
+                    {(item.videoUrl || item.adminNote) && (
                       <button onClick={(e) => { e.stopPropagation(); setVideoTarget(item); }}
                         className="flex h-[34px] w-full items-center justify-center gap-2 rounded-[8px] bg-emerald-600 text-[12px] font-bold text-white transition hover:bg-emerald-700">
-                        <Video size={14} />Kəsim Videosu
+                        <Video size={14} />{item.videoUrl ? "Kəsim Videosu" : "Admin Qeydi"}
                       </button>
                     )}
                     <button onClick={(e) => handleShare(e, item)}
@@ -263,23 +263,57 @@ function TamamlanmisPageInner() {
               </button>
             </div>
             <div className="flex flex-col gap-0">
-              {(videoTarget.media?.length > 0) ? videoTarget.media.map((m, i) =>
-                m.type === "video" ? (
-                  <div key={i} className="relative bg-black aspect-video">
-                    <video controls autoPlay={i === 0} className="h-full w-full" style={{ display: "block" }}>
-                      <source src={m.url} type="video/mp4" />
+              {(videoTarget.media?.length > 0) ? (
+                <>
+                  {videoTarget.media.map((m, i) =>
+                    m.type === "video" ? (
+                      <div key={i} className="relative bg-black aspect-video">
+                        <video controls autoPlay={i === 0} className="h-full w-full" style={{ display: "block" }}>
+                          <source src={m.url} type="video/mp4" />
+                        </video>
+                      </div>
+                    ) : (
+                      <img key={i} src={m.url} alt={`Kəsim ${i + 1}`} className="w-full object-cover max-h-72" />
+                    )
+                  )}
+                  {videoTarget.adminNote && (
+                    <div className="px-5 py-4 border-t border-[#e7e1f0] bg-amber-50 flex gap-3">
+                      <div className="mt-0.5 shrink-0 text-amber-500">📋</div>
+                      <div>
+                        <div className="text-[11px] font-bold text-amber-600 mb-1">Admin Qeydi</div>
+                        <p className="text-[13px] text-amber-900 leading-relaxed">{videoTarget.adminNote}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : videoTarget.videoUrl ? (
+                <>
+                  <div className="relative bg-black aspect-video">
+                    <video controls autoPlay className="h-full w-full" poster={videoTarget.img} style={{ display: "block" }}>
+                      <source src={videoTarget.videoUrl} type="video/mp4" />
                     </video>
                   </div>
-                ) : (
-                  <img key={i} src={m.url} alt={`Kəsim ${i + 1}`} className="w-full object-cover max-h-72" />
-                )
-              ) : (
-                <div className="relative bg-black aspect-video">
-                  <video controls autoPlay className="h-full w-full" poster={videoTarget.img} style={{ display: "block" }}>
-                    <source src={videoTarget.videoUrl || ""} type="video/mp4" />
-                  </video>
+                  {videoTarget.adminNote && (
+                    <div className="px-5 py-4 border-t border-[#e7e1f0] bg-amber-50 flex gap-3">
+                      <div className="mt-0.5 shrink-0 text-amber-500">📋</div>
+                      <div>
+                        <div className="text-[11px] font-bold text-amber-600 mb-1">Admin Qeydi</div>
+                        <p className="text-[13px] text-amber-900 leading-relaxed">{videoTarget.adminNote}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : videoTarget.adminNote ? (
+                <div className="px-6 py-8 flex flex-col items-center gap-4 bg-amber-50">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-amber-100">
+                    <span className="text-2xl">📋</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[13px] font-bold text-amber-700 mb-2">Admin Qeydi</div>
+                    <p className="text-[14px] text-amber-900 leading-relaxed max-w-sm">{videoTarget.adminNote}</p>
+                  </div>
                 </div>
-              )}
+              ) : null}
             </div>
             <div className="flex items-center justify-between gap-4 border-t border-[#e7e1f0] bg-[#fbfaff] px-5 py-3">
               <div className="flex items-center gap-2.5 text-[12px] font-semibold text-[#6e5b9b]">
