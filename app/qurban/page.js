@@ -213,8 +213,8 @@ export default function QurbanPage() {
       >
         <HeroBanner router={router} />
         <div>
-          <h3 className="text-base font-extrabold text-text-primary mb-0.5">QurbanlД±ДџД±nД±zД± SeГ§in</h3>
-          <p className="text-xs text-text-muted mb-2">QurbanlД±q heyvan nГ¶vГјnГј seГ§Й™rЙ™k sifariЕџinizi tamamlayД±n</p>
+          <h3 className="text-base font-extrabold text-text-primary mb-0.5">Qurbanlığınızı Seçin</h3>
+          <p className="text-xs text-text-muted mb-2">Qurbanlıq heyvan növünü seçərək sifarişinizi tamamlayın</p>
           {loading ? (
             <Spinner />
           ) : animals.length === 0 ? (
@@ -310,7 +310,7 @@ function LoadingSplash() {
     <div className="flex-1 flex items-center justify-center min-h-screen bg-bg px-4">
       <div className="flex flex-col items-center gap-3 md:gap-4">
         <Loader2 size={44} color={BRAND} strokeWidth={2} className="animate-spin md:w-12 md:h-12" />
-        <div className="text-sm md:text-[15px] font-semibold text-text-secondary">YГјklЙ™nir...</div>
+        <div className="text-sm md:text-[15px] font-semibold text-text-secondary">Yüklənir...</div>
       </div>
     </div>
   );
@@ -323,7 +323,7 @@ function EmptyState({ lang }) {
         <div style={{ width: '100%', height: '100%', opacity: 0.55, filter: 'grayscale(100%)' }}>
           <Image src="/qoyun_big.png" alt="heyvan yoxdur" width={280} height={280} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        <p style={{ position: 'absolute', bottom: 24, left: 0, right: 0, margin: 0 }} className="text-sm font-bold text-text-secondary">Heyvan tЙ™yin edilmЙ™yib</p>
+        <p style={{ position: 'absolute', bottom: 24, left: 0, right: 0, margin: 0 }} className="text-sm font-bold text-text-secondary">Heyvan təyin edilməyib</p>
       </div>
     </div>
   );
