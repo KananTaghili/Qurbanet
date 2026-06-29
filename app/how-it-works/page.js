@@ -70,7 +70,7 @@ function useFadeUp() {
 }
 
 // ── Single step card ──────────────────────────────────────────────────────────
-function StepCard({ step, cfg, idx, reverse }) {
+function StepCard({ step, cfg, idx }) {
   const ref = useFadeUp();
   const num = String(idx + 1).padStart(2, "0");
 
@@ -84,12 +84,12 @@ function StepCard({ step, cfg, idx, reverse }) {
         background: "#fff",
       }}
     >
-      {/* ── Photo panel ── */}
+      {/* ── Photo panel — always left ── */}
       <div
-        className={`relative shrink-0 flex items-center justify-center bg-white ${reverse ? "md:order-2" : ""}`}
+        className="relative shrink-0 flex items-center justify-center bg-white"
         style={{ flex: "0 0 38%", minHeight: 200 }}
       >
-        {/* Step badge */}
+        {/* Step badge — always top-left of photo */}
         <span
           className="absolute top-3 left-3 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
           style={{ background: cfg.light, color: cfg.color }}
@@ -97,20 +97,20 @@ function StepCard({ step, cfg, idx, reverse }) {
           {step.label}
         </span>
 
-        {/* Photo */}
-        <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 200 }}>
+        {/* Photo with rounded corners */}
+        <div style={{ position: "relative", width: "calc(100% - 24px)", height: "calc(100% - 24px)", minHeight: 176, borderRadius: 16, overflow: "hidden" }}>
           <Image
             src={cfg.img}
             alt={step.title}
             fill
-            style={{ objectFit: "contain", padding: "20px", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.12))" }}
+            style={{ objectFit: "contain", padding: "12px", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.10))" }}
           />
         </div>
       </div>
 
       {/* ── Content panel ── */}
       <div
-        className={`flex flex-col justify-center px-5 py-5 flex-1 ${reverse ? "md:order-1" : ""}`}
+        className="flex flex-col justify-center px-5 py-5 flex-1"
         style={{ borderLeft: `3px solid ${cfg.light}` }}
       >
         {/* Step number + title */}
@@ -234,7 +234,6 @@ export default function HowItWorksPage() {
                 step={step}
                 cfg={STEP_CFG[i]}
                 idx={i}
-                reverse={i % 2 === 1}
               />
 
               {/* Connector between steps */}
