@@ -214,7 +214,7 @@ function HeroBanner({ router, isMobile }) {
       <img
         src="/qurban%20sifari%C5%9Fi%20(3).png"
         alt="Qurbanlıq heyvanlar"
-        className="absolute inset-y-0 right-0 h-full w-[58%] object-cover object-left hidden lg:block"
+        className="absolute inset-y-0 right-0 h-full w-[65%] object-cover object-center hidden lg:block"
       />
       {/* Mobile image */}
       <img
@@ -223,7 +223,7 @@ function HeroBanner({ router, isMobile }) {
         className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
       />
       {/* Desktop gradient */}
-      <div className="absolute inset-0 hidden lg:block" style={{ background: "linear-gradient(to right, #edf5ef 0%, #edf5ef 42%, rgba(237,245,239,0.85) 55%, rgba(237,245,239,0.3) 70%, transparent 85%)" }} />
+      <div className="absolute inset-0 hidden lg:block" style={{ background: "linear-gradient(to right, #edf5ef 0%, #edf5ef 35%, rgba(237,245,239,0.92) 47%, rgba(237,245,239,0.55) 60%, rgba(237,245,239,0.08) 80%, transparent 100%)" }} />
       {/* Mobile gradient */}
       <div className="absolute inset-0 block lg:hidden" style={{ background: "linear-gradient(to right, #edf5ef 35%, rgba(237,245,239,0.9) 50%, transparent 70%)" }} />
       <div className={`relative z-10 ${isMobile ? "max-w-[60%]" : "max-w-lg"}`}>
