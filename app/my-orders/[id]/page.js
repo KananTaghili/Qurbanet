@@ -345,7 +345,7 @@ export default function OrderDetailPage() {
       <div className="flex-1 overflow-y-auto pb-10">
 
         {/* ── HERO ROW: back button left + card right ── */}
-        <div className="flex items-start gap-3 px-4 pt-4">
+        <div className="max-w-3xl mx-auto flex items-start gap-3 px-4 pt-4">
           <button
             onClick={() => router.push('/my-orders')}
             className="shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
