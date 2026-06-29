@@ -257,11 +257,11 @@ export default function QurbanPage() {
 function HeroBanner({ router, isMobile }) {
   return (
     <section className={`relative overflow-hidden rounded-2xl bg-[#e9f1eb] shadow-sm ${isMobile ? "px-4 py-3.5" : "px-5 py-3.5 lg:px-6 lg:py-4"}`}>
-      {/* Desktop image */}
+      {/* Desktop image — covers full card, gradient blends from left */}
       <img
         src="/qurban%20sifari%C5%9Fi%20(3).png"
         alt="Qurbanliq heyvanlar"
-        className="absolute bottom-0 right-0 hidden lg:block" style={{ height: "135%", width: "auto" }}
+        className="absolute inset-0 w-full h-full object-cover object-right hidden lg:block"
       />
       {/* Mobile image */}
       <img
@@ -269,10 +269,10 @@ function HeroBanner({ router, isMobile }) {
         alt="Qurbanlıq heyvanlar"
         className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
       />
-      {/* Desktop gradient */}
-      <div className="absolute inset-0 hidden lg:block" style={{ background: "linear-gradient(to right, #e9f1eb 0%, #e9f1eb 25%, rgba(233,241,235,0.97) 35%, rgba(233,241,235,0.88) 45%, rgba(233,241,235,0.68) 55%, rgba(233,241,235,0.42) 65%, rgba(233,241,235,0.18) 75%, rgba(233,241,235,0.04) 88%, transparent 100%)" }} />
+      {/* Desktop gradient — card color left → transparent right */}
+      <div className="absolute inset-0 hidden lg:block" style={{ background: "linear-gradient(to right, #e9f1eb 0%, #e9f1eb 30%, rgba(233,241,235,0.95) 42%, rgba(233,241,235,0.75) 52%, rgba(233,241,235,0.4) 63%, rgba(233,241,235,0.1) 76%, transparent 90%)" }} />
       {/* Mobile gradient */}
-      <div className="absolute inset-0 block lg:hidden" style={{ background: "linear-gradient(to right, #edf5ef 35%, rgba(237,245,239,0.9) 50%, transparent 70%)" }} />
+      <div className="absolute inset-0 block lg:hidden" style={{ background: "linear-gradient(to right, #e9f1eb 35%, rgba(233,241,235,0.9) 50%, transparent 70%)" }} />
       <div className={`relative z-10 ${isMobile ? "max-w-[60%]" : "max-w-lg"}`}>
         <h2 className={`font-extrabold leading-tight text-[#082d15] mb-1.5 ${isMobile ? "text-lg" : "text-xl lg:text-2xl"}`}>
           Süfrəniz bərəkətli,
