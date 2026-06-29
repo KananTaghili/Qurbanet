@@ -80,69 +80,54 @@ function StepCard({ step, cfg, idx, reverse }) {
       className="hiw-card flex flex-col md:flex-row overflow-hidden rounded-3xl shadow-md"
       style={{
         animationDelay: `${idx * 0.1}s`,
-        border: `1.5px solid ${cfg.light}`,
+        border: `2px solid ${cfg.light}`,
         background: "#fff",
       }}
     >
-      {/* ── Visual panel ── */}
+      {/* ── Photo panel ── */}
       <div
-        className={`relative flex items-center justify-center shrink-0 ${reverse ? "md:order-2" : ""}`}
-        style={{
-          width: "100%",
-          minHeight: 175,
-          background: `linear-gradient(135deg, ${cfg.gFrom} 0%, ${cfg.gTo} 100%)`,
-          flex: "0 0 38%",
-        }}
+        className={`relative shrink-0 flex items-center justify-center bg-white ${reverse ? "md:order-2" : ""}`}
+        style={{ flex: "0 0 38%", minHeight: 200 }}
       >
-        {/* Large decorative number */}
-        <span
-          className="absolute font-black select-none z-20"
-          style={{
-            fontSize: "clamp(60px, 10vw, 110px)",
-            color: "rgba(255,255,255,0.08)",
-            lineHeight: 1,
-            bottom: -8,
-            right: 8,
-            letterSpacing: "-4px",
-          }}
-        >
-          {num}
-        </span>
-
         {/* Step badge */}
         <span
-          className="absolute top-3 left-3 z-20 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white/90"
-          style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(4px)" }}
+          className="absolute top-3 left-3 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+          style={{ background: cfg.light, color: cfg.color }}
         >
           {step.label}
         </span>
 
-        {/* Step photo — fills the whole panel */}
-        <div className="absolute inset-0 z-10">
+        {/* Photo */}
+        <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 200 }}>
           <Image
             src={cfg.img}
             alt={step.title}
             fill
-            style={{ objectFit: "contain", padding: "18px", filter: "drop-shadow(0 6px 22px rgba(0,0,0,0.38))" }}
+            style={{ objectFit: "contain", padding: "20px", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.12))" }}
           />
         </div>
       </div>
 
       {/* ── Content panel ── */}
-      <div className={`flex flex-col justify-center px-5 py-5 flex-1 ${reverse ? "md:order-1" : ""}`}>
-        {/* Step title */}
-        <h2
-          className="text-[17px] font-extrabold mb-2 leading-tight"
-          style={{ color: cfg.color }}
-        >
-          {step.title}
-        </h2>
+      <div
+        className={`flex flex-col justify-center px-5 py-5 flex-1 ${reverse ? "md:order-1" : ""}`}
+        style={{ borderLeft: `3px solid ${cfg.light}` }}
+      >
+        {/* Step number + title */}
+        <div className="flex items-center gap-2 mb-2">
+          <span
+            className="text-[11px] font-black tabular-nums"
+            style={{ color: cfg.mid }}
+          >
+            {num}
+          </span>
+          <h2 className="text-[17px] font-extrabold leading-tight" style={{ color: cfg.color }}>
+            {step.title}
+          </h2>
+        </div>
 
         {/* Accent line */}
-        <div
-          className="mb-3 rounded-full"
-          style={{ width: 30, height: 2.5, background: cfg.mid }}
-        />
+        <div className="mb-3 rounded-full" style={{ width: 30, height: 2.5, background: cfg.mid }} />
 
         {/* Description */}
         <p className="text-[13px] leading-relaxed text-slate-500 mb-3.5">
