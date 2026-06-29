@@ -201,17 +201,15 @@ export default function HomePage() {
   const [glowCard, setGlowCard] = useState(-1);
 
   useEffect(() => {
-    let step = 0;
-    let intervalId = null;
-    const tick = () => {
-      setGlowCard(step < 3 ? step : -1);
-      step = (step + 1) % 4;
+    const ids = [];
+    const runSequence = () => {
+      ids.push(setTimeout(() => setGlowCard(0),   0));
+      ids.push(setTimeout(() => setGlowCard(1), 300));
+      ids.push(setTimeout(() => setGlowCard(2), 600));
+      ids.push(setTimeout(() => { setGlowCard(-1); ids.push(setTimeout(runSequence, 19100)); }, 900));
     };
-    const startId = setTimeout(() => {
-      tick();
-      intervalId = setInterval(tick, 500);
-    }, 1000);
-    return () => { clearTimeout(startId); if (intervalId) clearInterval(intervalId); };
+    ids.push(setTimeout(runSequence, 1000));
+    return () => ids.forEach(clearTimeout);
   }, []);
 
   const nav = [
