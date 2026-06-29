@@ -77,11 +77,12 @@ const colorMap = {
   orange:  { text: "text-[#c85a13]", border: "border-[#c85a13]/25", bg: "bg-[#c85a13]" },
 };
 
-function ServiceCard({ item, idx = 0, onPlay, highlighted = false }) {
+function ServiceCard({ item, idx = 0, onPlay, highlighted = false, onMouseEnter, onMouseLeave }) {
   const { text, border, bg } = colorMap[item.color];
   const Icon = item.Icon;
   return (
-    <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
+    <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       <div
         className="card-hover-root relative"
         style={{
@@ -199,18 +200,41 @@ export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
   const [glowCard, setGlowCard] = useState(-1);
+  const [hoveredCard, setHoveredCard] = useState(-1);
+  const pausedRef = useRef(false);
+  const seqIdsRef = useRef([]);
+  const runSeqRef = useRef(null);
+  const resumeTimerRef = useRef(null);
 
   useEffect(() => {
-    const ids = [];
+    const clearSeq = () => { seqIdsRef.current.forEach(clearTimeout); seqIdsRef.current = []; };
+    const schedule = (fn, delay) => { const id = setTimeout(fn, delay); seqIdsRef.current.push(id); };
     const runSequence = () => {
-      ids.push(setTimeout(() => setGlowCard(0),   0));
-      ids.push(setTimeout(() => setGlowCard(1), 300));
-      ids.push(setTimeout(() => setGlowCard(2), 600));
-      ids.push(setTimeout(() => { setGlowCard(-1); ids.push(setTimeout(runSequence, 19100)); }, 900));
+      if (pausedRef.current) return;
+      schedule(() => setGlowCard(0),   0);
+      schedule(() => setGlowCard(1), 300);
+      schedule(() => setGlowCard(2), 600);
+      schedule(() => { setGlowCard(-1); schedule(runSequence, 9100); }, 900);
     };
-    ids.push(setTimeout(runSequence, 2000));
-    return () => ids.forEach(clearTimeout);
+    runSeqRef.current = runSequence;
+    schedule(runSequence, 2000);
+    return clearSeq;
   }, []);
+
+  const handleCardEnter = (idx) => {
+    setHoveredCard(idx);
+    pausedRef.current = true;
+    seqIdsRef.current.forEach(clearTimeout);
+    seqIdsRef.current = [];
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    setGlowCard(-1);
+  };
+
+  const handleCardLeave = () => {
+    setHoveredCard(-1);
+    pausedRef.current = false;
+    resumeTimerRef.current = setTimeout(() => { if (runSeqRef.current) runSeqRef.current(); }, 10000);
+  };
 
   const nav = [
     { label: "Haqqımızda", to: "/about" },
@@ -419,7 +443,14 @@ export default function HomePage() {
         <section className="bg-[#fbf7f2] px-6 pb-8 pt-0 md:px-12">
           {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
           <div className="grid gap-4 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
-            {cards.map((item, idx) => <ServiceCard key={item.title} item={item} idx={idx} onPlay={setActiveVideo} highlighted={glowCard === idx} />)}
+            {cards.map((item, idx) => (
+              <ServiceCard
+                key={item.title} item={item} idx={idx} onPlay={setActiveVideo}
+                highlighted={glowCard === idx || hoveredCard === idx}
+                onMouseEnter={() => handleCardEnter(idx)}
+                onMouseLeave={handleCardLeave}
+              />
+            ))}
           </div>
 
           {/* Why MeatBox */}
