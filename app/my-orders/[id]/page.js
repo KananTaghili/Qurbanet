@@ -344,19 +344,7 @@ export default function OrderDetailPage() {
     <div className="flex flex-col flex-1" style={{ background: '#f4f7f4' }}>
       <div className="flex-1 overflow-y-auto pb-10">
 
-        {/* ── BACK BUTTON — truly far left, outside max-w container ── */}
-        <div className="px-4 pt-4 pb-2">
-          <button
-            onClick={() => router.push('/my-orders')}
-            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
-            style={{ background: BRAND, color: '#fff', border: 'none' }}
-          >
-            <ChevronLeft size={15} strokeWidth={2.5} />
-            Geri Qayıt
-          </button>
-        </div>
-
-        <div className="max-w-3xl mx-auto px-4 pt-0 pb-0 flex flex-col gap-3">
+        <div className="max-w-3xl mx-auto px-4 pt-4 pb-0 flex flex-col gap-3">
 
           {/* ── HERO CARD ── */}
           <div className="relative">
@@ -383,7 +371,16 @@ export default function OrderDetailPage() {
                 </div>
 
                 {/* INFO */}
-                <div className="flex-1 min-w-0 px-5 py-5 flex flex-col justify-center gap-1.5">
+                <div className="flex-1 min-w-0 px-5 py-5 flex flex-col gap-1.5">
+                  {/* Back button inside info panel, top-left */}
+                  <button
+                    onClick={() => router.push('/my-orders')}
+                    className="self-start inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95 mb-1"
+                    style={{ background: BRAND, color: '#fff', border: 'none' }}
+                  >
+                    <ChevronLeft size={15} strokeWidth={2.5} />
+                    Geri Qayıt
+                  </button>
                   <p className="text-[18px] font-black text-[#071b0d] leading-snug">{animalName}</p>
                   <div className="flex items-baseline gap-1.5 flex-wrap">
                     <span className="text-[32px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
