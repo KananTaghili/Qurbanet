@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MeatBox</string>
+    <string name="title_activity_main">MeatBox</string>
+    <string name="package_name">com.meatbox.app</string>
+    <string name="custom_url_scheme">com.meatbox.app</string>
+</resources>

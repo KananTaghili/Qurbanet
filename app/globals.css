@@ -428,7 +428,19 @@ html[dir="rtl"] .topbar-component { padding-left: 28px; padding-right: calc(var(
 }
 .carousel-dot.active { width: 24px; background: var(--primary); }
 
-::-webkit-scrollbar { width: 7px; height: 7px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #c5001e; }
+/* Custom (qırmızı) scrollbar — YALNIZ non-native (desktop/web).
+   Native APK (cap-native) heç bir ::-webkit-scrollbar qaydası almır →
+   WebView öz overlay scrollbar-ını işlədir (scroll edəndə görünür, bitəndə avtomatik gizlənir). */
+html:not(.cap-native)::-webkit-scrollbar,
+html:not(.cap-native) ::-webkit-scrollbar { width: 7px; height: 7px; }
+html:not(.cap-native)::-webkit-scrollbar-track,
+html:not(.cap-native) ::-webkit-scrollbar-track { background: transparent; }
+html:not(.cap-native)::-webkit-scrollbar-thumb,
+html:not(.cap-native) ::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; }
+html:not(.cap-native)::-webkit-scrollbar-thumb:hover,
+html:not(.cap-native) ::-webkit-scrollbar-thumb:hover { background: #c5001e; }
+
+/* Capacitor APK: native scrollbar gizli — yalnız custom qırmızı indikator görünsün */
+html.cap-native ::-webkit-scrollbar,
+html.cap-native *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; background: transparent !important; }
+html.cap-native, html.cap-native * { scrollbar-width: none !important; -ms-overflow-style: none !important; }

@@ -66,8 +66,8 @@ function timeAgo(d) {
 }
 function navPath(n) {
   const d = n.data || {};
-  if (d.orderId)    return `/my-orders/${d.orderId}`;
-  if (d.campaignId) return `/charity-order/${d.campaignId}`;
+  if (d.orderId)    return `/my-orders/detail?id=${d.orderId}`;
+  if (d.campaignId) return `/charity-order/detail?id=${d.campaignId}`;
   return n.module === "charity" ? "/charity" : "/my-orders";
 }
 

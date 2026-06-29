@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import Sidebar from "./Sidebar";
@@ -9,6 +10,45 @@ import Topbar from "./Topbar";
 
 export default function ClientShell({ children }) {
   const pathname = usePathname();
+
+  // Native (Capacitor APK): nazik qırmızı scroll indikatoru.
+  // Native scroll-a TOXUNMUR (smooth qalır) — sadəcə yan tərəfdə bar çəkir,
+  // scroll edəndə görünür, dayananda solur (auto-hide).
+  useEffect(() => {
+    if (!Capacitor?.isNativePlatform?.()) return;
+    document.documentElement.classList.add("cap-native");
+
+    const bar = document.createElement("div");
+    bar.style.cssText =
+      "position:fixed;right:2px;top:0;width:4px;border-radius:999px;" +
+      "background:#f20b32;z-index:99999;opacity:0;pointer-events:none;" +
+      "transition:opacity .35s ease;will-change:transform,height;";
+    document.body.appendChild(bar);
+
+    let hideTimer;
+    const update = () => {
+      const sh = document.documentElement.scrollHeight;
+      const vh = window.innerHeight;
+      const st = window.scrollY || document.documentElement.scrollTop || 0;
+      if (sh <= vh + 4) { bar.style.opacity = "0"; return; }
+      const thumb = Math.max(28, (vh / sh) * vh);
+      const top = (st / (sh - vh)) * (vh - thumb);
+      bar.style.height = thumb + "px";
+      bar.style.transform = "translateY(" + top + "px)";
+      bar.style.opacity = "1";
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => { bar.style.opacity = "0"; }, 700);
+    };
+
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      clearTimeout(hideTimer);
+      bar.remove();
+    };
+  }, []);
   const isLanding = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/charity") || pathname.startsWith("/qurban") || pathname.startsWith("/order") || pathname.startsWith("/my-orders") || pathname.startsWith("/how-it-works") || pathname.startsWith("/qurban-rules") || pathname.startsWith("/settings") || pathname.startsWith("/about") || pathname.startsWith("/services") || pathname.startsWith("/process") || pathname.startsWith("/contact");
   const isHome = false;
   const { isLoading: authLoading } = useAuth();

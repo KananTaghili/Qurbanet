@@ -110,7 +110,7 @@ function OrderCard({ item, lang }) {
   const months    = t(lang, 'months_short');
   const itemId    = item.id || item._id;
   const isCharity = item._type === 'charity';
-  const href      = isCharity ? `/charity-order/${itemId}` : `/my-orders/${itemId}`;
+  const href      = isCharity ? `/charity-order/detail?id=${itemId}` : `/my-orders/detail?id=${itemId}`;
   const status    = item.status || 'placed';
   const cfg       = STATUS_CFG[status] || STATUS_CFG.placed;
   const StatusIcon = cfg.Icon;
