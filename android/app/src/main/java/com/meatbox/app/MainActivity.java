@@ -9,12 +9,16 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Native WebView scrollbar-ı söndür — yalnız custom qırmızı indikator görünsün.
-        // Native scroll (momentum) toxunulmadan qalır → smooth.
         WebView webView = this.getBridge().getWebView();
         if (webView != null) {
+            // Native scrollbar gizli — yalnız custom indikator görünsün
             webView.setVerticalScrollBarEnabled(false);
             webView.setHorizontalScrollBarEnabled(false);
+
+            // Long-press menyusunu / link URL tooltip-ini / mətn seçimini native səviyyədə blokla
+            webView.setOnLongClickListener(v -> true);
+            webView.setLongClickable(false);
+            webView.setHapticFeedbackEnabled(false);
         }
     }
 }

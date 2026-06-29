@@ -444,3 +444,18 @@ html:not(.cap-native) ::-webkit-scrollbar-thumb:hover { background: #c5001e; }
 html.cap-native ::-webkit-scrollbar,
 html.cap-native *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; background: transparent !important; }
 html.cap-native, html.cap-native * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+
+/* Capacitor APK: native hiss — mətn seçilməsin, long-press link tooltip/callout çıxmasın */
+html.cap-native, html.cap-native * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Yalnız input/textarea/editable sahələrdə yazı seçilə bilsin */
+html.cap-native input,
+html.cap-native textarea,
+html.cap-native [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}

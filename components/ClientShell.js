@@ -18,6 +18,22 @@ export default function ClientShell({ children }) {
     if (!Capacitor?.isNativePlatform?.()) return;
     document.documentElement.classList.add("cap-native");
 
+    // Android geri düyməsi: app daxilində geri get; kök ekrandadırsa app-dan çıx
+    let backHandle;
+    import("@capacitor/app").then(({ App }) => {
+      App.addListener("backButton", ({ canGoBack }) => {
+        if (canGoBack || window.history.length > 1) {
+          window.history.back();
+        } else {
+          App.exitApp();
+        }
+      }).then((h) => { backHandle = h; });
+    }).catch(() => {});
+
+    // Long-press menyusu / URL tooltip-i bloklala (native hiss)
+    const onCtx = (e) => e.preventDefault();
+    document.addEventListener("contextmenu", onCtx);
+
     const bar = document.createElement("div");
     bar.style.cssText =
       "position:fixed;right:2px;top:0;width:4px;border-radius:999px;" +
@@ -26,27 +42,67 @@ export default function ClientShell({ children }) {
     document.body.appendChild(bar);
 
     let hideTimer;
-    const update = () => {
-      const sh = document.documentElement.scrollHeight;
-      const vh = window.innerHeight;
-      const st = window.scrollY || document.documentElement.scrollTop || 0;
-      if (sh <= vh + 4) { bar.style.opacity = "0"; return; }
-      const thumb = Math.max(28, (vh / sh) * vh);
-      const top = (st / (sh - vh)) * (vh - thumb);
+
+    // Scroll konteynerinin class adına görə web-dəki thumb rəngi:
+    // charity-scroll → bənövşəyi, qurban/order-scroll → yaşıl, hp-scroll → qırmızı.
+    const COLORS = [
+      ["charity-scroll", "#a78bfa"],
+      ["qurban-scroll",  "#6abf69"],
+      ["order-scroll",   "#6abf69"],
+      ["hp-scroll",      "#f20b32"],
+    ];
+    const thumbColor = (el) => {
+      let node = el;
+      for (let i = 0; node && node.nodeType === 1 && i < 12; i++, node = node.parentElement) {
+        const cn = typeof node.className === "string" ? node.className : "";
+        for (const [k, c] of COLORS) if (cn.indexOf(k) !== -1) return c;
+      }
+      // fallback — route üzrə
+      const p = window.location.pathname || "";
+      if (p.startsWith("/charity")) return "#a78bfa";
+      if (p.startsWith("/qurban") || p.startsWith("/order") || p.startsWith("/my-orders")) return "#6abf69";
+      return "#f20b32";
+    };
+
+    // Scroll edən elementi tap (window və ya daxili konteyner) və ona uyğun bar çək
+    const onScroll = (e) => {
+      const t = e.target;
+      let scrollTop, scrollHeight, clientHeight, areaTop, areaRight, areaH;
+
+      if (t === document || t === document.documentElement || t === document.body) {
+        const se = document.scrollingElement || document.documentElement;
+        scrollTop = se.scrollTop; scrollHeight = se.scrollHeight;
+        clientHeight = window.innerHeight;
+        areaTop = 0; areaRight = window.innerWidth; areaH = window.innerHeight;
+      } else if (t && t.scrollHeight != null) {
+        scrollTop = t.scrollTop; scrollHeight = t.scrollHeight; clientHeight = t.clientHeight;
+        const r = t.getBoundingClientRect();
+        areaTop = r.top; areaRight = r.right; areaH = r.height;
+      } else { return; }
+
+      if (scrollHeight <= clientHeight + 4) { bar.style.opacity = "0"; return; }
+      const thumb = Math.max(28, (clientHeight / scrollHeight) * areaH);
+      const top = areaTop + (scrollTop / (scrollHeight - clientHeight)) * (areaH - thumb);
+      // Rəng web-dəki scrollbar-color ilə eyni (scroll edən konteynerdən oxunur)
+      const probe = (t === document || t === document.documentElement || t === document.body)
+        ? (document.scrollingElement || document.body) : t;
+      bar.style.background = thumbColor(probe);
       bar.style.height = thumb + "px";
+      bar.style.right = Math.max(2, window.innerWidth - areaRight + 2) + "px";
       bar.style.transform = "translateY(" + top + "px)";
       bar.style.opacity = "1";
       clearTimeout(hideTimer);
       hideTimer = setTimeout(() => { bar.style.opacity = "0"; }, 700);
     };
 
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    // capture: true — scroll hadisəsi bubble etmir, ona görə bütün elementlərdən tutaq
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      document.removeEventListener("contextmenu", onCtx);
       clearTimeout(hideTimer);
       bar.remove();
+      try { backHandle?.remove?.(); } catch (_) {}
     };
   }, []);
   const isLanding = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/charity") || pathname.startsWith("/qurban") || pathname.startsWith("/order") || pathname.startsWith("/my-orders") || pathname.startsWith("/how-it-works") || pathname.startsWith("/qurban-rules") || pathname.startsWith("/settings") || pathname.startsWith("/about") || pathname.startsWith("/services") || pathname.startsWith("/process") || pathname.startsWith("/contact");
