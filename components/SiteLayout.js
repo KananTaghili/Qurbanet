@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { User, Menu, X, LogOut, Settings, ArrowLeft } from "lucide-react";
+import { User, Menu, X, LogOut, Settings } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
@@ -189,14 +189,6 @@ export default function SiteLayout({ children }) {
             )}
           </div>
         </header>
-
-        {/* Back to home button — below header */}
-        <div className="flex items-center px-4 md:px-10 py-2 shrink-0 bg-white border-b border-black/5">
-          <Link href="/" className="flex items-center justify-center w-8 h-8 rounded-lg transition-opacity hover:opacity-80 active:scale-95"
-            style={{ background: "#f20b32" }}>
-            <ArrowLeft className="h-4 w-4 text-white" strokeWidth={2.5} />
-          </Link>
-        </div>
 
         {/* Scrollable content + footer */}
         <div className="hp-scroll flex-1 overflow-y-auto flex flex-col" style={{ marginBottom: 15 }}>
