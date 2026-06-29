@@ -214,8 +214,7 @@ function HeroBanner({ router, isMobile }) {
       <img
         src="/qurban%20sifari%C5%9Fi%20(3).png"
         alt="Qurbanlıq heyvanlar"
-        className="absolute inset-y-0 right-0 h-full w-[68%] lg:w-[72%] object-contain object-right hidden lg:block"
-        style={{ transform: "scale(1.5)", transformOrigin: "right center" }}
+        className="absolute inset-y-0 right-0 h-full w-[58%] object-cover object-left hidden lg:block"
       />
       {/* Mobile image */}
       <img
@@ -223,7 +222,10 @@ function HeroBanner({ router, isMobile }) {
         alt="Qurbanlıq heyvanlar"
         className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] from-[35%] via-[#edf5ef]/90 via-[50%] to-transparent" />
+      {/* Desktop gradient */}
+      <div className="absolute inset-0 hidden lg:block" style={{ background: "linear-gradient(to right, #edf5ef 0%, #edf5ef 42%, rgba(237,245,239,0.85) 55%, rgba(237,245,239,0.3) 70%, transparent 85%)" }} />
+      {/* Mobile gradient */}
+      <div className="absolute inset-0 block lg:hidden" style={{ background: "linear-gradient(to right, #edf5ef 35%, rgba(237,245,239,0.9) 50%, transparent 70%)" }} />
       <div className={`relative z-10 ${isMobile ? "max-w-[60%]" : "max-w-lg"}`}>
         <h2 className={`font-extrabold leading-tight text-[#082d15] mb-1.5 ${isMobile ? "text-lg" : "text-xl lg:text-2xl"}`}>
           Süfrəniz bərəkətli,
