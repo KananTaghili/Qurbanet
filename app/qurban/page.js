@@ -18,15 +18,15 @@ import {
 
 const BRAND = "#1c5e20";
 
-// Azerbaijani vowel-harmony suffix for prices: "280-dЙ™n" vs "290-dan"
+// Azerbaijani vowel-harmony suffix for prices: "280-dən" vs "290-dan"
 function azPriceSuffix(num) {
   const n = Math.abs(Math.round(num));
   const last2 = n % 100;
   const units = last2 % 10;
   const tens = Math.floor(last2 / 10);
-  if (units !== 0) return [1, 2, 3, 4, 5, 7, 8].includes(units) ? "dЙ™n" : "dan";
-  if (tens !== 0) return [2, 5, 7, 8].includes(tens) ? "dЙ™n" : "dan";
-  return "dЙ™n";
+  if (units !== 0) return [1, 2, 3, 4, 5, 7, 8].includes(units) ? "dən" : "dan";
+  if (tens !== 0) return [2, 5, 7, 8].includes(tens) ? "dən" : "dan";
+  return "dən";
 }
 
 function PriceTag({ price, lang }) {
@@ -34,7 +34,7 @@ function PriceTag({ price, lang }) {
   if (lang === "ru") {
     return (
       <>
-        <span className="text-[11px] xs:text-xs font-semibold text-text-secondary mr-1">РѕС‚</span>
+        <span className="text-[11px] xs:text-xs font-semibold text-text-secondary mr-1">от</span>
         {price} AZN
       </>
     );
@@ -51,7 +51,7 @@ function PriceTag({ price, lang }) {
     <>
       {price} AZN
       <span className="text-[11px] xs:text-xs font-semibold text-text-secondary ml-1">
-        -dЙ™n
+        -dən
       </span>
     </>
   );
@@ -266,7 +266,7 @@ function HeroBanner({ router, isMobile }) {
       {/* Mobile image */}
       <img
         src="/qurban_sifarisi_mobil_foto.png"
-        alt="QurbanlД±q heyvanlar"
+        alt="Qurbanlıq heyvanlar"
         className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
       />
       {/* Desktop gradient */}
@@ -275,19 +275,19 @@ function HeroBanner({ router, isMobile }) {
       <div className="absolute inset-0 block lg:hidden" style={{ background: "linear-gradient(to right, #edf5ef 35%, rgba(237,245,239,0.9) 50%, transparent 70%)" }} />
       <div className={`relative z-10 ${isMobile ? "max-w-[60%]" : "max-w-lg"}`}>
         <h2 className={`font-extrabold leading-tight text-[#082d15] mb-1.5 ${isMobile ? "text-lg" : "text-xl lg:text-2xl"}`}>
-          SГјfrЙ™niz bЙ™rЙ™kЙ™tli,
+          Süfrəniz bərəkətli,
           <br />
-          <span style={{ color: BRAND }}>QurbanД±nД±z qЙ™bul olsun!</span>
+          <span style={{ color: BRAND }}>Qurbanınız qəbul olsun!</span>
         </h2>
         <p className="mb-2.5 text-xs leading-[1.55] text-[#52675a]">
-          QurbanlД±q heyvanД±nД±zД± seГ§in, halal kЙ™sim vЙ™ Г§atdД±rД±lma prosesini rahatlД±qla bizЙ™ hЙ™valЙ™ edin.
+          Qurbanlıq heyvanınızı seçin, halal kəsim və çatdırılma prosesini rahatlıqla bizə həvalə edin.
         </p>
         <button
           onClick={() => router.push("/qurban-rules")}
           className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 whitespace-nowrap"
           style={{ backgroundColor: BRAND }}
         >
-          QurbanД±n ЖЏhkamlarД±nД± Г–yrЙ™n <ChevronRight size={14} strokeWidth={2.5} />
+          Qurbanın Əhkamlarını Öyrən <ChevronRight size={14} strokeWidth={2.5} />
         </button>
       </div>
     </section>
