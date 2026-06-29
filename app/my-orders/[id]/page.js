@@ -344,13 +344,22 @@ export default function OrderDetailPage() {
     <div className="flex flex-col flex-1" style={{ background: '#f4f7f4' }}>
       <div className="flex-1 overflow-y-auto pb-10">
 
-        <div className="max-w-3xl mx-auto px-4 pt-4 pb-0 flex flex-col gap-3">
+        {/* ── HERO ROW: back button left + card right ── */}
+        <div className="flex items-start gap-3 px-4 pt-4">
+          <button
+            onClick={() => router.push('/my-orders')}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
+            style={{ background: BRAND, color: '#fff', border: 'none' }}
+          >
+            <ChevronLeft size={15} strokeWidth={2.5} />
+            Geri Qayıt
+          </button>
 
           {/* ── HERO CARD ── */}
-          <div className="relative">
+          <div className="relative flex-1 min-w-0">
             {/* Green circle status icon — floats above card top-right */}
             {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon; return (
-              <div className="absolute top-0 -right-3 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+              <div className="absolute -top-3 -right-3 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                 style={{ background: BRAND }}>
                 <PipeIcon size={22} style={{ color: '#fff' }} />
               </div>
@@ -371,16 +380,7 @@ export default function OrderDetailPage() {
                 </div>
 
                 {/* INFO */}
-                <div className="flex-1 min-w-0 px-5 py-5 flex flex-col gap-1.5">
-                  {/* Back button inside info panel, top-left */}
-                  <button
-                    onClick={() => router.push('/my-orders')}
-                    className="self-start inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95 mb-1"
-                    style={{ background: BRAND, color: '#fff', border: 'none' }}
-                  >
-                    <ChevronLeft size={15} strokeWidth={2.5} />
-                    Geri Qayıt
-                  </button>
+                <div className="flex-1 min-w-0 px-5 py-5 flex flex-col justify-center gap-1.5">
                   <p className="text-[18px] font-black text-[#071b0d] leading-snug">{animalName}</p>
                   <div className="flex items-baseline gap-1.5 flex-wrap">
                     <span className="text-[32px] font-black text-[#071b0d] leading-none">{totalAmt}</span>
@@ -396,7 +396,10 @@ export default function OrderDetailPage() {
                 </div>
               </div>
             </div>{/* end bg-white card */}
-          </div>{/* end relative wrapper */}
+          </div>{/* end relative wrapper (hero card) */}
+        </div>{/* end hero row */}
+
+        <div className="max-w-3xl mx-auto px-4 pt-3 pb-0 flex flex-col gap-3">
 
           {/* ── STATUS + DETAILS: side by side on desktop ── */}
           <div className="flex flex-col md:flex-row gap-3 items-start">
