@@ -36,7 +36,7 @@ jobs:
 
             # Next.js production build edirik (Kritik addım)
             rm -rf .next
-            mkdir -p .next/cache
+            npm install
             npm run build
 
             # Backend dependencies yeniləyirik
