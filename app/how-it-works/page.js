@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Beef, Scissors, Package, Truck,
   CheckCircle2, Video, ShieldCheck, Clock3,
@@ -13,7 +14,7 @@ import { t, HOW_IT_WORKS_TEXT } from "../../lib/i18n";
 // ── per-step visual config ────────────────────────────────────────────────────
 const STEP_CFG = [
   {
-    Icon: Beef,
+    img:    "/qoyun_big.png",
     color:  "#166534",
     light:  "#dcfce7",
     mid:    "#16a34a",
@@ -21,7 +22,7 @@ const STEP_CFG = [
     gTo:    "#166534",
   },
   {
-    Icon: PiKnifeBold,
+    img:    "/bicaq.png",
     color:  "#9a3412",
     light:  "#fee2e2",
     mid:    "#ea580c",
@@ -29,7 +30,7 @@ const STEP_CFG = [
     gTo:    "#9a3412",
   },
   {
-    Icon: Package,
+    img:    "/qutu.png",
     color:  "#065f46",
     light:  "#d1fae5",
     mid:    "#059669",
@@ -37,7 +38,7 @@ const STEP_CFG = [
     gTo:    "#065f46",
   },
   {
-    Icon: Truck,
+    img:    "/masin.png",
     color:  "#1e3a8a",
     light:  "#dbeafe",
     mid:    "#2563eb",
@@ -71,7 +72,6 @@ function useFadeUp() {
 // ── Single step card ──────────────────────────────────────────────────────────
 function StepCard({ step, cfg, idx, reverse }) {
   const ref = useFadeUp();
-  const { Icon } = cfg;
   const num = String(idx + 1).padStart(2, "0");
 
   return (
@@ -117,17 +117,14 @@ function StepCard({ step, cfg, idx, reverse }) {
           {step.label}
         </span>
 
-        {/* Icon circle */}
-        <div
-          className="relative z-10 flex items-center justify-center rounded-full shadow-xl"
-          style={{
-            width: 76, height: 76,
-            background: "rgba(255,255,255,0.15)",
-            border: "2px solid rgba(255,255,255,0.3)",
-            backdropFilter: "blur(8px)",
-          }}
-        >
-          <Icon size={34} color="#fff" strokeWidth={1.5} />
+        {/* Step photo */}
+        <div className="relative z-10" style={{ width: 140, height: 140 }}>
+          <Image
+            src={cfg.img}
+            alt={step.title}
+            fill
+            style={{ objectFit: "contain", filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.35))" }}
+          />
         </div>
       </div>
 
