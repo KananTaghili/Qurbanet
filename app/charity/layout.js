@@ -879,9 +879,7 @@ export default function CharityLayout({ children }) {
   const [showNewOpening, setShowNewOpening] = useState(false);
   const [preselectedAnimal, setPreselectedAnimal] = useState(null);
 
-  const visibleNav = isGuest
-    ? SIDEBAR_NAV.filter(n => n.href !== "/charity/donations")
-    : SIDEBAR_NAV;
+  const visibleNav = SIDEBAR_NAV;
 
   const isActive = (href) => {
     if (href === "/charity") return pathname === "/charity" || pathname === "/charity/";
@@ -912,15 +910,25 @@ export default function CharityLayout({ children }) {
             </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
-            {visibleNav.map(({ icon: Icon, label, href }) => (
-              <Link key={href} href={href}
-                className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all ${
-                  isActive(href) ? "bg-white/15 text-white font-semibold" : "text-purple-100/70 hover:bg-white/5 hover:text-white"
-                }`}>
-                <Icon size={15} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
-                {label}
-              </Link>
-            ))}
+            {visibleNav.map(({ icon: Icon, label, href }) => {
+              const guestBlock = isGuest && href === "/charity/donations";
+              return guestBlock ? (
+                <button key={href}
+                  onClick={() => router.push(`/auth/login?from=${encodeURIComponent(pathname)}`)}
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all text-purple-100/70 hover:bg-white/5 hover:text-white">
+                  <Icon size={15} className="text-purple-200/60" />
+                  {label}
+                </button>
+              ) : (
+                <Link key={href} href={href}
+                  className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all ${
+                    isActive(href) ? "bg-white/15 text-white font-semibold" : "text-purple-100/70 hover:bg-white/5 hover:text-white"
+                  }`}>
+                  <Icon size={15} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
           <div className="mx-3 mb-3">
             <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
@@ -1001,15 +1009,25 @@ export default function CharityLayout({ children }) {
 
             {/* Nav links */}
             <nav className="flex-1 px-3 py-3 space-y-0.5">
-              {visibleNav.map(({ icon: Icon, label, href }) => (
-                <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all ${
-                    isActive(href) ? "bg-white/15 text-white font-semibold" : "text-purple-100/70 hover:bg-white/10 hover:text-white"
-                  }`}>
-                  <Icon size={16} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
-                  {label}
-                </Link>
-              ))}
+              {visibleNav.map(({ icon: Icon, label, href }) => {
+                const guestBlock = isGuest && href === "/charity/donations";
+                return guestBlock ? (
+                  <button key={href}
+                    onClick={() => { setMobileMenuOpen(false); router.push(`/auth/login?from=${encodeURIComponent(pathname)}`); }}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all text-purple-100/70 hover:bg-white/10 hover:text-white">
+                    <Icon size={16} className="text-purple-200/60" />
+                    {label}
+                  </button>
+                ) : (
+                  <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all ${
+                      isActive(href) ? "bg-white/15 text-white font-semibold" : "text-purple-100/70 hover:bg-white/10 hover:text-white"
+                    }`}>
+                    <Icon size={16} className={isActive(href) ? "text-white" : "text-purple-200/60"} />
+                    {label}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Bottom: user info or register */}
@@ -1055,15 +1073,26 @@ export default function CharityLayout({ children }) {
 
           {/* Mobile Bottom Nav */}
           <nav className="lg:hidden shrink-0 border-t border-[#e7e1f0] bg-white flex z-40">
-            {visibleNav.map(({ icon: Icon, label, short, href }) => (
-              <Link key={href} href={href}
-                className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
-                  isActive(href) ? "text-[#4b14bd]" : "text-gray-400"
-                }`}>
-                <Icon size={20} strokeWidth={isActive(href) ? 2.2 : 1.8} />
-                <span className="text-[9px] font-medium leading-none truncate max-w-[56px]">{short || label}</span>
-              </Link>
-            ))}
+            {visibleNav.map(({ icon: Icon, label, short, href }) => {
+              const guestBlock = isGuest && href === "/charity/donations";
+              return guestBlock ? (
+                <button key={href}
+                  onClick={() => router.push(`/auth/login?from=${encodeURIComponent(pathname)}`)}
+                  className="flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors text-gray-400"
+                  style={{ background: "none", border: "none", cursor: "pointer" }}>
+                  <Icon size={20} strokeWidth={1.8} />
+                  <span className="text-[9px] font-medium leading-none truncate max-w-[56px]">{short || label}</span>
+                </button>
+              ) : (
+                <Link key={href} href={href}
+                  className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
+                    isActive(href) ? "text-[#4b14bd]" : "text-gray-400"
+                  }`}>
+                  <Icon size={20} strokeWidth={isActive(href) ? 2.2 : 1.8} />
+                  <span className="text-[9px] font-medium leading-none truncate max-w-[56px]">{short || label}</span>
+                </Link>
+              );
+            })}
           </nav>
         </div>
       </div>
