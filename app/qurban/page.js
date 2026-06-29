@@ -223,14 +223,14 @@ function HeroBanner({ router, isMobile }) {
         alt="Qurbanlıq heyvanlar"
         className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] from-[38%] via-[#edf5ef]/80 via-[60%] to-transparent" />
-      <div className="relative z-10 max-w-lg">
+      <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] from-[35%] via-[#edf5ef]/90 via-[50%] to-transparent" />
+      <div className={`relative z-10 ${isMobile ? "max-w-[55%]" : "max-w-lg"}`}>
         <h2 className={`font-extrabold leading-tight text-[#082d15] mb-1.5 ${isMobile ? "text-lg" : "text-xl lg:text-2xl"}`}>
           Süfrəniz bərəkətli,
           <br />
           <span style={{ color: BRAND }}>Qurbanınız qəbul olsun!</span>
         </h2>
-        <p className="mb-2.5 max-w-md text-xs leading-[1.55] text-[#52675a]">
+        <p className="mb-2.5 text-xs leading-[1.55] text-[#52675a]">
           Qurbanlıq heyvanınızı seçin, halal kəsim və çatdırılma prosesini rahatlıqla bizə həvalə edin.
         </p>
         <button
