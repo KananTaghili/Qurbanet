@@ -210,9 +210,9 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
           <ul key={listKey} className="nb-list-in divide-y divide-slate-50">
             {nots.map(n => (
               <li key={n._id}>
-                <button
-                  onClick={() => handleClick(n)}
-                  className="w-full text-left px-4 py-3 flex items-start gap-3 transition-colors hover:bg-slate-50"
+                <div
+                  className="w-full text-left px-4 py-3 flex items-start gap-3"
+                  style={{ cursor: "default" }}
                 >
                   <div
                     className="mt-0.5 w-7 h-7 shrink-0 flex items-center justify-center rounded-full"
@@ -237,7 +237,7 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
                   {!n.read && (
                     <div className="mt-1.5 w-2 h-2 shrink-0 rounded-full" style={{ background: accentColor }} />
                   )}
-                </button>
+                </div>
               </li>
             ))}
           </ul>
