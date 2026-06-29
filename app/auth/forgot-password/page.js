@@ -157,8 +157,10 @@ function ForgotPasswordPageInner() {
     }
   };
 
-  // ── Step 2: OTP client-side check only (no server call here) ───────────────
-  const handleVerifyOtp = (e) => {
+  // ── Step 2: verify OTP via server (send 1-char password that always fails validation) ──
+  const [verifying, setVerifying] = useState(false);
+
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
     const filled = code.filter(d => d !== "").length;
     if (filled < 4) {
@@ -167,8 +169,33 @@ function ForgotPasswordPageInner() {
       setTimeout(() => inputs.current[0]?.focus(), 50);
       return;
     }
+    setVerifying(true);
     setError("");
-    setStep("reset");
+    try {
+      const type = sessionStorage.getItem("forgot_identifier_type") || "phone";
+      const val = sessionStorage.getItem(type === "phone" ? "forgot_phone" : "forgot_email");
+      const fullCode = code.join("");
+      const payload = type === "phone"
+        ? { phone: val, code: fullCode, newPassword: "x" }
+        : { email: val, code: fullCode, newPassword: "x" };
+      await api.post("/auth/reset-password", payload);
+      // Success (unlikely with "x" password but handle it)
+      setStep("reset");
+    } catch (err) {
+      const msg = err.response?.data?.message || "";
+      // If error is about OTP/code being wrong → stay on step 2
+      const isOtpError = msg.includes("Yanlış kod") || msg.includes("tapılmadı") || msg.includes("vaxtı") || msg.toLowerCase().includes("code") || msg.toLowerCase().includes("kod");
+      if (isOtpError) {
+        setError("OTP kodu yanlışdır. Zəhmət olmasa düzgün kodu daxil edin.");
+        setCode(["", "", "", ""]);
+        setTimeout(() => inputs.current[0]?.focus(), 80);
+      } else {
+        // Password validation error → OTP was correct, proceed to password screen
+        setStep("reset");
+      }
+    } finally {
+      setVerifying(false);
+    }
   };
 
   // ── Step 3: reset password ──────────────────────────────────────────────────
@@ -447,11 +474,13 @@ function ForgotPasswordPageInner() {
 
                   <button
                     type="submit"
-                    disabled={code.filter(d => d !== "").length < 4}
+                    disabled={code.filter(d => d !== "").length < 4 || verifying}
                     className="auth-btn-primary"
-                    style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: code.filter(d => d !== "").length < 4 ? "#9CA3AF" : "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: code.filter(d => d !== "").length < 4 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: code.filter(d => d !== "").length < 4 ? "none" : "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
+                    style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: (code.filter(d => d !== "").length < 4 || verifying) ? "#9CA3AF" : "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: (code.filter(d => d !== "").length < 4 || verifying) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: (code.filter(d => d !== "").length < 4 || verifying) ? "none" : "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
                   >
-                    Davam et →
+                    {verifying
+                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yoxlanılır...</span>
+                      : "Davam et →"}
                   </button>
 
                   <button
