@@ -34,7 +34,7 @@ const ANIMAL_IMAGES = {
 
 const STATUS_CFG = {
   awaiting_payment: { label: 'Ödəniş gözlənilir', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
-  placed:           { label: 'Sifariş verildi',    bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 0, group: 'active'    },
+  placed:           { label: 'Sifariş yoxlanılır', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 0, group: 'active'    },
   pending_payment:  { label: 'Ödəniş gözlənilir', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0, group: 'active'    },
   confirmed:        { label: 'Təsdiqləndi',        bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 1, group: 'active'    },
   paid:             { label: 'Ödənilib',           bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 1, group: 'active'    },
@@ -46,7 +46,7 @@ const STATUS_CFG = {
 };
 
 const PIPELINE_STEPS = [
-  { label: 'Sifariş verildi', Icon: Clock        },
+  { label: 'Sifariş yoxlanılır', Icon: Clock        },
   { label: 'Təsdiqləndi',     Icon: CheckCircle2 },
   { label: 'Kəsilir',         Icon: RiKnifeLine  },
   { label: 'Hazırlanır',      Icon: Package      },
@@ -389,7 +389,7 @@ export default function MyOrdersPage() {
   ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const activeCount = allItems.filter(o => !['completed', 'cancelled'].includes(o.status)).length;
-  const totalAmount = allItems.reduce((s, o) => s + (Number(o.totalPrice ?? o.totalAmount) || 0), 0);
+  const totalAmount = allItems.filter(o => o.status !== 'cancelled').reduce((s, o) => s + (Number(o.totalPrice ?? o.totalAmount) || 0), 0);
 
   /* Status tabs — only show groups that have items */
   const TABS = [

@@ -37,14 +37,14 @@ const ANIMAL_IMAGES = {
 /* ── Status config — matches list page exactly ── */
 const STATUS_CFG = {
   awaiting_payment: { label: 'Ödəniş gözlənilir', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0 },
-  placed:           { label: 'Gözləmədə',          bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 1 },
+  placed:           { label: 'Sifariş yoxlanılır', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: Clock,        step: 0 },
   pending_payment:  { label: 'Ödəniş gözlənilir',  bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B', Icon: CreditCard,   step: 0 },
-  confirmed:        { label: 'Təsdiqləndi',         bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 2 },
-  paid:             { label: 'Ödənilib',            bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 2 },
-  slaughtering:     { label: 'Kəsilir',             bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: KnifeIcon,    step: 3 },
-  preparing:        { label: 'Hazırlanır',          bg: '#D1FAE5', color: '#065F46', dot: '#10B981', Icon: Package,      step: 4 },
-  delivering:       { label: 'Çatdırılır',          bg: '#DBEAFE', color: '#1E3A8A', dot: '#2563EB', Icon: Truck,        step: 5 },
-  completed:        { label: 'Tamamlandı',          bg: '#D1FAE5', color: '#14532D', dot: '#22C55E', Icon: CheckCircle2, step: 6 },
+  confirmed:        { label: 'Təsdiqləndi',         bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CheckCircle2, step: 1 },
+  paid:             { label: 'Ödənilib',            bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6', Icon: CreditCard,   step: 1 },
+  slaughtering:     { label: 'Kəsilir',             bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444', Icon: KnifeIcon,    step: 2 },
+  preparing:        { label: 'Hazırlanır',          bg: '#D1FAE5', color: '#065F46', dot: '#10B981', Icon: Package,      step: 3 },
+  delivering:       { label: 'Çatdırılır',          bg: '#DBEAFE', color: '#1E3A8A', dot: '#2563EB', Icon: Truck,        step: 4 },
+  completed:        { label: 'Tamamlandı',          bg: '#D1FAE5', color: '#14532D', dot: '#22C55E', Icon: CheckCircle2, step: 5 },
   cancelled:        { label: 'Ləğv edildi',         bg: '#F3F4F6', color: '#6B7280', dot: '#9CA3AF', Icon: XCircle,      step: -1 },
 };
 
@@ -344,6 +344,16 @@ export default function OrderDetailPage() {
     <div className="flex flex-col flex-1" style={{ background: '#f4f7f4' }}>
       <div className="flex-1 overflow-y-auto pb-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex flex-col gap-3">
+
+          {/* ── BACK BUTTON ── */}
+          <button
+            onClick={() => router.push('/my-orders')}
+            className="self-start inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
+            style={{ background: BRAND, color: '#fff', border: 'none' }}
+          >
+            <ChevronLeft size={15} strokeWidth={2.5} />
+            Geri Qayıt
+          </button>
 
           {/* ── HERO CARD ── wrapped in relative so icon isn't clipped */}
           <div className="relative" style={{ paddingTop: '1rem' }}>
