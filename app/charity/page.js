@@ -1882,7 +1882,7 @@ function HomeContent() {
           />
           <div className="lg:hidden relative min-h-[180px]">
             <img
-              src="/kollektiv_mobile_image.png"
+              src="/kollectiv_qurban_mobil.png"
               alt="Xeyriyyə"
               className="absolute inset-0 w-full h-full object-cover object-center rounded-xl"
             />
