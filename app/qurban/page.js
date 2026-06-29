@@ -214,7 +214,7 @@ function HeroBanner({ router, isMobile }) {
       <img
         src="/qurban%20sifari%C5%9Fi%20(3).png"
         alt="Qurbanlıq heyvanlar"
-        className="absolute inset-y-0 right-0 h-full w-[65%] object-cover object-center hidden lg:block"
+        className="absolute inset-y-0 right-0 h-full w-[65%] object-contain object-right hidden lg:block"
       />
       {/* Mobile image */}
       <img
