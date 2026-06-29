@@ -98,7 +98,7 @@ function ForgotPasswordPageInner() {
       const key = mode === "phone" ? "forgot_phone" : "forgot_email";
       sessionStorage.setItem("forgot_identifier_type", mode);
       sessionStorage.setItem(key, mode === "phone" ? payload.phone : payload.email);
-      setStep("reset");
+      setStep("otp");
       setCode(["", "", "", ""]);
       startTimer();
       setTimeout(() => inputs.current[0]?.focus(), 300);
@@ -157,10 +157,11 @@ function ForgotPasswordPageInner() {
     }
   };
 
-  // ── Step 2: verify OTP + reset password in one API call ────────────────────
-  const handleReset = async (e) => {
+  // ── Step 2: verify OTP via server before allowing to step 3 ────────────────
+  const [verifying, setVerifying] = useState(false);
+
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (resetting) return;
     const filled = code.filter(d => d !== "").length;
     if (filled < 4) {
       setError("Doğrulama kodu boşdur. Zəhmət olmasa 4 rəqəmli kodu daxil edin.");
@@ -168,6 +169,36 @@ function ForgotPasswordPageInner() {
       setTimeout(() => inputs.current[0]?.focus(), 50);
       return;
     }
+    setVerifying(true);
+    setError("");
+    try {
+      const type = sessionStorage.getItem("forgot_identifier_type") || "phone";
+      const val = sessionStorage.getItem(type === "phone" ? "forgot_phone" : "forgot_email");
+      const fullCode = code.join("");
+      const payload = type === "phone"
+        ? { phone: val, code: fullCode, newPassword: "__CHECK__" }
+        : { email: val, code: fullCode, newPassword: "__CHECK__" };
+      await api.post("/auth/reset-password", payload);
+      setStep("reset");
+    } catch (err) {
+      const msg = err.response?.data?.message || "";
+      const status = err.response?.status;
+      if (status === 400 && (msg.includes("Yanlış kod") || msg.includes("tapılmadı") || msg.includes("vaxtı") || msg.includes("kod"))) {
+        setError("Doğrulama kodu yanlışdır. Zəhmət olmasa düzgün kodu daxil edin.");
+        setCode(["", "", "", ""]);
+        setTimeout(() => inputs.current[0]?.focus(), 80);
+      } else {
+        setStep("reset");
+      }
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  // ── Step 3: reset password ──────────────────────────────────────────────────
+  const handleReset = async (e) => {
+    e.preventDefault();
+    if (resetting) return;
     if (!newPassword || newPassword.length < 6) { setError("Şifrə ən az 6 simvol olmalıdır."); return; }
     if (newPassword !== confirmPassword) { setError("Şifrələr uyğun gəlmir."); return; }
     setResetting(true);
@@ -392,21 +423,20 @@ function ForgotPasswordPageInner() {
               </>
             )}
 
-            {/* Step 2 — OTP + new password (combined, verified in one API call) */}
-            {step === "reset" && (
+            {/* Step 2 — OTP verify */}
+            {step === "otp" && (
               <>
                 <div className="flex items-center gap-2.5 mb-1">
                   <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff1f3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <KeyRound size={20} style={{ color: "#c8102e" }} />
                   </div>
-                  <h2 className="text-2xl font-black text-text-primary">Şifrəni Yenilə</h2>
+                  <h2 className="text-2xl font-black text-text-primary">Kodu Daxil Et</h2>
                 </div>
-                <p className="text-sm text-text-secondary mb-4">
-                  {mode === "phone" ? "Nömrənizə" : "Email ünvanınıza"} göndərilən kodu və yeni şifrəni daxil edin.
+                <p className="text-sm text-text-secondary mb-5">
+                  {mode === "phone" ? "Nömrənizə" : "Email ünvanınıza"} göndərilən 4 rəqəmli kodu daxil edin.
                 </p>
 
-                <form onSubmit={handleReset} className="flex flex-col gap-4">
-                  {/* OTP boxes */}
+                <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-2 block">Doğrulama Kodu *</label>
                     <div className="flex gap-3 justify-center" onPaste={handlePaste}>
@@ -434,10 +464,44 @@ function ForgotPasswordPageInner() {
                     </button>
                   </div>
 
-                  {/* Divider */}
-                  <div style={{ borderTop: "1px solid #f3f4f6", margin: "0 -4px" }} />
+                  <ErrorBox msg={error} />
 
-                  {/* New password */}
+                  <button
+                    type="submit"
+                    disabled={code.filter(d => d !== "").length < 4 || verifying}
+                    className="auth-btn-primary"
+                    style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: (code.filter(d => d !== "").length < 4 || verifying) ? "#9CA3AF" : "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: (code.filter(d => d !== "").length < 4 || verifying) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: (code.filter(d => d !== "").length < 4 || verifying) ? "none" : "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
+                  >
+                    {verifying
+                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yoxlanılır...</span>
+                      : "Davam et →"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setStep("identifier"); setError(""); setCode(["", "", "", ""]); }}
+                    style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}
+                  >
+                    ← Geri qayıt
+                  </button>
+                </form>
+              </>
+            )}
+
+            {/* Step 3 — New password */}
+            {step === "reset" && (
+              <>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff1f3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <KeyRound size={20} style={{ color: "#c8102e" }} />
+                  </div>
+                  <h2 className="text-2xl font-black text-text-primary">Yeni Şifrə</h2>
+                </div>
+                <p className="text-sm text-text-secondary mb-5">
+                  Hesabınız üçün yeni şifrə təyin edin.
+                </p>
+
+                <form onSubmit={handleReset} className="flex flex-col gap-4">
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-2 block">Yeni Şifrə *</label>
                     <div className="relative">
@@ -448,6 +512,7 @@ function ForgotPasswordPageInner() {
                         placeholder="Ən az 6 simvol"
                         style={{ width: "100%", boxSizing: "border-box", border: "1.5px solid #e5e7eb", borderRadius: 12, padding: "12px 44px 12px 14px", fontSize: 15, color: "#111827", background: "#f9fafb", outline: "none", fontFamily: "inherit" }}
                         maxLength={128}
+                        autoFocus
                       />
                       <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary">
                         {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -455,7 +520,6 @@ function ForgotPasswordPageInner() {
                     </div>
                   </div>
 
-                  {/* Confirm password */}
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrəni Təsdiqlə *</label>
                     <div className="relative">
@@ -482,13 +546,13 @@ function ForgotPasswordPageInner() {
                     style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: resetting ? "#9CA3AF" : "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: resetting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: resetting ? "none" : "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
                   >
                     {resetting
-                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yoxlanılır...</span>
+                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yadda saxlanır...</span>
                       : "Şifrəni Yenilə"}
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => { setStep("identifier"); setError(""); setCode(["", "", "", ""]); setNewPassword(""); setConfirmPassword(""); }}
+                    onClick={() => { setStep("otp"); setError(""); setNewPassword(""); setConfirmPassword(""); }}
                     style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}
                   >
                     ← Geri qayıt
