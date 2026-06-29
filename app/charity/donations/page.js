@@ -363,7 +363,7 @@ function IanelerimContent() {
                     <StatCell label="Ümumi məbləğ" value={item.totalAmount} />
                   </div>
                 </div>
-                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-4">
+                <div className="flex items-center justify-center border-l border-[#e7e1f0] px-4 py-4">
                   <div className="w-full max-w-[190px] space-y-2">
                     <div className="flex justify-center"><CircularProgress percent={item.progressPercent} status={item.status} /></div>
                     <button onClick={(e) => { e.stopPropagation(); openDetail(item); }}
