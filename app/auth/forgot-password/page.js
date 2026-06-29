@@ -160,9 +160,9 @@ function ForgotPasswordPageInner() {
   // ── Step 2: verify OTP only → go to reset step ─────────────────────────────
   const handleVerifyOtp = (e) => {
     e.preventDefault();
-    const fullCode = code.join("");
-    if (fullCode.length < 4) {
-      setError("Zəhmət olmasa 4 rəqəmli doğrulama kodunu daxil edin.");
+    const filled = code.filter(d => d !== "").length;
+    if (filled < 4) {
+      setError("OTP kodu boşdur. Zəhmət olmasa 4 rəqəmli kodu daxil edin.");
       setCode(["", "", "", ""]);
       setTimeout(() => inputs.current[0]?.focus(), 50);
       return;
@@ -425,9 +425,9 @@ function ForgotPasswordPageInner() {
                           inputMode="numeric"
                           maxLength={1}
                           value={d}
-                          onChange={(e) => handleOtpChange(i, e.target.value)}
+                          onChange={(e) => { handleOtpChange(i, e.target.value); setError(""); }}
                           onKeyDown={(e) => handleKeyDown(i, e)}
-                          style={{ width: 56, height: 56, textAlign: "center", fontSize: 24, fontWeight: 700, borderWidth: 2, borderStyle: "solid", borderRadius: 16, outline: "none", transition: "all 0.15s", borderColor: d ? "#c8102e" : "#e5e7eb", background: d ? "#fff1f3" : "#f8f9fb", color: d ? "#c8102e" : "#111827", fontFamily: "inherit" }}
+                          style={{ width: 56, height: 56, textAlign: "center", fontSize: 24, fontWeight: 700, borderWidth: 2, borderStyle: "solid", borderRadius: 16, outline: "none", transition: "all 0.15s", borderColor: d ? "#c8102e" : error ? "#f87171" : "#e5e7eb", background: d ? "#fff1f3" : error ? "#fff5f5" : "#f8f9fb", color: d ? "#c8102e" : "#111827", fontFamily: "inherit" }}
                         />
                       ))}
                     </div>
