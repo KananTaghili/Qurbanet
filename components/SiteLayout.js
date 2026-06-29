@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { User, Menu, X, LogOut, Settings, Home } from "lucide-react";
+import { User, Menu, X, LogOut, Settings, ArrowLeft } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
@@ -153,9 +153,6 @@ export default function SiteLayout({ children }) {
         {/* Header — identical to home page */}
         <header className="flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
           <div className="flex items-center gap-2">
-            <Link href="/" className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors shrink-0">
-              <Home className="h-5 w-5 text-neutral-700" />
-            </Link>
             <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors"
               onClick={() => setMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
@@ -192,6 +189,14 @@ export default function SiteLayout({ children }) {
             )}
           </div>
         </header>
+
+        {/* Back to home button — below header */}
+        <div className="flex items-center px-4 md:px-10 py-2 shrink-0 bg-white border-b border-black/5">
+          <Link href="/" className="flex items-center justify-center w-8 h-8 rounded-lg transition-opacity hover:opacity-80 active:scale-95"
+            style={{ background: "#f20b32" }}>
+            <ArrowLeft className="h-4 w-4 text-white" strokeWidth={2.5} />
+          </Link>
+        </div>
 
         {/* Scrollable content + footer */}
         <div className="hp-scroll flex-1 overflow-y-auto flex flex-col" style={{ marginBottom: 15 }}>
