@@ -1978,11 +1978,14 @@ function HomeContent() {
               className="absolute inset-0 w-full h-full object-cover rounded-xl" style={{ objectPosition: "70% center" }}
             />
             <div className="relative z-10 p-5 flex flex-col justify-center min-h-[180px]">
-              <h1 className="leading-tight mb-4 text-[#241a4d] text-[1.4rem] font-bold">
+              <h1 className="leading-tight mb-1.5 text-[#241a4d] text-[1.4rem] font-bold">
                 Birlikdə qurban,
                 <br />
                 <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
               </h1>
+              <p className="mb-3 text-[11px] leading-relaxed text-gray-600" style={{ maxWidth: 220 }}>
+                Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq. Tam şəffaflıq, tam izlənilənlik.
+              </p>
               <button
                 onClick={openNewCampaign}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold active:scale-95 transition-all hover:opacity-90 self-start"
