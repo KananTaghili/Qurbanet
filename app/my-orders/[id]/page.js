@@ -359,7 +359,7 @@ export default function OrderDetailPage() {
         <div className="max-w-3xl mx-auto px-4 py-3 flex flex-col gap-3">
 
           {/* ── HERO CARD ── wrapped in relative so icon isn't clipped */}
-          <div className="relative" style={{ paddingTop: '1rem' }}>
+          <div className="relative">
             {/* Green circle status icon — floats above card top-right */}
             {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon; return (
               <div className="absolute top-0 -right-3 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
