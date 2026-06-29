@@ -395,7 +395,7 @@ export default function MyOrdersPage() {
   const TABS = [
     { key: 'all',       label: 'Hamısı',     Icon: ClipboardList, count: allItems.length,                                            filter: () => true },
     { key: 'active',    label: 'Aktiv',      Icon: Activity,      count: activeCount,                                                filter: o => !['completed','cancelled'].includes(o.status) },
-    { key: 'completed', label: 'Tamamlandı', Icon: CheckCircle2,  count: allItems.filter(o => o.status === 'completed').length,      filter: o => o.status === 'completed' },
+    { key: 'completed', label: 'Tamamlanmış', Icon: CheckCircle2,  count: allItems.filter(o => o.status === 'completed').length,      filter: o => o.status === 'completed' },
     { key: 'cancelled', label: 'Ləğv edildi',Icon: XCircle,       count: allItems.filter(o => o.status === 'cancelled').length,      filter: o => o.status === 'cancelled' },
   ].filter(tab => tab.key === 'all' || tab.count > 0);
 
