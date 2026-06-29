@@ -157,10 +157,8 @@ function ForgotPasswordPageInner() {
     }
   };
 
-  // ── Step 2: verify OTP via server before allowing to step 3 ────────────────
-  const [verifying, setVerifying] = useState(false);
-
-  const handleVerifyOtp = async (e) => {
+  // ── Step 2: OTP client-side check only (no server call here) ───────────────
+  const handleVerifyOtp = (e) => {
     e.preventDefault();
     const filled = code.filter(d => d !== "").length;
     if (filled < 4) {
@@ -169,30 +167,8 @@ function ForgotPasswordPageInner() {
       setTimeout(() => inputs.current[0]?.focus(), 50);
       return;
     }
-    setVerifying(true);
     setError("");
-    try {
-      const type = sessionStorage.getItem("forgot_identifier_type") || "phone";
-      const val = sessionStorage.getItem(type === "phone" ? "forgot_phone" : "forgot_email");
-      const fullCode = code.join("");
-      const payload = type === "phone"
-        ? { phone: val, code: fullCode, newPassword: "__CHECK__" }
-        : { email: val, code: fullCode, newPassword: "__CHECK__" };
-      await api.post("/auth/reset-password", payload);
-      setStep("reset");
-    } catch (err) {
-      const msg = err.response?.data?.message || "";
-      const status = err.response?.status;
-      if (status === 400 && (msg.includes("Yanlış kod") || msg.includes("tapılmadı") || msg.includes("vaxtı") || msg.includes("kod"))) {
-        setError("Doğrulama kodu yanlışdır. Zəhmət olmasa düzgün kodu daxil edin.");
-        setCode(["", "", "", ""]);
-        setTimeout(() => inputs.current[0]?.focus(), 80);
-      } else {
-        setStep("reset");
-      }
-    } finally {
-      setVerifying(false);
-    }
+    setStep("reset");
   };
 
   // ── Step 3: reset password ──────────────────────────────────────────────────
@@ -223,9 +199,12 @@ function ForgotPasswordPageInner() {
       const msg = err.response?.data?.message;
       const status = err.response?.status;
       if (status === 400 && (msg?.includes("Yanlış kod") || msg?.includes("tapılmadı") || msg?.includes("vaxtı"))) {
-        setError("Doğrulama kodu yanlışdır və ya müddəti bitib. Kodu silib yenidən daxil edin.");
         setCode(["", "", "", ""]);
-        setTimeout(() => inputs.current[0]?.focus(), 100);
+        setNewPassword("");
+        setConfirmPassword("");
+        setStep("otp");
+        setError("OTP kodu yanlışdır və ya müddəti bitib. Yenidən daxil edin.");
+        setTimeout(() => inputs.current[0]?.focus(), 150);
       } else {
         setError(msg || "Şifrə yenilənə bilmədi. Yenidən cəhd edin.");
       }
@@ -468,13 +447,11 @@ function ForgotPasswordPageInner() {
 
                   <button
                     type="submit"
-                    disabled={code.filter(d => d !== "").length < 4 || verifying}
+                    disabled={code.filter(d => d !== "").length < 4}
                     className="auth-btn-primary"
-                    style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: (code.filter(d => d !== "").length < 4 || verifying) ? "#9CA3AF" : "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: (code.filter(d => d !== "").length < 4 || verifying) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: (code.filter(d => d !== "").length < 4 || verifying) ? "none" : "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
+                    style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: code.filter(d => d !== "").length < 4 ? "#9CA3AF" : "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: code.filter(d => d !== "").length < 4 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: code.filter(d => d !== "").length < 4 ? "none" : "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
                   >
-                    {verifying
-                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yoxlanılır...</span>
-                      : "Davam et →"}
+                    Davam et →
                   </button>
 
                   <button
