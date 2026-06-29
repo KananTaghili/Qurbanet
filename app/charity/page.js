@@ -267,16 +267,26 @@ function DesktopAnimalCard({ animal, onDonate, onClick, highlighted = false, onM
 }
 
 /* ─── New Opening Placeholder Card ──────────────────────────── */
-function NewOpeningPlaceholderCard({ onOpen, animal }) {
+function NewOpeningPlaceholderCard({ onOpen, animal, highlighted = false, onMouseEnter, onMouseLeave }) {
   const animalImg = animal
     ? animal.imageHome || animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || null
     : null;
+  const [hovered, setHovered] = useState(false);
+  const active = highlighted || hovered;
 
   return (
     <div
       onClick={() => onOpen(animal?.nameAz)}
-      className="flex flex-col overflow-hidden rounded-[18px] border-2 border-dashed border-purple-200 bg-white/70 px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
-      style={{ boxShadow: "0 6px 20px rgba(54,27,99,.04)" }}
+      onMouseEnter={(e) => { setHovered(true); onMouseEnter?.(e); }}
+      onMouseLeave={(e) => { setHovered(false); onMouseLeave?.(e); }}
+      className="flex flex-col overflow-hidden rounded-[18px] bg-white/70 px-3 pb-3 pt-3 cursor-pointer"
+      style={{
+        border: active ? "2px dashed #a78bfa" : "2px dashed #ddd6fe",
+        backgroundColor: active ? "#fff" : undefined,
+        transition: "transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s, border-color 0.35s",
+        transform: active ? "scale(1.028) translateY(-5px)" : "scale(1) translateY(0)",
+        boxShadow: active ? "0 20px 50px rgba(54,27,99,0.13)" : "0 6px 20px rgba(54,27,99,.04)",
+      }}
     >
       {/* Name + badge */}
       <div className="flex items-center justify-between gap-1 mb-1">
@@ -327,14 +337,24 @@ function NewOpeningPlaceholderCard({ onOpen, animal }) {
 }
 
 /* ─── Desktop New Opening Placeholder Card ──────────────────── */
-function DesktopNewOpeningPlaceholderCard({ onOpen, animal }) {
+function DesktopNewOpeningPlaceholderCard({ onOpen, animal, highlighted = false, onMouseEnter, onMouseLeave }) {
   const animalImg = animal
     ? animal.imageHome || animal.image || ANIMAL_IMG_FALLBACK[animal.nameAz] || null
     : null;
+  const [hovered, setHovered] = useState(false);
+  const active = highlighted || hovered;
   return (
     <div onClick={() => onOpen(animal?.nameAz)}
-      className="group flex flex-col overflow-hidden rounded-[18px] border-2 border-dashed border-purple-200 bg-white/70 px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1 hover:border-purple-400 hover:bg-white"
-      style={{ boxShadow: "0 8px 28px rgba(54,27,99,.04)" }}>
+      onMouseEnter={(e) => { setHovered(true); onMouseEnter?.(e); }}
+      onMouseLeave={(e) => { setHovered(false); onMouseLeave?.(e); }}
+      className="group flex flex-col overflow-hidden rounded-[18px] bg-white/70 px-3 pb-3 pt-3 cursor-pointer"
+      style={{
+        border: active ? "2px dashed #a78bfa" : "2px dashed #ddd6fe",
+        backgroundColor: active ? "#fff" : undefined,
+        transition: "transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s, border-color 0.35s",
+        transform: active ? "scale(1.028) translateY(-5px)" : "scale(1) translateY(0)",
+        boxShadow: active ? "0 22px 55px rgba(54,27,99,0.14)" : "0 8px 28px rgba(54,27,99,.04)",
+      }}>
       <div className="mb-1 flex items-start justify-between gap-2">
         <h3 className="text-[15px] font-bold leading-none text-purple-200">{animal ? animal.nameAz : "—"}</h3>
         <span className="rounded-md bg-purple-50 px-2 py-1 text-[10px] font-medium text-purple-300 whitespace-nowrap shrink-0">Açılış yoxdur</span>
@@ -1822,7 +1842,8 @@ function HomeContent() {
 
   useEffect(() => {
     if (animalsLoading || homeAnimals.length === 0) return;
-    const count = homeAnimals.length;
+    const placeholderCount = filter === "Bütün heyvanlar" ? Math.max(0, 4 - filtered.length) : 0;
+    const count = filtered.length + placeholderCount;
     const clearSeq = () => { seqIdsRef.current.forEach(clearTimeout); seqIdsRef.current = []; };
     const schedule = (fn, delay) => { const id = setTimeout(fn, delay); seqIdsRef.current.push(id); };
     const runSequence = () => {
@@ -1836,7 +1857,7 @@ function HomeContent() {
     runSeqRef.current = runSequence;
     schedule(runSequence, 2000);
     return clearSeq;
-  }, [animalsLoading, homeAnimals.length]);
+  }, [animalsLoading, homeAnimals.length, filtered.length, filter]);
 
   const handleCardEnter = (idx) => {
     setHoveredCard(idx);
@@ -2076,11 +2097,18 @@ function HomeContent() {
                     onMouseLeave={handleCardLeave}
                   />
                 ))}
-                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
-                  <NewOpeningPlaceholderCard key={`placeholder-${i}`}
-                    animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
-                    onOpen={openNewCampaign} />
-                ))}
+                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => {
+                  const pIdx = filtered.length + i;
+                  return (
+                    <NewOpeningPlaceholderCard key={`placeholder-${i}`}
+                      animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
+                      onOpen={openNewCampaign}
+                      highlighted={glowCard === pIdx || hoveredCard === pIdx}
+                      onMouseEnter={() => handleCardEnter(pIdx)}
+                      onMouseLeave={handleCardLeave}
+                    />
+                  );
+                })}
               </div>
               {/* Desktop: detailed long card */}
               <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -2092,11 +2120,18 @@ function HomeContent() {
                     onMouseLeave={handleCardLeave}
                   />
                 ))}
-                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
-                  <DesktopNewOpeningPlaceholderCard key={`placeholder-${i}`}
-                    animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
-                    onOpen={openNewCampaign} />
-                ))}
+                {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => {
+                  const pIdx = filtered.length + i;
+                  return (
+                    <DesktopNewOpeningPlaceholderCard key={`placeholder-${i}`}
+                      animal={filter === "Bütün heyvanlar" ? missingAnimals[i] || null : null}
+                      onOpen={openNewCampaign}
+                      highlighted={glowCard === pIdx || hoveredCard === pIdx}
+                      onMouseEnter={() => handleCardEnter(pIdx)}
+                      onMouseLeave={handleCardLeave}
+                    />
+                  );
+                })}
               </div>
             </>
           )}
