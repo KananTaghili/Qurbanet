@@ -37,8 +37,9 @@ const SIDEBAR_NAV = [
   },
   {
     icon: BookOpen,
-    label: "Qaydalar",
-    lines: ["Qaydalar"],
+    label: "Qurbanın Əhkamları",
+    mobileLabel: "Əhkamlar",
+    lines: ["Qurbanın", "Əhkamları"],
     href: "/qurban-rules",
   },
 ];
@@ -434,9 +435,10 @@ export default function QurbanLayout({ children }) {
               .qln-tab.qln-on .qln-lbl { color:#1c5e20; font-weight:700; }
             `}</style>
             <div className="qln-bar">
-              {nav.map(({ icon: Icon, label, href }) => {
+              {nav.map(({ icon: Icon, label, mobileLabel, href }) => {
                 const act = isActive(href);
                 const guestBlock = isGuest && href === "/my-orders";
+                const displayLabel = mobileLabel || label;
                 return guestBlock ? (
                   <button
                     key={href}
@@ -447,7 +449,7 @@ export default function QurbanLayout({ children }) {
                     <div className="qln-icon">
                       <Icon size={19} strokeWidth={1.7} color="#a1a1aa" />
                     </div>
-                    <span className="qln-lbl">{label}</span>
+                    <span className="qln-lbl">{displayLabel}</span>
                   </button>
                 ) : (
                   <Link
@@ -458,7 +460,7 @@ export default function QurbanLayout({ children }) {
                     <div className="qln-icon">
                       <Icon size={19} strokeWidth={act ? 2.4 : 1.7} color={act ? "#1c5e20" : "#a1a1aa"} />
                     </div>
-                    <span className="qln-lbl">{label}</span>
+                    <span className="qln-lbl">{displayLabel}</span>
                   </Link>
                 );
               })}
