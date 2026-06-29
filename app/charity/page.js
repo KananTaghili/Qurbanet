@@ -1884,7 +1884,7 @@ function HomeContent() {
             <img
               src="/kollectiv_qurban_mobil.png"
               alt="Xeyriyyə"
-              className="absolute inset-0 w-full h-full object-cover object-center rounded-xl"
+              className="absolute inset-0 w-full h-full object-cover rounded-xl" style={{ objectPosition: "70% center" }}
             />
             <div className="relative z-10 p-5 flex flex-col justify-center min-h-[180px]">
               <h1 className="leading-tight mb-4 text-[#241a4d] text-[1.4rem] font-bold">
