@@ -96,7 +96,7 @@ function StepCard({ step, cfg, idx, reverse }) {
       >
         {/* Large decorative number */}
         <span
-          className="absolute font-black select-none"
+          className="absolute font-black select-none z-20"
           style={{
             fontSize: "clamp(60px, 10vw, 110px)",
             color: "rgba(255,255,255,0.08)",
@@ -111,19 +111,19 @@ function StepCard({ step, cfg, idx, reverse }) {
 
         {/* Step badge */}
         <span
-          className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white/90"
+          className="absolute top-3 left-3 z-20 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white/90"
           style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(4px)" }}
         >
           {step.label}
         </span>
 
-        {/* Step photo */}
-        <div className="relative z-10" style={{ width: 140, height: 140 }}>
+        {/* Step photo — fills the whole panel */}
+        <div className="absolute inset-0 z-10">
           <Image
             src={cfg.img}
             alt={step.title}
             fill
-            style={{ objectFit: "contain", filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.35))" }}
+            style={{ objectFit: "contain", padding: "18px", filter: "drop-shadow(0 6px 22px rgba(0,0,0,0.38))" }}
           />
         </div>
       </div>
