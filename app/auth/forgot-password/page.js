@@ -157,7 +157,7 @@ function ForgotPasswordPageInner() {
     }
   };
 
-  // ── Step 2: verify OTP via server (send 1-char password that always fails validation) ──
+  // ── Step 2: verify OTP via /auth/verify-forgot-otp (no password reset) ─────
   const [verifying, setVerifying] = useState(false);
 
   const handleVerifyOtp = async (e) => {
@@ -176,23 +176,15 @@ function ForgotPasswordPageInner() {
       const val = sessionStorage.getItem(type === "phone" ? "forgot_phone" : "forgot_email");
       const fullCode = code.join("");
       const payload = type === "phone"
-        ? { phone: val, code: fullCode, newPassword: "x" }
-        : { email: val, code: fullCode, newPassword: "x" };
-      await api.post("/auth/reset-password", payload);
-      // Success (unlikely with "x" password but handle it)
+        ? { phone: val, code: fullCode }
+        : { email: val, code: fullCode };
+      await api.post("/auth/verify-forgot-otp", payload);
       setStep("reset");
     } catch (err) {
-      const msg = err.response?.data?.message || "";
-      // If error is about OTP/code being wrong → stay on step 2
-      const isOtpError = msg.includes("Yanlış kod") || msg.includes("tapılmadı") || msg.includes("vaxtı") || msg.toLowerCase().includes("code") || msg.toLowerCase().includes("kod");
-      if (isOtpError) {
-        setError("OTP kodu yanlışdır. Zəhmət olmasa düzgün kodu daxil edin.");
-        setCode(["", "", "", ""]);
-        setTimeout(() => inputs.current[0]?.focus(), 80);
-      } else {
-        // Password validation error → OTP was correct, proceed to password screen
-        setStep("reset");
-      }
+      const msg = err.response?.data?.message || "OTP kodu yanlışdır. Yenidən cəhd edin.";
+      setError(msg);
+      setCode(["", "", "", ""]);
+      setTimeout(() => inputs.current[0]?.focus(), 80);
     } finally {
       setVerifying(false);
     }
