@@ -117,9 +117,12 @@ function AccountCard({ user, updateUser, fullHeight }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const hasChanges = name.trim() !== (user.name || "").trim() || lastName.trim() !== (user.lastName || "").trim();
+
   const save = async (e) => {
     e.preventDefault();
     setError("");
+    if (!hasChanges) return;
     if (name.trim().length < 2) { setError("Ad ən az 2 simvol olmalıdır."); return; }
     if (!LETTERS_RE.test(name.trim())) { setError("Ad yalnız hərflərdən ibarət olmalıdır."); return; }
     if (lastName.trim() && !LETTERS_RE.test(lastName.trim())) { setError("Soyad yalnız hərflərdən ibarət olmalıdır."); return; }
@@ -159,7 +162,7 @@ function AccountCard({ user, updateUser, fullHeight }) {
             <button type="button" onClick={cancel} style={{ flex: 1, height: 40, borderRadius: 10, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontFamily: "inherit" }}>
               <X size={12} /> Ləğv et
             </button>
-            <button onClick={save} disabled={loading} style={{ flex: 1, height: 40, borderRadius: 10, border: "none", background: loading ? "#9ca3af" : RED, color: "#fff", fontSize: 12, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontFamily: "inherit", boxShadow: loading ? "none" : "0 3px 10px rgba(242,11,50,.22)" }}>
+            <button onClick={save} disabled={loading || !hasChanges} style={{ flex: 1, height: 40, borderRadius: 10, border: "none", background: (loading || !hasChanges) ? "#9ca3af" : RED, color: "#fff", fontSize: 12, fontWeight: 800, cursor: (loading || !hasChanges) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontFamily: "inherit", boxShadow: (loading || !hasChanges) ? "none" : "0 3px 10px rgba(242,11,50,.22)", opacity: !hasChanges && !loading ? 0.6 : 1 }}>
               {loading ? <Spinner /> : <><CheckCircle size={12} /> Yadda saxla</>}
             </button>
           </div>
