@@ -260,7 +260,7 @@ function HeroBanner({ router, isMobile }) {
       {/* Desktop image */}
       <img
         src="/qurban%20sifari%C5%9Fi%20(3).png"
-        alt="QurbanlД±q heyvanlar"
+        alt="Qurbanliq heyvanlar"
         className="absolute bottom-0 right-0 hidden lg:block" style={{ height: "110%", width: "auto" }}
       />
       {/* Mobile image */}
