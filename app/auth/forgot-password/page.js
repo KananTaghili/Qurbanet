@@ -28,7 +28,7 @@ function ForgotPasswordPageInner() {
   const searchParams = useSearchParams();
   const { login } = useAuth();
 
-  const [step, setStep] = useState("identifier"); // "identifier" | "otp" | "reset"
+  const [step, setStep] = useState("identifier"); // "identifier" | "otp"
   const [mode, setMode] = useState("phone"); // "phone" | "email"
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -36,7 +36,6 @@ function ForgotPasswordPageInner() {
   const [error, setError] = useState("");
 
   const [code, setCode] = useState(["", "", "", ""]);
-  const [verifying, setVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const inputs = useRef([]);
   const timerRef = useRef(null);
@@ -139,14 +138,6 @@ function ForgotPasswordPageInner() {
     if (pasted.length === 4) setCode(pasted.split(""));
   };
 
-  const handleVerifyOtp = (e) => {
-    e.preventDefault();
-    const fullCode = code.join("");
-    if (fullCode.length < 4) { setError("Zəhmət olmasa 4 rəqəmli kodu daxil edin."); return; }
-    setError("");
-    setStep("reset");
-  };
-
   const handleResend = async (e) => {
     e.preventDefault();
     if (resendTimer > 0 || sending) return;
@@ -166,10 +157,12 @@ function ForgotPasswordPageInner() {
     }
   };
 
-  // ── Step 3: Reset Password ───────────────────────────────────────────────────
+  // ── Step 2 submit: verify OTP + reset password in one request ───────────────
   const handleReset = async (e) => {
     e.preventDefault();
     if (resetting) return;
+    const fullCode = code.join("");
+    if (fullCode.length < 4) { setError("Zəhmət olmasa 4 rəqəmli kodu daxil edin."); return; }
     if (!newPassword || newPassword.length < 6) { setError("Şifrə ən az 6 simvol olmalıdır."); return; }
     if (newPassword !== confirmPassword) { setError("Şifrələr uyğun gəlmir."); return; }
     setResetting(true);
@@ -178,8 +171,8 @@ function ForgotPasswordPageInner() {
       const type = sessionStorage.getItem("forgot_identifier_type") || "phone";
       const val = sessionStorage.getItem(type === "phone" ? "forgot_phone" : "forgot_email");
       const payload = type === "phone"
-        ? { phone: val, code: code.join(""), newPassword }
-        : { email: val, code: code.join(""), newPassword };
+        ? { phone: val, code: fullCode, newPassword }
+        : { email: val, code: fullCode, newPassword };
       const res = await api.post("/auth/reset-password", payload);
       if (res.data.success) {
         const { token, user } = res.data.data;
@@ -194,8 +187,8 @@ function ForgotPasswordPageInner() {
       const status = err.response?.status;
       if (status === 400 && (msg?.includes("Yanlış kod") || msg?.includes("tapılmadı") || msg?.includes("vaxtı"))) {
         setError("Daxil etdiyiniz kod yanlışdır və ya müddəti bitib. Yenidən kod alın.");
-        setStep("otp");
         setCode(["", "", "", ""]);
+        setTimeout(() => inputs.current[0]?.focus(), 100);
       } else {
         setError(msg || "Şifrə yenilənə bilmədi. Yenidən cəhd edin.");
       }
@@ -393,88 +386,49 @@ function ForgotPasswordPageInner() {
               </>
             )}
 
-            {/* Step 2 — OTP */}
+            {/* Step 2 — OTP + New Password (combined) */}
             {step === "otp" && (
               <>
                 <div className="flex items-center gap-2.5 mb-1">
                   <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff1f3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <KeyRound size={20} style={{ color: "#c8102e" }} />
                   </div>
-                  <h2 className="text-2xl font-black text-text-primary">Kodu daxil edin</h2>
+                  <h2 className="text-2xl font-black text-text-primary">Şifrəni Sıfırla</h2>
                 </div>
-                <p className="text-sm text-text-secondary mb-6">
-                  {mode === "phone" ? "Nömrənizə" : "Email ünvanınıza"} göndərilən 4 rəqəmli kodu daxil edin.
+                <p className="text-sm text-text-secondary mb-5">
+                  {mode === "phone" ? "Nömrənizə" : "Email ünvanınıza"} göndərilən kodu və yeni şifrənizi daxil edin.
                 </p>
 
-                <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-                  <div className="flex gap-3 justify-center" onPaste={handlePaste}>
-                    {code.map((d, i) => (
-                      <input
-                        key={i}
-                        ref={(el) => (inputs.current[i] = el)}
-                        type="tel"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={d}
-                        onChange={(e) => handleOtpChange(i, e.target.value)}
-                        onKeyDown={(e) => handleKeyDown(i, e)}
-                        style={{ width: 56, height: 56, textAlign: "center", fontSize: 24, fontWeight: 700, borderWidth: 2, borderStyle: "solid", borderRadius: 16, outline: "none", transition: "all 0.15s", borderColor: d ? "#c8102e" : "#e5e7eb", background: d ? "#fff1f3" : "#f8f9fb", color: d ? "#c8102e" : "#111827", fontFamily: "inherit" }}
-                      />
-                    ))}
-                  </div>
-
-                  <ErrorBox msg={error} />
-
-                  <button
-                    type="submit"
-                    disabled={verifying || code.join("").length < 4}
-                    className="auth-btn-primary"
-                    style={{
-                      width: "100%", padding: "14px 0", borderRadius: 14, border: "none",
-                      background: (verifying || code.join("").length < 4) ? "#9CA3AF" : "#f20b32", color: "#fff",
-                      fontSize: 15, fontWeight: 700, cursor: (verifying || code.join("").length < 4) ? "not-allowed" : "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                      boxShadow: (verifying || code.join("").length < 4) ? "none" : "0 4px 14px rgba(242,11,50,0.3)",
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    {verifying
-                      ? <span style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />Yoxlanılır...</span>
-                      : "Davam et →"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleResend}
-                    disabled={resendTimer > 0 || sending}
-                    style={{ fontSize: 13, fontWeight: 600, textAlign: "center", background: "none", border: "none", padding: 0, fontFamily: "inherit", cursor: resendTimer > 0 ? "not-allowed" : "pointer", color: resendTimer > 0 ? "#9ca3af" : "#c8102e" }}
-                  >
-                    {resendTimer > 0 ? `Yenidən göndər (${resendTimer}s)` : "Kodu yenidən göndər"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setStep("identifier"); setError(""); setCode(["", "", "", ""]); }}
-                    style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}
-                  >
-                    ← Geri qayıt
-                  </button>
-                </form>
-              </>
-            )}
-
-            {/* Step 3 — Reset */}
-            {step === "reset" && (
-              <>
-                <div className="flex items-center gap-2.5 mb-1">
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff1f3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <KeyRound size={20} style={{ color: "#c8102e" }} />
-                  </div>
-                  <h2 className="text-2xl font-black text-text-primary">Yeni Şifrə</h2>
-                </div>
-                <p className="text-sm text-text-secondary mb-6">Güclü yeni şifrə seçin.</p>
-
                 <form onSubmit={handleReset} className="flex flex-col gap-4">
+                  {/* OTP boxes */}
+                  <div>
+                    <label className="text-sm font-semibold text-text-primary mb-2 block">Doğrulama Kodu *</label>
+                    <div className="flex gap-3 justify-center" onPaste={handlePaste}>
+                      {code.map((d, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => (inputs.current[i] = el)}
+                          type="tel"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={d}
+                          onChange={(e) => handleOtpChange(i, e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(i, e)}
+                          style={{ width: 56, height: 56, textAlign: "center", fontSize: 24, fontWeight: 700, borderWidth: 2, borderStyle: "solid", borderRadius: 16, outline: "none", transition: "all 0.15s", borderColor: d ? "#c8102e" : "#e5e7eb", background: d ? "#fff1f3" : "#f8f9fb", color: d ? "#c8102e" : "#111827", fontFamily: "inherit" }}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={resendTimer > 0 || sending}
+                      style={{ fontSize: 12, fontWeight: 600, marginTop: 8, display: "block", width: "100%", textAlign: "center", background: "none", border: "none", padding: 0, fontFamily: "inherit", cursor: resendTimer > 0 ? "not-allowed" : "pointer", color: resendTimer > 0 ? "#9ca3af" : "#c8102e" }}
+                    >
+                      {resendTimer > 0 ? `Yenidən göndər (${resendTimer}s)` : "Kodu yenidən göndər"}
+                    </button>
+                  </div>
+
+                  {/* New password */}
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-2 block">Yeni Şifrə *</label>
                     <div className="relative">
@@ -485,7 +439,6 @@ function ForgotPasswordPageInner() {
                         placeholder="Ən az 6 simvol"
                         style={{ width: "100%", boxSizing: "border-box", border: "1.5px solid #e5e7eb", borderRadius: 12, padding: "12px 44px 12px 14px", fontSize: 15, color: "#111827", background: "#f9fafb", outline: "none", fontFamily: "inherit" }}
                         maxLength={128}
-                        autoFocus
                       />
                       <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary">
                         {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -493,6 +446,7 @@ function ForgotPasswordPageInner() {
                     </div>
                   </div>
 
+                  {/* Confirm password */}
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrəni Təsdiqlə *</label>
                     <div className="relative">
@@ -530,8 +484,12 @@ function ForgotPasswordPageInner() {
                       : "Şifrəni Yenilə"}
                   </button>
 
-                  <button type="button" onClick={() => navigate("/auth/login")} style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}>
-                    ← Daxil ol
+                  <button
+                    type="button"
+                    onClick={() => { setStep("identifier"); setError(""); setCode(["", "", "", ""]); setNewPassword(""); setConfirmPassword(""); }}
+                    style={{ fontSize: 13, color: "#6b7280", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "center", fontFamily: "inherit" }}
+                  >
+                    ← Geri qayıt
                   </button>
                 </form>
               </>
