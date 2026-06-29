@@ -1901,46 +1901,53 @@ function HomeContent() {
               </button>
             </div>
           </div>
-          <div className="hidden lg:grid grid-cols-2 gap-6 items-stretch">
-            <div className="pl-6 py-3 pr-2 flex flex-col justify-center">
-              <h1
-                className="leading-tight mb-1.5 text-[#241a4d]"
-                style={{ fontSize: "1.3rem", fontWeight: 700 }}
-              >
-                Birlikdə qurban,
-                <br />
-                <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
-              </h1>
-              <p className="text-gray-500 text-xs mb-3 leading-relaxed max-w-xs">
-                Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənirlik.
-              </p>
-              <div className="flex items-center gap-3 flex-wrap">
-                <button
-                  onClick={openNewCampaign}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90 active:scale-95 transition-all"
-                  style={{ background: "#4b14bd" }}
-                >
-                  <Plus size={12} /> Yeni açılış et
-                </button>
+          {/* ── Desktop hero ── */}
+          <div className="hidden lg:block relative overflow-hidden rounded-2xl border border-white/70 shadow-[0_12px_32px_rgba(64,30,132,0.10)]" style={{ background: "#f3efff" }}>
+            {/* BG photo */}
+            <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/hero-bg.jpg')" }} />
+            {/* Fade overlay */}
+            <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(to right, #ede8ff 40%, rgba(237,232,255,0.8) 60%, transparent 100%)" }} />
+            {/* Content */}
+            <div className="relative z-[3] grid min-h-[300px] gap-6" style={{ gridTemplateColumns: "minmax(320px,0.8fr) 1.2fr" }}>
+              <div className="flex flex-col justify-center px-8 py-9" style={{ maxWidth: 430 }}>
+                <div className="mb-3 inline-flex w-fit rounded-full border border-[#ddd2f4] bg-white/75 px-3 py-1 text-[11px] font-extrabold text-[#551dc7] shadow-sm backdrop-blur-sm">
+                  Kollektiv qurban platforması
+                </div>
+                <h1 className="mb-3 leading-tight text-[#241a4d]" style={{ fontSize: "1.85rem", fontWeight: 900 }}>
+                  Birlikdə qurban,<br />
+                  <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
+                </h1>
+                <p className="mb-5 text-sm leading-relaxed text-gray-500" style={{ maxWidth: 320 }}>
+                  Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənilənlik.
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={openNewCampaign}
+                    className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                    style={{ background: "#4b14bd", boxShadow: "0 8px 18px rgba(75,20,189,.24)" }}
+                  >
+                    <Plus size={14} /> Yeni açılış et
+                  </button>
+                  <button
+                    onClick={() => router.push("/how-it-works")}
+                    className="flex items-center gap-2 rounded-xl border bg-white/75 px-4 py-2.5 text-sm font-semibold text-[#4b14bd] backdrop-blur-sm transition-all hover:bg-white"
+                    style={{ borderColor: "rgba(75,20,189,0.3)" }}
+                  >
+                    <Play size={12} fill="currentColor" /> Necə işləyir?
+                  </button>
+                </div>
+                <p className="mt-3 flex items-center gap-1 text-xs text-gray-400">
+                  <ArrowRight size={11} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
+                </p>
               </div>
-              <p className="text-gray-400 text-[11px] mt-2 flex items-center gap-1">
-                <ArrowRight size={10} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
-              </p>
-            </div>
-            <div className="relative min-h-[130px]">
-              <img
-                src="/kollektiv_web_pc_image.png"
-                alt="Xeyriyyə"
-                className="absolute inset-0 w-full h-full object-cover rounded-r-2xl"
-                style={{ objectPosition: "left center" }}
-              />
-              <div
-                className="absolute inset-0 rounded-r-2xl"
-                style={{
-                  background:
-                    "linear-gradient(to right, #ede9fe 0%, rgba(237,233,254,0.7) 30%, transparent 65%)",
-                }}
-              />
+              <div className="flex items-end justify-end pr-4">
+                <img
+                  src="/hero-delivery.png"
+                  alt="Qurban ətini çatdıran kuryer MEATBOX qutusu ilə"
+                  className="w-auto object-contain drop-shadow-xl"
+                  style={{ height: 300 }}
+                />
+              </div>
             </div>
           </div>
         </div>
