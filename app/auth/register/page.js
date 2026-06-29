@@ -55,8 +55,8 @@ function RegisterPageInner() {
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
   useEffect(() => {
-    if (!authLoading && !isGuest) router.replace("/");
-  }, [authLoading, isGuest, router]);
+    if (!authLoading && !isGuest) router.replace(searchParams.get("from") || "/");
+  }, [authLoading, isGuest, router, searchParams]);
 
   const switchMode = (m) => { setMode(m); setError(""); setPhone(""); setEmail(""); };
 
