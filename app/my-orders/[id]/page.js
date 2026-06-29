@@ -344,19 +344,10 @@ export default function OrderDetailPage() {
     <div className="flex flex-col flex-1" style={{ background: '#f4f7f4' }}>
       <div className="flex-1 overflow-y-auto pb-10">
 
-        {/* ── HERO ROW: back button left + card right ── */}
-        <div className="max-w-3xl mx-auto flex items-start gap-3 px-4 pt-4">
-          <button
-            onClick={() => router.push('/my-orders')}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
-            style={{ background: BRAND, color: '#fff', border: 'none' }}
-          >
-            <ChevronLeft size={15} strokeWidth={2.5} />
-            Geri Qayıt
-          </button>
+        <div className="max-w-3xl mx-auto px-4 pt-4 pb-0 flex flex-col gap-3">
 
           {/* ── HERO CARD ── */}
-          <div className="relative flex-1 min-w-0">
+          <div className="relative">
             {/* Green circle status icon — floats above card top-right */}
             {(() => { const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon; return (
               <div className="absolute -top-3 -right-3 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
@@ -370,6 +361,15 @@ export default function OrderDetailPage() {
                 {/* PHOTO — full width on mobile, fixed width on desktop */}
                 <div className="relative w-full md:w-[320px] md:shrink-0 overflow-hidden"
                   style={{ background: '#f0f7f0', height: undefined }}>
+                  {/* Back button overlaid on photo top-left */}
+                  <button
+                    onClick={() => router.push('/my-orders')}
+                    className="absolute top-3 left-3 z-20 inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
+                    style={{ background: BRAND, color: '#fff', border: 'none' }}
+                  >
+                    <ChevronLeft size={15} strokeWidth={2.5} />
+                    Geri Qayıt
+                  </button>
                   <img src={animalImg} alt={animalName}
                     className="w-full object-cover"
                     style={{ height: 260, objectPosition: 'center 15%' }} />
@@ -397,9 +397,6 @@ export default function OrderDetailPage() {
               </div>
             </div>{/* end bg-white card */}
           </div>{/* end relative wrapper (hero card) */}
-        </div>{/* end hero row */}
-
-        <div className="max-w-3xl mx-auto px-4 pt-3 pb-0 flex flex-col gap-3">
 
           {/* ── STATUS + DETAILS: side by side on desktop ── */}
           <div className="flex flex-col md:flex-row gap-3 items-start">
