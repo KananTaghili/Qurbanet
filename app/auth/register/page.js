@@ -156,12 +156,12 @@ function RegisterPageInner() {
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 420, margin: "0 auto", width: "100%", textAlign: "center" }}>
           {/* Logo */}
-          <div className="lp-fade-up" style={{ width: 200, display: "flex", alignItems: "center", justifyContent: "center", animationDelay: "0.05s" }}>
+          <div className="lp-fade-up auth-lp-logo" style={{ width: 200, display: "flex", alignItems: "center", justifyContent: "center", animationDelay: "0.05s" }}>
             <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={200} height={154} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
           </div>
 
           {/* Slogan */}
-          <div className="lp-fade-up" style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center", animationDelay: "0.18s" }}>
+          <div className="lp-fade-up auth-lp-slogan" style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center", animationDelay: "0.18s" }}>
             {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
               <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.75)" }}>{t}</span>
@@ -171,9 +171,9 @@ function RegisterPageInner() {
           </div>
 
           {/* Feature cards — staggered */}
-          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
+          <div className="auth-lp-features" style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
             {features.map((feature, idx) => { const { title, text, icon, iconWrap } = feature; return (
-              <div key={title} className="lp-fade-up" style={{
+              <div key={title} className="lp-fade-up auth-lp-feature-item" style={{
                 display: "flex", alignItems: "center", gap: 12,
                 borderRadius: 16, border: "1px solid rgba(255,255,255,0.12)",
                 background: "rgba(255,255,255,0.075)",
@@ -183,14 +183,14 @@ function RegisterPageInner() {
                 WebkitBackdropFilter: "blur(20px)",
                 animationDelay: `${0.32 + idx * 0.12}s`,
               }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", ...iconWrap }}>
+                <div className="auth-lp-feature-icon" style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", ...iconWrap }}>
                   {feature.IconComponent
                     ? <feature.IconComponent size={22} color={feature.iconColor} />
                     : <Image src={icon} alt={title} width={22} height={22} style={{ objectFit: "contain" }} />}
                 </div>
                 <div style={{ flex: 1, textAlign: "left" }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.02em" }}>{title}</div>
-                  <div style={{ marginTop: 1, fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{text}</div>
+                  <div className="auth-lp-feature-title" style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.02em" }}>{title}</div>
+                  <div className="auth-lp-feature-text" style={{ marginTop: 1, fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{text}</div>
                 </div>
               </div>
             ); })}
@@ -203,7 +203,7 @@ function RegisterPageInner() {
       <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px", overflowX: "hidden" }}
         className="h-full overflow-y-auto"
       >
-        <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: "100%", paddingTop: 8, paddingBottom: 8 }}>
+        <div className="auth-card-gap" style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: "100%", paddingTop: 8, paddingBottom: 8 }}>
         {/* Mobile branding — above card, hidden on desktop */}
         <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
           <div className="auth-mobile-logo" style={{ width: 160 }}>
@@ -242,12 +242,12 @@ function RegisterPageInner() {
             >
               <ArrowLeft size={14} /> Geri qayıt
             </button>
-            <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.045em", color: "#111827", margin: 0 }}>Qeydiyyatdan keç</h2>
-            <p style={{ marginTop: 2, fontSize: 12, color: "#6b7280" }}>Yeni hesab yaradın və sifarişlərinizi rahat idarə edin.</p>
+            <h2 className="auth-card-title" style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.045em", color: "#111827", margin: 0 }}>Qeydiyyatdan keç</h2>
+            <p className="auth-card-subtitle" style={{ marginTop: 2, fontSize: 12, color: "#6b7280" }}>Yeni hesab yaradın və sifarişlərinizi rahat idarə edin.</p>
           </div>
 
           {/* Mode toggle — sliding pill */}
-          <div style={{ marginTop: 12, position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", background: "#f3f4f6", borderRadius: 14, padding: 3 }}>
+          <div className="auth-toggle-mt" style={{ marginTop: 12, position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", background: "#f3f4f6", borderRadius: 14, padding: 3 }}>
             <div style={{
               position: "absolute", top: 3, bottom: 3,
               width: "calc(50% - 3px)",
@@ -282,7 +282,7 @@ function RegisterPageInner() {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+          <form onSubmit={handleSubmit} className="auth-form-gap" style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
             {/* Phone / Email */}
             {mode === "phone" ? (
               <label key="phone" className="auth-tab-field" style={{ display: "block" }}>
@@ -294,6 +294,7 @@ function RegisterPageInner() {
                     value={phone}
                     onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
                     placeholder="50 123 45 67"
+                    className="auth-input-h"
                     style={{ height: 40, flex: 1, background: "transparent", border: "none", outline: "none", padding: "0 14px", fontSize: 14, fontWeight: 500, color: "#374151", fontFamily: "inherit" }}
                     autoFocus
                     inputMode="numeric"
@@ -340,7 +341,7 @@ function RegisterPageInner() {
             <button
               type="submit"
               disabled={loading}
-              className="auth-btn-primary"
+              className="auth-btn-primary auth-btn-h"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 height: 40, width: "100%", borderRadius: 14, border: "none",
@@ -435,6 +436,53 @@ function RegisterPageInner() {
         }
         @media (max-height: 620px) and (max-width: 1023px) {
           .auth-mobile-brand { display: none !important; }
+        }
+
+        /* ── Height-responsive: desktop left panel ── */
+        @media (max-height: 820px) and (min-width: 1024px) {
+          .auth-lp-logo { width: 160px !important; }
+          .auth-lp-slogan { margin-top: 6px !important; }
+          .auth-lp-features { margin-top: 14px !important; gap: 6px !important; }
+          .auth-lp-feature-item { padding: 8px 12px !important; }
+          .auth-lp-feature-icon { width: 34px !important; height: 34px !important; }
+          .auth-lp-feature-title { font-size: 13px !important; }
+          .auth-lp-feature-text { font-size: 11px !important; }
+        }
+        @media (max-height: 680px) and (min-width: 1024px) {
+          .auth-lp-logo { width: 130px !important; }
+          .auth-lp-features { margin-top: 10px !important; gap: 5px !important; }
+          .auth-lp-feature-item { padding: 6px 10px !important; }
+          .auth-lp-feature-icon { width: 30px !important; height: 30px !important; }
+          .auth-lp-feature-title { font-size: 12px !important; }
+          .auth-lp-feature-text { font-size: 10px !important; }
+        }
+
+        /* ── Height-responsive: right form card ── */
+        @media (max-height: 820px) {
+          .auth-card-pad { padding: 20px 28px !important; }
+          .auth-card-title { font-size: 18px !important; }
+          .auth-card-gap { gap: 14px !important; }
+          .auth-form-gap { gap: 8px !important; margin-top: 10px !important; }
+          .auth-toggle-mt { margin-top: 10px !important; }
+        }
+        @media (max-height: 680px) {
+          .auth-card-pad { padding: 16px 22px !important; }
+          .auth-card-title { font-size: 16px !important; }
+          .auth-card-gap { gap: 10px !important; }
+          .auth-form-gap { gap: 6px !important; margin-top: 8px !important; }
+          .auth-toggle-mt { margin-top: 8px !important; }
+          .auth-input-h { height: 36px !important; }
+          .auth-btn-h { padding-top: 9px !important; padding-bottom: 9px !important; font-size: 13px !important; }
+        }
+        @media (max-height: 580px) {
+          .auth-card-pad { padding: 12px 18px !important; }
+          .auth-card-title { font-size: 15px !important; }
+          .auth-card-subtitle { display: none !important; }
+          .auth-card-gap { gap: 8px !important; }
+          .auth-form-gap { gap: 5px !important; margin-top: 6px !important; }
+          .auth-toggle-mt { margin-top: 6px !important; }
+          .auth-input-h { height: 32px !important; font-size: 13px !important; }
+          .auth-btn-h { padding-top: 7px !important; padding-bottom: 7px !important; font-size: 12px !important; }
         }
       `}</style>
     </div>
