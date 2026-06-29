@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, HeartHandshake, Beef } from "lucide-react";
+import { ArrowRight, HeartHandshake, Beef, ArrowLeft } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import SiteLayout from "../../components/SiteLayout";
 
@@ -49,7 +49,10 @@ export default function ServicesPage() {
   return (
     <SiteLayout>
       <section className="bg-[#fbf7f2] px-4 py-4 text-[#1d0c08] sm:px-6 md:px-8 md:py-5">
-        <div className="rounded-[1.25rem] border border-[#ead9cf] bg-white/90 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] sm:p-5 md:rounded-[1.5rem] md:p-6">
+        <div className="relative rounded-[1.25rem] border border-[#ead9cf] bg-white/90 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] sm:p-5 md:rounded-[1.5rem] md:p-6">
+          <Link href="/" className="absolute top-4 left-4 flex items-center justify-center w-9 h-9 rounded-full hover:opacity-80 active:scale-95 transition-all" style={{ background: "#f20b32" }}>
+            <ArrowLeft className="h-4 w-4 text-white" strokeWidth={2.5} />
+          </Link>
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#e10d0d] md:text-xs md:tracking-[0.28em]">Xidmətlər</p>
           <h1 className="mt-2 max-w-3xl text-xl font-black leading-snug sm:text-2xl md:text-3xl">
             Üç əsas xidmət — qurbanlıq, kollektiv qurban və təzə ət satışı.
