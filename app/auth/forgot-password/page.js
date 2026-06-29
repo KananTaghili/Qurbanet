@@ -445,8 +445,9 @@ function ForgotPasswordPageInner() {
 
                   <button
                     type="submit"
+                    disabled={code.filter(d => d !== "").length < 4}
                     className="auth-btn-primary"
-                    style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
+                    style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: code.filter(d => d !== "").length < 4 ? "#9CA3AF" : "#f20b32", color: "#fff", fontSize: 15, fontWeight: 700, cursor: code.filter(d => d !== "").length < 4 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: code.filter(d => d !== "").length < 4 ? "none" : "0 4px 14px rgba(242,11,50,0.3)", fontFamily: "inherit" }}
                   >
                     Davam et →
                   </button>
