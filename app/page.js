@@ -77,22 +77,40 @@ const colorMap = {
   orange:  { text: "text-[#c85a13]", border: "border-[#c85a13]/25", bg: "bg-[#c85a13]" },
 };
 
-function ServiceCard({ item, idx = 0, onPlay }) {
+function ServiceCard({ item, idx = 0, onPlay, highlighted = false }) {
   const { text, border, bg } = colorMap[item.color];
   const Icon = item.Icon;
   return (
     <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}>
-      <div className="card-hover-root relative transition-transform duration-300 ease-out">
+      <div
+        className="card-hover-root relative"
+        style={{
+          transition: "transform 0.35s cubic-bezier(0.22,1,0.36,1)",
+          transform: highlighted ? "scale(1.028) translateY(-5px)" : "scale(1) translateY(0)",
+        }}
+      >
       {/* Icon — half outside top, right side */}
       <div className="absolute -top-8 right-5 z-10">
-        <div className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white shadow-md ${text} ${border}`}>
+        <div
+          className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white ${text} ${border}`}
+          style={{
+            transition: "box-shadow 0.35s",
+            boxShadow: highlighted ? "0 6px 24px rgba(35,18,8,0.18)" : "0 2px 8px rgba(35,18,8,0.10)",
+          }}
+        >
           <Icon className="h-9 w-9" />
         </div>
       </div>
 
       <article
-        className="rounded-2xl bg-white pt-3 pb-3 px-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_70px_rgba(35,18,8,0.16)]"
-        style={{ border: "1.5px solid #e8e2db" }}
+        className="rounded-2xl bg-white pt-3 pb-3 px-4"
+        style={{
+          border: highlighted ? "1.5px solid #d4cdc6" : "1.5px solid #e8e2db",
+          transition: "box-shadow 0.35s, border-color 0.35s",
+          boxShadow: highlighted
+            ? "0 28px 72px rgba(35,18,8,0.17)"
+            : "0 18px 50px rgba(35,18,8,0.10)",
+        }}
       >
       <h3 className={`text-left text-xl font-extrabold leading-6 pr-20 ${text}`}>{item.title}</h3>
       <div className="relative mt-2 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
@@ -180,6 +198,21 @@ export default function HomePage() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
+  const [glowCard, setGlowCard] = useState(-1);
+
+  useEffect(() => {
+    let step = 0;
+    let intervalId = null;
+    const tick = () => {
+      setGlowCard(step < 3 ? step : -1);
+      step = (step + 1) % 4;
+    };
+    const startId = setTimeout(() => {
+      tick();
+      intervalId = setInterval(tick, 500);
+    }, 1000);
+    return () => { clearTimeout(startId); if (intervalId) clearInterval(intervalId); };
+  }, []);
 
   const nav = [
     { label: "Haqqımızda", to: "/about" },
@@ -388,7 +421,7 @@ export default function HomePage() {
         <section className="bg-[#fbf7f2] px-6 pb-8 pt-0 md:px-12">
           {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
           <div className="grid gap-4 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
-            {cards.map((item, idx) => <ServiceCard key={item.title} item={item} idx={idx} onPlay={setActiveVideo} />)}
+            {cards.map((item, idx) => <ServiceCard key={item.title} item={item} idx={idx} onPlay={setActiveVideo} highlighted={glowCard === idx} />)}
           </div>
 
           {/* Why MeatBox */}
