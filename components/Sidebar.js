@@ -122,7 +122,7 @@ export default function Sidebar() {
         {isGuest ? (
           <div className="flex flex-col gap-1.5">
             <Link
-              href="/auth/register"
+              href={`/auth/register?from=${encodeURIComponent(pathname)}`}
               className="sidebar-item"
               style={{ background: "rgba(134,239,172,0.18)", color: "#86efac" }}
             >
@@ -142,7 +142,7 @@ export default function Sidebar() {
               </div>
             </Link>
             <Link
-              href="/auth/login"
+              href={`/auth/login?from=${encodeURIComponent(pathname)}`}
               className="sidebar-item"
               style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)" }}
             >

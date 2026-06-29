@@ -136,7 +136,7 @@ function InnerLayout({ children }) {
                 <Bell size={16} className="text-white" />
               </button>
               {isGuest ? (
-                <Link href="/auth/login"
+                <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`}
                   className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-[#1c5e20] text-[12px] font-semibold hover:bg-green-50 transition-all shadow-sm">
                   Daxil ol
                 </Link>

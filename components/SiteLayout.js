@@ -121,7 +121,7 @@ export default function SiteLayout({ children }) {
           </nav>
           <div className="px-4 pb-6 border-t border-white/10 pt-4">
             {isGuest ? (
-              <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}
+              <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`} onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white no-underline"
                 style={{ background: "#f20b32" }}>
                 <User size={15} /> Daxil ol
@@ -182,7 +182,7 @@ export default function SiteLayout({ children }) {
             {!isGuest ? (
               <UserMenu user={user} onLogout={handleLogout} />
             ) : (
-              <Link href="/auth/login" className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
+              <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`} className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
                 <User className="h-5 w-5" />
                 <span className="hidden md:inline">Daxil ol</span>
               </Link>

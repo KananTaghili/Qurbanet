@@ -134,7 +134,7 @@ export default function Topbar() {
         {/* Auth area */}
         {isGuest ? (
           <button
-            onClick={() => router.push("/auth/login")}
+            onClick={() => router.push(`/auth/login?from=${encodeURIComponent(pathname)}`)}
             className="rounded-xl px-3.5 py-1.5 text-sm font-bold transition-colors text-white"
             style={{
               background: "rgba(255,255,255,0.15)",

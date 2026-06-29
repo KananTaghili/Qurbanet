@@ -326,7 +326,7 @@ function LoginPageInner() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, fontSize: 12 }}>
               <button
                 type="button"
-                onClick={() => navigate("/auth/forgot-password")}
+                onClick={() => navigate(`/auth/forgot-password${searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : ""}`)}
                 style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800, color: "#c8102e", fontFamily: "inherit", padding: 0, transition: "opacity 0.15s" }}
                 onMouseEnter={e => e.currentTarget.style.opacity = "0.7"}
                 onMouseLeave={e => e.currentTarget.style.opacity = "1"}
