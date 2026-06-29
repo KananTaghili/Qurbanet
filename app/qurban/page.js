@@ -224,7 +224,7 @@ function HeroBanner({ router, isMobile }) {
         className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[#edf5ef] from-[35%] via-[#edf5ef]/90 via-[50%] to-transparent" />
-      <div className={`relative z-10 ${isMobile ? "max-w-[55%]" : "max-w-lg"}`}>
+      <div className={`relative z-10 ${isMobile ? "max-w-[60%]" : "max-w-lg"}`}>
         <h2 className={`font-extrabold leading-tight text-[#082d15] mb-1.5 ${isMobile ? "text-lg" : "text-xl lg:text-2xl"}`}>
           Süfrəniz bərəkətli,
           <br />
@@ -235,7 +235,7 @@ function HeroBanner({ router, isMobile }) {
         </p>
         <button
           onClick={() => router.push("/qurban-rules")}
-          className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-extrabold text-white shadow-lg transition hover:-translate-y-0.5"
+          className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 whitespace-nowrap"
           style={{ backgroundColor: BRAND }}
         >
           Qurbanın Əhkamlarını Öyrən <ChevronRight size={14} strokeWidth={2.5} />
