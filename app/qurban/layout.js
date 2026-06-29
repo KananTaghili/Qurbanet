@@ -159,10 +159,6 @@ export default function QurbanLayout({ children }) {
                   Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
                 </p>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
-                <span className="text-[9.5px] font-medium text-white/30 shrink-0">Hədis · Buxari, Muslim</span>
-              </div>
             </div>
           </div>
         </aside>
@@ -363,10 +359,6 @@ export default function QurbanLayout({ children }) {
                   <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
                     Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
                   </p>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
-                  <span className="text-[9.5px] font-medium text-white/30 shrink-0">Hədis · Buxari, Muslim</span>
                 </div>
               </div>
             </div>
