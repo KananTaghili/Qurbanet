@@ -162,7 +162,12 @@ function ForgotPasswordPageInner() {
     e.preventDefault();
     if (resetting) return;
     const fullCode = code.join("");
-    if (fullCode.length < 4) { setError("Zəhmət olmasa 4 rəqəmli kodu daxil edin."); return; }
+    if (fullCode.length < 4) {
+      setError("Zəhmət olmasa 4 rəqəmli doğrulama kodunu daxil edin.");
+      setCode(["", "", "", ""]);
+      setTimeout(() => inputs.current[0]?.focus(), 50);
+      return;
+    }
     if (!newPassword || newPassword.length < 6) { setError("Şifrə ən az 6 simvol olmalıdır."); return; }
     if (newPassword !== confirmPassword) { setError("Şifrələr uyğun gəlmir."); return; }
     setResetting(true);
