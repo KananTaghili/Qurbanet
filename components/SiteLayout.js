@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { User, Menu, X, LogOut, Settings } from "lucide-react";
+import { User, Menu, X, LogOut, Settings, Home } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
@@ -153,6 +153,9 @@ export default function SiteLayout({ children }) {
         {/* Header — identical to home page */}
         <header className="flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
           <div className="flex items-center gap-2">
+            <Link href="/" className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors shrink-0">
+              <Home className="h-5 w-5 text-neutral-700" />
+            </Link>
             <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors"
               onClick={() => setMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
