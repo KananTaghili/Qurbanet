@@ -171,7 +171,7 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
   const paidPct = animal.openerPercent ?? 0;
   const handleShare = async (e) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/charity?campaign=${animal.id}`;
+    const url = `${window.location.origin}/charity?campaign=${animal.campaignId}`;
     try { await navigator.clipboard.writeText(url); } catch {}
     setCopied(true); setTimeout(() => setCopied(false), 2600);
   };
@@ -1380,7 +1380,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(`${window.location.origin}/charity?campaign=${campaignId}`);
     } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
