@@ -206,9 +206,9 @@ export default function HomePage() {
       ids.push(setTimeout(() => setGlowCard(0),   0));
       ids.push(setTimeout(() => setGlowCard(1), 300));
       ids.push(setTimeout(() => setGlowCard(2), 600));
-      ids.push(setTimeout(() => { setGlowCard(-1); ids.push(setTimeout(runSequence, 19100)); }, 900));
+      ids.push(setTimeout(() => { setGlowCard(-1); ids.push(setTimeout(runSequence, 1100)); }, 900));
     };
-    ids.push(setTimeout(runSequence, 1000));
+    ids.push(setTimeout(runSequence, 2000));
     return () => ids.forEach(clearTimeout);
   }, []);
 
