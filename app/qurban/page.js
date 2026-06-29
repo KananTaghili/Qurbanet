@@ -256,21 +256,22 @@ export default function QurbanPage() {
    в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ */
 function HeroBanner({ router, isMobile }) {
   return (
-    <section className={`relative overflow-hidden rounded-2xl bg-[#e9f1eb] shadow-sm ${isMobile ? "px-4 py-3.5" : "px-5 py-3.5 lg:px-6 lg:py-4"}`}>
-      {/* Desktop image — covers full card, gradient blends from left */}
-      <img
-        src="/qurbanliq_sf_pc_image.png"
-        alt="Qurbanliq heyvanlar"
-        className="absolute bottom-0 right-0 hidden lg:block" style={{ height: "135%", width: "auto" }}
-      />
+    <section
+      className={`relative overflow-hidden rounded-2xl shadow-sm ${isMobile ? "px-4 py-3.5" : "px-5 py-3.5 lg:px-6 lg:py-4"}`}
+      style={!isMobile ? {
+        backgroundImage: "linear-gradient(to right, #e9f1eb 0%, #e9f1eb 28%, rgba(233,241,235,0.94) 40%, rgba(233,241,235,0.72) 52%, rgba(233,241,235,0.35) 65%, rgba(233,241,235,0.06) 80%, transparent 92%), url('/qurbanliq_sf_pc_image.png')",
+        backgroundPosition: "left center, right bottom",
+        backgroundSize: "100% 100%, auto 150%",
+        backgroundRepeat: "no-repeat, no-repeat",
+        backgroundColor: "#e9f1eb",
+      } : { backgroundColor: "#e9f1eb" }}
+    >
       {/* Mobile image */}
       <img
         src="/qurban_sifarisi_mobil_foto.png"
         alt="Qurbanlıq heyvanlar"
         className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
       />
-      {/* Desktop gradient — card color left → transparent right */}
-      <div className="absolute inset-0 hidden lg:block" style={{ background: "linear-gradient(to right, #e9f1eb 0%, #e9f1eb 30%, rgba(233,241,235,0.95) 42%, rgba(233,241,235,0.75) 52%, rgba(233,241,235,0.4) 63%, rgba(233,241,235,0.1) 76%, transparent 90%)" }} />
       {/* Mobile gradient */}
       <div className="absolute inset-0 block lg:hidden" style={{ background: "linear-gradient(to right, #e9f1eb 35%, rgba(233,241,235,0.9) 50%, transparent 70%)" }} />
       <div className={`relative z-10 ${isMobile ? "max-w-[60%]" : "max-w-lg"}`}>
