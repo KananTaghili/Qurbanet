@@ -1629,6 +1629,19 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
           </div>
         </div>
 
+        {/* Admin note */}
+        {campaign.adminNote && (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="mt-0.5 shrink-0 grid h-7 w-7 place-items-center rounded-full bg-amber-100 text-amber-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div className="text-[11px] font-black text-amber-700 mb-0.5">Admin qeydi</div>
+              <div className="text-[13px] font-semibold text-amber-900 leading-snug whitespace-pre-wrap">{campaign.adminNote}</div>
+            </div>
+          </div>
+        )}
+
         {/* Opener row */}
         {openerDon && (
           <div>
