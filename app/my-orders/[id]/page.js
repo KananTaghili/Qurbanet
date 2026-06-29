@@ -342,7 +342,17 @@ export default function OrderDetailPage() {
 
   return (
     <div className="flex flex-col flex-1" style={{ background: '#f4f7f4' }}>
-      <div className="flex-1 overflow-y-auto pb-10">
+      <div className="flex-1 overflow-y-auto pb-10 relative">
+
+        {/* ── BACK BUTTON — absolute far left of content area ── */}
+        <button
+          onClick={() => router.push('/my-orders')}
+          className="absolute top-4 left-4 z-20 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
+          style={{ background: BRAND, color: '#fff', border: 'none' }}
+        >
+          <ChevronLeft size={15} strokeWidth={2.5} />
+          Geri Qayıt
+        </button>
 
         <div className="max-w-3xl mx-auto px-4 pt-4 pb-0 flex flex-col gap-3">
 
@@ -361,15 +371,6 @@ export default function OrderDetailPage() {
                 {/* PHOTO — full width on mobile, fixed width on desktop */}
                 <div className="relative w-full md:w-[320px] md:shrink-0 overflow-hidden"
                   style={{ background: '#f0f7f0', height: undefined }}>
-                  {/* Back button overlaid on photo top-left */}
-                  <button
-                    onClick={() => router.push('/my-orders')}
-                    className="absolute top-3 left-3 z-20 inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
-                    style={{ background: BRAND, color: '#fff', border: 'none' }}
-                  >
-                    <ChevronLeft size={15} strokeWidth={2.5} />
-                    Geri Qayıt
-                  </button>
                   <img src={animalImg} alt={animalName}
                     className="w-full object-cover"
                     style={{ height: 260, objectPosition: 'center 15%' }} />
