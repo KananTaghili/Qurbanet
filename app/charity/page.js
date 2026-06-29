@@ -123,13 +123,22 @@ function RingProgressSmall({ percent, type, img }) {
 }
 
 /* ─── Animal Card ────────────────────────────────────────────── */
-function AnimalCard({ animal, onDonate, onClick }) {
+function AnimalCard({ animal, onDonate, onClick, highlighted = false, onMouseEnter, onMouseLeave }) {
   const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const active = highlighted || hovered;
   return (
     <div
       onClick={onClick}
-      className="group flex flex-col overflow-hidden rounded-[18px] border border-[#eee8f6] bg-white px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1"
-      style={{ boxShadow: "0 6px 20px rgba(54,27,99,.08)" }}
+      onMouseEnter={(e) => { setHovered(true); onMouseEnter?.(e); }}
+      onMouseLeave={(e) => { setHovered(false); onMouseLeave?.(e); }}
+      className="group flex flex-col overflow-hidden rounded-[18px] bg-white px-3 pb-3 pt-3 cursor-pointer"
+      style={{
+        border: active ? "1.5px solid rgba(124,58,237,0.25)" : "1px solid #eee8f6",
+        transition: "transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s, border-color 0.35s",
+        transform: active ? "scale(1.028) translateY(-5px)" : "scale(1) translateY(0)",
+        boxShadow: active ? "0 20px 50px rgba(54,27,99,0.16)" : "0 6px 20px rgba(54,27,99,.08)",
+      }}
     >
       <div className="mb-1 flex items-start justify-between gap-2">
         <h3 className="text-[14px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
@@ -165,8 +174,10 @@ function AnimalCard({ animal, onDonate, onClick }) {
 }
 
 /* ─── Desktop Animal Card (detailed long card) ──────────────── */
-function DesktopAnimalCard({ animal, onDonate, onClick }) {
+function DesktopAnimalCard({ animal, onDonate, onClick, highlighted = false, onMouseEnter, onMouseLeave }) {
   const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const active = highlighted || hovered;
   const paidAmt = animal.openerAmount ?? animal.shareMin;
   const paidPct = animal.openerPercent ?? 0;
   const handleShare = async (e) => {
@@ -177,8 +188,15 @@ function DesktopAnimalCard({ animal, onDonate, onClick }) {
   };
   return (
     <div onClick={onClick}
-      className="group flex flex-col overflow-hidden rounded-[18px] border border-[#eee8f6] bg-white px-3 pb-3 pt-3 cursor-pointer transition-all hover:-translate-y-1"
-      style={{ boxShadow: "0 8px 28px rgba(54,27,99,.08)" }}>
+      onMouseEnter={(e) => { setHovered(true); onMouseEnter?.(e); }}
+      onMouseLeave={(e) => { setHovered(false); onMouseLeave?.(e); }}
+      className="group flex flex-col overflow-hidden rounded-[18px] bg-white px-3 pb-3 pt-3 cursor-pointer"
+      style={{
+        border: active ? "1.5px solid rgba(124,58,237,0.25)" : "1px solid #eee8f6",
+        transition: "transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s, border-color 0.35s",
+        transform: active ? "scale(1.028) translateY(-5px)" : "scale(1) translateY(0)",
+        boxShadow: active ? "0 22px 55px rgba(54,27,99,0.17)" : "0 8px 28px rgba(54,27,99,.08)",
+      }}>
       <div className="mb-1 flex items-start justify-between gap-2">
         <h3 className="text-[15px] font-bold leading-none text-[#241a4d]">{animal.type}</h3>
         <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600 whitespace-nowrap shrink-0">Davam Edir</span>
@@ -1734,6 +1752,12 @@ function HomeContent() {
   const [homeAnimals, setHomeAnimals] = useState([]);
   const [allAnimals, setAllAnimals] = useState([]);
   const [animalsLoading, setAnimalsLoading] = useState(true);
+  const [glowCard, setGlowCard] = useState(-1);
+  const [hoveredCard, setHoveredCard] = useState(-1);
+  const pausedRef = useRef(false);
+  const seqIdsRef = useRef([]);
+  const runSeqRef = useRef(null);
+  const resumeTimerRef = useRef(null);
   const [pageSettings, setPageSettings] = useState({
     minDon: 10,
     minOpenPct: 30,
@@ -1795,6 +1819,39 @@ function HomeContent() {
       : homeAnimals.filter((a) => a.type === filter);
   const activeTypes = new Set(homeAnimals.map((a) => a.type));
   const missingAnimals = allAnimals.filter((a) => !activeTypes.has(a.nameAz));
+
+  useEffect(() => {
+    if (animalsLoading || homeAnimals.length === 0) return;
+    const count = homeAnimals.length;
+    const clearSeq = () => { seqIdsRef.current.forEach(clearTimeout); seqIdsRef.current = []; };
+    const schedule = (fn, delay) => { const id = setTimeout(fn, delay); seqIdsRef.current.push(id); };
+    const runSequence = () => {
+      if (pausedRef.current) return;
+      for (let i = 0; i < count; i++) {
+        const idx = i;
+        schedule(() => setGlowCard(idx), i * 300);
+      }
+      schedule(() => { setGlowCard(-1); schedule(runSequence, 9100); }, count * 300);
+    };
+    runSeqRef.current = runSequence;
+    schedule(runSequence, 2000);
+    return clearSeq;
+  }, [animalsLoading, homeAnimals.length]);
+
+  const handleCardEnter = (idx) => {
+    setHoveredCard(idx);
+    pausedRef.current = true;
+    seqIdsRef.current.forEach(clearTimeout);
+    seqIdsRef.current = [];
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    setGlowCard(-1);
+  };
+
+  const handleCardLeave = () => {
+    setHoveredCard(-1);
+    pausedRef.current = false;
+    resumeTimerRef.current = setTimeout(() => { if (runSeqRef.current) runSeqRef.current(); }, 10000);
+  };
 
   const openCampaign = (id) => {
     setSelectedCampaignId(id);
@@ -2011,9 +2068,13 @@ function HomeContent() {
             <>
               {/* Mobile: compact 2-col */}
               <div className="grid grid-cols-2 gap-3 lg:hidden">
-                {filtered.map((animal) => (
+                {filtered.map((animal, idx) => (
                   <AnimalCard key={animal.campaignId || animal.type} animal={animal}
-                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
+                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)}
+                    highlighted={glowCard === idx || hoveredCard === idx}
+                    onMouseEnter={() => handleCardEnter(idx)}
+                    onMouseLeave={handleCardLeave}
+                  />
                 ))}
                 {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
                   <NewOpeningPlaceholderCard key={`placeholder-${i}`}
@@ -2023,9 +2084,13 @@ function HomeContent() {
               </div>
               {/* Desktop: detailed long card */}
               <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filtered.map((animal) => (
+                {filtered.map((animal, idx) => (
                   <DesktopAnimalCard key={animal.campaignId || animal.type} animal={animal}
-                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)} />
+                    onDonate={setDonationTarget} onClick={() => openCampaign(animal.campaignId)}
+                    highlighted={glowCard === idx || hoveredCard === idx}
+                    onMouseEnter={() => handleCardEnter(idx)}
+                    onMouseLeave={handleCardLeave}
+                  />
                 ))}
                 {Array.from({ length: Math.max(0, 4 - filtered.length) }).map((_, i) => (
                   <DesktopNewOpeningPlaceholderCard key={`placeholder-${i}`}
