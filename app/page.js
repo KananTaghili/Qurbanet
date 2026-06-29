@@ -361,16 +361,19 @@ export default function HomePage() {
                 ETİBARLI &nbsp;•&nbsp; HALAL &nbsp;•&nbsp; SÜRƏTLİ
               </p>
               <div className="flex gap-2.5 flex-wrap">
-                <Link href="/qurban"
-                  className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
-                  style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "#CC0000" }}>
-                  Xidmətlərimiz &nbsp;→
-                </Link>
-                <Link href="/charity"
-                  className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white hover:opacity-90 active:scale-95 transition-all"
-                  style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.28)", backdropFilter: "blur(8px)" }}>
-                  Ətraflı məlumat
-                </Link>
+                {isGuest ? (
+                  <Link href="/auth/register"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
+                    style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "#CC0000" }}>
+                    Qeydiyyatdan keç &nbsp;→
+                  </Link>
+                ) : (
+                  <div
+                    className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg"
+                    style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "#CC0000" }}>
+                    Xoş gəlmisiniz, {user?.name}! 👋
+                  </div>
+                )}
               </div>
             </div>
           </div>
