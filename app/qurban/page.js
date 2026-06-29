@@ -259,7 +259,7 @@ function HeroBanner({ router, isMobile }) {
     <section className={`relative overflow-hidden rounded-2xl bg-[#e9f1eb] shadow-sm ${isMobile ? "px-4 py-3.5" : "px-5 py-3.5 lg:px-6 lg:py-4"}`}>
       {/* Desktop image — covers full card, gradient blends from left */}
       <img
-        src="/qurban%20sifari%C5%9Fi%20(3).png"
+        src="/qurbanliq_sf_pc_image.png"
         alt="Qurbanliq heyvanlar"
         className="absolute inset-0 w-full h-full object-cover object-right hidden lg:block"
       />
