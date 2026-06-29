@@ -261,7 +261,7 @@ function HeroBanner({ router, isMobile }) {
       <img
         src="/qurbanliq_sf_pc_image.png"
         alt="Qurbanliq heyvanlar"
-        className="absolute inset-0 w-full h-full object-cover object-right hidden lg:block"
+        className="absolute bottom-0 right-0 hidden lg:block" style={{ height: "135%", width: "auto" }}
       />
       {/* Mobile image */}
       <img
