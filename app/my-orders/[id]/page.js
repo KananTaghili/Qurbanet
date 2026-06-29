@@ -343,17 +343,20 @@ export default function OrderDetailPage() {
   return (
     <div className="flex flex-col flex-1" style={{ background: '#f4f7f4' }}>
       <div className="flex-1 overflow-y-auto pb-10">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex flex-col gap-3">
 
-          {/* ── BACK BUTTON ── */}
+        {/* ── BACK BUTTON — full width row, truly far left ── */}
+        <div className="px-4 pt-4">
           <button
             onClick={() => router.push('/my-orders')}
-            className="self-start inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
             style={{ background: BRAND, color: '#fff', border: 'none' }}
           >
             <ChevronLeft size={15} strokeWidth={2.5} />
             Geri Qayıt
           </button>
+        </div>
+
+        <div className="max-w-3xl mx-auto px-4 py-3 flex flex-col gap-3">
 
           {/* ── HERO CARD ── wrapped in relative so icon isn't clipped */}
           <div className="relative" style={{ paddingTop: '1rem' }}>
@@ -368,11 +371,11 @@ export default function OrderDetailPage() {
             <div className="bg-white rounded-2xl overflow-hidden" style={cardStyle}>
               <div className="flex flex-col md:flex-row">
                 {/* PHOTO — full width on mobile, fixed width on desktop */}
-                <div className="relative w-full md:w-[240px] md:shrink-0 overflow-hidden"
+                <div className="relative w-full md:w-[320px] md:shrink-0 overflow-hidden"
                   style={{ background: '#f0f7f0', height: undefined }}>
                   <img src={animalImg} alt={animalName}
                     className="w-full object-cover"
-                    style={{ height: 220, objectPosition: 'center 15%' }} />
+                    style={{ height: 260, objectPosition: 'center 15%' }} />
                   <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
                     style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }}>
                     <p className="font-mono text-[9px] font-bold text-white/90 truncate">{orderNum}</p>
