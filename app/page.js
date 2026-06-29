@@ -371,7 +371,7 @@ export default function HomePage() {
                   <div
                     className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg"
                     style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "#CC0000" }}>
-                    Xoş gəlmisiniz, {user?.name}! 👋
+                    Xoş gəlmisiniz, {user?.name}!
                   </div>
                 )}
               </div>
