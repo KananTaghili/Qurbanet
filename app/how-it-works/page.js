@@ -70,7 +70,7 @@ function useFadeUp() {
 }
 
 // ── Single step card ──────────────────────────────────────────────────────────
-function StepCard({ step, cfg, idx }) {
+function StepCard({ step, cfg, idx, reverse }) {
   const ref = useFadeUp();
   const num = String(idx + 1).padStart(2, "0");
 
@@ -84,12 +84,12 @@ function StepCard({ step, cfg, idx }) {
         background: "#fff",
       }}
     >
-      {/* ── Photo panel — always left ── */}
+      {/* ── Photo panel ── */}
       <div
-        className="relative shrink-0 flex items-center justify-center bg-white"
-        style={{ flex: "0 0 38%", minHeight: 200 }}
+        className={`relative shrink-0 flex items-center justify-center bg-white ${reverse ? "md:order-2" : ""}`}
+        style={{ flex: "0 0 38%", minHeight: 210 }}
       >
-        {/* Step badge — always top-left of photo */}
+        {/* Step badge — always top-left of photo panel */}
         <span
           className="absolute top-3 left-3 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
           style={{ background: cfg.light, color: cfg.color }}
@@ -97,21 +97,21 @@ function StepCard({ step, cfg, idx }) {
           {step.label}
         </span>
 
-        {/* Photo with rounded corners */}
-        <div style={{ position: "relative", width: "calc(100% - 24px)", height: "calc(100% - 24px)", minHeight: 176, borderRadius: 16, overflow: "hidden" }}>
+        {/* Photo */}
+        <div style={{ position: "relative", width: "calc(100% - 16px)", height: "calc(100% - 16px)", minHeight: 194, borderRadius: 14, overflow: "hidden" }}>
           <Image
             src={cfg.img}
             alt={step.title}
             fill
-            style={{ objectFit: "contain", padding: "12px", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.10))" }}
+            style={{ objectFit: "cover", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.10))" }}
           />
         </div>
       </div>
 
       {/* ── Content panel ── */}
       <div
-        className="flex flex-col justify-center px-5 py-5 flex-1"
-        style={{ borderLeft: `3px solid ${cfg.light}` }}
+        className={`flex flex-col justify-center px-5 py-5 flex-1 ${reverse ? "md:order-1" : ""}`}
+        style={{ borderLeft: reverse ? "none" : `3px solid ${cfg.light}`, borderRight: reverse ? `3px solid ${cfg.light}` : "none" }}
       >
         {/* Step number + title */}
         <div className="flex items-center gap-2 mb-2">
@@ -234,6 +234,7 @@ export default function HowItWorksPage() {
                 step={step}
                 cfg={STEP_CFG[i]}
                 idx={i}
+                reverse={i % 2 === 1}
               />
 
               {/* Connector between steps */}
