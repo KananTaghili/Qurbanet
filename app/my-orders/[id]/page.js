@@ -50,12 +50,12 @@ const STATUS_CFG = {
 
 /* ── Pipeline steps — matches list page exactly ── */
 const PIPELINE_STEPS = [
-  { label: 'Gözləmə',    Icon: Clock        },
-  { label: 'Təsdiq',     Icon: CheckCircle2 },
-  { label: 'Kəsim',      Icon: KnifeIcon    },
-  { label: 'Hazırlıq',   Icon: Package      },
-  { label: 'Çatdırılma', Icon: Truck        },
-  { label: 'Tamamlandı', Icon: Star         },
+  { label: 'Sifariş yoxlanılır', Icon: Clock        },
+  { label: 'Təsdiqləndi',        Icon: CheckCircle2 },
+  { label: 'Kəsilir',            Icon: KnifeIcon    },
+  { label: 'Hazırlanır',         Icon: Package      },
+  { label: 'Çatdırılır',        Icon: Truck        },
+  { label: 'Tamamlandı',         Icon: Star         },
 ];
 
 const DIST_LABELS = {
