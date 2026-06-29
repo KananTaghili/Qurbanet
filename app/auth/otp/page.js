@@ -140,7 +140,15 @@ export default function OtpPage() {
       }
     } catch (err) {
       if (err.name === 'AbortError' || err.code === 'ERR_CANCELED') return;
-      setError(err.response?.data?.message || 'Yanlış kod. Yenidən cəhd edin.');
+      const status = err.response?.status;
+      const msg = err.response?.data?.message;
+      if (!status || status >= 500) {
+        setError('Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən cəhd edin.');
+      } else if (status === 404) {
+        setError('Kod müddəti bitib və ya tapılmadı. Yenidən kod göndərin.');
+      } else {
+        setError(msg || 'Daxil etdiyiniz kod yanlışdır. Yenidən cəhd edin.');
+      }
       setCode(['', '', '', '']);
       inputs.current[0]?.focus();
     } finally {

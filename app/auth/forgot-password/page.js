@@ -110,6 +110,8 @@ function ForgotPasswordPageInner() {
         setError(mode === "phone"
           ? "Bu telefon nömrəsi ilə qeydiyyatdan keçmiş hesab tapılmadı."
           : "Bu email ilə qeydiyyatdan keçmiş hesab tapılmadı.");
+      } else if (status === 500 && mode === "phone") {
+        setError("Telefon nömrəsinə SMS göndərilə bilmədi. Zəhmət olmasa email ilə cəhd edin.");
       } else {
         setError(msg || "Xəta baş verdi. Yenidən cəhd edin.");
       }
@@ -137,25 +139,12 @@ function ForgotPasswordPageInner() {
     if (pasted.length === 4) setCode(pasted.split(""));
   };
 
-  const handleVerifyOtp = async (e) => {
+  const handleVerifyOtp = (e) => {
     e.preventDefault();
-    if (verifying) return;
     const fullCode = code.join("");
     if (fullCode.length < 4) { setError("Zəhmət olmasa 4 rəqəmli kodu daxil edin."); return; }
-    setVerifying(true);
     setError("");
-    try {
-      const type = sessionStorage.getItem("forgot_identifier_type") || "phone";
-      const val = sessionStorage.getItem(type === "phone" ? "forgot_phone" : "forgot_email");
-      await api.post("/auth/verify-forgot-otp", type === "phone" ? { phone: val, code: fullCode } : { email: val, code: fullCode });
-      setStep("reset");
-    } catch (err) {
-      setError(err.response?.data?.message || "Yanlış kod.");
-      if (err.response?.status === 400) setCode(["", "", "", ""]);
-      setTimeout(() => inputs.current[0]?.focus(), 50);
-    } finally {
-      setVerifying(false);
-    }
+    setStep("reset");
   };
 
   const handleResend = async (e) => {
@@ -201,8 +190,15 @@ function ForgotPasswordPageInner() {
         router.push(searchParams.get("from") || "/");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Şifrə yenilənə bilmədi.");
-      if (err.response?.status === 400) { setStep("otp"); setCode(["", "", "", ""]); }
+      const msg = err.response?.data?.message;
+      const status = err.response?.status;
+      if (status === 400 && (msg?.includes("Yanlış kod") || msg?.includes("tapılmadı") || msg?.includes("vaxtı"))) {
+        setError("Daxil etdiyiniz kod yanlışdır və ya müddəti bitib. Yenidən kod alın.");
+        setStep("otp");
+        setCode(["", "", "", ""]);
+      } else {
+        setError(msg || "Şifrə yenilənə bilmədi. Yenidən cəhd edin.");
+      }
     } finally {
       setResetting(false);
     }
