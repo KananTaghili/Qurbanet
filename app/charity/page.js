@@ -1908,8 +1908,8 @@ function HomeContent() {
             {/* Fade overlay */}
             <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(to right, #ede8ff 40%, rgba(237,232,255,0.8) 60%, transparent 100%)" }} />
             {/* Content */}
-            <div className="relative z-[3] grid min-h-[210px] gap-6" style={{ gridTemplateColumns: "minmax(320px,0.8fr) 1.2fr" }}>
-              <div className="flex flex-col justify-center px-8 py-6" style={{ maxWidth: 430 }}>
+            <div className="relative z-[3] grid min-h-[150px] gap-6" style={{ gridTemplateColumns: "minmax(320px,0.8fr) 1.2fr" }}>
+              <div className="flex flex-col justify-center px-8 py-4" style={{ maxWidth: 430 }}>
                 <div className="mb-3 inline-flex w-fit rounded-full border border-[#ddd2f4] bg-white/75 px-3 py-1 text-[11px] font-extrabold text-[#551dc7] shadow-sm backdrop-blur-sm">
                   Kollektiv qurban platforması
                 </div>
@@ -1945,7 +1945,7 @@ function HomeContent() {
                   src="/hero-delivery.png"
                   alt="Qurban ətini çatdıran kuryer MEATBOX qutusu ilə"
                   className="w-auto object-contain drop-shadow-xl"
-                  style={{ height: 210 }}
+                  style={{ height: 150 }}
                 />
               </div>
             </div>
