@@ -78,10 +78,7 @@ export default function QurbanLayout({ children }) {
     return pathname.startsWith(href);
   };
 
-  // Hide "Sifarişlərim" link for guest users (not registered/logged in)
-  const nav = SIDEBAR_NAV.filter(
-    (item) => !(isGuest && item.href === "/my-orders"),
-  );
+  const nav = SIDEBAR_NAV;
 
   return (
     <main
@@ -125,25 +122,32 @@ export default function QurbanLayout({ children }) {
             </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
-            {nav.map(({ icon: Icon, label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all ${
-                  isActive(href)
-                    ? "bg-white/15 text-white font-semibold"
-                    : "text-green-100/70 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Icon
-                  size={15}
-                  className={
-                    isActive(href) ? "text-white" : "text-green-200/60"
-                  }
-                />
-                {label}
-              </Link>
-            ))}
+            {nav.map(({ icon: Icon, label, href }) => {
+              const guestBlock = isGuest && href === "/my-orders";
+              return guestBlock ? (
+                <button
+                  key={href}
+                  onClick={() => router.push(`/auth/login?from=${encodeURIComponent(pathname)}`)}
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all text-green-100/70 hover:bg-white/5 hover:text-white"
+                >
+                  <Icon size={15} className="text-green-200/60" />
+                  {label}
+                </button>
+              ) : (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all ${
+                    isActive(href)
+                      ? "bg-white/15 text-white font-semibold"
+                      : "text-green-100/70 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <Icon size={15} className={isActive(href) ? "text-white" : "text-green-200/60"} />
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
           {/* Hadith box */}
           <div className="shrink-0 mx-3 mb-3 mt-2">
@@ -322,26 +326,33 @@ export default function QurbanLayout({ children }) {
               </button>
             </div>
             <nav className="flex-1 px-3 py-3 space-y-0.5">
-              {nav.map(({ icon: Icon, label, href }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all ${
-                    isActive(href)
-                      ? "bg-white/15 text-white font-semibold"
-                      : "text-green-100/70 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  <Icon
-                    size={16}
-                    className={
-                      isActive(href) ? "text-white" : "text-green-200/60"
-                    }
-                  />
-                  {label}
-                </Link>
-              ))}
+              {nav.map(({ icon: Icon, label, href }) => {
+                const guestBlock = isGuest && href === "/my-orders";
+                return guestBlock ? (
+                  <button
+                    key={href}
+                    onClick={() => { setMobileMenuOpen(false); router.push(`/auth/login?from=${encodeURIComponent(pathname)}`); }}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all text-green-100/70 hover:bg-white/10 hover:text-white"
+                  >
+                    <Icon size={16} className="text-green-200/60" />
+                    {label}
+                  </button>
+                ) : (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all ${
+                      isActive(href)
+                        ? "bg-white/15 text-white font-semibold"
+                        : "text-green-100/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <Icon size={16} className={isActive(href) ? "text-white" : "text-green-200/60"} />
+                    {label}
+                  </Link>
+                );
+              })}
             </nav>
             {/* Hadith box */}
             <div className="mx-3 mb-3 mt-2">
@@ -425,18 +436,27 @@ export default function QurbanLayout({ children }) {
             <div className="qln-bar">
               {nav.map(({ icon: Icon, label, href }) => {
                 const act = isActive(href);
-                return (
+                const guestBlock = isGuest && href === "/my-orders";
+                return guestBlock ? (
+                  <button
+                    key={href}
+                    onClick={() => router.push(`/auth/login?from=${encodeURIComponent(pathname)}`)}
+                    className="qln-tab"
+                    style={{ background: "none", border: "none", cursor: "pointer" }}
+                  >
+                    <div className="qln-icon">
+                      <Icon size={19} strokeWidth={1.7} color="#a1a1aa" />
+                    </div>
+                    <span className="qln-lbl">{label}</span>
+                  </button>
+                ) : (
                   <Link
                     key={href}
                     href={href}
                     className={`qln-tab${act ? " qln-on" : ""}`}
                   >
                     <div className="qln-icon">
-                      <Icon
-                        size={19}
-                        strokeWidth={act ? 2.4 : 1.7}
-                        color={act ? "#1c5e20" : "#a1a1aa"}
-                      />
+                      <Icon size={19} strokeWidth={act ? 2.4 : 1.7} color={act ? "#1c5e20" : "#a1a1aa"} />
                     </div>
                     <span className="qln-lbl">{label}</span>
                   </Link>
