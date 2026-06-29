@@ -1908,44 +1908,41 @@ function HomeContent() {
             {/* Fade overlay */}
             <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(to right, #ede8ff 40%, rgba(237,232,255,0.8) 60%, transparent 100%)" }} />
             {/* Content */}
-            <div className="relative z-[3] grid min-h-[150px] gap-6" style={{ gridTemplateColumns: "minmax(320px,0.8fr) 1.2fr" }}>
-              <div className="flex flex-col justify-center px-8 py-4" style={{ maxWidth: 430 }}>
-                <div className="mb-3 inline-flex w-fit rounded-full border border-[#ddd2f4] bg-white/75 px-3 py-1 text-[11px] font-extrabold text-[#551dc7] shadow-sm backdrop-blur-sm">
+            <div className="relative z-[3] grid gap-4" style={{ gridTemplateColumns: "minmax(280px,0.8fr) 1.2fr" }}>
+              <div className="flex flex-col justify-center px-6 py-3" style={{ maxWidth: 400 }}>
+                <div className="mb-1.5 inline-flex w-fit rounded-full border border-[#ddd2f4] bg-white/75 px-2.5 py-0.5 text-[10px] font-extrabold text-[#551dc7] shadow-sm backdrop-blur-sm">
                   Kollektiv qurban platforması
                 </div>
-                <h1 className="mb-3 leading-tight text-[#241a4d]" style={{ fontSize: "1.85rem", fontWeight: 900 }}>
+                <h1 className="mb-1.5 leading-tight text-[#241a4d]" style={{ fontSize: "1.35rem", fontWeight: 900 }}>
                   Birlikdə qurban,<br />
                   <span style={{ color: "#551dc7" }}>birlikdə xeyir.</span>
                 </h1>
-                <p className="mb-5 text-sm leading-relaxed text-gray-500" style={{ maxWidth: 320 }}>
-                  Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq.<br />Tam şəffaflıq, tam izlənilənlik.
+                <p className="mb-2.5 text-xs leading-relaxed text-gray-500" style={{ maxWidth: 300 }}>
+                  Heyvanı birlikdə alın, ehtiyac sahiblərinə çatdıraq. Tam şəffaflıq, tam izlənilənlik.
                 </p>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={openNewCampaign}
-                    className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-                    style={{ background: "#4b14bd", boxShadow: "0 8px 18px rgba(75,20,189,.24)" }}
+                    className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                    style={{ background: "#4b14bd", boxShadow: "0 6px 14px rgba(75,20,189,.24)" }}
                   >
-                    <Plus size={14} /> Yeni açılış et
+                    <Plus size={12} /> Yeni açılış et
                   </button>
                   <button
                     onClick={() => router.push("/how-it-works")}
-                    className="flex items-center gap-2 rounded-xl border bg-white/75 px-4 py-2.5 text-sm font-semibold text-[#4b14bd] backdrop-blur-sm transition-all hover:bg-white"
+                    className="flex items-center gap-1.5 rounded-lg border bg-white/75 px-3 py-2 text-xs font-semibold text-[#4b14bd] backdrop-blur-sm transition-all hover:bg-white"
                     style={{ borderColor: "rgba(75,20,189,0.3)" }}
                   >
-                    <Play size={12} fill="currentColor" /> Necə işləyir?
+                    <Play size={10} fill="currentColor" /> Necə işləyir?
                   </button>
                 </div>
-                <p className="mt-3 flex items-center gap-1 text-xs text-gray-400">
-                  <ArrowRight size={11} /> Aşağıda davam edən açılışlara basaraq ianə edə bilərsiniz
-                </p>
               </div>
-              <div className="flex items-end justify-end pr-4">
+              <div className="flex items-end justify-end pr-3">
                 <img
                   src="/hero-delivery.png"
                   alt="Qurban ətini çatdıran kuryer MEATBOX qutusu ilə"
                   className="w-auto object-contain drop-shadow-xl"
-                  style={{ height: 150 }}
+                  style={{ height: 160 }}
                 />
               </div>
             </div>
