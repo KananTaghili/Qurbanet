@@ -337,8 +337,11 @@ export default function MyOrdersPage() {
   const [loading,       setLoading]       = useState(true);
   const [fetchError,    setFetchError]    = useState(false);
   const [filter,        setFilter]        = useState('all');
+  const authLoadingRef = useRef(authLoading);
 
   const isActualGuest = !authLoading && (!token || user?.isGuest === true);
+
+  useEffect(() => { authLoadingRef.current = authLoading; }, [authLoading]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -347,8 +350,8 @@ export default function MyOrdersPage() {
   }, [authLoading, token, user?.isGuest]);
 
   useEffect(() => {
-    const onPageShow = (e) => { if (e.persisted && !isActualGuest) fetchAll(); };
-    const onVisible  = () => { if (document.visibilityState === 'visible' && !isActualGuest) fetchAll(); };
+    const onPageShow = (e) => { if (e.persisted && !authLoadingRef.current && !isActualGuest) fetchAll(); };
+    const onVisible  = () => { if (document.visibilityState === 'visible' && !authLoadingRef.current && !isActualGuest) fetchAll(); };
     window.addEventListener('pageshow', onPageShow);
     document.addEventListener('visibilitychange', onVisible);
     return () => {
@@ -362,8 +365,8 @@ export default function MyOrdersPage() {
     'charity_order:updated': () => { if (!isActualGuest) fetchAll(); },
   });
 
-  const fetchAll = async () => {
-    setLoading(true); setFetchError(false);
+  const fetchAll = async (retry = 0) => {
+    if (retry === 0) { setLoading(true); setFetchError(false); }
     try {
       const [ordRes, charRes] = await Promise.allSettled([
         api.get('/orders/my'),
@@ -373,6 +376,10 @@ export default function MyOrdersPage() {
         router.replace('/auth/login'); return;
       }
       if (ordRes.status === 'rejected' && !ordRes.reason?.response) {
+        if (retry < 2) {
+          setTimeout(() => fetchAll(retry + 1), 1500 * (retry + 1));
+          return;
+        }
         setFetchError(true); return;
       }
       if (ordRes.status  === 'fulfilled') setOrders(ordRes.value.data.data?.orders || []);

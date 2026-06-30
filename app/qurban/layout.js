@@ -185,7 +185,7 @@ export default function QurbanLayout({ children }) {
                 Qurbanlıq Sifarişi
               </span>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-3 shrink-0">
               <NotificationBell accentColor="#1c5e20" ringColor="#1c5e20" />
               {isGuest ? (
                 <Link

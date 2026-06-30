@@ -256,8 +256,8 @@ function LoginPageInner() {
                 onClick={() => switchMode(key)}
                 style={{
                   position: "relative", zIndex: 1,
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                  borderRadius: 11, padding: "7px 0", fontSize: 12, fontWeight: 800,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  borderRadius: 11, padding: "8px 0", fontSize: 12, fontWeight: 800,
                   border: "none", background: "transparent",
                   color: mode === key ? "#c8102e" : "#6b7280",
                   cursor: "pointer", fontFamily: "inherit",

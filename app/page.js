@@ -449,15 +449,15 @@ export default function HomePage() {
           </div>
 
           {/* Why MeatBox */}
-          <div className="hp-why mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-5">
-            <h2 className="text-center text-2xl font-black">Niyə MeatBox?</h2>
-            <div className="mt-5 grid gap-5 md:grid-cols-4">
+          <div className="hp-why mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-4 sm:p-5">
+            <h2 className="text-center text-xl sm:text-2xl font-black">Niyə MeatBox?</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
               {whyItems.map(([Icon, title, text]) => (
-                <div className="flex items-center gap-3" key={title}>
-                  <Icon className="h-10 w-10 text-[#0b6c24] shrink-0" />
-                  <div>
-                    <h4 className="font-bold">{title}</h4>
-                    <p className="text-sm text-neutral-600">{text}</p>
+                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3" key={title}>
+                  <Icon className="h-8 w-8 sm:h-9 sm:w-9 text-[#0b6c24] shrink-0" />
+                  <div className="text-center sm:text-left">
+                    <h4 className="font-bold text-sm sm:text-base">{title}</h4>
+                    <p className="text-xs sm:text-sm text-neutral-600 leading-snug">{text}</p>
                   </div>
                 </div>
               ))}
