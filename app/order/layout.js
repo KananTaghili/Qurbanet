@@ -75,7 +75,7 @@ function InnerLayout({ children }) {
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
             MeatBox Xidmətlərinə Keç
           </Link>
-          <div className="flex justify-center pb-4" style={{ paddingTop: 43 }}>
+          <div className="flex justify-center pb-4" style={{ paddingTop: 46 }}>
             <Link href="/" className="relative block" style={{ width: 160 }}>
               <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#1c5e20]/30 bg-white shadow-lg">
                 <PiKnifeBold className="h-7 w-7 text-[#1c5e20]" />
@@ -84,7 +84,7 @@ function InnerLayout({ children }) {
                 style={{ width: 160, height: "auto", objectFit: "contain" }} priority />
             </Link>
           </div>
-          <nav className="flex-1 min-h-0 overflow-y-auto px-3 space-y-0.5">
+          <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
             {nav.map(({ icon: Icon, label, href }) => {
               const active = href === "/qurban"; // order flow = heyvan seçimi aktiv
               return (
