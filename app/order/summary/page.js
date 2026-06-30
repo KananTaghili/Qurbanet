@@ -467,8 +467,8 @@ export default function SummaryPage() {
               </div>
             </C>
 
-            {/* Desktop confirm button — bottom of right col, right-aligned */}
-            <div className="hidden lg:flex justify-end pb-1">
+            {/* Confirm button — tablet + desktop, right-aligned, bottom of right col */}
+            <div className="hidden md:flex justify-end pb-2 pr-1">
               <button
                 className="btn-primary px-8 py-2.5 rounded-xl font-bold text-sm"
                 onClick={handleCreateOrder}
@@ -481,21 +481,6 @@ export default function SummaryPage() {
                 )}
               </button>
             </div>
-          </div>
-
-          {/* Tablet confirm button — full-width below both cols */}
-          <div className="hidden md:flex lg:hidden md:col-span-full pb-4">
-            <button
-              className="btn-primary w-full py-3 rounded-xl font-bold text-sm"
-              onClick={handleCreateOrder}
-              disabled={loading}
-            >
-              {loading ? (
-                <Spinner label={t(lang, "orderCreating")} />
-              ) : (
-                t(lang, "confirmOrder")
-              )}
-            </button>
           </div>
         </div>
 
