@@ -322,7 +322,7 @@ export default function SummaryPage() {
     <div className="flex flex-col h-full bg-bg overflow-hidden">
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[88px] lg:pb-0">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[88px] md:pb-0">
         <div className="p-3 md:grid md:grid-cols-[280px_1fr] md:gap-3 md:items-start lg:p-4 lg:h-full lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
@@ -467,25 +467,26 @@ export default function SummaryPage() {
               </div>
             </C>
 
-            {/* Desktop button — bottom right */}
-            <div className="hidden lg:flex justify-end">
-              <button
-                className="btn-primary px-8 py-3 rounded-xl font-bold text-sm"
-                onClick={handleCreateOrder}
-                disabled={loading}
-              >
-                {loading ? (
-                  <Spinner label={t(lang, "orderCreating")} />
-                ) : (
-                  t(lang, "confirmOrder")
-                )}
-              </button>
-            </div>
+          </div>
+
+          {/* Confirm button — full-width at tablet, right-aligned at desktop */}
+          <div className="hidden md:flex md:col-span-full lg:col-span-1 lg:col-start-2 lg:justify-end">
+            <button
+              className="btn-primary w-full lg:w-auto px-8 py-3 rounded-xl font-bold text-sm"
+              onClick={handleCreateOrder}
+              disabled={loading}
+            >
+              {loading ? (
+                <Spinner label={t(lang, "orderCreating")} />
+              ) : (
+                t(lang, "confirmOrder")
+              )}
+            </button>
           </div>
         </div>
 
         {/* ── Mobile action bar ─────────────────────────────────────── */}
-        <div className="mobile-action-bar lg:hidden">
+        <div className="mobile-action-bar md:hidden">
           <button
             className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
             onClick={handleCreateOrder}
