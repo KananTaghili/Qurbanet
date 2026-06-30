@@ -103,19 +103,17 @@ function LoginPageInner() {
 
   return (
     <main className="h-screen overflow-hidden bg-background p-0 md:p-7" style={{ fontFamily: "'Manrope', sans-serif", color: "#111827" }}>
-    <style>{`@media(max-width:767px){.auth-frame{border-radius:0!important;border:none!important;}}`}</style>
-    <div className="auth-frame" style={{
+    <div
+    className="lg:grid auth-grid-cols md:rounded-[1.75rem] md:border md:border-white/[0.13]"
+    style={{
       position: "relative",
       overflow: "hidden",
-      borderRadius: "1.75rem",
-      border: "1px solid rgba(255,255,255,0.13)",
       boxShadow: "0 25px 80px rgba(0,0,0,0.55)",
       background: "#130807",
       height: "100%",
       display: "grid",
       gridTemplateColumns: "1fr",
     }}
-    className="lg:grid auth-grid-cols"
     >
       {/* Background image */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
