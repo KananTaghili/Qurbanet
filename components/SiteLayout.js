@@ -157,7 +157,7 @@ export default function SiteLayout({ children }) {
               onClick={() => setMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
             </button>
-            <Link href="/" className="ml-[3px] lg:ml-0">
+            <Link href="/" className="ml-[6px] lg:ml-0">
               <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30}
                 style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
             </Link>
