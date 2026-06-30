@@ -104,7 +104,7 @@ function StepCard({ step, cfg, idx, reverse }) {
             src={cfg.img}
             alt={step.title}
             fill
-            style={{ objectFit: cfg.fit || "cover", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.10))" }}
+            style={{ objectFit: cfg.fit || "cover", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.10))", mixBlendMode: cfg.fit ? "multiply" : "normal" }}
           />
         </div>
       </div>
