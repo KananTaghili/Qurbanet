@@ -324,7 +324,7 @@ export default function ContactPage() {
     <div className="flex flex-col flex-1 bg-bg">
       <StepHeader currentStep={2} />
 
-      <div className="flex-1 page-scroll">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
         <div className="p-4 w-full max-w-3xl mx-auto flex flex-col gap-4">
 
           {/* ── Registered user ───────────────────────────────────────── */}

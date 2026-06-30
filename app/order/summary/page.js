@@ -322,7 +322,7 @@ export default function SummaryPage() {
     <div className="flex flex-col h-full bg-bg overflow-hidden">
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden page-scroll">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[88px] lg:pb-0">
         <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           <h2 className="text-base font-bold text-text-primary mb-1 lg:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
