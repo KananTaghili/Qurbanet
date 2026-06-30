@@ -28,7 +28,7 @@ export default function ContactPage() {
           {/* Mobile: fixed quarter-circle back button at top-left corner */}
           <Link href="/"
             className="lg:hidden fixed top-0 left-0 z-50 flex items-center justify-center hover:opacity-90 active:scale-95 transition-all"
-            style={{ background: "#f20b32", width: 62, height: 62, borderRadius: "0 0 100% 0", paddingBottom: 14, paddingRight: 14 }}>
+            style={{ background: "#f20b32", width: 59, height: 59, borderRadius: "0 0 100% 0", paddingBottom: 13, paddingRight: 13 }}>
             <ArrowLeft className="h-5 w-5 text-white" strokeWidth={2.5} />
           </Link>
           {/* Desktop: absolute circle at card corner */}
