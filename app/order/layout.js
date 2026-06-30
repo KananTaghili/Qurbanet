@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings, Quote,
+  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings, Feather,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import { MobileMenuProvider, useMobileMenu } from "../../context/MobileMenuContext";
@@ -16,7 +16,7 @@ const SIDEBAR_NAV = [
   { icon: Beef,          label: "Əsas",           href: "/qurban" },
   { icon: ClipboardList, label: "Sifarişlərim",  href: "/my-orders" },
   { icon: HelpCircle,    label: "Necə işləyir",  href: "/how-it-works" },
-  { icon: BookOpen,      label: "Qaydalar",       href: "/qurban-rules" },
+  { icon: BookOpen,      label: "Qurbanın Əhkamları", href: "/qurban-rules" },
 ];
 
 const PAGE_TITLES = {
@@ -101,7 +101,7 @@ function InnerLayout({ children }) {
           {/* Hadith box — shrink-0 so it never compresses nav */}
           <div className="shrink-0 mx-3 mb-3 mt-2">
             <div className="flex items-start gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
-              <Quote className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
+              <Feather className="w-3.5 h-3.5 text-white/50 shrink-0 mt-0.5" />
               <p className="text-[11px] font-semibold leading-relaxed text-white/80 italic flex-1">
                 Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
               </p>
@@ -194,7 +194,7 @@ function InnerLayout({ children }) {
             </nav>
             <div className="mx-3 mb-3 mt-2">
               <div className="flex items-start gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
-                <Quote className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
+                <Feather className="w-3.5 h-3.5 text-white/50 shrink-0 mt-0.5" />
                 <p className="text-[11px] font-semibold leading-relaxed text-white/80 italic flex-1">
                   Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
                 </p>

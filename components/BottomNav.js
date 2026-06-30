@@ -10,7 +10,7 @@ const TABS = [
   { href: '/qurban',       label: 'Əsas',           Icon: Beef,          key: 'home'   },
   { href: '/my-orders',    label: 'Sifarişlərim',  Icon: ClipboardList, key: 'orders' },
   { href: '/how-it-works', label: 'Necə İşləyir?', Icon: HelpCircle,    key: 'how'    },
-  { href: '/qurban-rules', label: 'Qaydalar',       Icon: BookOpen,      key: 'rules'  },
+  { href: '/qurban-rules', label: 'Əhkamlar',        Icon: BookOpen,      key: 'rules'  },
 ];
 
 const CSS = `

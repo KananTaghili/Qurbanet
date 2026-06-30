@@ -15,6 +15,7 @@ import {
   LogOut,
   Settings,
   User,
+  Feather,
 } from "lucide-react";
 import NotificationBell from "../../components/NotificationBell";
 import { PiKnifeBold } from "react-icons/pi";
@@ -152,13 +153,11 @@ export default function QurbanLayout({ children }) {
           </nav>
           {/* Hadith box */}
           <div className="shrink-0 mx-3 mb-3 mt-2">
-            <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <div className="flex items-start gap-2 mb-2">
-                <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
-                <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
-                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
-                </p>
-              </div>
+            <div className="flex items-start gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+              <Feather className="w-3.5 h-3.5 text-white/50 shrink-0 mt-0.5" />
+              <p className="text-[11px] font-semibold leading-relaxed text-white/80 italic flex-1">
+                Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+              </p>
             </div>
           </div>
         </aside>
@@ -353,13 +352,11 @@ export default function QurbanLayout({ children }) {
             </nav>
             {/* Hadith box */}
             <div className="mx-3 mb-3 mt-2">
-              <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <div className="flex items-start gap-2 mb-2">
-                  <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
-                  <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
-                    Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
-                  </p>
-                </div>
+              <div className="flex items-start gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                <Feather className="w-3.5 h-3.5 text-white/50 shrink-0 mt-0.5" />
+                <p className="text-[11px] font-semibold leading-relaxed text-white/80 italic flex-1">
+                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+                </p>
               </div>
             </div>
             {!isGuest && (
