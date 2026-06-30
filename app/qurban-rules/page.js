@@ -136,7 +136,7 @@ function Section({ section, idx, open, onToggle, id }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function QurbanRulesPage() {
   const { lang } = useLanguage();
-  const [openIndex, setOpenIndex] = useState(0);
+  const [openIndex, setOpenIndex] = useState(null);
   const heroRef = useFadeUp();
 
   const rawSections = QURBAN_SECTIONS_TEXT[lang] || QURBAN_SECTIONS_TEXT.az;
