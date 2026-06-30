@@ -642,19 +642,20 @@ export default function DistributionPage() {
       <div className="flex flex-col h-full bg-bg overflow-hidden">
         <StepHeader currentStep={2} />
 
-        <div className="flex-1 min-h-0 overflow-y-auto pb-24 lg:pb-6">
+        <div className="flex-1 min-h-0 overflow-y-auto pb-24 md:pb-6">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-[minmax(10px,4.2fr)_minmax(250px,2.5fr)_minmax(0,8.5fr)]
-                          lg:gap-4 lg:items-start"
+                          md:grid md:grid-cols-2 md:gap-3 md:items-start
+                          lg:grid-cols-[minmax(10px,4.2fr)_minmax(250px,2.5fr)_minmax(0,8.5fr)]
+                          lg:gap-4"
           >
-            <h2 className="text-base font-bold text-text-primary mb-1 lg:hidden col-span-full">Çatdırılma seçin</h2>
+            <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">Çatdırılma seçin</h2>
             {/* ════ LEFT (1fr) ════ */}
             {/* Sol sütun (1fr): Çatdırılma üsulu + altda Çatdırılma ünvanı/Götürmə məkanı */}
             <div className="flex flex-col gap-3">
               {/* Desktop */}
               <Card
-                className={`hidden lg:block ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
+                className={`hidden md:block ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
               >
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
                   <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
@@ -669,12 +670,12 @@ export default function DistributionPage() {
                 )}
                 {OptionList()}
               </Card>
-              {needsLocation && AddressSection({ className: "hidden lg:block", addressOnly: true })}
-              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "hidden lg:block" })}
+              {needsLocation && AddressSection({ className: "hidden md:block", addressOnly: true })}
+              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "hidden md:block" })}
 
               {/* Mobile */}
               <Card
-                className={`lg:hidden ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
+                className={`md:hidden ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
               >
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
                   <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
@@ -689,9 +690,9 @@ export default function DistributionPage() {
                 )}
                 {OptionList()}
               </Card>
-              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "lg:hidden" })}
-              {needsLocation && AddressSection({ className: "lg:hidden" })}
-              {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
+              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "md:hidden" })}
+              {needsLocation && AddressSection({ className: "md:hidden" })}
+              {selectedKey === "ozum" && AddressSection({ className: "md:hidden", phoneOnly: true })}
             </div>
 
             {/* Orta sütun (1fr): Əlaqə nömrəsi — desktop only */}
@@ -701,8 +702,8 @@ export default function DistributionPage() {
                 : null}
             </div>
 
-            {/* Sağ sütun (1.4fr): Sifariş xülasəsi — desktop only */}
-            <div className="hidden lg:flex flex-col">
+            {/* Sağ sütun (1.4fr): Sifariş xülasəsi — tablet + desktop */}
+            <div className="hidden md:flex flex-col">
 
               <Card>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">

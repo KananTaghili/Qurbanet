@@ -807,7 +807,7 @@ export default function QuantityPage() {
             {/* Diri çəki — mobile only */}
             {weights.length > 0 && (
               <S label="Diri çəki kateqoriyası" hideOnXl>
-                <div className="p-2 grid grid-cols-2 gap-1.5">
+                <div className="p-2 grid grid-cols-2 md:grid-cols-3 gap-1.5">
                   {weights.map((w) => (
                     <WPill key={w.key || w.labelAz} w={w} />
                   ))}
@@ -818,7 +818,7 @@ export default function QuantityPage() {
             {/* Doğrama üsulu + Baş & Ayaqlar — alt-alta */}
             {effectiveCutStyles.length > 0 && (
               <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
-                <div className="p-3 grid grid-cols-2 gap-2">
+                <div className="p-3 grid grid-cols-2 md:grid-cols-3 gap-2">
                   {effectiveCutStyles.map((cs) => (
                     <Opt
                       key={cs.key}
@@ -843,7 +843,7 @@ export default function QuantityPage() {
 
             {needsHead && (
               <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
-                <div className="p-3 grid grid-cols-2 gap-2">
+                <div className="p-3 grid grid-cols-2 md:grid-cols-3 gap-2">
                   {activeHeadOptions.map((opt) => {
                     const on = (headBuckets[opt.key] || 0) > 0;
                     const fee = opt.fee || 0;

@@ -124,7 +124,7 @@ function StepMedia({ items, onOpen, token }) {
   if (!items?.length) return null;
   let vc = 0, pc = 0;
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
       {items.map((m, i) => {
         const isVideo = m.type === "video";
         const label = isVideo ? `Video ${++vc}` : `Foto ${++pc}`;

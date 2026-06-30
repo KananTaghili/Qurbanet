@@ -323,8 +323,8 @@ export default function SummaryPage() {
       <StepHeader currentStep={3} />
 
       <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[88px] lg:pb-0">
-        <div className="p-3 lg:p-4 lg:h-full lg:grid lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
-          <h2 className="text-base font-bold text-text-primary mb-1 lg:hidden col-span-full">{t(lang, "orderSummary")}</h2>
+        <div className="p-3 md:grid md:grid-cols-[280px_1fr] md:gap-3 md:items-start lg:p-4 lg:h-full lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
+          <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
           <C className="lg:overflow-y-auto lg:min-h-0">
             <CHead label={t(lang, "orderInfoCard")} colored />
@@ -346,7 +346,7 @@ export default function SummaryPage() {
           </C>
 
           {/* ── RIGHT: Price breakdown ───────────────────────────────── */}
-          <div className="mt-4 lg:mt-0 flex flex-col gap-3 lg:min-h-0 lg:overflow-hidden">
+          <div className="mt-4 md:mt-0 flex flex-col gap-3 lg:min-h-0 lg:overflow-hidden">
             <C className="border-primary/20 shadow-lg lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:flex lg:flex-col">
               <CHead label={t(lang, "priceCalcCard")} colored />
 
