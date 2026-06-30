@@ -16,7 +16,8 @@ export default function StepHeader({ currentStep }) {
   const { lang } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
-  const backTo = BACK_ROUTES[pathname] || "/qurban";
+  const cleanPath = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const backTo = BACK_ROUTES[cleanPath] || "/qurban";
   const STEPS = [t(lang, 'step1'), t(lang, 'step2'), t(lang, 'step3')];
 
   return (
@@ -28,7 +29,7 @@ export default function StepHeader({ currentStep }) {
       <div style={{ padding: '8px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <button
           onClick={() => router.push(backTo)}
-          className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all hover:opacity-85 active:scale-95 shrink-0"
+          className="apk-hide inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all hover:opacity-85 active:scale-95 shrink-0"
           style={{ background: '#1c5e20', color: '#fff', border: 'none', marginBottom: 5 }}
         >
           <ArrowLeft size={12} strokeWidth={2.5} />

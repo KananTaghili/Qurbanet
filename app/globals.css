@@ -464,3 +464,5 @@ html.cap-native [contenteditable="true"] {
 .nav-home-btn { display: none; }
 html.cap-native .nav-home-btn { display: inline-flex; }
 html.cap-native .nav-hamburger { display: none !important; }
+/* APK-da gizlədilən ümumi elementlər (bildiriş düyməsi, step geri düyməsi və s.) */
+html.cap-native .apk-hide { display: none !important; }
