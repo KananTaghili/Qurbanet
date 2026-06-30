@@ -1081,7 +1081,7 @@ export default function CharityLayout({ children }) {
                   className="flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors text-gray-400"
                   style={{ background: "none", border: "none", cursor: "pointer" }}>
                   <Icon size={20} strokeWidth={1.8} />
-                  <span className="text-[9px] font-medium leading-none truncate max-w-[56px]">{short || label}</span>
+                  <span className="text-[9px] font-medium leading-none truncate max-w-[72px]">{short || label}</span>
                 </button>
               ) : (
                 <Link key={href} href={href}
@@ -1089,7 +1089,7 @@ export default function CharityLayout({ children }) {
                     isActive(href) ? "text-[#4b14bd]" : "text-gray-400"
                   }`}>
                   <Icon size={20} strokeWidth={isActive(href) ? 2.2 : 1.8} />
-                  <span className="text-[9px] font-medium leading-none truncate max-w-[56px]">{short || label}</span>
+                  <span className="text-[9px] font-medium leading-none truncate max-w-[72px]">{short || label}</span>
                 </Link>
               );
             })}
