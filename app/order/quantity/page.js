@@ -694,7 +694,7 @@ export default function QuantityPage() {
       type="button"
       onClick={onClick}
       className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left cursor-pointer transition-all duration-150 border-2
-        ${selected ? "border-primary bg-primary-surface" : "border-transparent bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
+        ${selected ? "border-primary bg-primary-surface" : "border-[#d1d5db] bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
     >
       <div
         className={`w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
@@ -724,7 +724,7 @@ export default function QuantityPage() {
       <button
         onClick={() => setSelectedWeight(w)}
         className={`w-full h-full flex flex-col items-start gap-0.5 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border-2
-          ${on ? "border-primary bg-primary-surface text-primary" : "border-transparent bg-[#f7f8f7] text-text-primary hover:bg-[#eef5ee]"}`}
+          ${on ? "border-primary bg-primary-surface text-primary" : "border-[#d1d5db] bg-[#f7f8f7] text-text-primary hover:bg-[#eef5ee]"}`}
       >
         <span className="text-[11px] font-bold leading-tight">
           {lbl} — {w.price} AZN
