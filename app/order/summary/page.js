@@ -468,13 +468,13 @@ export default function SummaryPage() {
             </C>
 
           </div>
-
         </div>
 
-        <div className="fixed-action-bar fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:border-0 md:bg-transparent md:px-6 md:py-5 md:shadow-none">
-          <div className="mx-auto flex max-w-6xl justify-center md:justify-end">
+        {/* ── Tablet + desktop action bar ───────────────────────────── */}
+        <div className="hidden md:block fixed bottom-5 right-5 z-[90] lg:bottom-6 lg:right-6">
+          <div className="mx-auto flex justify-end">
             <button
-              className="btn-primary w-full max-w-md rounded-xl px-8 py-3.5 text-sm font-bold md:w-auto md:min-w-[230px] md:py-2.5"
+              className="btn-primary min-w-[220px] rounded-xl px-8 py-2.5 text-sm font-bold shadow-[0_10px_30px_rgba(0,0,0,0.12)]"
               onClick={handleCreateOrder}
               disabled={loading}
             >
@@ -485,6 +485,22 @@ export default function SummaryPage() {
               )}
             </button>
           </div>
+
+        </div>
+
+        {/* ── Mobile action bar ─────────────────────────────────────── */}
+        <div className="mobile-action-bar md:hidden">
+          <button
+            className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
+            onClick={handleCreateOrder}
+            disabled={loading}
+          >
+            {loading ? (
+              <Spinner label={t(lang, "orderCreating")} />
+            ) : (
+              t(lang, "confirmOrder")
+            )}
+          </button>
         </div>
       </div>
     </div>
