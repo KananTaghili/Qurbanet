@@ -467,14 +467,26 @@ export default function SummaryPage() {
               </div>
             </C>
 
+            {/* Desktop confirm button — bottom of right col, right-aligned */}
+            <div className="hidden lg:flex justify-end pb-1">
+              <button
+                className="btn-primary px-8 py-2.5 rounded-xl font-bold text-sm"
+                onClick={handleCreateOrder}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Spinner label={t(lang, "orderCreating")} />
+                ) : (
+                  t(lang, "confirmOrder")
+                )}
+              </button>
+            </div>
           </div>
 
-        </div>
-
-        <div className="fixed-action-bar fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden">
-          <div className="mx-auto flex max-w-6xl justify-center">
+          {/* Tablet confirm button — full-width below both cols */}
+          <div className="hidden md:flex lg:hidden md:col-span-full pb-4">
             <button
-              className="btn-primary w-full max-w-md rounded-xl px-8 py-3.5 text-sm font-bold"
+              className="btn-primary w-full py-3 rounded-xl font-bold text-sm"
               onClick={handleCreateOrder}
               disabled={loading}
             >
@@ -487,10 +499,11 @@ export default function SummaryPage() {
           </div>
         </div>
 
-        <div className="hidden md:flex fixed bottom-5 left-[calc(var(--sidebar-w)+28px)] right-[28px] z-[90] justify-end lg:bottom-6 lg:left-[calc(var(--sidebar-w)+36px)] lg:right-[36px] xl:left-[calc(var(--sidebar-w)+44px)] xl:right-[44px]">
-          <div className="flex justify-end">
+        {/* Mobile action bar */}
+        <div className="fixed-action-bar fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden">
+          <div className="mx-auto flex max-w-6xl justify-center">
             <button
-              className="btn-primary min-w-[230px] rounded-xl px-8 py-2.5 text-sm font-bold shadow-[0_10px_30px_rgba(0,0,0,0.12)]"
+              className="btn-primary w-full max-w-md rounded-xl px-8 py-3.5 text-sm font-bold"
               onClick={handleCreateOrder}
               disabled={loading}
             >
