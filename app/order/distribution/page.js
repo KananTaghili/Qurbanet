@@ -645,7 +645,7 @@ export default function DistributionPage() {
         <div className="flex-1 min-h-0 overflow-y-auto pb-24 md:pb-6">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          md:grid md:grid-cols-2 md:gap-3 md:items-start
+                          md:grid md:grid-cols-3 md:gap-3 md:items-start
                           lg:grid-cols-[minmax(10px,4.2fr)_minmax(250px,2.5fr)_minmax(0,8.5fr)]
                           lg:gap-4"
           >
@@ -695,8 +695,8 @@ export default function DistributionPage() {
               {selectedKey === "ozum" && AddressSection({ className: "md:hidden", phoneOnly: true })}
             </div>
 
-            {/* Orta sütun (1fr): Əlaqə nömrəsi — desktop only */}
-            <div className="hidden lg:flex flex-col">
+            {/* Orta sütun (1fr): Əlaqə nömrəsi — tablet + desktop */}
+            <div className="hidden md:flex flex-col">
               {(needsLocation || selectedKey === "ozum")
                 ? AddressSection({ className: "", phoneOnly: true })
                 : null}
