@@ -144,6 +144,12 @@ export default function QurbanRulesPage() {
 
   const toggle = (i) => setOpenIndex((prev) => (prev === i ? null : i));
 
+  useEffect(() => {
+    if (openIndex === null) return;
+    const el = document.getElementById(`qr-section-${openIndex}`);
+    if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+  }, [openIndex]);
+
   return (
     <>
       <style>{`
