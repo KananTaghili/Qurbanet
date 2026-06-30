@@ -30,7 +30,8 @@ const STEP_CFG = [
     gTo:    "#9a3412",
   },
   {
-    img:    "/qutu.png",
+    img:    "/meatbox-qutu.png",
+    fit:    "contain",
     color:  "#065f46",
     light:  "#d1fae5",
     mid:    "#059669",
@@ -103,7 +104,7 @@ function StepCard({ step, cfg, idx, reverse }) {
             src={cfg.img}
             alt={step.title}
             fill
-            style={{ objectFit: "cover", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.10))" }}
+            style={{ objectFit: cfg.fit || "cover", filter: "drop-shadow(0 4px 14px rgba(0,0,0,0.10))" }}
           />
         </div>
       </div>
