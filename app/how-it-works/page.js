@@ -114,14 +114,8 @@ function StepCard({ step, cfg, idx, reverse }) {
         className={`flex flex-col justify-center px-5 py-5 flex-1 ${reverse ? "md:order-1" : ""}`}
         style={{ borderLeft: reverse ? "none" : `3px solid ${cfg.light}`, borderRight: reverse ? `3px solid ${cfg.light}` : "none" }}
       >
-        {/* Step number + title */}
-        <div className="flex items-center gap-2 mb-2">
-          <span
-            className="text-[11px] font-black tabular-nums"
-            style={{ color: cfg.mid }}
-          >
-            {num}
-          </span>
+        {/* Title */}
+        <div className="mb-2">
           <h2 className="text-[17px] font-extrabold leading-tight" style={{ color: cfg.color }}>
             {step.title}
           </h2>
