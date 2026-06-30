@@ -253,7 +253,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="hp-main bg-background p-1.5 font-sans text-foreground md:p-4" style={{ height: '100dvh', overflow: 'hidden' }}>
+    <main className="hp-main bg-background p-0 font-sans text-foreground md:p-4" style={{ height: '100dvh', overflow: 'hidden' }}>
       <style>{`
         @keyframes hpFadeDown {
           from { opacity: 0; transform: translateY(-18px); }
@@ -296,7 +296,7 @@ export default function HomePage() {
         .hp-scroll { overflow-y: overlay; scrollbar-color: #f20b32 #fff; }
       `}</style>
 
-      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
+      <section className="mx-auto max-w-7xl overflow-hidden md:rounded-[1.75rem] md:border md:border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[100dvh] md:h-[calc(100dvh-32px)]">
 
         {/* ── Mobile drawer backdrop ── */}
         <div

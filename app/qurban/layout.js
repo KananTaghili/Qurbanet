@@ -84,10 +84,10 @@ export default function QurbanLayout({ children }) {
 
   return (
     <main
-      className="bg-background p-1.5 font-sans text-foreground md:p-4 overflow-hidden"
+      className="bg-background p-0 font-sans text-foreground md:p-4 overflow-hidden"
       style={{ height: "100dvh" }}
     >
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 shadow-2xl flex h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
+      <div className="mx-auto max-w-7xl overflow-hidden md:rounded-[1.75rem] md:border md:border-white/15 shadow-2xl flex h-[100dvh] md:h-[calc(100dvh-32px)]">
         {/* ── Desktop Sidebar ── */}
         <aside
           className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden relative"

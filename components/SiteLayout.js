@@ -80,7 +80,7 @@ export default function SiteLayout({ children }) {
   const handleLogout = async () => { await logout(); router.push("/"); };
 
   return (
-    <main className="bg-background p-1.5 font-sans text-foreground md:p-4 overflow-hidden" style={{ height: "100dvh" }}>
+    <main className="bg-background p-0 font-sans text-foreground md:p-4 overflow-hidden" style={{ height: "100dvh" }}>
       <style>{`
         .hp-scroll::-webkit-scrollbar { width: 16px; }
         .hp-scroll::-webkit-scrollbar-track { background: #111; border-radius: 999px; margin: 8px 0 0 0; }
@@ -88,7 +88,7 @@ export default function SiteLayout({ children }) {
         .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 5px solid #111; background-clip: padding-box; }
         .hp-scroll { overflow-y: auto; scrollbar-color: #f20b32 #111; }
       `}</style>
-      <section className="mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[calc(100dvh-12px)] md:h-[calc(100dvh-32px)]">
+      <section className="mx-auto max-w-7xl overflow-hidden md:rounded-[1.75rem] md:border md:border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[100dvh] md:h-[calc(100dvh-32px)]">
 
         {/* Mobile drawer — backdrop */}
         <div
