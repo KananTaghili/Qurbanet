@@ -212,7 +212,7 @@ export default function SiteLayout({ children }) {
             <div>
               <h4 className="font-bold">Əlaqə</h4>
               <div className="mt-3 text-sm text-white/70 flex flex-col gap-1">
-                <span>+994 50 123 44 55</span>
+                <span>010 3990222</span>
                 <span>info@meatbox.az</span>
               </div>
             </div>
