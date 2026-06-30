@@ -163,8 +163,10 @@ export default function OtpPage() {
 
   return (
     <>
-      <main className="h-screen overflow-hidden bg-background p-3 md:p-7" style={{ fontFamily: "'Manrope', sans-serif" }}>
+      <main className="h-screen overflow-hidden bg-background p-0 md:p-7" style={{ fontFamily: "'Manrope', sans-serif" }}>
+      <style>{`@media(max-width:767px){.auth-frame{border-radius:0!important;border:none!important;}}`}</style>
       <div
+        className="auth-frame"
         style={{
           position: 'relative',
           overflow: 'hidden',
