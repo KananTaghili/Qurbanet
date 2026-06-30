@@ -322,7 +322,7 @@ export default function SummaryPage() {
     <div className="flex flex-col h-full bg-bg overflow-hidden">
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[104px] md:pb-[120px]">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[104px] md:pb-0">
         <div className="p-3 md:grid md:grid-cols-[280px_1fr] md:gap-3 md:items-start lg:p-4 lg:h-full lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
@@ -467,20 +467,6 @@ export default function SummaryPage() {
               </div>
             </C>
 
-            {/* Confirm button — tablet + desktop, right-aligned, bottom of right col */}
-            <div className="hidden md:flex justify-end pb-2 pr-1">
-              <button
-                className="btn-primary px-8 py-2.5 rounded-xl font-bold text-sm"
-                onClick={handleCreateOrder}
-                disabled={loading}
-              >
-                {loading ? (
-                  <Spinner label={t(lang, "orderCreating")} />
-                ) : (
-                  t(lang, "confirmOrder")
-                )}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -500,6 +486,22 @@ export default function SummaryPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Tablet + desktop confirm button — fixed at very bottom right, outside scroll */}
+      <div className="hidden md:flex justify-end shrink-0 px-4 py-3 border-t border-border/20 w-full max-w-6xl mx-auto">
+        <button
+          className="btn-primary px-8 py-2.5 rounded-xl font-bold text-sm"
+          style={{ width: "auto" }}
+          onClick={handleCreateOrder}
+          disabled={loading}
+        >
+          {loading ? (
+            <Spinner label={t(lang, "orderCreating")} />
+          ) : (
+            t(lang, "confirmOrder")
+          )}
+        </button>
       </div>
     </div>
   );
