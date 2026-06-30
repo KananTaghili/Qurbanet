@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings,
+  ArrowLeft, Menu, X, Beef, ClipboardList, Bell, HelpCircle, BookOpen, LogOut, Settings, Quote,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import { MobileMenuProvider, useMobileMenu } from "../../context/MobileMenuContext";
@@ -100,13 +100,11 @@ function InnerLayout({ children }) {
           </nav>
           {/* Hadith box — shrink-0 so it never compresses nav */}
           <div className="shrink-0 mx-3 mb-3 mt-2">
-            <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <div className="flex items-start gap-2 mb-2">
-                <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
-                <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
-                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
-                </p>
-              </div>
+            <div className="flex items-start gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+              <Quote className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
+              <p className="text-[11px] font-semibold leading-relaxed text-white/80 italic flex-1">
+                Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+              </p>
             </div>
           </div>
         </aside>
@@ -195,13 +193,11 @@ function InnerLayout({ children }) {
               ))}
             </nav>
             <div className="mx-3 mb-3 mt-2">
-              <div className="rounded-2xl px-3 pt-3 pb-2.5" style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <div className="flex items-start gap-2 mb-2">
-                  <span className="text-[28px] leading-none font-serif text-white/20 select-none mt-[-4px]">"</span>
-                  <p className="text-[11.5px] font-semibold leading-relaxed text-white/75 italic flex-1">
-                    Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
-                  </p>
-                </div>
+              <div className="flex items-start gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                <Quote className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
+                <p className="text-[11px] font-semibold leading-relaxed text-white/80 italic flex-1">
+                  Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+                </p>
               </div>
             </div>
             {!isGuest && (
@@ -229,7 +225,7 @@ function InnerLayout({ children }) {
             .order-scroll::-webkit-scrollbar-thumb:hover { background: #81c784; border: 5px solid #1c5e20; background-clip: padding-box; }
             .order-scroll { overflow-y: auto; scrollbar-color: #6abf69 #1c5e20; }
           `}</style>
-          <div className="order-scroll flex-1 overflow-y-auto min-h-0" style={{ marginBottom: 15 }}>
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden" style={{ marginBottom: 15 }}>
             {children}
           </div>
         </div>

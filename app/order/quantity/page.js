@@ -887,7 +887,7 @@ export default function QuantityPage() {
               </S>
             </div>
 
-            {/* Date / Time + Price — mobile */}
+            {/* Date / Time — mobile */}
             <div className="xl:hidden flex flex-col gap-2">
               <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
                 {CalendarBlock()}
@@ -895,7 +895,6 @@ export default function QuantityPage() {
               <S label="Çatdırılma vaxtı" Icon={Clock}>
                 {TimeSlotBlock({ cols: "grid-cols-3" })}
               </S>
-              {PriceSummary()}
             </div>
           </div>
 
@@ -1014,32 +1013,9 @@ export default function QuantityPage() {
         </div>
       </div>
 
-      {/* ══ Mobile action bar ══ */}
-      <div
-        className="hidden"
-        style={{ background: "linear-gradient(90deg,#1B5E20,#2E7D32)" }}
-      >
-        <div className="flex-1 min-w-0">
-          <p className="text-[9px] font-bold text-white/50 uppercase tracking-[0.12em]">
-            Cəmi məbləğ
-          </p>
-          <p className="text-xl font-black text-white leading-tight tracking-tight">
-            {totalPrice} AZN
-          </p>
-          {!isSingle && (
-            <p className="text-[10px] text-white/40 truncate">
-              {mode === "serikli"
-                ? `${qty}/${maxShares} pay`
-                : `${qty} × ${effectivePrice} AZN`}
-            </p>
-          )}
-        </div>
-        <button
-          onClick={handleContinue}
-          className="flex-shrink-0 bg-white text-primary rounded-xl py-3 px-5 text-[13px] font-extrabold border-none cursor-pointer whitespace-nowrap active:scale-95 transition-transform shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
-        >
-          Davam et →
-        </button>
+      {/* ══ Mobile sticky price bar ══ */}
+      <div className="xl:hidden shrink-0 p-2.5 pt-2" style={{ background: "#f2f5f2" }}>
+        {PriceSummary()}
       </div>
     </div>
   );
