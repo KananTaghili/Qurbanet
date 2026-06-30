@@ -169,7 +169,7 @@ function UserMenu({ user, onLogout }) {
         <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0, lineHeight: 1 }}>
           {initials}
         </div>
-        <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{[user?.name, user?.lastName].filter(Boolean).join(" ")}</span>
+        <span className="hidden lg:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{[user?.name, user?.lastName].filter(Boolean).join(" ")}</span>
       </button>
 
       {open && (
@@ -369,7 +369,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
+          <nav className="hidden items-center gap-5 lg:gap-9 text-sm font-medium md:flex">
             {nav.map((item, i) => (
               <Link
                 key={item.to}
@@ -392,7 +392,7 @@ export default function HomePage() {
             ) : (
               <Link href="/auth/login" className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
                 <User className="h-5 w-5" />
-                <span className="hidden md:inline">Daxil ol</span>
+                <span className="hidden lg:inline">Daxil ol</span>
               </Link>
             )}
           </div>
@@ -412,20 +412,20 @@ export default function HomePage() {
                 Bərəkətli qurbanlıq,<br />Rahat ət sifarişi!
               </h1>
               <p className="mb-4 font-bold text-white/75 tracking-[0.18em] uppercase"
-                style={{ fontSize: "clamp(9px,1.2vw,12px)", letterSpacing: "0.18em" }}>
+                style={{ fontSize: "clamp(11px,1.5vw,12px)", letterSpacing: "0.18em" }}>
                 ETİBARLI &nbsp;•&nbsp; HALAL &nbsp;•&nbsp; SÜRƏTLİ
               </p>
               <div className="flex gap-2.5 flex-wrap">
                 {isGuest ? (
                   <Link href="/auth/register"
                     className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
-                    style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "#CC0000" }}>
+                    style={{ fontSize: "clamp(13px,1.6vw,15px)", background: "#CC0000" }}>
                     Qeydiyyatdan keç &nbsp;→
                   </Link>
                 ) : (
                   <div
                     className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg"
-                    style={{ fontSize: "clamp(12px,1.5vw,14px)", background: "#CC0000" }}>
+                    style={{ fontSize: "clamp(13px,1.6vw,15px)", background: "#CC0000" }}>
                     Xoş gəlmisiniz, {user?.name}!
                   </div>
                 )}
@@ -437,7 +437,7 @@ export default function HomePage() {
         {/* ── Services ── */}
         <section className="bg-[#fbf7f2] px-6 pb-8 pt-0 md:px-12">
           {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
-          <div className="grid gap-4 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
             {cards.map((item, idx) => (
               <ServiceCard
                 key={item.title} item={item} idx={idx} onPlay={setActiveVideo}
@@ -451,7 +451,7 @@ export default function HomePage() {
           {/* Why MeatBox */}
           <div className="hp-why mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-4 sm:p-5">
             <h2 className="text-center text-xl sm:text-2xl font-black">Niyə MeatBox?</h2>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {whyItems.map(([Icon, title, text]) => (
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3" key={title}>
                   <Icon className="h-8 w-8 sm:h-9 sm:w-9 text-[#0b6c24] shrink-0" />

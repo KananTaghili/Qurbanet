@@ -37,7 +37,7 @@ function UserMenu({ user, onLogout }) {
         <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0, lineHeight: 1 }}>
           {initials}
         </div>
-        <span className="hidden md:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+        <span className="hidden lg:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
           {[user?.name, user?.lastName].filter(Boolean).join(" ")}
         </span>
       </button>
@@ -163,7 +163,7 @@ export default function SiteLayout({ children }) {
             </Link>
           </div>
 
-          <nav className="hidden items-center gap-10 text-sm font-medium md:flex">
+          <nav className="hidden items-center gap-5 lg:gap-9 text-sm font-medium md:flex">
             {nav.map(item => (
               <Link key={item.to} href={item.to}
                 className={`transition-colors hover:text-[#f20b32] ${pathname === item.to ? "text-[#f20b32] font-bold" : ""}`}>
@@ -184,7 +184,7 @@ export default function SiteLayout({ children }) {
             ) : (
               <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`} className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
                 <User className="h-5 w-5" />
-                <span className="hidden md:inline">Daxil ol</span>
+                <span className="hidden lg:inline">Daxil ol</span>
               </Link>
             )}
           </div>
