@@ -487,7 +487,7 @@ export default function SummaryPage() {
           </div>
         </div>
 
-        <div className="fixed-action-bar hidden md:flex fixed bottom-5 right-5 z-[90] justify-end lg:bottom-6 lg:right-6">
+        <div className="hidden md:flex fixed bottom-5 left-[calc(var(--sidebar-w)+28px)] right-[28px] z-[90] justify-end lg:bottom-6 lg:left-[calc(var(--sidebar-w)+36px)] lg:right-[36px] xl:left-[calc(var(--sidebar-w)+44px)] xl:right-[44px]">
           <div className="flex justify-end">
             <button
               className="btn-primary min-w-[230px] rounded-xl px-8 py-2.5 text-sm font-bold shadow-[0_10px_30px_rgba(0,0,0,0.12)]"
