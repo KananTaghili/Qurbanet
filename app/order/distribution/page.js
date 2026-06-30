@@ -691,8 +691,8 @@ export default function DistributionPage() {
                 {OptionList()}
               </Card>
               {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "md:hidden" })}
-              {needsLocation && AddressSection({ className: "md:hidden" })}
-              {selectedKey === "ozum" && AddressSection({ className: "md:hidden", phoneOnly: true })}
+              {needsLocation && AddressSection({ className: "md:hidden", addressOnly: true })}
+              {needsPhone && AddressSection({ className: "md:hidden", phoneOnly: true })}
             </div>
 
             {/* Orta sütun (1fr): Əlaqə nömrəsi — tablet + desktop */}
