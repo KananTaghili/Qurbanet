@@ -114,7 +114,7 @@ function ServiceCard({ item, idx = 0, onPlay, highlighted = false, onMouseEnter,
         }}
       >
       <h3 className={`text-left text-xl font-extrabold leading-6 pr-20 ${text}`}>{item.title}</h3>
-      <div className="relative mt-2 overflow-hidden rounded-xl bg-black" style={{ height: 128 }}>
+      <div className="relative mt-2 overflow-hidden rounded-xl bg-black h-[128px] md:h-[175px] lg:h-[128px]">
         {item.videoType === "youtube" ? (
           <iframe
             src={item.videoUrl.replace("autoplay=1", "autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0") + `&playlist=${item.videoUrl.split("/embed/")[1]?.split("?")[0]}`}
