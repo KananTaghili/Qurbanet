@@ -322,7 +322,7 @@ export default function SummaryPage() {
     <div className="flex flex-col h-full bg-bg overflow-hidden">
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[88px] md:pb-0">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[104px] md:pb-[120px]">
         <div className="p-3 md:grid md:grid-cols-[280px_1fr] md:gap-3 md:items-start lg:p-4 lg:h-full lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
@@ -469,10 +469,12 @@ export default function SummaryPage() {
 
           </div>
 
-          {/* Confirm button — full-width at tablet, right-aligned at desktop */}
-          <div className="hidden md:flex md:col-span-full lg:col-span-1 lg:col-start-2 lg:justify-end">
+        </div>
+
+        <div className="fixed-action-bar fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:border-0 md:bg-transparent md:px-6 md:py-5 md:shadow-none">
+          <div className="mx-auto flex max-w-6xl justify-center md:justify-end">
             <button
-              className="btn-primary w-full lg:w-auto px-8 py-3 rounded-xl font-bold text-sm"
+              className="btn-primary w-full max-w-md rounded-xl px-8 py-3.5 text-sm font-bold md:w-auto md:min-w-[230px] md:py-2.5"
               onClick={handleCreateOrder}
               disabled={loading}
             >
@@ -483,21 +485,6 @@ export default function SummaryPage() {
               )}
             </button>
           </div>
-        </div>
-
-        {/* ── Mobile action bar ─────────────────────────────────────── */}
-        <div className="mobile-action-bar md:hidden">
-          <button
-            className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
-            onClick={handleCreateOrder}
-            disabled={loading}
-          >
-            {loading ? (
-              <Spinner label={t(lang, "orderCreating")} />
-            ) : (
-              t(lang, "confirmOrder")
-            )}
-          </button>
         </div>
       </div>
     </div>
