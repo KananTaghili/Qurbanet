@@ -176,11 +176,18 @@ export default function QurbanLayout({ children }) {
           >
             <div className="flex items-center gap-2 min-w-0">
               <button
-                className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
+                className="nav-hamburger lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
                 onClick={() => setMobileMenuOpen(true)}
               >
                 <Menu size={18} className="text-white" />
               </button>
+              <Link
+                href="/"
+                className="nav-home-btn items-center gap-1.5 shrink-0 rounded-full h-8 pl-2 pr-3 text-white text-[12px] font-semibold active:scale-95 transition-all"
+                style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.28)" }}
+              >
+                <ArrowLeft size={15} strokeWidth={2.5} /> Xidmətlər
+              </Link>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1">
                 Qurbanlıq Sifarişi
               </span>

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
   ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
-  HeartHandshake, Beef,
+  HeartHandshake, Beef, Home, Info, LayoutGrid, HelpCircle, Phone,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
 import { useAuth } from "../context/AuthContext";
@@ -243,6 +243,14 @@ export default function HomePage() {
     { label: "Əlaqə",      to: "/contact" },
   ];
 
+  const mobileNav = [
+    { label: "Əsas",       to: "/",         Icon: Home },
+    { label: "Haqqımızda", to: "/about",    Icon: Info },
+    { label: "Xidmətlər",  to: "/services", Icon: LayoutGrid },
+    { label: "Necə?",      to: "/process",  Icon: HelpCircle },
+    { label: "Əlaqə",      to: "/contact",  Icon: Phone },
+  ];
+
   const handleLogout = async () => { await logout(); router.push("/"); };
 
   const whyItems = [
@@ -294,19 +302,31 @@ export default function HomePage() {
         .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 5px solid #fff; background-clip: padding-box; }
         .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 5px solid #fff; background-clip: padding-box; }
         .hp-scroll { overflow-y: overlay; scrollbar-color: #f20b32 #fff; }
+
+        /* ── Mobil bottom nav: defolt gizli (web), yalnız APK-da (cap-native) görünür ── */
+        .hp-bottom-nav { display: none; }
+        html.cap-native .hp-bottom-nav { display: block; }
+        /* APK-da hamburger + drawer + footer + copyright gizlənir */
+        html.cap-native .hp-hamburger,
+        html.cap-native .hp-drawer,
+        html.cap-native .hp-footer,
+        html.cap-native .hp-copy { display: none !important; }
+        /* APK-da logo soldan mərkəzə */
+        html.cap-native .hp-header { position: relative; }
+        html.cap-native .hp-logo-box { position: absolute; left: 50%; transform: translateX(-50%); }
       `}</style>
 
       <section className="mx-auto max-w-7xl overflow-hidden md:rounded-[1.75rem] md:border md:border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[100dvh] md:h-[calc(100dvh-32px)]">
 
-        {/* ── Mobile drawer backdrop ── */}
+        {/* ── Mobile drawer backdrop (yalnız web — APK-da hp-drawer gizlədilir) ── */}
         <div
-          className={`md:hidden fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+          className={`hp-drawer md:hidden fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
           onClick={() => setMobileMenuOpen(false)}
         />
 
         {/* ── Mobile drawer panel ── */}
         <div
-          className={`md:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+          className={`hp-drawer md:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
           style={{ background: "#1a0a08" }}
         >
           <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
@@ -359,9 +379,9 @@ export default function HomePage() {
         </div>
 
         {/* ── Header ── */}
-        <header className="flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
-          <div className="flex items-center gap-2">
-            <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors" onClick={() => setMobileMenuOpen(true)}>
+        <header className="hp-header flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
+          <div className="hp-logo-box flex items-center gap-2">
+            <button className="hp-hamburger md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors" onClick={() => setMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
             </button>
             <div className="hp-logo">
@@ -399,7 +419,7 @@ export default function HomePage() {
         </header>
 
         {/* Scrollable content */}
-        <div className="hp-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
+        <div className="hp-scroll flex-1 overflow-y-auto">
 
         {/* ── Hero ── */}
         <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5" style={{ minHeight: 220 }}>
@@ -465,7 +485,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Footer ── */}
+        {/* ── Footer (web; APK-da gizlədilir) ── */}
         <footer className="hp-footer grid grid-cols-2 gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-start">
           <div className="col-span-2 md:col-span-1">
             <Image src="/mb_logo_footer.png" alt="MeatBox footer loqo" width={160} height={40} style={{ objectFit: "contain", objectPosition: "left", height: 40, width: "auto" }} />
@@ -492,12 +512,43 @@ export default function HomePage() {
           </div>
         </footer>
 
-        {/* Copyright */}
+        {/* Copyright (web; APK-da gizlədilir) */}
         <div className="hp-copy bg-black px-6 py-3 text-center text-xs text-white/55">
           © 2024 MeatBox.az. Bütün hüquqlar qorunur.
         </div>
 
         </div>{/* end scrollable content */}
+
+        {/* ── Mobil bottom nav (yalnız APK / native) ── */}
+        <nav className="hp-bottom-nav flex-shrink-0 bg-white border-t border-black/10" style={{ zIndex: 50 }}>
+          <div className="flex px-1 pt-1.5 pb-2">
+            {mobileNav.map(({ to, label, Icon }) => {
+              const cur = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+              const active = cur === to;
+              return (
+                <Link
+                  key={to}
+                  href={to}
+                  className="flex-1 flex flex-col items-center gap-1 px-1 py-1 no-underline"
+                  style={{ minWidth: 0 }}
+                >
+                  <div
+                    className="flex items-center justify-center rounded-[10px] transition-colors"
+                    style={{ width: 44, height: 30, background: active ? "#ffe8ec" : "transparent" }}
+                  >
+                    <Icon size={19} strokeWidth={active ? 2.4 : 1.7} color={active ? "#f20b32" : "#9ca3af"} />
+                  </div>
+                  <span
+                    className="truncate"
+                    style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? "#f20b32" : "#9ca3af", maxWidth: "100%", lineHeight: 1.2 }}
+                  >
+                    {label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       </section>
     </main>
   );

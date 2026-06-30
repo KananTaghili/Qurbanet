@@ -50,7 +50,7 @@ export default function ServicesPage() {
     <SiteLayout>
       <section className="bg-[#fbf7f2] px-4 py-4 text-[#1d0c08] sm:px-6 md:px-8 md:py-5">
         <div className="relative rounded-[1.25rem] border border-[#ead9cf] bg-white/90 p-4 shadow-[0_18px_50px_rgba(35,18,8,0.10)] sm:p-5 md:rounded-[1.5rem] md:p-6">
-          <Link href="/" className="lg:hidden fixed top-0 left-0 z-50 flex items-center justify-center hover:opacity-90 active:scale-95 transition-all"
+          <Link href="/" className="page-back lg:hidden fixed top-0 left-0 z-50 flex items-center justify-center hover:opacity-90 active:scale-95 transition-all"
             style={{ background: "#f20b32", width: 56, height: 56, borderRadius: "0 0 100% 0", paddingBottom: 12, paddingRight: 12 }}>
             <ArrowLeft className="h-5 w-5 text-white" strokeWidth={2.5} />
           </Link>

@@ -459,3 +459,8 @@ html.cap-native [contenteditable="true"] {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* APK toolbar: hamburger gizlənir, "Xidmətlər" düyməsi görünür (qurban/charity layout) */
+.nav-home-btn { display: none; }
+html.cap-native .nav-home-btn { display: inline-flex; }
+html.cap-native .nav-hamburger { display: none !important; }

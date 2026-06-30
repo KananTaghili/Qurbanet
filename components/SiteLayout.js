@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { User, Menu, X, LogOut, Settings } from "lucide-react";
+import { User, Menu, X, LogOut, Settings, Home, Info, LayoutGrid, HelpCircle, Phone } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
@@ -13,6 +13,14 @@ const nav = [
   { label: "Xidmətlər",  to: "/services" },
   { label: "Necə işləyir?", to: "/process" },
   { label: "Əlaqə",      to: "/contact" },
+];
+
+const mobileNav = [
+  { label: "Əsas",       to: "/",         Icon: Home },
+  { label: "Haqqımızda", to: "/about",    Icon: Info },
+  { label: "Xidmətlər",  to: "/services", Icon: LayoutGrid },
+  { label: "Necə?",      to: "/process",  Icon: HelpCircle },
+  { label: "Əlaqə",      to: "/contact",  Icon: Phone },
 ];
 
 /* ── UserMenu — exact copy from home page ── */
@@ -87,6 +95,19 @@ export default function SiteLayout({ children }) {
         .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 5px solid #111; background-clip: padding-box; }
         .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 5px solid #111; background-clip: padding-box; }
         .hp-scroll { overflow-y: auto; scrollbar-color: #f20b32 #111; }
+
+        /* APK (cap-native): footer + copyright gizlənir, alt boşluq silinir */
+        html.cap-native .hp-footer,
+        html.cap-native .hp-copy { display: none !important; }
+        html.cap-native .hp-scroll { margin-bottom: 0 !important; background: #fbf7f2; }
+        /* Mobil bottom nav: defolt gizli (web), yalnız APK-da görünür */
+        .hp-bottom-nav { display: none; }
+        html.cap-native .hp-bottom-nav { display: block; }
+        /* APK: hamburger + drawer + səhifə geri düyməsi gizlənir, logo mərkəzə */
+        html.cap-native .hp-hamburger,
+        html.cap-native .page-back { display: none !important; }
+        html.cap-native .hp-header { position: relative; }
+        html.cap-native .hp-logo-box { position: absolute; left: 50%; transform: translateX(-50%); }
       `}</style>
       <section className="mx-auto max-w-7xl overflow-hidden md:rounded-[1.75rem] md:border md:border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[100dvh] md:h-[calc(100dvh-32px)]">
 
@@ -151,9 +172,9 @@ export default function SiteLayout({ children }) {
         </div>
 
         {/* Header — identical to home page */}
-        <header className="flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
-          <div className="flex items-center gap-2">
-            <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors"
+        <header className="hp-header flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
+          <div className="hp-logo-box flex items-center gap-2">
+            <button className="hp-hamburger md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors"
               onClick={() => setMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
             </button>
@@ -196,7 +217,7 @@ export default function SiteLayout({ children }) {
           <div className="flex-1">{children}</div>
 
           {/* Footer */}
-          <footer className="grid grid-cols-2 gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-start">
+          <footer className="hp-footer grid grid-cols-2 gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-start">
             <div className="col-span-2 md:col-span-1">
               <Image src="/mb_logo_footer.png" alt="MeatBox footer" width={160} height={40}
                 style={{ objectFit: "contain", objectPosition: "left", height: 40, width: "auto" }} />
@@ -222,11 +243,42 @@ export default function SiteLayout({ children }) {
             </div>
           </footer>
 
-          <div className="bg-black px-6 py-3 text-center text-xs text-white/55">
+          <div className="hp-copy bg-black px-6 py-3 text-center text-xs text-white/55">
             © 2024 MeatBox.az. Bütün hüquqlar qorunur.
           </div>
 
         </div>
+
+        {/* ── Mobil bottom nav (yalnız APK / native) ── */}
+        <nav className="hp-bottom-nav flex-shrink-0 bg-white border-t border-black/10" style={{ zIndex: 50 }}>
+          <div className="flex px-1 pt-1.5 pb-2">
+            {mobileNav.map(({ to, label, Icon }) => {
+              const cur = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+              const active = cur === to;
+              return (
+                <Link
+                  key={to}
+                  href={to}
+                  className="flex-1 flex flex-col items-center gap-1 px-1 py-1 no-underline"
+                  style={{ minWidth: 0 }}
+                >
+                  <div
+                    className="flex items-center justify-center rounded-[10px] transition-colors"
+                    style={{ width: 44, height: 30, background: active ? "#ffe8ec" : "transparent" }}
+                  >
+                    <Icon size={19} strokeWidth={active ? 2.4 : 1.7} color={active ? "#f20b32" : "#9ca3af"} />
+                  </div>
+                  <span
+                    className="truncate"
+                    style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? "#f20b32" : "#9ca3af", maxWidth: "100%", lineHeight: 1.2 }}
+                  >
+                    {label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       </section>
     </main>
   );
