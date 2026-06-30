@@ -109,7 +109,7 @@ function ForgotPasswordPageInner() {
         setError(mode === "phone"
           ? "Bu telefon nömrəsi ilə qeydiyyatdan keçmiş hesab tapılmadı."
           : "Bu email ilə qeydiyyatdan keçmiş hesab tapılmadı.");
-      } else if (status === 500 && mode === "phone") {
+      } else if ((status === 500 || status === 503) && mode === "phone") {
         setError("Telefon nömrəsinə SMS göndərilə bilmədi. Zəhmət olmasa email ilə cəhd edin.");
       } else {
         setError(msg || "Xəta baş verdi. Yenidən cəhd edin.");
