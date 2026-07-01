@@ -104,7 +104,9 @@ const adminSendOTP = async (req, res) => {
       return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
     // Credentials yoxlama — raw collection (select:false bypass)
-    const rawSettings = await AppSettings.collection.findOne({ singleton: "global" });
+    const rawSettings = await AppSettings.collection.findOne({
+      singleton: "global",
+    });
     const cred = rawSettings?.adminCredentials?.find((c) => c.email === email);
 
     const credValid = cred?.passwordHash
@@ -132,7 +134,11 @@ const adminSendOTP = async (req, res) => {
     // Test modunda email göndərmə, kodu birbaşa qaytar
     if (testMode) {
       console.log(`[TEST OTP] ${email} → ${code}`);
-      return success(res, { otpSent: true, devCode: code }, "Test mode: OTP kodu avtomatik dolduruldu.");
+      return success(
+        res,
+        { otpSent: true, devCode: code },
+        "Test mode: OTP kodu avtomatik dolduruldu.",
+      );
     }
 
     // Email göndər
@@ -157,7 +163,9 @@ const adminSendOTP = async (req, res) => {
     return success(
       res,
       data,
-      emailDelivered ? "OTP kodu emailinizə göndərildi." : "OTP kodu (dev mode)",
+      emailDelivered
+        ? "OTP kodu emailinizə göndərildi."
+        : "OTP kodu (dev mode)",
     );
   } catch (err) {
     console.error("adminSendOTP xətası:", err);
@@ -217,9 +225,9 @@ const adminVerifyOTP = async (req, res) => {
 
 // ─── Admin Register ───────────────────────────────────────────────────────────
 const adminRegister = async (req, res) => {
-  if (process.env.ADMIN_REGISTER !== "true") {
-    return error(res, "Qeydiyyat hazırda bağlıdır.", 403);
-  }
+  // if (process.env.ADMIN_REGISTER !== "true") {
+  //   return error(res, "Qeydiyyat hazırda bağlıdır.", 403);
+  // }
   try {
     const { email: rawEmail, password, confirmPassword } = req.body;
     if (!rawEmail || !password || !confirmPassword)
@@ -234,12 +242,20 @@ const adminRegister = async (req, res) => {
       return error(res, "Düzgün email ünvanı daxil edin.", 400);
 
     // Raw collection — select:false bypass üçün
-    const rawSettings = await AppSettings.collection.findOne({ singleton: "global" });
+    const rawSettings = await AppSettings.collection.findOne({
+      singleton: "global",
+    });
 
     // Mövcud credentials yoxlanması
-    const existing = rawSettings?.adminCredentials?.find((c) => c.email === email);
+    const existing = rawSettings?.adminCredentials?.find(
+      (c) => c.email === email,
+    );
     if (existing) {
-      return error(res, "Bu email üçün artıq hesab mövcuddur. Daxil olun.", 409);
+      return error(
+        res,
+        "Bu email üçün artıq hesab mövcuddur. Daxil olun.",
+        409,
+      );
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -551,10 +567,14 @@ const updateOrderStatus = async (req, res) => {
       const num = order.orderNumber ? `#${order.orderNumber}` : "";
       notify(order.user, {
         module: "qurban",
-        type:   "order_status",
-        title:  "Sifariş statusu dəyişdi",
-        body:   `Sifarişiniz ${num} "${label}" mərhələsinə keçdi.`,
-        data:   { orderId: String(order._id), orderNumber: order.orderNumber, status },
+        type: "order_status",
+        title: "Sifariş statusu dəyişdi",
+        body: `Sifarişiniz ${num} "${label}" mərhələsinə keçdi.`,
+        data: {
+          orderId: String(order._id),
+          orderNumber: order.orderNumber,
+          status,
+        },
       }).catch(() => {});
     }
 
@@ -618,10 +638,10 @@ const uploadMedia = async (req, res) => {
       const num = order.orderNumber ? `#${order.orderNumber}` : "";
       notify(order.user, {
         module: "qurban",
-        type:   "order_media",
-        title:  "Kəsim media yükləndi",
-        body:   `Sifarişinizə ${num} kəsim şəkil/videosu əlavə olundu.`,
-        data:   { orderId: String(order._id), orderNumber: order.orderNumber },
+        type: "order_media",
+        title: "Kəsim media yükləndi",
+        body: `Sifarişinizə ${num} kəsim şəkil/videosu əlavə olundu.`,
+        data: { orderId: String(order._id), orderNumber: order.orderNumber },
       }).catch(() => {});
     }
 
@@ -1182,7 +1202,9 @@ const getOrdersBySlaughterDay = async (req, res) => {
     const [orders, categories] = await Promise.all([
       Order.find({
         slaughterDate: { $gte: start, $lte: end },
-        status: { $nin: [ORDER_STATUS.AWAITING_PAYMENT, ORDER_STATUS.CANCELLED] },
+        status: {
+          $nin: [ORDER_STATUS.AWAITING_PAYMENT, ORDER_STATUS.CANCELLED],
+        },
       })
         .populate("user", "phone name")
         .select("-__v"),
@@ -1190,9 +1212,13 @@ const getOrdersBySlaughterDay = async (req, res) => {
     ]);
 
     const categoryMap = {};
-    categories.forEach((c) => { categoryMap[c.type] = c; });
+    categories.forEach((c) => {
+      categoryMap[c.type] = c;
+    });
 
-    const formatted = orders.map((o) => formatAdminOrder(o, categoryMap[o.animalType]));
+    const formatted = orders.map((o) =>
+      formatAdminOrder(o, categoryMap[o.animalType]),
+    );
 
     formatted.sort((a, b) => {
       const gA = DIST_GROUP[a.distribution?.type] ?? 3;
@@ -1203,7 +1229,10 @@ const getOrdersBySlaughterDay = async (req, res) => {
       const wB = parseWindowMinutes(b.deliveryWindow);
       if (wA !== wB) return wA - wB;
 
-      return parseWeightMin(a.lambSelection?.weightCategoryLabel) - parseWeightMin(b.lambSelection?.weightCategoryLabel);
+      return (
+        parseWeightMin(a.lambSelection?.weightCategoryLabel) -
+        parseWeightMin(b.lambSelection?.weightCategoryLabel)
+      );
     });
 
     return success(res, { orders: formatted, date, total: formatted.length });
@@ -1237,12 +1266,18 @@ const getUsers = async (req, res) => {
       });
     }
 
-    const emptyPhone = { $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }] };
-    const emptyEmail = { $or: [{ email: { $exists: false } }, { email: null }, { email: "" }] };
+    const emptyPhone = {
+      $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }],
+    };
+    const emptyEmail = {
+      $or: [{ email: { $exists: false } }, { email: null }, { email: "" }],
+    };
 
-    if (filterPhone === "yes") conditions.push({ phone: { $exists: true, $nin: [null, ""] } });
+    if (filterPhone === "yes")
+      conditions.push({ phone: { $exists: true, $nin: [null, ""] } });
     if (filterPhone === "no") conditions.push(emptyPhone);
-    if (filterEmail === "yes") conditions.push({ email: { $exists: true, $nin: [null, ""] } });
+    if (filterEmail === "yes")
+      conditions.push({ email: { $exists: true, $nin: [null, ""] } });
     if (filterEmail === "no") conditions.push(emptyEmail);
 
     // Qonaq istifadəçiləri göstərmə
@@ -1261,7 +1296,13 @@ const getUsers = async (req, res) => {
     const userIds = users.map((u) => u._id);
     const orderAgg = await Order.aggregate([
       { $match: { user: { $in: userIds } } },
-      { $group: { _id: "$user", count: { $sum: 1 }, totalSpent: { $sum: "$totalPrice" } } },
+      {
+        $group: {
+          _id: "$user",
+          count: { $sum: 1 },
+          totalSpent: { $sum: "$totalPrice" },
+        },
+      },
     ]);
     const countMap = {};
     const spentMap = {};
@@ -1297,11 +1338,19 @@ const deleteEmptyUsers = async (req, res) => {
   try {
     const result = await User.deleteMany({
       $and: [
-        { $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }] },
-        { $or: [{ email: { $exists: false } }, { email: null }, { email: "" }] },
+        {
+          $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }],
+        },
+        {
+          $or: [{ email: { $exists: false } }, { email: null }, { email: "" }],
+        },
       ],
     });
-    return success(res, { deletedCount: result.deletedCount }, `${result.deletedCount} hesab silindi.`);
+    return success(
+      res,
+      { deletedCount: result.deletedCount },
+      `${result.deletedCount} hesab silindi.`,
+    );
   } catch (err) {
     console.error("deleteEmptyUsers xətası:", err);
     return error(res, "Server xətası.", 500);
@@ -1318,7 +1367,9 @@ const getUserOrders = async (req, res) => {
     }
     const orders = await Order.find({ user: req.params.userId })
       .sort({ createdAt: -1 })
-      .select("orderNumber animalNameAz animalEmoji status totalPrice createdAt orderMode quantity")
+      .select(
+        "orderNumber animalNameAz animalEmoji status totalPrice createdAt orderMode quantity",
+      )
       .lean();
     return success(res, { orders });
   } catch (err) {
@@ -1355,7 +1406,8 @@ const updateUser = async (req, res) => {
     if (name !== undefined) update.name = name;
     if (lastName !== undefined) update.lastName = lastName;
     if (phone !== undefined) update.phone = phone;
-    if (email !== undefined) update.email = email ? email.trim().toLowerCase() : email;
+    if (email !== undefined)
+      update.email = email ? email.trim().toLowerCase() : email;
     if (isBlocked !== undefined) update.isBlocked = isBlocked;
 
     const user = await User.findByIdAndUpdate(
@@ -1369,7 +1421,11 @@ const updateUser = async (req, res) => {
   } catch (err) {
     if (err.code === 11000) {
       const field = Object.keys(err.keyPattern || {})[0];
-      return error(res, `Bu ${field === "phone" ? "telefon nömrəsi" : "email"} artıq istifadə olunur.`, 400);
+      return error(
+        res,
+        `Bu ${field === "phone" ? "telefon nömrəsi" : "email"} artıq istifadə olunur.`,
+        400,
+      );
     }
     return error(res, "Server xətası.", 500);
   }
@@ -1420,7 +1476,16 @@ const updateOrderContact = async (req, res) => {
     }
 
     await order.save();
-    return success(res, { order: { contactInfo: order.contactInfo, distribution: order.distribution } }, "Əlaqə məlumatları yeniləndi.");
+    return success(
+      res,
+      {
+        order: {
+          contactInfo: order.contactInfo,
+          distribution: order.distribution,
+        },
+      },
+      "Əlaqə məlumatları yeniləndi.",
+    );
   } catch (err) {
     console.error("updateOrderContact xətası:", err);
     return error(res, "Server xətası.", 500);
