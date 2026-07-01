@@ -1,0 +1,1459 @@
+const path = require("path");
+const fs = require("fs");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
+const Order = require("../models/Order");
+const Category = require("../models/Category");
+const User = require("../models/User");
+const {
+  ANIMALS,
+  ORDER_STATUS,
+  ORDER_STATUS_LABELS,
+} = require("../config/constants");
+const { success, error } = require("../utils/response");
+const { parsePagination } = require("../utils/pagination");
+const { notify } = require("../utils/notify");
+const {
+  getDirSizeBytes,
+  enforceStorageQuota,
+  UPLOADS_DIR,
+} = require("../utils/storage");
+const AppSettings = require("../models/AppSettings");
+const SharedGroup = require("../models/SharedGroup");
+const OTP = require("../models/OTP");
+const { generateOTP, sendSMS, sendEmail } = require("../utils/sms");
+
+const AUTO_CONFIRM_MESSAGE =
+  "1 saat ərzində admin təsdiqləmədiyi üçün sistem avtomatik təsdiqlədi.";
+
+const DELIVERY_CODE_CHARS = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+const generateUniqueDeliveryCode = async () => {
+  let code;
+  let exists;
+  do {
+    code = Array.from(
+      { length: 6 },
+      () =>
+        DELIVERY_CODE_CHARS[
+          Math.floor(Math.random() * DELIVERY_CODE_CHARS.length)
+        ],
+    ).join("");
+    exists = await Order.findOne({ deliveryConfirmCode: code });
+  } while (exists);
+  return code;
+};
+
+const normalizeType = (value = "") =>
+  value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/ə/g, "e")
+    .replace(/ğ/g, "g")
+    .replace(/ş/g, "s")
+    .replace(/ç/g, "c")
+    .replace(/ö/g, "o")
+    .replace(/ü/g, "u")
+    .replace(/ı/g, "i")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 40);
+
+const getAnimalEmoji = (animalType, emoji) => {
+  const normalizedType = normalizeType(animalType);
+  if (normalizedType === "quzu") return "🐑";
+  if (normalizedType === "qoc") return "🐏";
+  if (normalizedType === "keci") return "🐐";
+  return emoji || ANIMALS[normalizedType]?.emoji || "🐑";
+};
+
+const maybeAutoConfirm = async (order) => {
+  if (
+    order.status === ORDER_STATUS.PLACED &&
+    order.autoConfirmAt &&
+    order.autoConfirmAt <= new Date()
+  ) {
+    order.status = ORDER_STATUS.CONFIRMED;
+    order.confirmedAt = new Date();
+    order.statusHistory.push({
+      status: ORDER_STATUS.CONFIRMED,
+      note: AUTO_CONFIRM_MESSAGE,
+    });
+    await order.save();
+  }
+};
+
+const OTP_EXPIRY_MS = Number(process.env.OTP_EXPIRY_MINUTES || 5) * 60 * 1000;
+const OTP_MAX_ATTEMPTS = 5;
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+const getAllowedEmails = async () => {
+  const settings = await AppSettings.findOne({ singleton: "global" });
+  return settings?.allowedAdminEmails || [];
+};
+
+// ─── Admin Login — Step 1: credentials yoxla, OTP göndər ─────────────────────
+const adminSendOTP = async (req, res) => {
+  try {
+    const { email: rawEmail, password } = req.body;
+    if (!rawEmail || !password)
+      return error(res, "Email və şifrə tələb olunur.", 400);
+    const email = rawEmail.trim().toLowerCase();
+    if (!isValidEmail(email))
+      return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+    // Credentials yoxlama — raw collection (select:false bypass)
+    const rawSettings = await AppSettings.collection.findOne({ singleton: "global" });
+    const cred = rawSettings?.adminCredentials?.find((c) => c.email === email);
+
+    const credValid = cred?.passwordHash
+      ? await bcrypt.compare(password, cred.passwordHash)
+      : false;
+
+    if (!credValid) {
+      return error(res, "Email və ya şifrə yanlışdır.", 401);
+    }
+
+    // Emaili icazə siyahısına əlavə et
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $addToSet: { allowedAdminEmails: email } },
+      { upsert: true },
+    );
+
+    // OTP yarat və DB-ə yaz
+    const testMode = process.env.TEST_MODE === "true";
+    const code = testMode ? "1234" : generateOTP();
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MS);
+    await OTP.deleteMany({ email });
+    await OTP.create({ email, code, expiresAt, attempts: 0 });
+
+    // Test modunda email göndərmə, kodu birbaşa qaytar
+    if (testMode) {
+      console.log(`[TEST OTP] ${email} → ${code}`);
+      return success(res, { otpSent: true, devCode: code }, "Test mode: OTP kodu avtomatik dolduruldu.");
+    }
+
+    // Email göndər
+    let emailDelivered = false;
+    try {
+      await sendEmail(email, code);
+      emailDelivered = true;
+    } catch (emailErr) {
+      console.error("[OTP] Email xətası:", emailErr.message);
+      console.log(`[OTP] Kod: ${code} | Email: ${email}`);
+    }
+
+    const data = { otpSent: true };
+    // Email çatmadısa kodu response-a əlavə et (production-da gizlə)
+    if (!emailDelivered && process.env.NODE_ENV !== "production") {
+      data.devCode = code;
+    }
+    if (!emailDelivered && process.env.NODE_ENV === "production") {
+      return error(res, "OTP kodu göndərilə bilmədi. Yenidən cəhd edin.", 500);
+    }
+
+    return success(
+      res,
+      data,
+      emailDelivered ? "OTP kodu emailinizə göndərildi." : "OTP kodu (dev mode)",
+    );
+  } catch (err) {
+    console.error("adminSendOTP xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const adminVerifyOTP = async (req, res) => {
+  try {
+    const { email: rawEmail, code } = req.body;
+    if (!rawEmail || !code)
+      return error(res, "Email və OTP kodu tələb olunur.", 400);
+    if (!/^\d{4}$/.test(code))
+      return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
+
+    const email = rawEmail.trim().toLowerCase();
+    const allowed = await getAllowedEmails();
+    if (!allowed.includes(email))
+      return error(
+        res,
+        "Bu email ünvanına admin girişi icazəsi verilməyib.",
+        403,
+      );
+
+    const otpRecord = await OTP.findOne({ email });
+    if (!otpRecord)
+      return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
+    if (otpRecord.expiresAt < new Date()) {
+      await OTP.deleteMany({ email });
+      return error(res, "OTP kodunun vaxtı keçib. Yenidən göndərin.", 400);
+    }
+    if (otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
+      await OTP.deleteMany({ email });
+      return error(res, "Çox sayda yanlış cəhd. Yenidən göndərin.", 400);
+    }
+    if (otpRecord.code !== code) {
+      await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
+      return error(
+        res,
+        `Yanlış kod. ${OTP_MAX_ATTEMPTS - otpRecord.attempts - 1} cəhdiniz qalıb.`,
+        400,
+      );
+    }
+
+    await OTP.deleteMany({ email });
+    const token = jwt.sign(
+      { role: "admin", email },
+      process.env.ADMIN_JWT_SECRET || "qurbanet_admin_proxy_secret_2026",
+      { expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || "12h" },
+    );
+    return success(res, { token }, "Admin girişi uğurlu.");
+  } catch (err) {
+    console.error("adminVerifyOTP xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Admin Register ───────────────────────────────────────────────────────────
+const adminRegister = async (req, res) => {
+  if (process.env.ADMIN_REGISTER !== "true") {
+    return error(res, "Qeydiyyat hazırda bağlıdır.", 403);
+  }
+  try {
+    const { email: rawEmail, password, confirmPassword } = req.body;
+    if (!rawEmail || !password || !confirmPassword)
+      return error(res, "Bütün sahələri doldurun.", 400);
+    if (password !== confirmPassword)
+      return error(res, "Şifrələr uyğun gəlmir.", 400);
+    if (password.length < 6)
+      return error(res, "Şifrə ən azı 6 simvol olmalıdır.", 400);
+
+    const email = rawEmail.trim().toLowerCase();
+    if (!isValidEmail(email))
+      return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+    // Raw collection — select:false bypass üçün
+    const rawSettings = await AppSettings.collection.findOne({ singleton: "global" });
+
+    // Mövcud credentials yoxlanması
+    const existing = rawSettings?.adminCredentials?.find((c) => c.email === email);
+    if (existing) {
+      return error(res, "Bu email üçün artıq hesab mövcuddur. Daxil olun.", 409);
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // allowedAdminEmails-ə əlavə et (əgər yoxdursa) + credentials yaz
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $addToSet: { allowedAdminEmails: email } },
+      { upsert: true },
+    );
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $pull: { adminCredentials: { email } } },
+    );
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $push: { adminCredentials: { email, passwordHash } } },
+    );
+
+    const token = jwt.sign(
+      { role: "admin", email },
+      process.env.ADMIN_JWT_SECRET || "qurbanet_admin_proxy_secret_2026",
+      { expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || "12h" },
+    );
+
+    return success(res, { token }, "Admin hesabı yaradıldı.", 201);
+  } catch (err) {
+    console.error("adminRegister xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Allowed Emails CRUD ──────────────────────────────────────────────────────
+const getAdminAllowedEmails = async (req, res) => {
+  try {
+    const settings = await AppSettings.findOne({ singleton: "global" });
+    const emails = settings?.allowedAdminEmails || [];
+    const credEmails = (settings?.adminCredentials || []).map((c) => c.email);
+    const admins = emails.map((email) => ({
+      email,
+      hasPassword: credEmails.includes(email),
+    }));
+    return success(res, { admins });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const addAdminAllowedEmail = async (req, res) => {
+  try {
+    const { email: rawEmail, password } = req.body;
+    if (!rawEmail) return error(res, "Email tələb olunur.", 400);
+    if (!password) return error(res, "Şifrə tələb olunur.", 400);
+    const email = rawEmail.trim().toLowerCase();
+    if (!isValidEmail(email))
+      return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const settings = await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      {
+        $addToSet: { allowedAdminEmails: email },
+        $pull: { adminCredentials: { email } },
+      },
+      { upsert: true, new: true },
+    );
+    await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      { $push: { adminCredentials: { email, passwordHash } } },
+    );
+
+    const updated = await AppSettings.findOne({ singleton: "global" });
+    const credEmails = (updated?.adminCredentials || []).map((c) => c.email);
+    const admins = (updated?.allowedAdminEmails || []).map((e) => ({
+      email: e,
+      hasPassword: credEmails.includes(e),
+    }));
+    return success(res, { admins }, "Admin əlavə edildi.");
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const removeAdminAllowedEmail = async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email).toLowerCase();
+    const settings = await AppSettings.findOneAndUpdate(
+      { singleton: "global" },
+      {
+        $pull: {
+          allowedAdminEmails: email,
+          adminCredentials: { email },
+        },
+      },
+      { new: true },
+    );
+    const credEmails = (settings?.adminCredentials || []).map((c) => c.email);
+    const admins = (settings?.allowedAdminEmails || []).map((e) => ({
+      email: e,
+      hasPassword: credEmails.includes(e),
+    }));
+    return success(res, { admins }, "Admin silindi.");
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Bütün sifarişlər ────────────────────────────────────────────────────────
+const getAllOrders = async (req, res) => {
+  try {
+    const { status, orderMode } = req.query;
+    const { page, limit } = parsePagination(req.query);
+
+    const filter = {};
+    if (status) {
+      filter.status = status;
+    } else {
+      filter.status = { $ne: ORDER_STATUS.AWAITING_PAYMENT };
+    }
+    if (orderMode) filter.orderMode = orderMode;
+
+    const skip = (page - 1) * limit;
+
+    const [orders, total, categories] = await Promise.all([
+      Order.find(filter)
+        .populate("user", "phone name")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select("-__v"),
+      Order.countDocuments(filter),
+      Category.find().select("type weightRange weightOptions"),
+    ]);
+
+    // Kateqoriyaların map-ini yarat
+    const categoryMap = {};
+    categories.forEach((c) => {
+      categoryMap[c.type] = c;
+    });
+
+    await Promise.all(orders.map((order) => maybeAutoConfirm(order)));
+
+    return success(res, {
+      orders: orders.map((order) =>
+        formatAdminOrder(order, categoryMap[order.animalType]),
+      ),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    console.error("getAllOrders xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const getSharedOrders = async (req, res) => {
+  try {
+    const { animalType, paymentStatus, grouped } = req.query;
+
+    const filter = {
+      orderMode: "serikli",
+      status: { $ne: ORDER_STATUS.CANCELLED },
+    };
+
+    if (animalType) {
+      filter.animalType = animalType.toString().trim().toLowerCase();
+    }
+    if (paymentStatus === "paid") {
+      filter["payment.status"] = "paid";
+    }
+    // grouped=false → yalnız qrupsuz sifarişlər (default)
+    if (grouped !== "true") {
+      filter.sharedGroup = null;
+    }
+
+    const orders = await Order.find(filter)
+      .populate("user", "phone email name")
+      .sort({ animalType: 1, sharedPortion: 1, createdAt: 1 })
+      .select("-__v");
+
+    const animalTypes = await Order.distinct("animalType", {
+      orderMode: "serikli",
+      status: { $ne: ORDER_STATUS.CANCELLED },
+    });
+
+    return success(res, {
+      orders: orders.map(formatAdminOrder),
+      animalTypes,
+    });
+  } catch (err) {
+    console.error("getSharedOrders xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Sifariş detayı ──────────────────────────────────────────────────────────
+const getOrderById = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.orderId)) {
+      return error(res, "Sifariş tapılmadı.", 404);
+    }
+
+    const order = await Order.findById(req.params.orderId)
+      .populate("user", "phone name lastName email createdAt")
+      .select("-__v");
+
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+
+    // Heyvanın kateqoriyasını çəkmə (çəki aralığı üçün)
+    let category = null;
+    if (order.animalType) {
+      category = await Category.findOne({ type: order.animalType }).select(
+        "weightRange weightOptions",
+      );
+    }
+
+    await maybeAutoConfirm(order);
+
+    return success(res, { order: formatAdminOrder(order, category) });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Sifariş statusunu yenilə ────────────────────────────────────────────────
+const updateOrderStatus = async (req, res) => {
+  try {
+    const {
+      status,
+      adminNote,
+      processNote,
+      processStage,
+      deliveryCode,
+      deliveryVideoUrl,
+      verifiedBy,
+    } = req.body;
+    const validStatuses = Object.values(ORDER_STATUS);
+
+    if (!validStatuses.includes(status)) {
+      return error(res, "Yanlış status dəyəri.", 400);
+    }
+
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+
+    const oldStatus = order.status;
+
+    order.status = status;
+    if (adminNote !== undefined) order.adminNote = adminNote;
+
+    if (status === ORDER_STATUS.CONFIRMED && !order.confirmedAt) {
+      order.confirmedAt = new Date();
+    }
+
+    if (oldStatus !== status) {
+      order.statusHistory.push({
+        status,
+        note: processNote || adminNote || "Status yeniləndi",
+        at: new Date(),
+      });
+    }
+
+    if (processStage) {
+      order.processNotes.push({
+        stage: processStage,
+        note: String(processNote || "").trim(),
+        videoUrl: String(deliveryVideoUrl || "").trim() || undefined,
+      });
+    }
+
+    // Çatdırılır statusuna keçəndə catdirilsin sifarişi üçün unikal kod yarat
+    if (
+      status === ORDER_STATUS.DELIVERING &&
+      order.distribution?.type === "catdirilsin" &&
+      !order.deliveryConfirmCode
+    ) {
+      order.deliveryConfirmCode = await generateUniqueDeliveryCode();
+    }
+
+    if (deliveryVideoUrl) {
+      order.deliveryProof.handoverVideoUrl = deliveryVideoUrl;
+    }
+
+    if (deliveryCode && String(deliveryCode).trim().length >= 4) {
+      order.deliveryProof.handoverCode = String(deliveryCode).trim();
+      order.deliveryProof.handoverCodeVerifiedAt = new Date();
+      order.deliveryProof.handoverCodeVerifiedBy = String(
+        verifiedBy || "Courier",
+      ).trim();
+    }
+
+    await order.save();
+
+    try {
+      const { getIo } = require("../socket");
+      getIo()
+        .to(`user:${order.user}`)
+        .emit("order:updated", { orderId: order._id.toString() });
+    } catch (_) {}
+
+    // Status dəyişdisə → istifadəçiyə bildiriş
+    if (oldStatus !== status && order.user) {
+      const label = ORDER_STATUS_LABELS[status] || status;
+      const num = order.orderNumber ? `#${order.orderNumber}` : "";
+      notify(order.user, {
+        module: "qurban",
+        type:   "order_status",
+        title:  "Sifariş statusu dəyişdi",
+        body:   `Sifarişiniz ${num} "${label}" mərhələsinə keçdi.`,
+        data:   { orderId: String(order._id), orderNumber: order.orderNumber, status },
+      }).catch(() => {});
+    }
+
+    return success(
+      res,
+      { order: formatAdminOrder(order) },
+      "Sifariş yeniləndi.",
+    );
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Media yüklə ─────────────────────────────────────────────────────────────
+const uploadMedia = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+    if (!req.files || req.files.length === 0)
+      return error(res, "Fayl seçilməyib.", 400);
+
+    const { uploadBuffer: gfsUpload } = require("../utils/gridfs");
+    const baseUrl =
+      process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    const stage = ["slaughter", "delivery"].includes(req.body.stage)
+      ? req.body.stage
+      : "general";
+
+    const newMedia = await Promise.all(
+      req.files.map(async (file) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const videoExts = [".mp4", ".mov", ".avi", ".mkv", ".webm"];
+        const mediaType = videoExts.includes(ext) ? "video" : "photo";
+        const fileId = await gfsUpload(
+          file.buffer,
+          file.originalname,
+          file.mimetype,
+        );
+        return {
+          type: mediaType,
+          stage,
+          filename: file.originalname,
+          fileId,
+          url: `${baseUrl}/api/files/${fileId}`,
+        };
+      }),
+    );
+
+    order.media.push(...newMedia);
+    await order.save();
+
+    try {
+      const { getIo } = require("../socket");
+      getIo()
+        .to(`user:${order.user}`)
+        .emit("order:updated", { orderId: order._id.toString() });
+    } catch (_) {}
+
+    // İstifadəçiyə kəsim media bildirişi
+    if (order.user) {
+      const num = order.orderNumber ? `#${order.orderNumber}` : "";
+      notify(order.user, {
+        module: "qurban",
+        type:   "order_media",
+        title:  "Kəsim media yükləndi",
+        body:   `Sifarişinizə ${num} kəsim şəkil/videosu əlavə olundu.`,
+        data:   { orderId: String(order._id), orderNumber: order.orderNumber },
+      }).catch(() => {});
+    }
+
+    return success(
+      res,
+      { media: order.media },
+      `${req.files.length} media faylı yükləndi.`,
+    );
+  } catch (err) {
+    console.error("uploadMedia xətası:", err);
+    return error(res, "Media yüklənərkən xəta baş verdi.", 500);
+  }
+};
+
+// ─── Media sil ───────────────────────────────────────────────────────────────
+const deleteMedia = async (req, res) => {
+  try {
+    const { orderId, filename } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+
+    const mediaItem = order.media.find((m) => m.filename === filename);
+    if (!mediaItem) return error(res, "Media tapılmadı.", 404);
+
+    if (mediaItem.fileId) {
+      const { deleteFile } = require("../utils/gridfs");
+      await deleteFile(mediaItem.fileId).catch(() => {});
+    }
+
+    order.media = order.media.filter((m) => m.filename !== filename);
+    await order.save();
+
+    return success(res, {}, "Media silindi.");
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Statistika ──────────────────────────────────────────────────────────────
+const getStats = async (req, res) => {
+  try {
+    const statsFilter = { status: { $ne: ORDER_STATUS.AWAITING_PAYMENT } };
+    const [totalOrders, totalUsers, statusStats, animalStatsRaw, categories] =
+      await Promise.all([
+        Order.countDocuments(statsFilter),
+        User.countDocuments(),
+        Order.aggregate([
+          { $match: statsFilter },
+          { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]),
+        Order.aggregate([
+          { $match: statsFilter },
+          {
+            $group: {
+              _id: "$animalType",
+              count: { $sum: 1 },
+              revenue: { $sum: "$totalPrice" },
+            },
+          },
+        ]),
+        Category.find({}).select("type nameAz imageUrl imageFileId"),
+      ]);
+
+    const totalRevenue = await Order.aggregate([
+      { $match: { "payment.status": "paid" } },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+    ]);
+
+    const backendUrl =
+      process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    const categoryMap = categories.reduce((acc, item) => {
+      acc[item.type] = {
+        nameAz: item.nameAz,
+        imageUrl: item.imageFileId
+          ? `${backendUrl}/api/files/${item.imageFileId}`
+          : item.imageUrl || "",
+      };
+      return acc;
+    }, {});
+
+    const animalStats = animalStatsRaw.map((item) => ({
+      ...item,
+      nameAz:
+        categoryMap[item._id]?.nameAz || ANIMALS[item._id]?.nameAz || item._id,
+      imageUrl: categoryMap[item._id]?.imageUrl || "",
+    }));
+
+    return success(res, {
+      totalOrders,
+      totalUsers,
+      totalRevenue: totalRevenue[0]?.total || 0,
+      statusStats: statusStats.reduce((acc, s) => {
+        acc[s._id] = s.count;
+        return acc;
+      }, {}),
+      animalStats,
+    });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Yardımçı ────────────────────────────────────────────────────────────────
+const formatAdminOrder = (order, category = null) => {
+  const animalInfo = ANIMALS[order.animalType] || {};
+
+  // Çəki seçimi məlumatı əlavə et
+  let enhancedLambSelection = {
+    ...(order.lambSelection || {}),
+    weightCategoryLabel:
+      order.lambSelection?.weightCategoryLabel ||
+      order.lambSelection?.labelAz ||
+      null,
+  };
+  if (category && order.lambSelection?.weightCategoryKey) {
+    const weightOption = category.weightOptions?.find(
+      (w) => w.key === order.lambSelection.weightCategoryKey,
+    );
+    if (weightOption) {
+      // Use category's label as fallback for orders saved before the label was persisted
+      if (!enhancedLambSelection.weightCategoryLabel) {
+        enhancedLambSelection.weightCategoryLabel =
+          weightOption.labelAz || weightOption.label || null;
+      }
+      enhancedLambSelection = {
+        ...enhancedLambSelection,
+        weightRange: category.weightRange,
+        weightOption: {
+          key: weightOption.key,
+          labelAz: weightOption.labelAz,
+          labelEn: weightOption.labelEn,
+          labelRu: weightOption.labelRu,
+          labelAr: weightOption.labelAr,
+          price: weightOption.price,
+        },
+      };
+    } else if (category.weightRange) {
+      // Əgər kateqoriya varsa ancaq seçim tapılmasa, çəki aralığını əlavə et
+      enhancedLambSelection.weightRange = category.weightRange;
+    }
+  }
+
+  return {
+    id: order._id,
+    orderNumber: order.orderNumber,
+    user: order.user,
+    animalType: order.animalType,
+    animalNameAz: order.animalNameAz || animalInfo.nameAz || order.animalType,
+    animalEmoji: getAnimalEmoji(
+      order.animalType,
+      order.animalEmoji || animalInfo.emoji,
+    ),
+    animalImageUrl: order.animalImageUrl,
+    quantity: order.quantity,
+    orderMode: order.orderMode || "tek",
+    sharedPortion: order.sharedPortion,
+    shareCount: order.shareCount,
+    totalShares: order.totalShares,
+    pricePerUnit: order.pricePerUnit,
+    totalPrice: order.totalPrice,
+    distribution: order.distribution,
+    payment: order.payment,
+    cashPickupCode: order.cashPickupCode,
+    deliveryConfirmCode: order.deliveryConfirmCode,
+    status: order.status,
+    statusLabel: ORDER_STATUS_LABELS[order.status] || order.status,
+    statusHistory: order.statusHistory,
+    media: order.media,
+    processNotes: order.processNotes,
+    deliveryProof: order.deliveryProof,
+    adminNote: order.adminNote,
+    estimatedDate: order.estimatedDate,
+    slaughterDate: order.slaughterDate,
+    deliveryDate: order.deliveryDate,
+    deliveryWindow: order.deliveryWindow,
+    slaughterTimingHours: order.slaughterTimingHours,
+    contactInfo: order.contactInfo,
+    orphanDelight: order.orphanDelight,
+    review: order.review,
+    userNote: order.userNote,
+    deliveryFee: order.deliveryFee,
+    qurbanParts: order.qurbanParts,
+    cutStyle: order.cutStyle,
+    grindingMethod: order.grindingMethod,
+    lambSelection: enhancedLambSelection,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+  };
+};
+
+// ─── Şərikli Qruplar ─────────────────────────────────────────────────────────
+
+const getSharedGroups = async (req, res) => {
+  try {
+    const { animalType } = req.query;
+    const filter = {};
+    if (animalType)
+      filter.animalType = animalType.toString().trim().toLowerCase();
+
+    const groups = await SharedGroup.find(filter)
+      .populate({
+        path: "orders",
+        populate: { path: "user", select: "phone name" },
+        select: "-__v",
+      })
+      .sort({ createdAt: -1 });
+
+    return success(res, {
+      groups: groups.map((g) => ({
+        id: g._id,
+        groupNumber: g.groupNumber,
+        animalType: g.animalType,
+        filledCapacity: g.filledCapacity,
+        totalShares: g.totalShares,
+        status: g.status,
+        confirmedAt: g.confirmedAt,
+        createdAt: g.createdAt,
+        orders: g.orders.map(formatAdminOrder),
+      })),
+    });
+  } catch (err) {
+    console.error("getSharedGroups xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const createSharedGroup = async (req, res) => {
+  try {
+    const { orderIds, animalType } = req.body;
+    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+      return error(res, "Ən az bir sifariş seçilməlidir.", 400);
+    }
+
+    const orders = await Order.find({
+      _id: { $in: orderIds },
+      orderMode: "serikli",
+      "payment.status": "paid",
+      sharedGroup: null,
+      status: { $ne: ORDER_STATUS.CANCELLED },
+    });
+
+    if (orders.length !== orderIds.length) {
+      return error(
+        res,
+        "Seçilmiş sifarişlər etibarlı deyil (ödənilməmiş, artıq qrupda və ya ləğv edilmiş ola bilər).",
+        400,
+      );
+    }
+
+    const resolvedType = animalType || orders[0].animalType;
+    const allSameType = orders.every((o) => o.animalType === resolvedType);
+    if (!allSameType) {
+      return error(
+        res,
+        "Bütün sifarişlər eyni heyvan növündən olmalıdır.",
+        400,
+      );
+    }
+
+    const filledCapacity = parseFloat(
+      orders.reduce((s, o) => s + (o.sharedPortion || 0), 0).toFixed(6),
+    );
+
+    if (filledCapacity > 1.0001) {
+      return error(
+        res,
+        "Seçilmiş hissələrin cəmi 1-dən çox ola bilməz (7/7-dən artıq).",
+        400,
+      );
+    }
+
+    const groupTotalShares = orders[0]?.totalShares || null;
+    const group = await SharedGroup.create({
+      animalType: resolvedType,
+      orders: orders.map((o) => o._id),
+      filledCapacity,
+      totalShares: groupTotalShares,
+    });
+
+    await Order.updateMany(
+      { _id: { $in: orders.map((o) => o._id) } },
+      { $set: { sharedGroup: group._id } },
+    );
+
+    const populated = await SharedGroup.findById(group._id).populate({
+      path: "orders",
+      populate: { path: "user", select: "phone name" },
+      select: "-__v",
+    });
+
+    return success(
+      res,
+      {
+        group: {
+          id: populated._id,
+          groupNumber: populated.groupNumber,
+          animalType: populated.animalType,
+          filledCapacity: populated.filledCapacity,
+          status: populated.status,
+          createdAt: populated.createdAt,
+          orders: populated.orders.map(formatAdminOrder),
+        },
+      },
+      "Qrup yaradıldı.",
+      201,
+    );
+  } catch (err) {
+    console.error("createSharedGroup xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const addOrderToGroup = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { orderId } = req.body;
+
+    const group = await SharedGroup.findById(groupId);
+    if (!group) return error(res, "Qrup tapılmadı.", 404);
+    if (group.status === "confirmed")
+      return error(res, "Təsdiqlənmiş qrupa sifariş əlavə edilə bilməz.", 400);
+
+    const order = await Order.findOne({
+      _id: orderId,
+      orderMode: "serikli",
+      "payment.status": "paid",
+      sharedGroup: null,
+      status: { $ne: ORDER_STATUS.CANCELLED },
+      animalType: group.animalType,
+    });
+    if (!order)
+      return error(res, "Sifariş tapılmadı və ya bu qrupa uyğun deyil.", 404);
+
+    const newCapacity = parseFloat(
+      (group.filledCapacity + (order.sharedPortion || 0)).toFixed(6),
+    );
+    if (newCapacity > 1.0001) {
+      return error(
+        res,
+        "Bu sifarişi əlavə etmək qrup həcmini aşacaq (7/7-dən çox).",
+        400,
+      );
+    }
+
+    group.orders.push(order._id);
+    group.filledCapacity = newCapacity;
+    await group.save();
+
+    order.sharedGroup = group._id;
+    await order.save();
+
+    const populated = await SharedGroup.findById(group._id).populate({
+      path: "orders",
+      populate: { path: "user", select: "phone name" },
+      select: "-__v",
+    });
+
+    return success(
+      res,
+      {
+        group: {
+          id: populated._id,
+          groupNumber: populated.groupNumber,
+          animalType: populated.animalType,
+          filledCapacity: populated.filledCapacity,
+          status: populated.status,
+          createdAt: populated.createdAt,
+          orders: populated.orders.map(formatAdminOrder),
+        },
+      },
+      "Sifariş qrupa əlavə edildi.",
+    );
+  } catch (err) {
+    console.error("addOrderToGroup xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const removeOrderFromGroup = async (req, res) => {
+  try {
+    const { groupId, orderId } = req.params;
+
+    const group = await SharedGroup.findById(groupId);
+    if (!group) return error(res, "Qrup tapılmadı.", 404);
+    if (group.status === "confirmed")
+      return error(res, "Təsdiqlənmiş qrupdan sifariş çıxarıla bilməz.", 400);
+
+    const order = await Order.findOne({ _id: orderId, sharedGroup: groupId });
+    if (!order) return error(res, "Sifariş bu qrupda tapılmadı.", 404);
+
+    group.orders = group.orders.filter((id) => id.toString() !== orderId);
+    group.filledCapacity = parseFloat(
+      (group.filledCapacity - (order.sharedPortion || 0)).toFixed(6),
+    );
+    if (group.filledCapacity < 0) group.filledCapacity = 0;
+    await group.save();
+
+    order.sharedGroup = null;
+    await order.save();
+
+    if (group.orders.length === 0) {
+      await SharedGroup.findByIdAndDelete(groupId);
+      return success(
+        res,
+        { deleted: true },
+        "Sifariş çıxarıldı, boş qrup silindi.",
+      );
+    }
+
+    const populated = await SharedGroup.findById(group._id).populate({
+      path: "orders",
+      populate: { path: "user", select: "phone name" },
+      select: "-__v",
+    });
+
+    return success(
+      res,
+      {
+        group: {
+          id: populated._id,
+          groupNumber: populated.groupNumber,
+          animalType: populated.animalType,
+          filledCapacity: populated.filledCapacity,
+          status: populated.status,
+          createdAt: populated.createdAt,
+          orders: populated.orders.map(formatAdminOrder),
+        },
+      },
+      "Sifariş qrupdan çıxarıldı.",
+    );
+  } catch (err) {
+    console.error("removeOrderFromGroup xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const confirmSharedGroup = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    const group = await SharedGroup.findById(groupId).populate("orders");
+    if (!group) return error(res, "Qrup tapılmadı.", 404);
+    if (group.status === "confirmed")
+      return error(res, "Qrup artıq təsdiqlənib.", 400);
+    if (group.filledCapacity < 0.9999) {
+      return error(
+        res,
+        `Qrup hələ tam deyil (${Math.round(group.filledCapacity * 10)}/10). Yalnız tam (7/7 = 10/10) qrupllar təsdiqlənə bilər.`,
+        400,
+      );
+    }
+
+    group.status = "confirmed";
+    group.confirmedAt = new Date();
+    await group.save();
+
+    const now = new Date();
+    await Order.updateMany(
+      { _id: { $in: group.orders.map((o) => o._id) } },
+      {
+        $set: {
+          status: ORDER_STATUS.CONFIRMED,
+          confirmedAt: now,
+        },
+        $push: {
+          statusHistory: {
+            status: ORDER_STATUS.CONFIRMED,
+            at: now,
+            note: `Şərikli qrup #${group.groupNumber} admin tərəfindən təsdiqləndi.`,
+          },
+        },
+      },
+    );
+
+    return success(
+      res,
+      { groupId, confirmedAt: now },
+      `Qrup #${group.groupNumber} təsdiqləndi. ${group.orders.length} sifariş təsdiqləndi.`,
+    );
+  } catch (err) {
+    console.error("confirmSharedGroup xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const deleteSharedGroup = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    const group = await SharedGroup.findById(groupId);
+    if (!group) return error(res, "Qrup tapılmadı.", 404);
+    if (group.status === "confirmed")
+      return error(res, "Təsdiqlənmiş qrup silinə bilməz.", 400);
+
+    await Order.updateMany(
+      { sharedGroup: groupId },
+      { $set: { sharedGroup: null } },
+    );
+
+    await SharedGroup.findByIdAndDelete(groupId);
+
+    return success(res, {}, "Qrup silindi, sifarişlər azad edildi.");
+  } catch (err) {
+    console.error("deleteSharedGroup xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const deleteOrder = async (req, res) => {
+  if (process.env.ALLOW_ORDER_DELETE !== "true") {
+    return error(res, "Sifariş silmə funksiyası deaktivdir.", 403);
+  }
+  try {
+    const order = await Order.findByIdAndDelete(req.params.orderId);
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+    return success(res, {}, "Sifariş silindi.");
+  } catch (err) {
+    console.error("deleteOrder xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Kəsim gününə görə sifarişlər (PDF üçün) ─────────────────────────────────
+const DIST_GROUP = {
+  catdirilsin: 0,
+  mekan: 0,
+  ozun_gotur: 1,
+  ozum: 1,
+  usaqlar_evi: 2,
+  qocalar_evi: 2,
+  ehtiyac_sahibleri: 2,
+};
+
+const parseWindowMinutes = (w) => {
+  if (!w) return 9999;
+  const m = w.match(/^(\d{1,2}):(\d{2})/);
+  return m ? parseInt(m[1]) * 60 + parseInt(m[2]) : 9999;
+};
+
+const parseWeightMin = (label) => {
+  if (!label) return 9999;
+  const m = label.match(/(\d+)/);
+  return m ? parseInt(m[1]) : 9999;
+};
+
+const getOrdersBySlaughterDay = async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date) return error(res, "Tarix tələb olunur.", 400);
+
+    const d = new Date(date);
+    if (isNaN(d)) return error(res, "Düzgün tarix daxil edin.", 400);
+
+    const start = new Date(`${date}T00:00:00.000Z`);
+    const end = new Date(`${date}T23:59:59.999Z`);
+
+    const [orders, categories] = await Promise.all([
+      Order.find({
+        slaughterDate: { $gte: start, $lte: end },
+        status: { $nin: [ORDER_STATUS.AWAITING_PAYMENT, ORDER_STATUS.CANCELLED] },
+      })
+        .populate("user", "phone name")
+        .select("-__v"),
+      Category.find().select("type weightRange weightOptions"),
+    ]);
+
+    const categoryMap = {};
+    categories.forEach((c) => { categoryMap[c.type] = c; });
+
+    const formatted = orders.map((o) => formatAdminOrder(o, categoryMap[o.animalType]));
+
+    formatted.sort((a, b) => {
+      const gA = DIST_GROUP[a.distribution?.type] ?? 3;
+      const gB = DIST_GROUP[b.distribution?.type] ?? 3;
+      if (gA !== gB) return gA - gB;
+
+      const wA = parseWindowMinutes(a.deliveryWindow);
+      const wB = parseWindowMinutes(b.deliveryWindow);
+      if (wA !== wB) return wA - wB;
+
+      return parseWeightMin(a.lambSelection?.weightCategoryLabel) - parseWeightMin(b.lambSelection?.weightCategoryLabel);
+    });
+
+    return success(res, { orders: formatted, date, total: formatted.length });
+  } catch (err) {
+    console.error("getOrdersBySlaughterDay xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── İstifadəçi idarəetməsi ───────────────────────────────────────────────────
+
+const getUsers = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    const { search = "", filterPhone = "", filterEmail = "" } = req.query;
+    const { page, limit } = parsePagination(req.query);
+    const skip = (page - 1) * limit;
+
+    const conditions = [];
+
+    if (search) {
+      conditions.push({
+        $or: [
+          { phone: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { lastName: { $regex: search, $options: "i" } },
+        ],
+      });
+    }
+
+    const emptyPhone = { $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }] };
+    const emptyEmail = { $or: [{ email: { $exists: false } }, { email: null }, { email: "" }] };
+
+    if (filterPhone === "yes") conditions.push({ phone: { $exists: true, $nin: [null, ""] } });
+    if (filterPhone === "no") conditions.push(emptyPhone);
+    if (filterEmail === "yes") conditions.push({ email: { $exists: true, $nin: [null, ""] } });
+    if (filterEmail === "no") conditions.push(emptyEmail);
+
+    // Qonaq istifadəçiləri göstərmə
+    conditions.push({ isGuest: { $ne: true } });
+    const filter = { $and: conditions };
+
+    const [users, total] = await Promise.all([
+      User.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select("-__v"),
+      User.countDocuments(filter),
+    ]);
+
+    const userIds = users.map((u) => u._id);
+    const orderAgg = await Order.aggregate([
+      { $match: { user: { $in: userIds } } },
+      { $group: { _id: "$user", count: { $sum: 1 }, totalSpent: { $sum: "$totalPrice" } } },
+    ]);
+    const countMap = {};
+    const spentMap = {};
+    for (const { _id, count, totalSpent } of orderAgg) {
+      countMap[String(_id)] = count;
+      spentMap[String(_id)] = totalSpent || 0;
+    }
+    const usersWithCount = users.map((u) => ({
+      ...u.toObject(),
+      orderCount: countMap[String(u._id)] || 0,
+      totalSpent: spentMap[String(u._id)] || 0,
+    }));
+
+    return success(res, {
+      users: usersWithCount,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    console.error("getUsers xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const deleteEmptyUsers = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    const result = await User.deleteMany({
+      $and: [
+        { $or: [{ phone: { $exists: false } }, { phone: null }, { phone: "" }] },
+        { $or: [{ email: { $exists: false } }, { email: null }, { email: "" }] },
+      ],
+    });
+    return success(res, { deletedCount: result.deletedCount }, `${result.deletedCount} hesab silindi.`);
+  } catch (err) {
+    console.error("deleteEmptyUsers xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const getUserOrders = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const orders = await Order.find({ user: req.params.userId })
+      .sort({ createdAt: -1 })
+      .select("orderNumber animalNameAz animalEmoji status totalPrice createdAt orderMode quantity")
+      .lean();
+    return success(res, { orders });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const getUserById = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const user = await User.findById(req.params.userId).select("-__v");
+    if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+    return success(res, { user });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const updateUser = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const { name, lastName, phone, email, isBlocked } = req.body;
+    const update = {};
+    if (name !== undefined) update.name = name;
+    if (lastName !== undefined) update.lastName = lastName;
+    if (phone !== undefined) update.phone = phone;
+    if (email !== undefined) update.email = email ? email.trim().toLowerCase() : email;
+    if (isBlocked !== undefined) update.isBlocked = isBlocked;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { $set: update },
+      { new: true, runValidators: true },
+    ).select("-__v");
+
+    if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+    return success(res, { user }, "İstifadəçi yeniləndi.");
+  } catch (err) {
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0];
+      return error(res, `Bu ${field === "phone" ? "telefon nömrəsi" : "email"} artıq istifadə olunur.`, 400);
+    }
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const deleteUser = async (req, res) => {
+  if (process.env.ALLOW_USER_MANAGEMENT !== "true") {
+    return error(res, "İstifadəçi idarəetməsi deaktivdir.", 403);
+  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return error(res, "İstifadəçi tapılmadı.", 404);
+    }
+    const user = await User.findByIdAndDelete(req.params.userId);
+    if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+    return success(res, {}, "İstifadəçi silindi.");
+  } catch (err) {
+    console.error("deleteUser xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Sifariş əlaqə məlumatlarını yenilə ──────────────────────────────────────
+const updateOrderContact = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+
+    const { contactInfo, distributionPhones } = req.body;
+
+    if (contactInfo) {
+      if (!order.contactInfo) order.contactInfo = {};
+      if (contactInfo.firstName !== undefined)
+        order.contactInfo.firstName = String(contactInfo.firstName).trim();
+      if (contactInfo.lastName !== undefined)
+        order.contactInfo.lastName = String(contactInfo.lastName).trim();
+      if (contactInfo.mobile !== undefined)
+        order.contactInfo.mobile = String(contactInfo.mobile).trim();
+      order.markModified("contactInfo");
+    }
+
+    if (Array.isArray(distributionPhones)) {
+      if (!order.distribution) order.distribution = {};
+      order.distribution.phones = distributionPhones
+        .map((p) => String(p).trim())
+        .filter(Boolean);
+      order.markModified("distribution");
+    }
+
+    await order.save();
+    return success(res, { order: { contactInfo: order.contactInfo, distribution: order.distribution } }, "Əlaqə məlumatları yeniləndi.");
+  } catch (err) {
+    console.error("updateOrderContact xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+module.exports = {
+  adminSendOTP,
+  adminVerifyOTP,
+  adminRegister,
+  getAdminAllowedEmails,
+  addAdminAllowedEmail,
+  removeAdminAllowedEmail,
+  getAllOrders,
+  getSharedOrders,
+  getOrderById,
+  updateOrderStatus,
+  uploadMedia,
+  deleteMedia,
+  deleteOrder,
+  getStats,
+  getSharedGroups,
+  createSharedGroup,
+  addOrderToGroup,
+  removeOrderFromGroup,
+  confirmSharedGroup,
+  deleteSharedGroup,
+  getOrdersBySlaughterDay,
+  getUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  deleteEmptyUsers,
+  getUserOrders,
+  updateOrderContact,
+};

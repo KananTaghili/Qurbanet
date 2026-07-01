@@ -1,0 +1,65 @@
+name: Deploy BackendDEV
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. GitHub Actions-a bizim kodları oxumaq icazəsi veririk
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Serverə SSH açarı ilə təhlükəsiz bağlanıb əmrləri icra edirik
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Node.js mühitini aktivləşdiririk (NVM)
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            # Hər hansı komanda xəta versə, deploy-u dayandır
+            set -e 
+            
+            # Layihə qovluğuna keçirik
+            cd /var/www/qurbanetbackend-dev
+            
+            # 3. KODLARI ÇƏKMƏK: SCP əvəzinə birbaşa SSH ilə GitHub-dan sürətli çəkirik
+            git pull origin dev
+
+            # Bird.com email credentials — .env-ə yaz (yoxdursa əlavə et)
+            ENV_FILE="/var/www/qurbanetbackend-dev/.env"
+            touch "$ENV_FILE"
+            grep -q "^BIRD_WORKSPACE_ID=" "$ENV_FILE" || echo "BIRD_WORKSPACE_ID=437ee7dc-e159-4b64-b42e-8e9c62b4c537" >> "$ENV_FILE"
+            grep -q "^BIRD_CHANNEL_ID=" "$ENV_FILE"    || echo "BIRD_CHANNEL_ID=84e9b3cd-f181-5b57-b715-121d3236dad1"    >> "$ENV_FILE"
+            grep -q "^BIRD_ACCESS_KEY=" "$ENV_FILE"    || echo "BIRD_ACCESS_KEY=gJv8SCpbAkGiOHOsz6U6khqMviqrVPrHKRcy"    >> "$ENV_FILE"
+            grep -q "^BIRD_SENDER_EMAIL=" "$ENV_FILE"  || echo "BIRD_SENDER_EMAIL=no-reply@mail.qurbanet.az"              >> "$ENV_FILE"
+            grep -q "^TEST_MODE=" "$ENV_FILE"          || echo "TEST_MODE=true"                                           >> "$ENV_FILE"
+
+            # Yeni paketləri yoxlayırıq (Yalnız production paketləri)
+            npm install --production
+            
+            # PM2-ni mütləq şəkildə mühit dəyişənləri ilə təzələyirik
+            PORT=4001 pm2 restart qurbanetbackendpm-dev --update-env \
+            || PORT=4001 pm2 start server.js --name "qurbanetbackendpm-dev" --wait-ready --listen-timeout 10000 --max-memory-restart 500M
+            
+            pm2 save
+
+            # Nginx: video/media yükləmə üçün 100MB limitini təmin et
+            NGINX_CONF="/etc/nginx/nginx.conf"
+            if grep -q "client_max_body_size" "$NGINX_CONF"; then
+              sudo sed -i 's/client_max_body_size[^;]*/client_max_body_size 100M/g' "$NGINX_CONF"
+            else
+              sudo sed -i '/http {/a \    client_max_body_size 100M;' "$NGINX_CONF"
+            fi
+            sudo nginx -t && sudo nginx -s reload
+            
+            echo "🚀 Canlı server 100% təhlükəsiz şəkildə yeniləndi!"

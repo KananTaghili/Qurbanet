@@ -26,18 +26,32 @@ jobs:
             set -e 
             
             cd /var/www/qurbanetfront
-            
+
             # Kodları GitHub-dan çəkirik
             git pull origin main
-            
+
             # Paketləri yeniləyirik
             npm install
-            
+
             # Next.js production build edirik (Kritik addım)
             npm run build
-            
+
+            # Backend dependencies yeniləyirik
+            cd /var/www/qurbanetfront/backend
+            npm install --omit=dev
+            cd /var/www/qurbanetfront
+
+            # Backend PM2 prosesini restart edirik
+            BACKEND_PROC=$(pm2 list --no-color 2>/dev/null | grep -v "qurbanetfrontpm" | grep "online\|stopped\|errored" | awk '{print $4}' | grep -v "^$\|id\|name" | head -1)
+            if [ -n "$BACKEND_PROC" ]; then
+              echo "Backend prosesi tapıldı: $BACKEND_PROC — restart edilir..."
+              pm2 restart "$BACKEND_PROC" --update-env || true
+            else
+              echo "⚠️ Backend PM2 prosesi tapılmadı"
+            fi
+
             # PM2 ilə tətbiqi sıfır itki ilə (zero-downtime) restart edirik
             PORT=3000 pm2 restart qurbanetfrontpm --update-env
             pm2 save
-            
+
             echo "🚀 Frontend mühiti 100% uğurla yeniləndi!"

@@ -1,738 +1,616 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import BottomNav from "../components/BottomNav";
-import { useAuth } from "../context/AuthContext";
-import { useOrder } from "../context/OrderContext";
-import { useLanguage, LANGUAGES } from "../context/LanguageContext";
-import { t, animalName } from "../lib/i18n";
-import api, { BASE_URL } from "../lib/api";
-import { useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
-  Truck,
-  CheckCircle,
-  Video,
-  PawPrint,
-  LogIn,
-  LogOut,
-  UserPlus,
-  MoreVertical,
-  Loader2,
-  ChevronRight,
-  Globe,
-  Settings,
-  Phone,
-  Mail,
+  ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
+  HeartHandshake, Beef, Home, Info, LayoutGrid, HelpCircle, Phone, ChevronRight,
 } from "lucide-react";
+import { PiKnifeBold } from "react-icons/pi";
+import { Capacitor } from "@capacitor/core";
+import { useAuth } from "../context/AuthContext";
+import NotificationBell from "../components/NotificationBell";
 
-const BRAND = "#1c5e20";
-
-// Azerbaijani vowel-harmony suffix for prices: "280-dən" vs "290-dan"
-function azPriceSuffix(num) {
-  const n = Math.abs(Math.round(num));
-  const last2 = n % 100;
-  const units = last2 % 10;
-  const tens = Math.floor(last2 / 10);
-  if (units !== 0) return [1, 2, 3, 4, 5, 7, 8].includes(units) ? "dən" : "dan";
-  if (tens !== 0) return [2, 5, 7, 8].includes(tens) ? "dən" : "dan";
-  // ends in 00 — check hundreds
-  return "dən"; // yüz → always front vowel
-}
-
-function PriceTag({ price, lang }) {
-  if (price == null) return null;
-  if (lang === "ru") {
-    return (
-      <>
-        <span className="text-[11px] xs:text-xs font-semibold text-text-secondary mr-1">от</span>
-        {price} AZN
-      </>
-    );
-  }
-  if (lang === "en") {
-    return (
-      <>
-        <span className="text-[11px] xs:text-xs font-semibold text-text-secondary mr-1">from</span>
-        {price} AZN
-      </>
-    );
-  }
-  // AZ — always "-dən" because suffix follows "AZN" not the number
+/* ── Slogan ────────────────────────────────────────────── */
+function Slogan({ compact = false }) {
   return (
-    <>
-      {price} AZN
-      <span className="text-[11px] xs:text-xs font-semibold text-text-secondary ml-1">
-        -dən
-      </span>
-    </>
-  );
-}
-
-function LanguageSelect({ lang, setLang, dark }) {
-  return (
-    <div className="relative flex-shrink-0">
-      <Globe
-        size={13}
-        className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none"
-        style={{ color: dark ? "rgba(255,255,255,0.7)" : BRAND }}
-      />
-      <select
-        value={lang}
-        onChange={(e) => setLang(e.target.value)}
-        className="appearance-none pl-6 pr-5 py-1 text-[11px] font-bold rounded-lg border-none outline-none cursor-pointer transition-all"
-        style={{
-          background: dark ? "rgba(255,255,255,0.15)" : "var(--primary-surface)",
-          color: dark ? "#fff" : BRAND,
-        }}
-      >
-        {LANGUAGES.map((l) => (
-          <option key={l.code} value={l.code} style={{ color: "#000", background: "#fff" }}>
-            {l.label}
-          </option>
-        ))}
-      </select>
-      <ChevronRight
-        size={10}
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none"
-        style={{ color: dark ? "rgba(255,255,255,0.7)" : BRAND }}
-      />
+    <div className={`flex items-center ${compact ? "gap-2 text-sm text-white/70" : "justify-center gap-3 text-sm font-bold uppercase tracking-[0.22em] text-white drop-shadow md:text-base md:tracking-[0.32em]"}`}>
+      <span>ETİBARLI</span>
+      <span className={`${compact ? "h-1.5 w-1.5" : "h-2 w-2"} shrink-0 rounded-full bg-white`} aria-hidden="true" />
+      <span>HALAL</span>
+      <span className={`${compact ? "h-1.5 w-1.5" : "h-2 w-2"} shrink-0 rounded-full bg-white`} aria-hidden="true" />
+      <span>SÜRƏTLİ</span>
     </div>
   );
 }
 
-export default function HomePage() {
+/* ── Payment logos ─────────────────────────────────────── */
+function PaymentLogos() {
+  return (
+    <div className="flex items-center gap-2.5">
+      {[
+        ["/pay_visa.jpg", "VISA"],
+        ["/pay_mastercard.jpg", "MasterCard"],
+        ["/pay_maestro.jpg", "Maestro"],
+      ].map(([src, alt]) => (
+        <div key={alt} className="grid h-9 w-14 place-items-center overflow-hidden rounded-md bg-white p-1 shadow-sm ring-1 ring-white/20">
+          <Image src={src} alt={alt} width={56} height={36} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Video Modal ───────────────────────────────────────── */
+function VideoModal({ video, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 px-4"
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-3xl">
+        <button onClick={onClose}
+          className="absolute -top-10 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors">
+          <X size={18} />
+        </button>
+        <div className="overflow-hidden rounded-2xl bg-black shadow-2xl" style={{ aspectRatio: "16/9" }}>
+          {video.type === "youtube" ? (
+            <iframe src={video.url} allow="autoplay; fullscreen" allowFullScreen className="h-full w-full" style={{ border: "none" }} />
+          ) : (
+            <video src={video.url} autoPlay controls className="h-full w-full" style={{ background: "#000" }} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Service card ──────────────────────────────────────── */
+const cards = [
+  { title: "Qurbanlıq Sifarişi",  text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.", color: "emerald", Icon: PiKnifeBold,    button: "SİFARİŞ ET",    href: "/qurban",  videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1", videoType: "youtube" },
+  { title: "Kollektiv Qurban",     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",       color: "violet",  Icon: HeartHandshake, button: "QOŞUL",          href: "/charity", videoUrl: "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm", videoType: "mp4" },
+  { title: "Ət Satışı",            text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",             color: "orange",  Icon: Beef,           button: "MƏHSULLARA BAX", href: null,       videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1", videoType: "youtube" },
+];
+
+const colorMap = {
+  emerald: { text: "text-[#0b6c24]", border: "border-[#0b6c24]/25", bg: "bg-[#0b6c24]" },
+  violet:  { text: "text-[#6820a3]", border: "border-[#6820a3]/25", bg: "bg-[#6820a3]" },
+  orange:  { text: "text-[#c85a13]", border: "border-[#c85a13]/25", bg: "bg-[#c85a13]" },
+};
+
+/* APK siyahı görünüşü üçün rənglər (ikon rəngi + dairə fonu) */
+const listTint = {
+  emerald: { fg: "#0b6c24", bg: "#e7f3ea" },
+  violet:  { fg: "#6820a3", bg: "#f0e9f7" },
+  orange:  { fg: "#c85a13", bg: "#fbede2" },
+};
+
+function ServiceCard({ item, idx = 0, onPlay, highlighted = false, onMouseEnter, onMouseLeave }) {
+  const { text, border, bg } = colorMap[item.color];
+  const Icon = item.Icon;
+  return (
+    <div className="hp-card relative mt-9" style={{ animationDelay: `${0.52 + idx * 0.13}s` }}
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+      <div
+        className="card-hover-root relative"
+        style={{
+          transition: "transform 0.35s cubic-bezier(0.22,1,0.36,1)",
+          transform: highlighted ? "scale(1.028) translateY(-5px)" : "scale(1) translateY(0)",
+        }}
+      >
+      {/* Icon — half outside top, right side */}
+      <div className="absolute -top-8 right-5 z-10">
+        <div
+          className={`grid h-16 w-16 place-items-center rounded-full border-2 bg-white ${text} ${border}`}
+          style={{
+            transition: "box-shadow 0.35s",
+            boxShadow: highlighted ? "0 6px 24px rgba(35,18,8,0.18)" : "0 2px 8px rgba(35,18,8,0.10)",
+          }}
+        >
+          <Icon className="h-9 w-9" />
+        </div>
+      </div>
+
+      <article
+        className="rounded-2xl bg-white pt-3 pb-3 px-4"
+        style={{
+          border: highlighted ? "1.5px solid #d4cdc6" : "1.5px solid #e8e2db",
+          transition: "box-shadow 0.35s, border-color 0.35s",
+          boxShadow: highlighted
+            ? "0 28px 72px rgba(35,18,8,0.17)"
+            : "0 18px 50px rgba(35,18,8,0.10)",
+        }}
+      >
+      <h3 className={`text-left text-xl font-extrabold leading-6 pr-20 ${text}`}>{item.title}</h3>
+      <div className="relative mt-2 overflow-hidden rounded-xl bg-black h-[128px] md:h-[175px] lg:h-[128px]">
+        {item.videoType === "youtube" ? (
+          <iframe
+            src={item.videoUrl.replace("autoplay=1", "autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0") + `&playlist=${item.videoUrl.split("/embed/")[1]?.split("?")[0]}`}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            style={{ border: "none", pointerEvents: "none", position: "absolute", top: "50%", left: "50%", width: "178%", height: "178%", transform: "translate(-50%, -50%)" }}
+          />
+        ) : (
+          <video
+            src={item.videoUrl}
+            autoPlay muted loop playsInline
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
+      <p className="px-1 py-2 text-[12px] leading-[1.5] text-neutral-700">{item.text}</p>
+      {item.href ? (
+        <Link href={item.href} className={`flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white ${bg} transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5 hover:shadow-lg active:scale-95`}>
+          {item.button}<ArrowRight className="h-5 w-5" />
+        </Link>
+      ) : (
+        <button disabled className="flex w-full items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-extrabold text-white bg-neutral-300 cursor-not-allowed opacity-60">
+          {item.button}<ArrowRight className="h-5 w-5" />
+        </button>
+      )}
+      </article>
+      </div>
+    </div>
+  );
+}
+
+/* ── User menu (logged in) ─────────────────────────────── */
+function UserMenu({ user, onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
   const router = useRouter();
-  const { user, isGuest, logout, isLoading } = useAuth();
-  const { clearOrder } = useOrder();
-  const { lang, setLang, multiLanguageEnabled } = useLanguage();
-  const [animals, setAnimals] = useState([]);
-  const [deliveryWindows, setDeliveryWindows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
+
+  const initials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "?";
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const handler = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
-    };
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [menuOpen]);
-
-  useEffect(() => {
-    clearOrder();
-    try {
-      sessionStorage.removeItem("qurbanet_flow");
-      sessionStorage.removeItem("qurbanet_qty_state");
-      sessionStorage.removeItem("qurbanet_dist_state");
-      localStorage.removeItem("selected_animal");
-      localStorage.removeItem("delivery_windows");
-    } catch {}
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    fetchAnimals();
-    let socket;
-    try {
-      const { io } = require("socket.io-client");
-      socket = io(BASE_URL.replace(/\/api$/, ""), {
-        transports: ["websocket"],
-      });
-      socket.on("category_updated", fetchAnimals);
-    } catch {
-      /* ignore */
-    }
-    return () => {
-      try { socket?.disconnect(); } catch { /* ignore */ }
-    };
   }, []);
 
-  const fetchAnimals = async () => {
-    try {
-      const res = await api.get("/orders/animals");
-      const data = res.data.data;
-      setAnimals(data.animals || []);
-      if (data.deliveryWindows?.length) setDeliveryWindows(data.deliveryWindows);
-    } catch {
-      /* ignore */
-    } finally {
-      setLoading(false);
-    }
+  return (
+    <div ref={ref} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+      >
+        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px", flexShrink: 0, lineHeight: 1 }}>
+          {initials}
+        </div>
+        <span className="hidden lg:inline" style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{[user?.name, user?.lastName].filter(Boolean).join(" ")}</span>
+      </button>
+
+      {open && (
+        <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, background: "#fff", borderRadius: 14, border: "1px solid #f0f0f0", boxShadow: "0 8px 30px rgba(0,0,0,0.18)", padding: "6px", minWidth: 180, zIndex: 9999 }}>
+          <button onClick={() => { setOpen(false); router.push("/settings"); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#374151" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f9fafb"}
+            onMouseLeave={e => e.currentTarget.style.background = "none"}
+          >
+            <Settings size={15} /> Parametrlər
+          </button>
+          <button onClick={() => { setOpen(false); onLogout(); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#f20b32" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#fff1f3"}
+            onMouseLeave={e => e.currentTarget.style.background = "none"}
+          >
+            <LogOut size={15} /> Çıxış et
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Page ──────────────────────────────────────────────── */
+export default function HomePage() {
+  const { user, isGuest, logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNative, setIsNative] = useState(false);
+  const [activeVideo, setActiveVideo] = useState(null);
+
+  useEffect(() => {
+    if (Capacitor?.isNativePlatform?.()) setIsNative(true);
+  }, []);
+  const [glowCard, setGlowCard] = useState(-1);
+  const [hoveredCard, setHoveredCard] = useState(-1);
+  const pausedRef = useRef(false);
+  const seqIdsRef = useRef([]);
+  const runSeqRef = useRef(null);
+  const resumeTimerRef = useRef(null);
+
+  useEffect(() => {
+    const clearSeq = () => { seqIdsRef.current.forEach(clearTimeout); seqIdsRef.current = []; };
+    const schedule = (fn, delay) => { const id = setTimeout(fn, delay); seqIdsRef.current.push(id); };
+    const runSequence = () => {
+      if (pausedRef.current) return;
+      schedule(() => setGlowCard(0),   0);
+      schedule(() => setGlowCard(1), 300);
+      schedule(() => setGlowCard(2), 600);
+      schedule(() => { setGlowCard(-1); schedule(runSequence, 9100); }, 900);
+    };
+    runSeqRef.current = runSequence;
+    schedule(runSequence, 2000);
+    return clearSeq;
+  }, []);
+
+  const handleCardEnter = (idx) => {
+    setHoveredCard(idx);
+    pausedRef.current = true;
+    seqIdsRef.current.forEach(clearTimeout);
+    seqIdsRef.current = [];
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    setGlowCard(-1);
   };
 
-  const handleSelect = (animal) => {
-    localStorage.setItem("selected_animal", JSON.stringify(animal));
-    localStorage.setItem("delivery_windows", JSON.stringify(deliveryWindows));
-    sessionStorage.setItem("qurbanet_flow", "1");
-    sessionStorage.removeItem("qurbanet_qty_state");
-    sessionStorage.removeItem("qurbanet_dist_state");
-    router.push("/order/quantity");
+  const handleCardLeave = () => {
+    setHoveredCard(-1);
+    pausedRef.current = false;
+    resumeTimerRef.current = setTimeout(() => { if (runSeqRef.current) runSeqRef.current(); }, 10000);
   };
 
-  const handleLogout = async () => {
-    setMenuOpen(false);
-    if (confirm(t(lang, 'confirmLogout'))) await logout();
-  };
-
-  if (isLoading) return <LoadingSplash />;
-
-  const FEATURES = [
-    { Icon: Truck,        labelKey: "homeFeatureDelivery", subKey: "homeFeatureDeliverySub" },
-    { Icon: CheckCircle,  labelKey: "homeFeatureHalal",    subKey: "homeFeatureHalalSub" },
-    { Icon: Video,        labelKey: "homeFeatureVideo",    subKey: "homeFeatureVideoSub" },
+  const nav = [
+    { label: "Haqqımızda", to: "/about" },
+    { label: "Xidmətlər",  to: "/services" },
+    { label: "Necə işləyir?", to: "/process" },
+    { label: "Əlaqə",      to: "/contact" },
   ];
 
+  const mobileNav = [
+    { label: "Əsas",       to: "/",         Icon: Home },
+    { label: "Haqqımızda", to: "/about",    Icon: Info },
+    { label: "Xidmətlər",  to: "/services", Icon: LayoutGrid },
+    { label: "Necə?",      to: "/process",  Icon: HelpCircle },
+    { label: "Əlaqə",      to: "/contact",  Icon: Phone },
+  ];
+
+  const handleLogout = async () => { await logout(); router.push("/"); };
+
+  const whyItems = [
+    [PiKnifeBold, "Halal Kəsim",       "Dini qaydalara uyğun peşəkar kəsim"],
+    [Video,     "Video Hesabat",      "Kəsim prosesini addım-addım izləyin"],
+    [Truck,     "Çatdırılma",         "Sürətli və etibarlı çatdırılma"],
+    [HeartHandshake, "Şəffaf Xeyriyyə", "Hesabatlı və şəffaf paylaşım"],
+  ];
+
+  const profileInitials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "?";
+  const profileBtn = isGuest ? (
+    <Link href="/auth/login" className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eef0f2]">
+        <User className="h-5 w-5" />
+      </span>
+      <span className="hidden lg:inline">Daxil ol</span>
+    </Link>
+  ) : isNative ? (
+    // APK: profil → birbaşa Parametrlər (dropdown yox)
+    <Link href="/settings" aria-label="Parametrlər" className="flex items-center">
+      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px" }}>
+        {profileInitials}
+      </div>
+    </Link>
+  ) : (
+    <UserMenu user={user} onLogout={handleLogout} />
+  );
+
   return (
-    <div className="flex flex-col flex-1 bg-bg min-h-screen w-full">
-      {/* ══════════════════════════════════════════════
-          MOBILE HEADER  (< md: 0–767px)
-          ══════════════════════════════════════════════ */}
-      <div
-        className="
-          md:hidden
-          w-full bg-primary
-          px-3 xs:px-4 sm:px-5
-          pt-[max(env(safe-area-inset-top),12px)]
-          pb-3 sm:pb-4
-          sticky top-0 z-30
-          shadow-[0_2px_8px_rgba(0,0,0,0.08)]
-        "
-      >
-        <div className="flex items-center justify-between gap-2">
-          {/* Logo */}
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden flex-shrink-0 bg-white/20">
-              <Image src="/logo.png" alt="QurbanEt" width={48} height={48} className="w-full h-full object-cover" />
-            </div>
-            <div className="min-w-0">
-              <div
-                style={{ color: "white", letterSpacing: "-0.3px", lineHeight: 1.15 }}
-                className="text-lg xs:text-xl sm:text-[22px] font-black italic truncate"
-              >
-                Qurban<span style={{ color: "#86efac" }}>Et</span>
-              </div>
-              <div className="text-[8px] xs:text-[9px] sm:text-[10px] text-white/60 font-semibold tracking-widest truncate">
-                {t(lang, 'homeSubtitle')}
-              </div>
-            </div>
+    <main className="hp-main bg-background p-0 font-sans text-foreground md:p-4" style={{ height: '100dvh', overflow: 'hidden' }}>
+      <style>{`
+        @keyframes hpFadeDown {
+          from { opacity: 0; transform: translateY(-18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hpFadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hpFadeIn {
+          from { opacity: 0; transform: scale(0.97) translateY(12px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes hpSlideRight {
+          from { opacity: 0; transform: translateX(-20px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes hpSlideLeft {
+          from { opacity: 0; transform: translateX(20px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .hp-logo    { opacity:0; animation: hpSlideRight 0.42s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.05s; }
+        .hp-nav     { opacity:0; animation: hpFadeDown   0.38s cubic-bezier(0.22,1,0.36,1) both; }
+        .hp-user    { opacity:0; animation: hpSlideLeft  0.42s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.08s; }
+        .hp-hero    { opacity:0; animation: hpFadeIn     0.55s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.22s; }
+        .hp-card    { opacity:0; animation: hpFadeUp     0.48s cubic-bezier(0.22,1,0.36,1) both; }
+        .hp-why     { opacity:0; animation: hpFadeUp     0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.92s; }
+        .hp-footer  { opacity:0; animation: hpFadeUp     0.42s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 1.05s; }
+        .hp-copy    { opacity:0; animation: hpFadeUp     0.38s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 1.15s; }
+
+        /* card + icon lift together */
+        .card-hover-root:hover { transform: translateY(-10px); }
+
+        /* Red scrollbar for homepage */
+        .hp-scroll::-webkit-scrollbar { width: 16px; }
+        .hp-scroll::-webkit-scrollbar-track { background: #fff; border-radius: 999px; margin: 8px 0 60px 0; }
+        .hp-scroll::-webkit-scrollbar-thumb { background: #f20b32; border-radius: 999px; border: 5px solid #fff; background-clip: padding-box; }
+        .hp-scroll::-webkit-scrollbar-thumb:hover { background: #d00828; border: 5px solid #fff; background-clip: padding-box; }
+        .hp-scroll { overflow-y: overlay; scrollbar-color: #f20b32 #fff; }
+
+        /* ── Mobil bottom nav: defolt gizli (web), yalnız APK-da (cap-native) görünür ── */
+        .hp-bottom-nav { display: none; }
+        html.cap-native .hp-bottom-nav { display: block; }
+        /* APK-da hamburger + drawer + footer + copyright gizlənir */
+        html.cap-native .hp-hamburger,
+        html.cap-native .hp-drawer,
+        html.cap-native .hp-footer,
+        html.cap-native .hp-copy { display: none !important; }
+        /* APK-da logo soldan mərkəzə (hp-user/hp-profile qaydaları globals.css-də) */
+        html.cap-native .hp-header { position: relative; }
+        html.cap-native .hp-logo-box { position: absolute; left: 50%; transform: translateX(-50%); }
+      `}</style>
+
+      <section className="mx-auto max-w-7xl overflow-hidden md:rounded-[1.75rem] md:border md:border-white/15 bg-[#130807] shadow-2xl flex flex-col h-[100dvh] md:h-[calc(100dvh-32px)]">
+
+        {/* ── Mobile drawer backdrop (yalnız web — APK-da hp-drawer gizlədilir) ── */}
+        <div
+          className={`hp-drawer md:hidden fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+
+        {/* ── Mobile drawer panel ── */}
+        <div
+          className={`hp-drawer md:hidden fixed top-0 left-0 z-[70] h-full w-[72%] max-w-[280px] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+          style={{ background: "#1a0a08" }}
+        >
+          <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+              <Image src="/mb_logo_right_white.png" alt="MeatBox" width={120} height={30}
+                style={{ height: 26, width: "auto", objectFit: "contain" }} />
+            </Link>
+            <button onClick={() => setMobileMenuOpen(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70">
+              <X size={18} />
+            </button>
           </div>
-
-          {/* Right side */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Language select (mobile) */}
-            {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
-
-            {!isGuest ? (
-              /* ── Logged-in: avatar + name → dropdown modal ── */
-              <div ref={menuRef} className="relative flex-shrink-0">
-                <button
-                  onClick={() => setMenuOpen((p) => !p)}
-                  className="flex items-center gap-1.5 rounded-2xl px-2 py-1 active:bg-white/10 transition-colors"
-                  aria-label="Hesab"
-                >
-                  <Settings size={16} color="white" strokeWidth={2} className="flex-shrink-0" />
-                  <div
-                    className="w-7 h-7 rounded-full border-2 border-white/40 flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
-                    style={{ background: "rgba(255,255,255,0.18)" }}
-                  >
+          <nav className="flex-1 px-3 py-3 flex flex-col gap-0.5">
+            {nav.map(item => (
+              <Link key={item.to} href={item.to} onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-all ${pathname === item.to ? "bg-white/15 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="px-4 pb-6 border-t border-white/10 pt-4">
+            {isGuest ? (
+              <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white no-underline"
+                style={{ background: "#f20b32" }}>
+                <User size={15} /> Daxil ol
+              </Link>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 px-1 mb-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[12px] font-bold text-white">
                     {user?.name?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-xs font-bold text-white/90 max-w-[72px] truncate">
-                    {user?.name?.split(" ")[0]}
+                  <span className="text-[13px] font-semibold text-white/90 truncate flex-1">
+                    {[user?.name, user?.lastName].filter(Boolean).join(" ")}
                   </span>
+                  <button onClick={() => { setMobileMenuOpen(false); router.push("/settings"); }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70 shrink-0">
+                    <Settings size={16} />
+                  </button>
+                </div>
+                <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white transition-all"
+                  style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                  <LogOut size={14} /> Çıxış
                 </button>
-
-                {menuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setMenuOpen(false)} />
-                    <div
-                      className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 rounded-2xl overflow-hidden w-[calc(100vw-40px)] max-w-[280px]"
-                      style={{ background: "#fff", boxShadow: "0 8px 32px rgba(0,0,0,0.22)", border: "1px solid rgba(0,0,0,0.07)" }}
-                    >
-                      {/* User info */}
-                      <div className="px-4 py-3 flex items-center gap-2.5" style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0" style={{ background: "#1b5e20" }}>
-                          {user?.name?.[0]?.toUpperCase() || "?"}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-sm font-bold text-slate-800 truncate">
-                            {[user?.name, user?.lastName].filter(Boolean).join(" ")}
-                          </div>
-                          {(user?.phone || user?.email) && (
-                            <div className="text-xs text-slate-400 truncate">{user.phone || user.email}</div>
-                          )}
-                        </div>
-                      </div>
-                      {/* Settings */}
-                      <button
-                        onClick={() => { setMenuOpen(false); router.push("/settings"); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent active:bg-slate-50"
-                      >
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
-                          <Settings size={15} style={{ color: "#1b5e20" }} />
-                        </div>
-                        <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
-                      </button>
-                      {/* Contact — mobile modal only */}
-                      <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
-                      <div className="px-4 pt-2.5 pb-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bizimlə Əlaqə</p>
-                      </div>
-                      <div className="mx-3 mb-2 border border-slate-100 rounded-xl overflow-hidden">
-                        <div className="flex items-center gap-3 px-3 py-2.5">
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
-                            <Phone size={13} style={{ color: "#1b5e20" }} />
-                          </div>
-                          <span className="text-sm font-semibold text-slate-800">+994 10 399 0222</span>
-                        </div>
-                        <div style={{ height: 1, background: "#f1f5f9" }} />
-                        <div className="flex items-center gap-3 px-3 py-2.5">
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#e8f5e9" }}>
-                            <Mail size={13} style={{ color: "#1b5e20" }} />
-                          </div>
-                          <span className="text-sm font-semibold text-slate-800">info@qurbanet.az</span>
-                        </div>
-                      </div>
-                      <div style={{ height: 1, background: "#f1f5f9", margin: "0 12px" }} />
-                      {/* Logout */}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent active:bg-red-50"
-                      >
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#fee2e2" }}>
-                          <LogOut size={15} style={{ color: "#ef4444" }} />
-                        </div>
-                        <span className="text-sm font-semibold" style={{ color: "#ef4444" }}>{t(lang, 'logout')}</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              /* ── Guest: login/register menu ── */
-              <div className="relative flex-shrink-0">
-                <button
-                  onClick={() => setMenuOpen((p) => !p)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full active:bg-white/10 transition-colors"
-                  aria-label="Menyu"
-                >
-                  <MoreVertical size={22} color="white" strokeWidth={2} />
-                </button>
-
-                {menuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute right-0 top-11 bg-surface rounded-xl shadow-card-lg border border-border z-50 min-w-[160px] py-1 overflow-hidden">
-                      <button
-                        onClick={() => { setMenuOpen(false); router.push("/auth/login"); }}
-                        className="w-full text-left px-4 py-3 text-sm font-semibold text-primary flex items-center gap-2 active:bg-primary-surface"
-                      >
-                        <LogIn size={15} color={BRAND} strokeWidth={2} />
-                        {t(lang, 'login')}
-                      </button>
-                      <button
-                        onClick={() => { setMenuOpen(false); router.push("/auth/register"); }}
-                        className="w-full text-left px-4 py-3 text-sm font-semibold text-primary flex items-center gap-2 active:bg-primary-surface border-t border-border"
-                      >
-                        <UserPlus size={15} color={BRAND} strokeWidth={2} />
-                        {t(lang, 'register')}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+              </>
             )}
           </div>
         </div>
-      </div>
 
-      {/* ══════════════════════════════════════════════
-          MOBILE LIST  (< md: 0–767px)
-          ══════════════════════════════════════════════ */}
-      <div className="md:hidden flex flex-col flex-1 w-full px-3 xs:px-4 sm:px-5 pt-3 sm:pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]">
-        {loading ? (
-          <Spinner />
-        ) : animals.length === 0 ? (
-          <EmptyState lang={lang} />
-        ) : (
-          <div className="flex flex-col gap-2.5 xs:gap-3 sm:gap-4">
-            {animals.map((a) => (
-              <MobileAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
-            ))}
-          </div>
-        )}
-
-        {/* Feature strips - mobile bottom */}
-        {!loading && animals.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-            {FEATURES.map(({ Icon, labelKey, subKey }) => (
-              <div
-                key={labelKey}
-                className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-3 py-2.5 shadow-card"
-              >
-                <div className="w-9 h-9 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
-                  <Icon size={18} color={BRAND} strokeWidth={1.8} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[13px] font-bold text-text-primary">
-                    {t(lang, labelKey)}
-                  </div>
-                  <div className="text-[11px] text-text-muted mt-0.5">
-                    {t(lang, subKey)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ══════════════════════════════════════════════
-          DESKTOP TOPBAR  (md+: 768px+)
-          ══════════════════════════════════════════════ */}
-      <div
-        className="hidden md:flex items-center justify-between"
-        style={{
-          background: "var(--primary)",
-          height: "var(--topbar-h)",
-          position: "fixed",
-          top: 0, left: 0, right: 0,
-          zIndex: 99,
-          paddingLeft: "calc(var(--sidebar-w) + 28px)",
-          paddingRight: 20,
-        }}
-      >
-        <h1 className="text-base font-extrabold tracking-tight text-white">
-          {t(lang, 'animalSelection')}
-        </h1>
-
-        {/* Right: contact info + lang + user info */}
-        <div className="flex items-center gap-4">
-          {/* Contact info */}
-          <div className="hidden md:flex flex-col lg:flex-row items-start lg:items-center gap-0.5 lg:gap-3 mr-1">
-            <div className="flex items-center gap-1">
-              <Phone size={11} style={{ color: "#86efac", flexShrink: 0 }} />
-              <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
-                +994 10 399 0222
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Mail size={11} style={{ color: "#86efac", flexShrink: 0 }} />
-              <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
-                info@qurbanet.az
-              </span>
-            </div>
-          </div>
-          {multiLanguageEnabled && <LanguageSelect lang={lang} setLang={setLang} dark />}
-
-          {isGuest ? (
-            <button
-              onClick={() => router.push('/auth/login')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold text-white transition-colors"
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
-            >
-              <LogIn size={14} strokeWidth={2.5} />
-              Daxil ol
+        {/* ── Header ── */}
+        <header className="hp-header flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
+          {/* Native-də sol tərəfdəki profil (yalnız APK) */}
+          <span className="hp-profile-native">{profileBtn}</span>
+          <div className="hp-logo-box flex items-center gap-2">
+            <button className="hp-hamburger md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors" onClick={() => setMobileMenuOpen(true)}>
+              <Menu className="h-5 w-5" />
             </button>
-          ) : (
-            <div ref={menuRef} className="relative">
-              <button
-                onClick={() => setMenuOpen((v) => !v)}
-                className="flex items-center gap-2 min-w-0 cursor-pointer rounded-xl px-1.5 py-1 transition-colors hover:bg-white/10"
-              >
-                <Settings size={18} color="white" strokeWidth={2} className="flex-shrink-0" />
-                <div
-                  className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0"
-                  style={{ background: 'rgba(255,255,255,0.15)' }}
-                >
-                  {user?.name?.[0]?.toUpperCase() || '?'}
-                </div>
-                <span className="text-sm font-semibold text-white/80">
-                  {[user?.name, user?.lastName].filter(Boolean).join(' ')}
-                </span>
-              </button>
-
-              {menuOpen && (
-                <div
-                  className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden z-50"
-                  style={{ background: '#fff', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '1px solid rgba(0,0,0,0.07)', minWidth: 210 }}
-                >
-                  {/* User info */}
-                  <div className="px-4 py-3 flex items-center gap-2.5" style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0" style={{ background: '#1b5e20' }}>
-                      {user?.name?.[0]?.toUpperCase() || '?'}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-800 truncate">
-                        {[user?.name, user?.lastName].filter(Boolean).join(' ')}
-                      </div>
-                      {(user?.phone || user?.email) && (
-                        <div className="text-xs text-slate-400 truncate">{user.phone || user.email}</div>
-                      )}
-                    </div>
-                  </div>
-                  {/* Settings */}
-                  <button
-                    onClick={() => { setMenuOpen(false); router.push('/settings'); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent transition-colors"
-                    onMouseEnter={(e) => (e.currentTarget.style.background = '#f8fafc')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#e8f5e9' }}>
-                      <Settings size={15} style={{ color: '#1b5e20' }} />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-800">Parametrlər</span>
-                  </button>
-                  <div style={{ height: 1, background: '#f1f5f9', margin: '0 12px' }} />
-                  {/* Logout */}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left border-none bg-transparent transition-colors"
-                    onMouseEnter={(e) => (e.currentTarget.style.background = '#fff5f5')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#fee2e2' }}>
-                      <LogOut size={15} style={{ color: '#ef4444' }} />
-                    </div>
-                    <span className="text-sm font-semibold" style={{ color: '#ef4444' }}>{t(lang, 'logout')}</span>
-                  </button>
-                </div>
-              )}
+            <div className="hp-logo">
+              <Image src="/meatbox logo right black.png" alt="MeatBox" width={130} height={30} style={{ objectFit: "contain", objectPosition: "left", height: 30, width: "auto" }} priority />
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* ══════════════════════════════════════════════
-          DESKTOP / TABLET LAYOUT  (md+: 768px+)
-          ══════════════════════════════════════════════ */}
-      <div
-        className="hidden md:flex flex-col w-full gap-4 lg:gap-5 xl:gap-6 pb-5 md:pb-6 lg:pb-8"
-        style={{ paddingTop: "calc(var(--topbar-h) + 12px)", paddingLeft: 28, paddingRight: 28 }}
-      >
-        {/* Grid */}
-        {loading ? (
-          <Spinner />
-        ) : animals.length === 0 ? (
-          <EmptyState lang={lang} />
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
-            {animals.map((a) => (
-              <DesktopAnimalCard key={a._id || a.type} animal={a} onSelect={handleSelect} lang={lang} />
+          <nav className="hidden items-center gap-5 lg:gap-9 text-sm font-medium md:flex">
+            {nav.map((item, i) => (
+              <Link
+                key={item.to}
+                href={item.to}
+                className={`hp-nav transition-colors hover:text-[#f20b32] ${pathname === item.to ? "text-[#f20b32] font-bold" : ""}`}
+                style={{ animationDelay: `${0.1 + i * 0.07}s` }}
+              >{item.label}</Link>
             ))}
-          </div>
-        )}
+          </nav>
 
-        {/* Feature strips */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 lg:mt-2">
-          {FEATURES.map(({ Icon, labelKey, subKey }) => (
-            <div
-              key={labelKey}
-              className="flex items-center gap-3 bg-surface rounded-2xl border border-border px-4 py-3 shadow-card"
-            >
-              <div className="w-10 h-10 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
-                <Icon size={20} color={BRAND} strokeWidth={1.8} />
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-bold text-text-primary">
-                  {t(lang, labelKey)}
-                </div>
-                <div className="text-xs text-text-muted mt-0.5">
-                  {t(lang, subKey)}
-                </div>
+          <div className="hp-user flex items-center gap-3">
+            <NotificationBell
+              accentColor="#f20b32"
+              ringColor="#ffffff"
+              iconColor="#374151"
+              hoverClass="hover:bg-black/5"
+            />
+            {/* Web-də sağdakı profil (APK-da gizli) */}
+            <span className="hp-profile-web">{profileBtn}</span>
+          </div>
+        </header>
+
+        {/* Scrollable content */}
+        <div className="hp-scroll flex-1 overflow-y-auto">
+
+        {/* ── Hero ── */}
+        <div className="hp-hero relative overflow-hidden bg-[#190908] px-6 pb-11 pt-4 md:px-12 md:pb-14 md:pt-5" style={{ minHeight: 220 }}>
+          <Image src="/main_home_foto_image_home.jpg" alt="Hero fon" fill style={{ objectFit: "cover", objectPosition: "center 40%" }} priority />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(100deg,rgba(5,2,0,0.52) 0%,rgba(5,2,0,0.18) 38%,rgba(0,0,0,0) 58%)" }} />
+          <div className="relative h-full flex items-center">
+            <div style={{ maxWidth: 380 }}>
+              <h1 className="font-black text-white leading-[1.15] mb-2"
+                style={{ fontSize: "clamp(22px,4vw,36px)", textShadow: "0 2px 16px rgba(0,0,0,0.55)", fontFamily: "'Plus Jakarta Sans','Manrope',sans-serif" }}>
+                Bərəkətli qurbanlıq,<br />Rahat ət sifarişi!
+              </h1>
+              <p className="mb-4 font-bold text-white/75 tracking-[0.18em] uppercase"
+                style={{ fontSize: "clamp(11px,1.5vw,12px)", letterSpacing: "0.18em" }}>
+                ETİBARLI &nbsp;•&nbsp; HALAL &nbsp;•&nbsp; SÜRƏTLİ
+              </p>
+              <div className="flex gap-2.5 flex-wrap">
+                {isGuest ? (
+                  <Link href="/auth/register"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
+                    style={{ fontSize: "clamp(13px,1.6vw,15px)", background: "#CC0000" }}>
+                    Qeydiyyatdan keç &nbsp;→
+                  </Link>
+                ) : (
+                  <div
+                    className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 font-bold text-white shadow-lg"
+                    style={{ fontSize: "clamp(13px,1.6vw,15px)", background: "#CC0000" }}>
+                    Xoş gəlmisiniz, {user?.name}!
+                  </div>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      <BottomNav />
-    </div>
-  );
-}
-
-/* ───────────────────────────────────────────────
-   Helpers
-   ─────────────────────────────────────────────── */
-function Spinner() {
-  return (
-    <div className="flex justify-center py-16 md:py-20 lg:py-24 w-full">
-      <Loader2 size={40} color={BRAND} strokeWidth={2} className="animate-spin md:w-12 md:h-12" />
-    </div>
-  );
-}
-
-function LoadingSplash() {
-  return (
-    <div className="flex-1 flex items-center justify-center min-h-screen bg-bg px-4">
-      <div className="flex flex-col items-center gap-3 md:gap-4">
-        <Loader2 size={44} color={BRAND} strokeWidth={2} className="animate-spin md:w-12 md:h-12" />
-        <div className="text-sm md:text-[15px] font-semibold text-text-secondary">Yüklənir...</div>
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({ lang }) {
-  return (
-    <div className="flex flex-col items-center py-16 md:py-20 lg:py-24 gap-3 text-center px-6 md:px-8 w-full col-span-full">
-      <PawPrint size={56} color={BRAND} strokeWidth={1.4} className="md:w-16 md:h-16" />
-      <div className="font-bold text-text-primary text-sm md:text-base">
-        {t(lang, 'outOfStock')}
-      </div>
-    </div>
-  );
-}
-
-/* ───────────────────────────────────────────────
-   Mobile card: horizontal, fluid heights
-   ─────────────────────────────────────────────── */
-function MobileAnimalCard({ animal, onSelect, lang }) {
-  const isQoyun = animal.type === "qoyun";
-  const inactive = !animal.isActive;
-  const [pressed, setPressed] = useState(false);
-
-  return (
-    <button
-      onClick={() => { if (!inactive) onSelect(animal); }}
-      disabled={inactive}
-      onMouseEnter={() => !inactive && setPressed(true)}
-      onMouseLeave={() => setPressed(false)}
-      onTouchStart={() => !inactive && setPressed(true)}
-      onTouchEnd={() => setTimeout(() => setPressed(false), 180)}
-      onTouchCancel={() => setPressed(false)}
-      className={`
-        flex items-stretch overflow-hidden w-full text-left
-        bg-white rounded-2xl xs:rounded-3xl
-        border
-        transition-all duration-150
-        min-h-[120px] xs:min-h-[130px] sm:min-h-[140px]
-        ${inactive
-          ? "opacity-50 grayscale cursor-not-allowed border-black/[0.08] shadow-card-md"
-          : pressed
-            ? "border-primary/30 shadow-lg scale-[1.01]"
-            : "border-black/[0.08] shadow-card-md"}
-      `}
-    >
-      {/* Image */}
-      <div
-        className={`
-          flex-shrink-0 bg-white overflow-hidden
-          flex items-center justify-center
-          ${isQoyun
-            ? "w-[155px] xs:w-[175px] sm:w-[195px]"
-            : "w-[140px] xs:w-[160px] sm:w-[180px] px-2 xs:px-2.5"}
-        `}
-      >
-        {animal.imageUrl ? (
-          <img
-            src={animal.imageUrl}
-            alt={animalName(animal, lang)}
-            className="w-full h-full object-contain"
-            style={{ transform: isQoyun ? "scale(1.18)" : "scale(1)" }}
-          />
-        ) : (
-          <PawPrint size={48} color={BRAND} strokeWidth={1.4} />
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between px-3 xs:px-4 py-2.5 xs:py-3">
-        <div className="min-w-0">
-          <div className="text-base xs:text-[17px] sm:text-lg font-bold text-text-primary leading-tight truncate">
-            {animalName(animal, lang)}
           </div>
-          {animal.pricePerShare != null && (
-            <div className="text-lg xs:text-xl sm:text-[22px] font-extrabold text-primary mt-1 leading-tight">
-              <PriceTag price={animal.pricePerShare} lang={lang} />
+        </div>
+
+        {/* ── Services ── */}
+        <section
+          className="bg-[#fbf7f2] px-6 pb-8 md:px-12"
+          style={isNative
+            ? { borderTopLeftRadius: 24, borderTopRightRadius: 24, marginTop: -22, position: "relative", zIndex: 5, paddingTop: 18 }
+            : { paddingTop: 0 }}
+        >
+          {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
+          {isNative ? (
+            /* APK: kompakt siyahı görünüşü */
+            <div className="flex flex-col gap-3 pt-3">
+              {cards.map((item) => {
+                const tint = listTint[item.color];
+                const Icon = item.Icon;
+                const rowCls = "flex items-center gap-3 rounded-2xl bg-white px-3.5 py-3 shadow-[0_2px_12px_rgba(35,18,8,0.08)] active:scale-[0.99] transition-transform";
+                const inner = (
+                  <>
+                    <div className="grid place-items-center rounded-full shrink-0" style={{ width: 48, height: 48, background: tint.bg, color: tint.fg }}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-[15px] leading-tight" style={{ color: tint.fg }}>{item.title}</h3>
+                      <p className="mt-0.5 text-[11.5px] leading-snug text-neutral-500 line-clamp-2">{item.text}</p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-neutral-300 shrink-0" />
+                  </>
+                );
+                return item.href ? (
+                  <Link key={item.title} href={item.href} className={rowCls}>{inner}</Link>
+                ) : (
+                  <div key={item.title} className={`${rowCls} opacity-60`}>{inner}</div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
+              {cards.map((item, idx) => (
+                <ServiceCard
+                  key={item.title} item={item} idx={idx} onPlay={setActiveVideo}
+                  highlighted={glowCard === idx || hoveredCard === idx}
+                  onMouseEnter={() => handleCardEnter(idx)}
+                  onMouseLeave={handleCardLeave}
+                />
+              ))}
             </div>
           )}
-          <div className="text-[10px] xs:text-[11px] font-semibold text-green-600 mt-0.5 truncate">
-            {t(lang, 'priceFrom')}
+
+          {/* Why MeatBox */}
+          <div className="hp-why mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-4 sm:p-5">
+            <h2 className="text-center text-xl sm:text-2xl font-black">Niyə MeatBox?</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {whyItems.map(([Icon, title, text]) => (
+                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3" key={title}>
+                  <Icon className="h-8 w-8 sm:h-9 sm:w-9 text-[#0b6c24] shrink-0" />
+                  <div className="text-center sm:text-left">
+                    <h4 className="font-bold text-sm sm:text-base">{title}</h4>
+                    <p className="text-xs sm:text-sm text-neutral-600 leading-snug">{text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="flex justify-end mt-1">
-          <span
-            className={`text-[11px] xs:text-xs font-bold px-3 xs:px-3.5 py-1 xs:py-1.5 rounded-full flex items-center gap-1 whitespace-nowrap ${
-              inactive
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-primary text-white"
-            }`}
-          >
-            {t(lang, 'orderNow')} {!inactive && <ChevronRight size={12} strokeWidth={2.5} />}
-          </span>
-        </div>
-      </div>
-    </button>
-  );
-}
+        </section>
 
-/* ───────────────────────────────────────────────
-   Desktop card: vertical, fluid sizing
-   ─────────────────────────────────────────────── */
-function DesktopAnimalCard({ animal, onSelect, lang }) {
-  const isQoyun = animal.type === "qoyun";
-  const inactive = !animal.isActive;
-
-  return (
-    <button
-      onClick={() => { if (!inactive) onSelect(animal); }}
-      disabled={inactive}
-      className={`
-        flex flex-col overflow-hidden text-left
-        bg-white rounded-2xl lg:rounded-3xl
-        border border-black/[0.08]
-        shadow-card-md
-        transition-all duration-200
-        w-full
-        ${inactive ? "opacity-50 grayscale cursor-not-allowed" : "hover:-translate-y-1 hover:shadow-card-lg cursor-pointer"}
-      `}
-    >
-      {/* Image */}
-      <div
-        className={`
-          bg-white overflow-hidden
-          h-[140px] md:h-[150px] lg:h-[170px] xl:h-[185px]
-          flex items-center justify-center
-          ${isQoyun ? "" : "px-2 lg:px-2.5"}
-        `}
-      >
-        {animal.imageUrl ? (
-          <img
-            src={animal.imageUrl}
-            alt={animalName(animal, lang)}
-            className="w-full h-full object-contain"
-            style={{ transform: isQoyun ? "scale(1.10)" : "scale(1)" }}
-          />
-        ) : (
-          <PawPrint size={56} color={BRAND} strokeWidth={1.4} className="lg:w-16 lg:h-16" />
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="p-3 md:p-3.5 lg:p-4">
-        <div className="text-[15px] md:text-base lg:text-[17px] font-extrabold text-text-primary mb-1 lg:mb-1.5 tracking-tight truncate">
-          {animalName(animal, lang)}
-        </div>
-        {animal.pricePerShare != null && (
-          <div className="flex items-baseline gap-1 mb-2 lg:mb-2.5">
-            <span className="text-xl md:text-[22px] lg:text-2xl xl:text-[26px] font-extrabold text-primary">
-              <PriceTag price={animal.pricePerShare} lang={lang} />
-            </span>
+        {/* ── Footer (web; APK-da gizlədilir) ── */}
+        <footer className="hp-footer grid grid-cols-2 gap-4 border-t border-white/10 bg-[#140807] px-8 py-4 text-white md:grid-cols-4 md:px-12 md:gap-6 md:py-5 items-start">
+          <div className="col-span-2 md:col-span-1">
+            <Image src="/mb_logo_footer.png" alt="MeatBox footer loqo" width={160} height={40} style={{ objectFit: "contain", objectPosition: "left", height: 40, width: "auto" }} />
           </div>
-        )}
-        <div
-          className={`w-full rounded-xl py-2 lg:py-2.5 text-[13px] lg:text-sm font-bold text-center flex items-center justify-center gap-1 lg:gap-1.5 ${
-            inactive
-              ? "bg-gray-300 text-gray-500"
-              : "bg-primary text-white shadow-[0_2px_8px_rgba(27,94,32,0.25)]"
-          }`}
-        >
-          {t(lang, 'orderNow')} {!inactive && <ChevronRight size={14} strokeWidth={2.5} />}
+          <div>
+            <h4 className="font-bold">Linklər</h4>
+            <div className="mt-3 flex flex-col gap-1 text-sm text-white/70">
+              <Link href="/about" className="hover:text-white transition-colors">Haqqımızda</Link>
+              <Link href="/services" className="hover:text-white transition-colors">Xidmətlər</Link>
+              <Link href="/process" className="hover:text-white transition-colors">Necə işləyir?</Link>
+              <Link href="/contact" className="hover:text-white transition-colors">Əlaqə</Link>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-bold">Əlaqə</h4>
+            <div className="mt-3 text-sm text-white/70 flex flex-col gap-1">
+              <span>010 3990222</span>
+              <span>info@meatbox.az</span>
+            </div>
+          </div>
+          <div className="col-span-2 md:col-span-1">
+            <h4 className="mb-3 font-bold">Ödəniş üsulları</h4>
+            <PaymentLogos />
+          </div>
+        </footer>
+
+        {/* Copyright (web; APK-da gizlədilir) */}
+        <div className="hp-copy bg-black px-6 py-3 text-center text-xs text-white/55">
+          © 2024 MeatBox.az. Bütün hüquqlar qorunur.
         </div>
-      </div>
-    </button>
+
+        </div>{/* end scrollable content */}
+
+        {/* ── Mobil bottom nav (yalnız APK / native) ── */}
+        <nav className="hp-bottom-nav flex-shrink-0 bg-white border-t border-black/10" style={{ zIndex: 50 }}>
+          <div className="flex px-1 pt-1.5 pb-2">
+            {mobileNav.map(({ to, label, Icon }) => {
+              const cur = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+              const active = cur === to;
+              return (
+                <Link
+                  key={to}
+                  href={to}
+                  className="flex-1 flex flex-col items-center gap-1 px-1 py-1 no-underline"
+                  style={{ minWidth: 0 }}
+                >
+                  <div
+                    className="flex items-center justify-center rounded-[10px] transition-colors"
+                    style={{ width: 44, height: 30, background: active ? "#ffe8ec" : "transparent" }}
+                  >
+                    <Icon size={19} strokeWidth={active ? 2.4 : 1.7} color={active ? "#f20b32" : "#9ca3af"} />
+                  </div>
+                  <span
+                    className="truncate"
+                    style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? "#f20b32" : "#9ca3af", maxWidth: "100%", lineHeight: 1.2 }}
+                  >
+                    {label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      </section>
+    </main>
   );
 }

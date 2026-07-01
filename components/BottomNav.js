@@ -1,93 +1,85 @@
 'use client';
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HelpCircle, HandHeart, BookOpen, ClipboardList, Beef } from 'lucide-react';
-import api from '../lib/api';
-import { useLanguage } from '../context/LanguageContext';
-import { t } from '../lib/i18n';
+import { HelpCircle, BookOpen, ClipboardList, Beef } from 'lucide-react';
 
 const BRAND = '#1c5e20';
-const MUTED = '#94a3b8';
+const MUTED  = '#a1a1aa';
 
-const ALL_TABS = [
-  { href: '/how-it-works', labelKey: 'howItWorks',      Icon: HelpCircle,    key: 'how' },
-  { href: '/need-support',  labelKey: 'charity',          Icon: HandHeart,     key: 'charity' },
-  { href: '/',              labelKey: 'animalSelection',  Icon: Beef,          key: 'home' },
-  { href: '/qurban-rules',  labelKey: 'rules',            Icon: BookOpen,      key: 'rules' },
-  { href: '/my-orders',     labelKey: 'myOrders',         Icon: ClipboardList, key: 'orders' },
+const TABS = [
+  { href: '/qurban',       label: 'Əsas',           Icon: Beef,          key: 'home'   },
+  { href: '/my-orders',    label: 'Sifarişlərim',  Icon: ClipboardList, key: 'orders' },
+  { href: '/how-it-works', label: 'Necə İşləyir?', Icon: HelpCircle,    key: 'how'    },
+  { href: '/qurban-rules', label: 'Əhkamlar',        Icon: BookOpen,      key: 'rules'  },
 ];
+
+const CSS = `
+  .bnv-bar {
+    display: flex;
+    width: 100%;
+    padding: 6px 4px 8px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+  }
+  .bnv-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px 2px;
+    text-decoration: none;
+    min-width: 0;
+  }
+  .bnv-icon {
+    width: 42px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+  }
+  .bnv-tab.bnv-on .bnv-icon {
+    background: #e8f5e9;
+  }
+  .bnv-lbl {
+    font-size: 10px;
+    font-weight: 500;
+    color: ${MUTED};
+    text-align: center;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color 0.2s ease, font-weight 0.2s ease;
+  }
+  .bnv-tab.bnv-on .bnv-lbl {
+    color: ${BRAND};
+    font-weight: 700;
+  }
+`;
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const { lang } = useLanguage();
-  const [charityEnabled, setCharityEnabled] = useState(null);
-
-  useEffect(() => {
-    api.get('/app-config/settings')
-      .then(res => {
-        setCharityEnabled(res.data?.data?.charityPageEnabled !== false);
-      })
-      .catch(() => setCharityEnabled(true));
-  }, []);
 
   return (
     <nav className="bottom-nav-wrap mobile-only">
-      <div style={{ display: 'flex', width: '100%' }}>
-        {ALL_TABS.map(({ href, labelKey, Icon, key }) => {
-          const disabled = key === 'charity' && charityEnabled !== true;
-          const active = !disabled && (pathname === href || (href !== '/' && pathname.startsWith(href + '/')));
-          const color = disabled ? '#d1d5db' : active ? BRAND : MUTED;
-
-          const inner = (
-            <>
-              <div style={{
-                width: 44,
-                height: 32,
-                borderRadius: 12,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: active ? 'var(--primary-surface)' : 'transparent',
-                transition: 'background 0.15s',
-              }}>
-                <Icon size={20} strokeWidth={active ? 2.2 : 1.7} color={color} />
-              </div>
-              <span style={{
-                fontSize: 9.5,
-                fontWeight: 600,
-                textAlign: 'center',
-                lineHeight: 1.25,
-                color,
-                width: '100%',
-                overflow: 'hidden',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-              }}>
-                {t(lang, labelKey)}
-              </span>
-            </>
-          );
-
-          if (disabled) {
-            return (
-              <div
-                key={key}
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '6px 2px 4px', minWidth: 0, cursor: 'not-allowed', opacity: 0.45 }}
-              >
-                {inner}
-              </div>
-            );
-          }
+      <style>{CSS}</style>
+      <div className="bnv-bar">
+        {TABS.map(({ href, label, Icon, key }) => {
+          const active = href === '/qurban'
+            ? (pathname === '/qurban' || pathname === '/qurban/')
+            : pathname === href || pathname.startsWith(href + '/');
 
           return (
-            <Link
-              key={href}
-              href={href}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '6px 2px 4px', textDecoration: 'none', minWidth: 0 }}
-            >
-              {inner}
+            <Link key={key} href={href} className={`bnv-tab${active ? ' bnv-on' : ''}`}>
+              <div className="bnv-icon">
+                <Icon size={19} strokeWidth={active ? 2.4 : 1.7}
+                  color={active ? BRAND : MUTED} />
+              </div>
+              <span className="bnv-lbl">{label}</span>
             </Link>
           );
         })}

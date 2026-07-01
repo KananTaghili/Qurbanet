@@ -1,9 +1,10 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "QurbanEt — Etibarli · Halal · Sürətli";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+// Static export (Capacitor) üçün build zamanı bir dəfə generasiya olunsun
+export const dynamic = "force-static";
 
 export default async function Image() {
   return new ImageResponse(

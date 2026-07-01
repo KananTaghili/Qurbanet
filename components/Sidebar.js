@@ -4,11 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { useLanguage, LANGUAGES } from "../context/LanguageContext";
+import { useLanguage } from "../context/LanguageContext";
 import { t } from "../lib/i18n";
 import api from "../lib/api";
 import {
-  Home,
+  List,
   ClipboardList,
   HandHeart,
   HelpCircle,
@@ -22,7 +22,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isGuest, logout } = useAuth();
-  const { lang, setLang, multiLanguageEnabled } = useLanguage();
+  const { lang } = useLanguage();
   const [charityEnabled, setCharityEnabled] = useState(false);
 
   useEffect(() => {
@@ -32,9 +32,8 @@ export default function Sidebar() {
   }, []);
 
   const NAV = [
-    { href: "/", Icon: Home, label: t(lang, 'home') },
+    { href: "/qurban", Icon: List, label: t(lang, 'animalSelection') },
     { href: "/my-orders", Icon: ClipboardList, label: t(lang, 'myOrders') },
-    { href: "/need-support", Icon: HandHeart, label: t(lang, 'charity') },
     { href: "/how-it-works", Icon: HelpCircle, label: t(lang, 'howItWorks') },
     { href: "/qurban-rules", Icon: BookOpen, label: t(lang, 'rules') },
   ];
@@ -42,7 +41,7 @@ export default function Sidebar() {
   const handleLogout = async () => {
     if (confirm("Hesabdan çıxmaq istədiyinizə əminsiniz?")) {
       await logout();
-      router.push("/");
+      router.push("/qurban");
     }
   };
 
@@ -57,52 +56,17 @@ export default function Sidebar() {
       "
     >
       {/* ── Logo ── */}
-      <div className="px-3 lg:px-4 pt-4 lg:pt-5 pb-3 lg:pb-4 flex-shrink-0">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 lg:gap-3 no-underline"
-        >
-          <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl overflow-hidden flex-shrink-0 border border-white/20">
-            <Image
-              src="/logo.png"
-              alt="QurbanEt"
-              width={44}
-              height={44}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="min-w-0">
-            <div className="text-lg lg:text-xl font-black text-white italic leading-tight truncate">
-              Qurban<span style={{ color: "#86efac" }}>Et</span>
-            </div>
-            <div
-              className="text-[8px] lg:text-[9px] font-semibold tracking-widest mt-0.5 truncate"
-              style={{ color: "rgba(255,255,255,0.5)" }}
-            >
-              ETİBARLI · HALAL · SÜRƏTLİ
-            </div>
-          </div>
+      <div className="px-3 lg:px-4 pb-3 lg:pb-4 flex-shrink-0" style={{ paddingTop: 'calc(1rem + 5px)' }}>
+        <Link href="/qurban" className="flex items-center justify-center no-underline">
+          <Image
+            src="/mb_logo_bottom_slogan.png"
+            alt="MeatBox"
+            width={200}
+            height={120}
+            style={{ width: "100%", height: "auto", objectFit: "contain" }}
+            priority
+          />
         </Link>
-
-        {/* Language switcher */}
-        {multiLanguageEnabled && (
-          <div className="flex gap-1 mt-2 flex-wrap">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                className="text-[11px] font-bold px-2 py-0.5 rounded-lg transition-all cursor-pointer border-none"
-                style={{
-                  background: lang === l.code ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
-                  color: lang === l.code ? '#fff' : 'rgba(255,255,255,0.5)',
-                }}
-                title={l.name}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ── Nav ── */}
@@ -113,24 +77,8 @@ export default function Sidebar() {
         >
           MENYU
         </div>
-        {NAV.map(({ href, Icon, label }) => {
-          const isCharity = href === "/need-support";
-          const disabled = isCharity && !charityEnabled;
-          const active = !disabled && (href === "/" ? pathname === "/" : pathname.startsWith(href));
-
-          if (disabled) {
-            return (
-              <div
-                key={href}
-                className="sidebar-item text-sm lg:text-[15px] cursor-not-allowed opacity-40 pointer-events-none"
-              >
-                <span className="sidebar-item-icon">
-                  <Icon size={17} strokeWidth={1.8} />
-                </span>
-                <span className="flex-1 truncate">{label}</span>
-              </div>
-            );
-          }
+        {NAV.filter(({ href }) => href !== "/need-support" || charityEnabled).map(({ href, Icon, label }) => {
+          const active = href === "/qurban" ? pathname === "/qurban" : pathname.startsWith(href);
 
           return (
             <Link
@@ -152,12 +100,29 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* ── Hadith ── */}
+      <div className="px-3 lg:px-4 pb-3 flex-shrink-0">
+        <div
+          className="rounded-2xl px-4 py-3.5"
+          style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <div className="text-3xl font-serif leading-none mb-1.5" style={{ color: 'rgba(255,255,255,0.2)' }}>"</div>
+          <p className="text-[12px] lg:text-[13px] font-bold leading-snug italic mb-2.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
+            Qurban ətindən yeyin, ehtiyacı olanlara paylayın və saxlayın.
+          </p>
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 8 }} />
+          <p className="text-[10px] lg:text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            Hədis · Buxari, Muslim
+          </p>
+        </div>
+      </div>
+
       {/* ── User / Auth ── */}
       <div className="p-2 flex-shrink-0">
         {isGuest ? (
           <div className="flex flex-col gap-1.5">
             <Link
-              href="/auth/register"
+              href={`/auth/register?from=${encodeURIComponent(pathname)}`}
               className="sidebar-item"
               style={{ background: "rgba(134,239,172,0.18)", color: "#86efac" }}
             >
@@ -177,7 +142,7 @@ export default function Sidebar() {
               </div>
             </Link>
             <Link
-              href="/auth/login"
+              href={`/auth/login?from=${encodeURIComponent(pathname)}`}
               className="sidebar-item"
               style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)" }}
             >

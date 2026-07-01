@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"d:\\\\Works\\\\Sacrifice\\\\mobile\\\\android\\\\app\\\\src\\\\main\" -Recurse | Where-Object {$_.Extension -match '\\\\.\\(java|kt\\)$'} | Select-Object -ExpandProperty FullName)",
+      "Read(//mnt/d/Works/Sacrifice/web/node_modules/lucide-react/**)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['version']\\)\")"
+    ]
+  }
+}

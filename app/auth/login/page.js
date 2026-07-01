@@ -1,8 +1,10 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, Phone, Mail, KeyRound } from "lucide-react";
+import { Eye, EyeOff, Phone, Mail, KeyRound, ArrowLeft, ArrowRight, Beef } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
@@ -14,9 +16,33 @@ const formatPhone = (val) => {
   return `${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5, 7)} ${d.slice(7, 9)}`;
 };
 
-export default function LoginPage() {
+const features = [
+  {
+    title: "Qurbanlıq Sifarişi",
+    text: "Kəsimi izləyin",
+    icon: "/icon_qurban.png",
+    iconWrap: { border: "2px solid #b9f7cf", background: "#eafbf0" },
+  },
+  {
+    title: "Kollektiv Qurban",
+    text: "Dini qaydalara uyğun",
+    icon: "/icon_charity.png",
+    iconWrap: { border: "2px solid #e7d2ff", background: "#f6edff" },
+  },
+  {
+    title: "Ət Sifarişi",
+    text: "Qapınıza çatdırırıq",
+    icon: null,
+    IconComponent: Beef,
+    iconColor: "#c85a13",
+    iconWrap: { border: "2px solid rgba(200,90,19,0.3)", background: "#fff4ee" },
+  },
+];
+
+function LoginPageInner() {
   const router = useRouter();
-  const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const { login, isGuest, isLoading: authLoading } = useAuth();
   const [mode, setMode] = useState("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -24,16 +50,21 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isExiting, setIsExiting] = useState(false);
+  const [isNative, setIsNative] = useState(false);
   const abortRef = useRef(null);
+
+  useEffect(() => { if (Capacitor?.isNativePlatform?.()) setIsNative(true); }, []);
+
+  const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
 
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
-  const switchMode = (m) => {
-    setMode(m);
-    setError("");
-    setPhone("");
-    setEmail("");
-  };
+  useEffect(() => {
+    if (!authLoading && !isGuest) router.replace(searchParams.get("from") || "/");
+  }, [authLoading, isGuest, router, searchParams]);
+
+  const switchMode = (m) => { setMode(m); setError(""); setPhone(""); setEmail(""); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,20 +72,11 @@ export default function LoginPage() {
     setError("");
 
     if (mode === "phone") {
-      if (phone.replace(/\s/g, "").length < 9) {
-        setError("Düzgün telefon nömrəsi daxil edin.");
-        return;
-      }
+      if (phone.replace(/\s/g, "").length < 9) { setError("Düzgün telefon nömrəsi daxil edin."); return; }
     } else {
-      if (!email.trim() || !email.includes("@")) {
-        setError("Düzgün email ünvanı daxil edin.");
-        return;
-      }
+      if (!email.trim() || !email.includes("@")) { setError("Düzgün email ünvanı daxil edin."); return; }
     }
-    if (!password || password.length < 6) {
-      setError("Şifrə ən az 6 simvol olmalıdır.");
-      return;
-    }
+    if (!password || password.length < 6) { setError("Şifrə ən az 6 simvol olmalıdır."); return; }
 
     abortRef.current?.abort();
     abortRef.current = new AbortController();
@@ -63,21 +85,17 @@ export default function LoginPage() {
       const body = { password };
       if (mode === "phone") {
         const raw = phone.replace(/\s/g, "");
-        body.phone = raw.startsWith("0")
-          ? "+994" + raw.slice(1)
-          : raw.startsWith("+994")
-            ? raw
-            : "+994" + raw;
+        body.phone = raw.startsWith("0") ? "+994" + raw.slice(1) : raw.startsWith("+994") ? raw : "+994" + raw;
       } else {
         body.email = email.trim().toLowerCase();
       }
-
       const res = await api.post("/auth/login-password", body, { signal: abortRef.current.signal });
       if (res.data.success) {
         const { token, user, needsName } = res.data.data;
         login(token, user);
-        if (needsName || !user.name) router.push("/auth/name");
-        else router.push("/");
+        const from = searchParams.get("from") || "/";
+        if (needsName || !user.name) router.push(`/auth/name?from=${encodeURIComponent(from)}`);
+        else router.push(from);
       }
     } catch (err) {
       if (err.name === "AbortError" || err.code === "ERR_CANCELED") return;
@@ -87,243 +105,471 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="flex-1 flex flex-col">
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* ── Brand panel ── */}
-        <div
-          className="relative flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
-          style={{
-            background:
-              "linear-gradient(160deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
-            style={{ background: "rgba(255,255,255,0.18)", color: "#fff" }}
-            aria-label="Geri qayıt"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+  // ── APK (native): təmiz ağ mobil-app görünüşü ──
+  if (isNative) {
+    const fromQ = searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : "";
+    const inputBox = { display: "flex", overflow: "hidden", borderRadius: 14, background: "#f4f4f6", height: 52, alignItems: "center" };
+    const labelCss = { display: "block", marginBottom: 7, fontSize: 13, fontWeight: 700, color: "#1f2937" };
+    return (
+      <main style={{ minHeight: "100dvh", background: "#fff", fontFamily: "'Manrope', sans-serif", color: "#111827", position: "relative" }}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <Link href="/" className="flex items-center justify-center"
+          style={{ position: "absolute", top: 14, left: 14, width: 38, height: 38, borderRadius: "50%", background: "#f3f4f6", color: "#374151", zIndex: 5 }}>
+          <ArrowLeft size={18} />
+        </Link>
 
-          <div className="flex flex-col items-center gap-5 text-center animate-fade-up">
-            <div
-              className="w-24 h-24 lg:w-32 lg:h-32 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0"
-              style={{
-                background: "rgba(255,255,255,0.15)",
-                border: "2px solid rgba(255,255,255,0.25)",
-              }}
-            >
-              <Image
-                src="/logo.png"
-                alt="QurbanEt"
-                width={128}
-                height={128}
-                className="w-full h-full object-cover"
-              />
+        <div style={{ maxWidth: 430, width: "100%", margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "64px 28px 32px" }}>
+          {/* Logo + wordmark + slogan */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
+            <Image src="/meatbox_icon.png" alt="MeatBox" width={86} height={86} style={{ borderRadius: 20, objectFit: "contain" }} priority />
+            <div style={{ marginTop: 12, fontWeight: 900, fontSize: 27, letterSpacing: 0.5, lineHeight: 1 }}>
+              <span style={{ color: "#111827" }}>MEAT</span><span style={{ color: "#e10d0d" }}>BOX</span>
             </div>
-
-            <div>
-              <div className="text-4xl lg:text-5xl font-black text-white italic leading-none">
-                Qurban<span style={{ color: "#86efac" }}>Et</span>
-              </div>
-              <div
-                className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto"
-                style={{ color: "rgba(255,255,255,0.65)" }}
-              >
-                İlahi qurbanınızı etibarla kəsdirin
-              </div>
-            </div>
-
-            <div
-              className="flex items-center gap-3 text-[10px] font-bold tracking-widest"
-              style={{ color: "rgba(255,255,255,0.4)" }}
-            >
-              <span>ETİBARLI</span>
-              <span
-                className="w-1 h-1 rounded-full"
-                style={{ background: "rgba(255,255,255,0.35)" }}
-              />
-              <span>HALAL</span>
-              <span
-                className="w-1 h-1 rounded-full"
-                style={{ background: "rgba(255,255,255,0.35)" }}
-              />
-              <span>SÜRƏTLİ</span>
+            <div style={{ marginTop: 6, display: "flex", gap: 6, alignItems: "center" }}>
+              {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+                <span key={t} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#9ca3af" }}>{t}</span>
+                  {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#d1d5db" }} />}
+                </span>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* ── Form panel ── */}
-        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10 bg-surface">
-          <div className="w-full max-w-sm animate-fade-up">
-            <h2 className="text-2xl font-black text-text-primary mb-1">
-              Daxil ol
-            </h2>
-            <p className="text-sm text-text-secondary mb-6">
-              Telefon nömrəsi və ya Email ilə daxil olun.
-            </p>
-
-            {/* Mode toggle */}
-            <div className="flex bg-surface-alt rounded-2xl p-1 mb-5 gap-1">
-              <button
-                type="button"
-                onClick={() => switchMode("phone")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === "phone" ? "bg-surface shadow-sm text-primary" : "text-text-secondary"}`}
-              >
-                <Phone size={15} /> Telefon
+          {/* Tabs (underline) */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", marginBottom: 22 }}>
+            {[{ key: "phone", icon: <Phone size={15} />, label: "Telefon" }, { key: "email", icon: <Mail size={15} />, label: "Email" }].map(({ key, icon, label }) => (
+              <button key={key} type="button" onClick={() => switchMode(key)}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "10px 0", fontSize: 14, fontWeight: 700, background: "none", border: "none", borderBottom: mode === key ? "2px solid #111827" : "2px solid #ececec", color: mode === key ? "#111827" : "#9ca3af", cursor: "pointer", fontFamily: "inherit" }}>
+                {icon}{label}
               </button>
-              <button
-                type="button"
-                onClick={() => switchMode("email")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === "email" ? "bg-surface shadow-sm text-primary" : "text-text-secondary"}`}
-              >
-                <Mail size={15} /> Email
-              </button>
-            </div>
+            ))}
+          </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {/* Phone / Email */}
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Phone / Email */}
+            <div>
+              <label style={labelCss}>{mode === "phone" ? "Telefon Nömrəsi" : "Email"}</label>
               {mode === "phone" ? (
-                <div>
-                  <label className="text-sm font-semibold text-text-primary mb-2 block">
-                    Telefon Nömrəsi *
-                  </label>
-                  <div className="flex items-center gap-2 bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 focus-within:border-primary focus-within:bg-surface transition-all">
-                    <span className="text-2xl flex-shrink-0">🇦🇿</span>
-                    <span className="text-text-secondary font-semibold text-sm flex-shrink-0">
-                      +994
-                    </span>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => {
-                        setPhone(
-                          formatPhone(
-                            e.target.value.replace(/\D/g, "").slice(0, 9),
-                          ),
-                        );
-                        setError("");
-                      }}
-                      placeholder="50 123 45 67"
-                      className="flex-1 bg-transparent text-[17px] text-text-primary outline-none font-semibold tracking-wider"
-                      autoFocus
-                      inputMode="numeric"
-                    />
-                  </div>
+                <div style={inputBox}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 14px", fontSize: 14, fontWeight: 800, color: "#e10d0d", whiteSpace: "nowrap" }}>AZ +994</span>
+                  <input type="tel" value={phone} inputMode="numeric"
+                    onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
+                    placeholder="23 232 32 32"
+                    style={{ flex: 1, height: "100%", background: "transparent", border: "none", outline: "none", padding: "0 8px", fontSize: 15, color: "#374151", fontFamily: "inherit" }} />
                 </div>
               ) : (
-                <div>
-                  <label className="text-sm font-semibold text-text-primary mb-2 block">
-                    Email *
-                  </label>
-                  <div className="flex items-center gap-2 bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 focus-within:border-primary focus-within:bg-surface transition-all">
-                    <Mail
-                      size={18}
-                      className="text-text-secondary flex-shrink-0"
-                    />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setError("");
-                      }}
-                      placeholder="email@example.com"
-                      className="flex-1 bg-transparent text-[17px] text-text-primary outline-none font-semibold"
-                      autoFocus
-                      autoComplete="email"
-                    />
-                  </div>
-                </div>
+                <input type="email" value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                  placeholder="ad@meatbox.az"
+                  style={{ height: 52, width: "100%", boxSizing: "border-box", borderRadius: 14, background: "#f4f4f6", border: "none", padding: "0 18px", fontSize: 15, color: "#374151", outline: "none", fontFamily: "inherit" }} />
               )}
+            </div>
 
-              {/* Password */}
-              <div>
-                <label className="text-sm font-semibold text-text-primary mb-2 block">
-                  Şifrə *
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setError("");
-                    }}
-                    placeholder="Şifrənizi daxil edin"
-                    className="field-input pr-10"
-                    maxLength={128}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
+            {/* Password */}
+            <div>
+              <label style={labelCss}>Şifrə</label>
+              <div style={inputBox}>
+                <input type={showPassword ? "text" : "password"} value={password} maxLength={128}
+                  onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                  placeholder="Şifrənizi daxil edin"
+                  style={{ flex: 1, height: "100%", background: "transparent", border: "none", outline: "none", paddingLeft: 18, paddingRight: 4, fontSize: 15, color: "#374151", fontFamily: "inherit" }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  style={{ padding: "0 14px", background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
+            </div>
 
-              {error && (
-                <div className="bg-red-50 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
-                  {error}
-                </div>
-              )}
-
-              <button type="submit" className="btn-primary" disabled={loading}>
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Daxil olunur...
-                  </span>
-                ) : (
-                  "Daxil ol"
-                )}
+            {/* Forgot */}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => navigate(`/auth/forgot-password${fromQ}`)}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#e10d0d", fontFamily: "inherit", padding: 0 }}>
+                Şifrəni unutdum
               </button>
+            </div>
 
-              <div className="pt-2 border-t border-border flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={() => router.push("/auth/forgot-password")}
-                  className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
-                >
-                  <KeyRound size={15} /> Şifrəni unutdum
-                </button>
+            {error && (
+              <div style={{ background: "#FEF2F2", color: "#B91C1C", fontSize: 13, fontWeight: 600, padding: "11px 14px", borderRadius: 12 }}>{error}</div>
+            )}
 
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-xs text-text-muted font-medium">
-                    yeni istifadəçi?
-                  </span>
-                  <div className="flex-1 h-px bg-border" />
+            {/* Submit */}
+            <button type="submit" disabled={loading} className="auth-btn-primary"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, height: 54, width: "100%", borderRadius: 999, border: "none", background: loading ? "#9ca3af" : "#f20b32", color: "#fff", fontSize: 16, fontWeight: 800, boxShadow: loading ? "none" : "0 10px 24px rgba(242,11,50,0.25)", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", marginTop: 4 }}>
+              {loading ? (
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
+                  Daxil olunur...
+                </span>
+              ) : (<>Daxil ol <ArrowRight size={17} /></>)}
+            </button>
+
+            {/* Register */}
+            <div style={{ textAlign: "center", fontSize: 13, color: "#9ca3af", marginTop: 2 }}>Hesabınız yoxdur?</div>
+            <button type="button" onClick={() => navigate(`/auth/register${fromQ}`)} className="auth-btn-outline"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 54, width: "100%", borderRadius: 999, border: "2px solid #e10d0d", background: "#fff", color: "#e10d0d", fontSize: 16, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>
+              Qeydiyyatdan keç
+            </button>
+          </form>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="h-screen overflow-hidden bg-background p-0 md:p-7" style={{ fontFamily: "'Manrope', sans-serif", color: "#111827" }}>
+    <div
+    className="lg:grid auth-grid-cols md:rounded-[1.75rem] md:border md:border-white/[0.13]"
+    style={{
+      position: "relative",
+      overflow: "hidden",
+      boxShadow: "0 25px 80px rgba(0,0,0,0.55)",
+      background: "#130807",
+      height: "100%",
+      display: "grid",
+      gridTemplateColumns: "1fr",
+    }}
+    >
+      {/* Background image */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <Image
+          src="/auth_bg.jpg"
+          alt="Arxa fon"
+          fill
+          style={{ objectFit: "cover", objectPosition: "center", opacity: 0.55 }}
+          priority
+        />
+      </div>
+
+      {/* Mobile-only back to home */}
+      <Link href="/" className="flex lg:hidden" style={{ position: "absolute", top: 16, left: 16, zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", alignItems: "center", justifyContent: "center", color: "#fff", backdropFilter: "blur(4px)" }}>
+        <ArrowLeft size={18} />
+      </Link>
+
+      {/* Left panel */}
+      <section style={{ position: "relative", zIndex: 1, color: "#fff" }}
+        className="hidden lg:flex flex-col justify-center px-[6vw] py-[4vh] h-full overflow-y-auto"
+      >
+        <Link
+          href="/"
+          className="hidden lg:flex"
+          style={{
+            position: "absolute", top: 20, left: 20,
+            width: 36, height: 36, borderRadius: "50%",
+            background: "rgba(255,255,255,0.15)",
+            alignItems: "center", justifyContent: "center",
+            color: "#fff",
+          }}
+        >
+          <ArrowLeft size={18} />
+        </Link>
+
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 420, margin: "0 auto", width: "100%", textAlign: "center" }}>
+          {/* Logo */}
+          <div className="lp-fade-up" style={{ width: 200, display: "flex", alignItems: "center", justifyContent: "center", animationDelay: "0.05s" }}>
+            <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={200} height={154} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
+          </div>
+
+          {/* Slogan */}
+          <div className="lp-fade-up" style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center", animationDelay: "0.18s" }}>
+            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+              <span key={t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.75)" }}>{t}</span>
+                {i < 2 && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.5)", display: "inline-block" }} />}
+              </span>
+            ))}
+          </div>
+
+          {/* Feature cards — staggered */}
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9, width: "100%" }}>
+            {features.map((feature, idx) => { const { title, text, icon, iconWrap } = feature; return (
+              <div key={title} className="lp-fade-up" style={{
+                display: "flex", alignItems: "center", gap: 12,
+                borderRadius: 16, border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.075)",
+                padding: "10px 14px",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 24px rgba(0,0,0,0.12)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                animationDelay: `${0.32 + idx * 0.12}s`,
+              }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", ...iconWrap }}>
+                  {feature.IconComponent
+                    ? <feature.IconComponent size={22} color={feature.iconColor} />
+                    : <Image src={icon} alt={title} width={22} height={22} style={{ objectFit: "contain" }} />}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => router.push("/auth/register")}
-                  className="w-full py-3 rounded-2xl border-2 border-primary/30 bg-primary-surface text-sm font-bold text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2"
-                >
-                  Qeydiyyatdan keç — OTP ilə
-                </button>
+                <div style={{ flex: 1, textAlign: "left" }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.02em" }}>{title}</div>
+                  <div style={{ marginTop: 1, fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{text}</div>
+                </div>
               </div>
-            </form>
+            ); })}
+          </div>
+
+        </div>
+      </section>
+
+      {/* Right panel — form */}
+      <section style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px", overflowX: "hidden" }}
+        className="h-full overflow-y-auto"
+      >
+        <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: "100%", paddingTop: 8, paddingBottom: 8 }}>
+        {/* Mobile branding — above card, hidden on desktop */}
+        <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
+          <div className="auth-mobile-logo" style={{ width: 160 }}>
+            <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ" width={160} height={123} style={{ objectFit: "contain", width: "100%", height: "auto" }} />
+          </div>
+          <div style={{ marginTop: 8, display: "flex", gap: 6, alignItems: "center" }}>
+            {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+              <span key={t} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.85)" }}>{t}</span>
+                {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.5)", display: "inline-block" }} />}
+              </span>
+            ))}
           </div>
         </div>
-      </div>
+
+        <div className={`auth-card${isExiting ? " auth-card-out" : ""}`} style={{
+          width: "100%",
+          maxWidth: 365,
+          borderRadius: 20,
+          border: "1px solid rgba(255,255,255,0.6)",
+          background: "rgba(255,255,255,0.97)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          boxShadow: "0 24px 90px rgba(15,23,42,0.16)",
+          padding: "28px 32px",
+          fontFamily: "'Manrope', sans-serif",
+        }}>
+          {/* Heading */}
+          <div>
+            <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.045em", color: "#111827", margin: 0 }}>Xoş gəlmisiniz</h2>
+            <p style={{ marginTop: 4, fontSize: 12, color: "#6b7280" }}>Hesabınıza daxil olun və sifarişlərinizi idarə edin.</p>
+          </div>
+
+          {/* Mode toggle — sliding pill */}
+          <div style={{ marginTop: 16, position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", background: "#f3f4f6", borderRadius: 14, padding: 3 }}>
+            {/* sliding indicator */}
+            <div style={{
+              position: "absolute", top: 3, bottom: 3,
+              width: "calc(50% - 3px)",
+              left: mode === "phone" ? 3 : "calc(50%)",
+              background: "#fff",
+              borderRadius: 11,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.10)",
+              border: "1px solid #ef9caf",
+              transition: "left 0.22s cubic-bezier(0.34,1.4,0.64,1)",
+              pointerEvents: "none",
+            }} />
+            {[
+              { key: "phone", icon: <Phone size={14} />, label: "Telefon" },
+              { key: "email", icon: <Mail size={14} />, label: "Email" },
+            ].map(({ key, icon, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => switchMode(key)}
+                style={{
+                  position: "relative", zIndex: 1,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  borderRadius: 11, padding: "8px 0", fontSize: 12, fontWeight: 800,
+                  border: "none", background: "transparent",
+                  color: mode === key ? "#c8102e" : "#6b7280",
+                  cursor: "pointer", fontFamily: "inherit",
+                  transition: "color 0.22s ease",
+                }}
+              >
+                {icon} {label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* Phone / Email */}
+            <label key={mode} className="auth-tab-field" style={{ display: "block" }}>
+              <span style={{ display: "block", marginBottom: 4, fontSize: 12, fontWeight: 800, color: "#1f2937" }}>
+                {mode === "phone" ? "Telefon Nömrəsi" : "Email"}
+              </span>
+              {mode === "phone" ? (
+                <div style={{ display: "flex", overflow: "hidden", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 12px", borderRight: "1px solid #e5e7eb", fontSize: 13, fontWeight: 800, color: "#c8102e", whiteSpace: "nowrap", flexShrink: 0 }}>AZ +994</span>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
+                    placeholder="50 123 45 67"
+                    style={{ height: 40, flex: 1, background: "transparent", border: "none", outline: "none", padding: "0 14px", fontSize: 14, fontWeight: 500, color: "#374151", fontFamily: "inherit" }}
+                    inputMode="numeric"
+                  />
+                </div>
+              ) : (
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                  placeholder="ad@meatbox.az"
+                  style={{ height: 40, width: "100%", boxSizing: "border-box", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: "0 20px", fontSize: 14, fontWeight: 500, color: "#374151", outline: "none", fontFamily: "inherit" }}
+                />
+              )}
+            </label>
+
+            {/* Password */}
+            <label style={{ display: "block" }}>
+              <span style={{ display: "block", marginBottom: 4, fontSize: 12, fontWeight: 800, color: "#1f2937" }}>Şifrə</span>
+              <div style={{ display: "flex", overflow: "hidden", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff" }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                  placeholder="Şifrənizi daxil edin"
+                  style={{ height: 40, flex: 1, background: "transparent", border: "none", outline: "none", paddingLeft: 20, paddingRight: 4, fontSize: 14, fontWeight: 500, color: "#374151", fontFamily: "inherit" }}
+                  maxLength={128}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ padding: "0 12px", background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}
+                  aria-label="Şifrəni göstər"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </label>
+
+            {/* Forgot */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, fontSize: 12 }}>
+              <button
+                type="button"
+                onClick={() => navigate(`/auth/forgot-password${searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : ""}`)}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800, color: "#c8102e", fontFamily: "inherit", padding: 0, transition: "opacity 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.opacity = "0.7"}
+                onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+              >
+                Şifrəni unutdum
+              </button>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div style={{ background: "#FEF2F2", color: "#B91C1C", fontSize: 12, fontWeight: 600, padding: "10px 14px", borderRadius: 10 }}>
+                {error}
+              </div>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="auth-btn-primary"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                height: 40, width: "100%", borderRadius: 14, border: "none",
+                background: loading ? "#9ca3af" : "#f20b32",
+                color: "#fff", fontSize: 14, fontWeight: 800,
+                boxShadow: loading ? "none" : "0 10px 20px rgba(242,11,50,0.15)",
+                cursor: loading ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              {loading ? (
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 15, height: 15, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
+                  Daxil olunur...
+                </span>
+              ) : (
+                <> Daxil ol <ArrowRight size={16} /> </>
+              )}
+            </button>
+
+            {/* Divider */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: 8, fontSize: 11, color: "#6b7280" }}>
+              <span style={{ height: 1, background: "#e5e7eb", display: "block" }} />
+              <span>Hesabınız yoxdur?</span>
+              <span style={{ height: 1, background: "#e5e7eb", display: "block" }} />
+            </div>
+
+            {/* Register link */}
+            <button
+              type="button"
+              onClick={() => navigate(`/auth/register${searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : ""}`)}
+              className="auth-btn-outline"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                height: 40, width: "100%", borderRadius: 14, border: "2px solid #c8102e",
+                background: "#fff", color: "#c8102e",
+                fontSize: 14, fontWeight: 800,
+                fontFamily: "inherit", cursor: "pointer",
+              }}
+            >
+              Qeydiyyatdan keç
+            </button>
+          </form>
+        </div>
+        </div>{/* end margin:auto wrapper */}
+      </section>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes lpFadeUp {
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .lp-fade-up {
+          opacity: 0;
+          animation: lpFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes authCardIn {
+          from { opacity: 0; transform: translateY(28px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+        @keyframes authCardOut {
+          from { opacity: 1; transform: translateY(0)    scale(1); }
+          to   { opacity: 0; transform: translateY(-18px) scale(0.97); }
+        }
+        @keyframes authTabField {
+          from { opacity: 0; transform: translateX(14px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .auth-card { animation: authCardIn 0.38s cubic-bezier(0.34,1.4,0.64,1) both; }
+        .auth-card-out { animation: authCardOut 0.24s ease-in both !important; }
+        .auth-tab-field { animation: authTabField 0.22s ease both; }
+        .auth-btn-primary {
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+        .auth-btn-primary:hover:not(:disabled) {
+          filter: brightness(1.08);
+          transform: translateY(-2px);
+          box-shadow: 0 16px 32px rgba(242,11,50,0.28) !important;
+        }
+        .auth-btn-primary:active:not(:disabled) {
+          transform: translateY(0px) scale(0.98);
+        }
+        .auth-btn-outline {
+          transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .auth-btn-outline:hover {
+          background: #fff1f3 !important;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 18px rgba(200,16,46,0.14) !important;
+        }
+        .auth-btn-outline:active {
+          transform: translateY(0) scale(0.98);
+        }
+        @media (min-width: 1024px) {
+          .auth-grid-cols { grid-template-columns: 1.22fr 0.78fr !important; }
+        }
+        @media (max-height: 720px) and (max-width: 1023px) {
+          .auth-mobile-logo { width: 110px !important; }
+          .auth-mobile-brand { gap: 4px !important; }
+        }
+        @media (max-height: 620px) and (max-width: 1023px) {
+          .auth-mobile-brand { display: none !important; }
+        }
+      `}</style>
     </div>
+    </main>
   );
+}
+
+export default function LoginPage() {
+  return <Suspense><LoginPageInner /></Suspense>;
 }

@@ -1,0 +1,55 @@
+name: Deploy BackendUAT
+
+on:
+  push:
+    branches:
+      - uat
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. GitHub Actions robotunun bizim kodları oxumasına icazə veririk
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Serverə SSH Private Key ilə maksimum təhlükəsiz canlı bağlantı açırıq
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Node.js və NVM mühitini server terminalında aktivləşdiririk
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            # Əgər hər hansı bir komanda xəta versə, deploy prosesini dərhal dayandır
+            set -e
+            
+            cd /var/www/qurbanetbackend-uat
+            
+            # 3. KODLARI ÇƏKMƏK: SCP əvəzinə birbaşa SSH ilə GitHub-dan sürətli çəkirik
+            git pull origin uat
+            
+            # Yeni paketləri yoxlayırıq (Yalnız production paketləri)
+            npm install --production
+            
+            # PM2-ni mütləq şəkildə mühit dəyişənləri ilə təzələyirik
+            PORT=4002 pm2 restart qurbanetbackendpm-uat --update-env \
+            || PORT=4002 pm2 start server.js --name "qurbanetbackendpm-uat" --wait-ready --listen-timeout 10000 --max-memory-restart 500M
+            
+            pm2 save
+
+            # Nginx: video/media yükləmə üçün 100MB limitini təmin et
+            NGINX_CONF="/etc/nginx/nginx.conf"
+            if grep -q "client_max_body_size" "$NGINX_CONF"; then
+              sudo sed -i 's/client_max_body_size[^;]*/client_max_body_size 100M/g' "$NGINX_CONF"
+            else
+              sudo sed -i '/http {/a \    client_max_body_size 100M;' "$NGINX_CONF"
+            fi
+            sudo nginx -t && sudo nginx -s reload
+
+            echo "🚀 UAT server 100% təhlükəsiz şəkildə yeniləndi!"

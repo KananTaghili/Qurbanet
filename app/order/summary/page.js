@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import BackHeader from "../../../components/BackHeader";
+import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import { useLanguage } from "../../../context/LanguageContext";
@@ -17,7 +17,7 @@ const C = ({ children, className = "" }) => (
 );
 const CHead = ({ label, colored }) => (
   <div
-    className={`px-4 py-3 border-b border-border text-xs font-bold tracking-wide uppercase ${colored ? "text-primary bg-primary-surface" : "text-text-secondary bg-surface-alt/40"}`}
+    className={`px-4 py-2 border-b border-border text-xs font-bold tracking-wide uppercase ${colored ? "text-primary bg-primary-surface" : "text-text-secondary bg-surface-alt/40"}`}
   >
     {label}
   </div>
@@ -35,7 +35,7 @@ function Spinner({ label }) {
 function SectionHead({ label, badge, top }) {
   return (
     <div
-      className={`px-3 py-1.5 bg-surface-alt/50 flex items-center justify-between ${top ? "border-t border-border/60" : ""}`}
+      className={`px-4 py-2.5 bg-surface-alt/50 flex items-center justify-between ${top ? "border-t border-border/60" : ""}`}
     >
       <span className="text-[10px] font-extrabold text-text-secondary uppercase tracking-wider">
         {label}
@@ -52,15 +52,15 @@ function SectionHead({ label, badge, top }) {
 function PriceItem({ label, sub, value, isFree, sep, freeLabel }) {
   return (
     <div
-      className={`flex items-center justify-between px-3 py-2 gap-2 ${sep ? "border-b border-border/40" : ""}`}
+      className={`flex items-center justify-between px-4 py-3.5 gap-3 ${sep ? "border-b border-border/40" : ""}`}
     >
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-bold text-text-primary leading-tight">
+        <p className="text-xs font-bold text-text-primary leading-tight">
           {label}
         </p>
-        {sub && <p className="text-[10px] text-text-secondary mt-0.5">{sub}</p>}
+        {sub && <p className="text-[11px] text-text-secondary mt-1">{sub}</p>}
       </div>
-      <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-md border shrink-0 ${
+      <span className={`text-xs font-extrabold px-2.5 py-1 rounded-md border shrink-0 ${
         isFree
           ? "bg-emerald-50 text-emerald-700 border-emerald-100"
           : "bg-surface-alt text-text-primary border-border/40"
@@ -73,6 +73,7 @@ function PriceItem({ label, sub, value, isFree, sep, freeLabel }) {
 
 export default function SummaryPage() {
   const router = useRouter();
+  const { openMenu } = useMobileMenu();
   const { order, updateOrder, isLoaded } = useOrder();
   const { lang } = useLanguage();
   const [loading, setLoading] = useState(false);
@@ -180,7 +181,7 @@ export default function SummaryPage() {
             value: isCharityDist
               ? getDistLabel(selectedDistKey)
               : deliveryType === "delivery"
-              ? t(lang, "homeDelivery")
+              ? t(lang, "distLabel_catdirilsin")
               : t(lang, "pickupSelf"),
           },
           ...(deliveryType === "delivery" && address
@@ -318,34 +319,25 @@ export default function SummaryPage() {
   const freeLabel = t(lang, "free");
 
   return (
-    <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader
-        title={t(lang, "orderSummary")}
-        onBack={() =>
-          router.push(
-            order?.mode === "serikli"
-              ? "/order/quantity"
-              : "/order/distribution",
-          )
-        }
-      />
+    <div className="flex flex-col h-full bg-bg overflow-hidden">
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 page-scroll">
-        <div className="p-4 lg:p-6 lg:grid lg:grid-cols-[300px_1fr] lg:gap-5 lg:items-start max-w-6xl mx-auto w-full">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[104px] md:pb-0">
+        <div className="p-3 md:grid md:grid-cols-[280px_1fr] md:gap-3 md:items-start lg:p-4 lg:h-full lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
+          <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
-          <C>
+          <C className="lg:overflow-y-auto lg:min-h-0">
             <CHead label={t(lang, "orderInfoCard")} colored />
             <div className="divide-y divide-border/40">
               {infoRows.map((row) => (
                 <div
                   key={row.label}
-                  className="flex justify-between items-start px-4 py-2.5 gap-3"
+                  className="flex justify-between items-start px-4 py-2 gap-3"
                 >
                   <span className="text-xs text-text-secondary font-medium shrink-0">
                     {row.label}
                   </span>
-                  <span className="text-xs font-bold text-text-primary text-right whitespace-pre-line">
+                  <span className="text-xs font-bold text-text-primary text-right whitespace-pre-line ml-auto max-w-[58%]">
                     {row.value}
                   </span>
                 </div>
@@ -354,35 +346,57 @@ export default function SummaryPage() {
           </C>
 
           {/* ── RIGHT: Price breakdown ───────────────────────────────── */}
-          <div className="mt-4 lg:mt-0 flex flex-col gap-4">
-            <C className="border-primary/20 shadow-lg">
+          <div className="mt-4 md:mt-0 flex flex-col gap-3 lg:min-h-0 lg:overflow-hidden">
+            <C className="border-primary/20 shadow-lg lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:flex lg:flex-col">
               <CHead label={t(lang, "priceCalcCard")} colored />
 
-              {/* Animal base price */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-surface-alt/20">
-                <div>
-                  <p className="text-xs font-bold text-text-primary">
-                    {animal?.nameAz || t(lang, "animalRow2")}
-                  </p>
-                  <p className="text-[11px] text-text-secondary mt-0.5">
-                    {mode === "serikli"
-                      ? `${qty}/${animal?.totalShares || "?"} ${t(lang, "shares")}`
-                      : `${qty} ${t(lang, "pcsLabel")} × ${Math.round(animalBasePrice / qty)} AZN`}
-                  </p>
+              {/* Animal base price + Delivery — 2-column top row */}
+              <div className="grid grid-cols-2 divide-x divide-border/60 border-b border-border/60 bg-surface-alt/20">
+                <div className="flex items-center justify-between px-4 py-4">
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">
+                      {animal?.nameAz || t(lang, "animalRow2")}
+                    </p>
+                    <p className="text-[11px] text-text-secondary mt-1">
+                      {mode === "serikli"
+                        ? `${qty}/${animal?.totalShares || "?"} ${t(lang, "shares")}`
+                        : `${qty} ${t(lang, "pcsLabel")} × ${Math.round(animalBasePrice / qty)} AZN`}
+                    </p>
+                  </div>
+                  <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-1 rounded-lg border border-border/40 shrink-0 ml-2">
+                    {animalBasePrice} AZN
+                  </span>
                 </div>
-                <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-1 rounded-lg border border-border/40">
-                  {animalBasePrice} AZN
-                </span>
+                <div className="flex items-center justify-between px-4 py-4">
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">
+                      {isCharityDist
+                        ? getDistLabel(selectedDistKey)
+                        : deliveryType === "delivery"
+                        ? t(lang, "distLabel_catdirilsin")
+                        : t(lang, "pickupSelf")}
+                    </p>
+                    <p className="text-[11px] text-text-secondary mt-1">
+                      {t(lang, "deliveryTypeRow")}
+                    </p>
+                  </div>
+                  <span className={`text-xs font-extrabold px-2 py-1 rounded-lg border shrink-0 ml-2 ${
+                    finalDeliveryFee === 0
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                      : "bg-surface-alt text-text-primary border-border/40"
+                  }`}>
+                    {finalDeliveryFee === 0 ? t(lang, "free") : `+${finalDeliveryFee} AZN`}
+                  </span>
+                </div>
               </div>
 
-              {/* Cut / head / feet sections */}
+              {/* Cut / head / feet sections — 2-column grid */}
               {(activeCutRows.length > 0 ||
                 activeHeadRows.length > 0 ||
                 activeFeetRows.length > 0) && (
-                <>
-                  {/* Cut Styles */}
+                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50">
                   {activeCutRows.length > 0 && (
-                    <div className="border-b border-border/50">
+                    <div>
                       <SectionHead label={t(lang, "cutMethodSection")} />
                       <div className="flex flex-col">
                         {activeCutRows.map((cs, i) => (
@@ -400,7 +414,6 @@ export default function SummaryPage() {
                     </div>
                   )}
 
-                  {/* Head + Feet Processing — merged by option key */}
                   {(activeHeadRows.length > 0 || activeFeetRows.length > 0) && (() => {
                     const allKeys = [...new Set([
                       ...activeHeadRows.map(o => o.key),
@@ -419,7 +432,7 @@ export default function SummaryPage() {
                       return { key, opt, sub: parts.join(" və "), totalFee };
                     });
                     return (
-                      <div className="border-b border-border/50">
+                      <div>
                         <SectionHead label="Baş və Ayaqlar" />
                         {rows.map((r, i) => (
                           <PriceItem
@@ -435,30 +448,11 @@ export default function SummaryPage() {
                       </div>
                     );
                   })()}
-                </>
-              )}
-
-              {/* Delivery / Distribution fee */}
-              {finalDeliveryFee > 0 && (
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/50">
-                  <div>
-                    <p className="text-xs font-bold text-text-primary">
-                      {isCharityDist
-                        ? getDistLabel(selectedDistKey)
-                        : t(lang, "deliveryRow")}
-                    </p>
-                    <p className="text-[10px] text-text-secondary mt-0.5">
-                      {isCharityDist ? "Çatdırılma haqqı" : t(lang, "deliveryRow")}
-                    </p>
-                  </div>
-                  <span className="text-xs font-extrabold text-text-primary bg-surface-alt px-2 py-0.5 rounded-md border border-border/40 shrink-0">
-                    +{finalDeliveryFee} AZN
-                  </span>
                 </div>
               )}
 
-              {/* Total */}
-              <div className="flex justify-between items-center px-4 py-4 bg-primary-surface/20">
+              {/* Total — pinned to bottom */}
+              <div className="mt-auto flex justify-between items-center px-4 py-4 bg-primary-surface/20 border-t border-primary/10">
                 <div className="flex flex-col">
                   <span className="font-black text-text-primary text-xs uppercase tracking-wider">
                     {t(lang, "totalAmountHeader")}
@@ -472,23 +466,42 @@ export default function SummaryPage() {
                 </span>
               </div>
             </C>
+
           </div>
         </div>
 
-        {/* ── Mobile action bar ─────────────────────────────────────── */}
-        <div className="mobile-action-bar">
-          <button
-            className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
-            onClick={handleCreateOrder}
-            disabled={loading}
-          >
-            {loading ? (
-              <Spinner label={t(lang, "orderCreating")} />
-            ) : (
-              t(lang, "confirmOrder")
-            )}
-          </button>
+        {/* Mobile action bar */}
+        <div className="fixed-action-bar fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden">
+          <div className="mx-auto flex max-w-6xl justify-center">
+            <button
+              className="btn-primary w-full max-w-md rounded-xl px-8 py-3.5 text-sm font-bold"
+              onClick={handleCreateOrder}
+              disabled={loading}
+            >
+              {loading ? (
+                <Spinner label={t(lang, "orderCreating")} />
+              ) : (
+                t(lang, "confirmOrder")
+              )}
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Tablet + desktop confirm button — fixed at very bottom right, outside scroll */}
+      <div className="hidden md:flex justify-end shrink-0 px-4 py-3 border-t border-border/20 w-full max-w-6xl mx-auto">
+        <button
+          className="btn-primary px-8 py-2.5 rounded-xl font-bold text-sm"
+          style={{ width: "auto" }}
+          onClick={handleCreateOrder}
+          disabled={loading}
+        >
+          {loading ? (
+            <Spinner label={t(lang, "orderCreating")} />
+          ) : (
+            t(lang, "confirmOrder")
+          )}
+        </button>
       </div>
     </div>
   );

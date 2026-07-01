@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
@@ -17,7 +17,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import BackHeader from "../../../components/BackHeader";
+import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import { useAuth } from "../../../context/AuthContext";
@@ -94,6 +94,7 @@ const Card = ({ children, className = "" }) => (
 
 export default function DistributionPage() {
   const router = useRouter();
+  const { openMenu } = useMobileMenu();
   const { order, updateOrder, isLoaded } = useOrder();
   const { user } = useAuth();
   const { lang } = useLanguage();
@@ -196,6 +197,12 @@ export default function DistributionPage() {
           options.find((o) => o.key === key),
         ).filter((o) => {
           if (!o) return false;
+          // Show if admin set a per-animal price for this animal
+          const hasSpecificPrice = (o.categorySpecificPrices || []).some(
+            (sp) => (sp.categoryId?._id || sp.categoryId) === animalId,
+          );
+          if (hasSpecificPrice) return true;
+          // Fallback: check applicableCategories
           const cats = o.applicableCategories || [];
           if (cats.length === 0) return false;
           return cats.some((c) => (c._id || c) === animalId);
@@ -300,7 +307,7 @@ export default function DistributionPage() {
 
   // Renders the radio option list (used in both mobile and desktop)
   const OptionList = () => (
-    <div className="p-3 flex flex-col gap-2">
+    <div className="px-2 py-1 flex flex-col gap-1 [&>button]:flex-1">
       {deliveryKeys.map((key) => {
         const meta = OPTION_META[key];
         const data = optionData[key] || {};
@@ -310,54 +317,45 @@ export default function DistributionPage() {
             key={key}
             type="button"
             onClick={() => setSelectedKey(key)}
-            className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border-2 w-full text-left cursor-pointer transition-all ${
               isSelected
                 ? "border-primary bg-primary/5"
                 : "border-border bg-white hover:border-primary/30"
             }`}
           >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
               style={{ background: meta.light }}
             >
-              <meta.Icon className="w-5 h-5" style={{ color: meta.color }} />
+              <meta.Icon className="w-3.5 h-3.5" style={{ color: meta.color }} />
             </div>
-            <div className="flex-1">
-              <div className="text-sm font-bold text-text-primary">
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+              <div className="text-[10px] font-bold text-text-primary truncate">
                 {distLabel(key, data)}
               </div>
               <div
-                className="text-xs font-semibold mt-0.5"
+                className="text-[9px] font-semibold"
                 style={{ color: meta.color }}
               >
                 {(data.fee || 0) > 0 ? `+${data.fee} AZN` : t(lang, "free")}
               </div>
               {key === "catdirilsin" && (
-                <div className="text-[10px] text-amber-600 font-medium mt-0.5">
+                <div className="text-[8px] text-amber-600 font-medium leading-none mt-0.5">
                   Yalnız Bakı və ətrafı
                 </div>
               )}
             </div>
             <div
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+              className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                 isSelected ? "border-primary bg-primary" : "border-border"
               }`}
             >
-              {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+              {isSelected && <div className="w-1 h-1 rounded-full bg-white" />}
             </div>
           </button>
         );
       })}
 
-      {charityKeys.length > 0 && (
-        <div className="flex items-center gap-2 my-2">
-          <div className="flex-1 border-t border-border" />
-          <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase px-2 whitespace-nowrap">
-            {t(lang, "charityAs")}
-          </span>
-          <div className="flex-1 border-t border-border" />
-        </div>
-      )}
       {charityKeys.map((key) => {
         const meta = OPTION_META[key];
         const data = optionData[key] || {};
@@ -369,7 +367,7 @@ export default function DistributionPage() {
             type="button"
             onClick={() => !isDisabled && setSelectedKey(key)}
             disabled={isDisabled}
-            className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 w-full text-left transition-all ${
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border-2 w-full text-left transition-all ${
               isDisabled
                 ? "border-border/50 bg-gray-50 cursor-not-allowed opacity-75"
                 : isSelected
@@ -378,23 +376,21 @@ export default function DistributionPage() {
             }`}
           >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
               style={{ background: isDisabled ? "#f3f4f6" : meta.light }}
             >
               <meta.Icon
-                className="w-5 h-5"
+                className="w-3.5 h-3.5"
                 style={{ color: isDisabled ? "#d1d5db" : meta.color }}
               />
             </div>
-            <div className="flex-1">
-              <div
-                className={`text-sm font-bold ${isDisabled ? "text-text-muted" : "text-text-primary"}`}
-              >
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+              <div className="text-[10px] font-bold text-text-primary truncate">
                 {distLabel(key, data)}
               </div>
               <div
-                className={`text-xs font-semibold mt-0.5 ${isDisabled ? "text-text-muted" : ""}`}
-                style={{ color: isDisabled ? undefined : meta.color }}
+                className="text-[9px] font-semibold"
+                style={{ color: isDisabled ? "#9ca3af" : meta.color }}
               >
                 {isDisabled
                   ? t(lang, "deactivated")
@@ -404,7 +400,7 @@ export default function DistributionPage() {
               </div>
             </div>
             <div
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+              className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                 isDisabled
                   ? "border-border/40"
                   : isSelected
@@ -413,7 +409,7 @@ export default function DistributionPage() {
               }`}
             >
               {isSelected && !isDisabled && (
-                <div className="w-2 h-2 rounded-full bg-white" />
+                <div className="w-1 h-1 rounded-full bg-white" />
               )}
             </div>
           </button>
@@ -423,42 +419,57 @@ export default function DistributionPage() {
   );
 
   // Address + phone section (reused in mobile and desktop)
-  const AddressSection = ({ className = "", phoneOnly = false }) => (
+  const AddressSection = ({ className = "", phoneOnly = false, addressOnly = false }) => (
     <Card
       className={`${className} ${submitAttempted && !addrOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
     >
-      <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center gap-1">
-        <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-          {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
-        </span>
-        <span className="text-sm font-black text-red-500 leading-none">*</span>
+      <div className="px-3 py-2 border-b border-border bg-surface-alt/40 flex items-center justify-between gap-1">
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
+            {phoneOnly ? t(lang, "contactPhone") : t(lang, "deliveryAddress")}
+          </span>
+          <span className="text-sm font-black text-red-500 leading-none">*</span>
+        </div>
+        {phoneOnly && (
+          <button
+            type="button"
+            disabled={phones.length >= 4}
+            onClick={() => setPhones((p) => [...p, ""])}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${
+              phones.length >= 4
+                ? "bg-border text-text-muted cursor-default"
+                : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
+            }`}
+          >
+            <Plus className="w-3 h-3" /> {t(lang, "addPhone")}
+          </button>
+        )}
       </div>
-      <div className="p-3 flex flex-col gap-2">
+      <div className="p-2 flex flex-col gap-1.5">
         {!phoneOnly && (
           <>
             {/* Bakı/ətraf ərazilər xəbərdarlığı */}
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-              <span className="text-base shrink-0 mt-0.5">📍</span>
-              <p className="text-[11px] font-semibold text-amber-800 leading-snug">
+            <div className="flex items-start bg-amber-50 border border-amber-200 rounded-xl px-2.5 py-1.5">
+              <p className="text-[10px] font-semibold text-amber-800 leading-snug">
                 Çatdırılma xidməti yalnız <span className="font-extrabold">Bakı və Bakı ətrafı ərazilər</span> üçün nəzərdə tutulub.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowMap(true)}
-              className="flex items-center justify-center gap-2 w-full bg-primary-surface border border-primary/30 text-primary font-bold text-xs rounded-xl py-2.5 cursor-pointer hover:bg-primary-surface/80 transition-all"
+              className="flex items-center justify-center gap-2 w-full bg-primary-surface border border-primary/30 text-primary font-bold text-[10px] rounded-xl py-2 cursor-pointer hover:bg-primary-surface/80 transition-all"
             >
-              <MapPin className="w-3.5 h-3.5" /> {t(lang, "selectOnMap")}
+              <MapPin className="w-3 h-3" /> {t(lang, "selectOnMap")}
             </button>
 
             {pickedLocation ? (
-              <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-1.5 bg-emerald-50 border border-emerald-200 rounded-xl px-2.5 py-1.5">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold text-emerald-700 mb-0.5">
+                  <p className="text-[10px] font-bold text-emerald-700 mb-0.5">
                     {t(lang, "locationSelected")}
                   </p>
-                  <p className="text-[11px] text-emerald-600 leading-snug">
+                  <p className="text-[10px] text-emerald-600 leading-snug">
                     {pickedLocation.address}
                   </p>
                 </div>
@@ -473,102 +484,114 @@ export default function DistributionPage() {
                 {t(lang, "noLocation")}
               </p>
             )}
+
+            {!addressOnly && (
+              <textarea
+                value={addressNote}
+                onChange={(e) => setAddressNote(e.target.value)}
+                placeholder={t(lang, "addressNotePlaceholder")}
+                rows={2}
+                className="w-full bg-surface-alt border border-border rounded-xl px-3 py-1.5 text-[10px] text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
+              />
+            )}
           </>
         )}
 
-        <div className={`flex flex-col gap-1.5 ${!phoneOnly ? "border-t border-border pt-2 mt-1" : ""}`}>
-          <div className="flex items-center justify-between mb-0.5">
-            <div className="flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-text-secondary" />
-              <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wide">
-                {t(lang, "contactPhone")}{" "}
-                <span className="text-sm font-black text-red-500 leading-none">*</span>
-              </span>
-            </div>
-            <button
-              type="button"
-              disabled={phones.length >= 4}
-              onClick={() => setPhones((p) => [...p, ""])}
-              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                phones.length >= 4
-                  ? "bg-border text-text-muted cursor-default"
-                  : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
-              }`}
-            >
-              <Plus className="w-3 h-3" /> {t(lang, "addPhone")}
-            </button>
-          </div>
-          {phones.map((phone, idx) => {
-            const isEmpty = submitAttempted && idx === 0 && !phone.trim();
-            const isInvalid =
-              submitAttempted && phone.trim() && !isValidAzPhone(phone);
-            const hasError = isEmpty || isInvalid;
-            return (
-              <div key={idx} className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`flex-1 flex items-center bg-surface-alt border rounded-xl overflow-hidden transition-colors focus-within:bg-white ${
-                      hasError
-                        ? "border-red-400"
-                        : "border-border focus-within:border-primary"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 px-2.5 py-2.5 border-r border-border bg-surface-alt shrink-0">
-                      <span className="text-base leading-none">🇦🇿</span>
-                      <span className="text-xs font-bold text-text-secondary">
-                        +994
-                      </span>
-                    </div>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) =>
-                        setPhones((prev) =>
-                          prev.map((p, i) =>
-                            i === idx ? formatPhone(e.target.value) : p,
-                          ),
-                        )
-                      }
-                      placeholder="50 XXX XX XX"
-                      inputMode="numeric"
-                      maxLength={12}
-                      className="flex-1 bg-transparent outline-none text-sm text-text-primary placeholder:text-text-muted px-2.5 py-2.5 font-medium border-none"
-                    />
-                  </div>
-                  {phones.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setPhones((p) => p.filter((_, i) => i !== idx))
-                      }
-                      className="p-1.5 text-text-muted hover:text-red-500 transition-colors cursor-pointer"
+        {!addressOnly && (
+          <div className={`flex flex-col gap-1.5 ${!phoneOnly ? "border-t border-border pt-2 mt-auto" : ""}`}>
+            {!phoneOnly && (
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  disabled={phones.length >= 4}
+                  onClick={() => setPhones((p) => [...p, ""])}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                    phones.length >= 4
+                      ? "bg-border text-text-muted cursor-default"
+                      : "bg-primary-surface border border-primary/30 text-primary cursor-pointer hover:bg-primary-surface/80"
+                  }`}
+                >
+                  <Plus className="w-3 h-3" /> {t(lang, "addPhone")}
+                </button>
+              </div>
+            )}
+            {phones.map((phone, idx) => {
+              const isEmpty = submitAttempted && idx === 0 && !phone.trim();
+              const isInvalid =
+                submitAttempted && phone.trim() && !isValidAzPhone(phone);
+              const hasError = isEmpty || isInvalid;
+              return (
+                <div key={idx} className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`flex-1 flex items-center bg-surface-alt border rounded-xl overflow-hidden transition-colors focus-within:bg-white ${
+                        hasError
+                          ? "border-red-400"
+                          : "border-border focus-within:border-primary"
+                      }`}
                     >
-                      <X className="w-4 h-4" />
-                    </button>
+                      <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-border bg-surface-alt shrink-0 self-stretch">
+                        <span className="text-sm leading-none">🇦🇿</span>
+                        <span className="text-[10px] font-bold text-text-secondary leading-none">+994</span>
+                      </div>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) =>
+                          setPhones((prev) =>
+                            prev.map((p, i) =>
+                              i === idx ? formatPhone(e.target.value) : p,
+                            ),
+                          )
+                        }
+                        placeholder="50 XXX XX XX"
+                        inputMode="numeric"
+                        maxLength={12}
+                        className="flex-1 bg-transparent outline-none text-[11px] text-text-primary placeholder:text-text-muted px-2 py-2 font-medium border-none"
+                      />
+                    </div>
+                    {phones.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPhones((p) => p.filter((_, i) => i !== idx))
+                        }
+                        className="p-1.5 text-text-muted hover:text-red-500 transition-colors cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  {isEmpty && (
+                    <p className="text-[10px] text-red-500 font-semibold px-1">
+                      {t(lang, "enterPhone")}
+                    </p>
+                  )}
+                  {isInvalid && (
+                    <p className="text-[10px] text-red-500 font-semibold px-1">
+                      {t(lang, "validAZPhone")}
+                    </p>
                   )}
                 </div>
-                {isEmpty && (
-                  <p className="text-[10px] text-red-500 font-semibold px-1">
-                    {t(lang, "enterPhone")}
-                  </p>
-                )}
-                {isInvalid && (
-                  <p className="text-[10px] text-red-500 font-semibold px-1">
-                    {t(lang, "validAZPhone")}
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
 
-        <textarea
-          value={addressNote}
-          onChange={(e) => setAddressNote(e.target.value)}
-          placeholder={t(lang, "addressNotePlaceholder")}
-          rows={2}
-          className="w-full bg-surface-alt border border-border rounded-xl px-3 py-2.5 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
-        />
+            {phoneOnly && (
+              <div className="flex flex-col gap-1 mt-1 border-t border-border pt-2">
+                <span className="text-[9px] font-bold text-text-secondary uppercase tracking-wide">
+                  {t(lang, "addressNotePlaceholder") ? "Qeyd" : "Qeyd"}
+                </span>
+                <textarea
+                  value={addressNote}
+                  onChange={(e) => setAddressNote(e.target.value)}
+                  placeholder={t(lang, "addressNotePlaceholder")}
+                  rows={4}
+                  className="w-full bg-surface-alt border border-border rounded-xl px-2.5 py-2 text-[10px] text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:bg-white transition-colors resize-none"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Card>
   );
@@ -576,7 +599,7 @@ export default function DistributionPage() {
   // Pickup location card
   const PickupCard = ({ className = "" }) => (
     <Card className={className}>
-      <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+      <div className="px-3 py-1 border-b border-border bg-surface-alt/40">
         <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
           {t(lang, "pickupLocation")}
         </span>
@@ -616,66 +639,80 @@ export default function DistributionPage() {
           onConfirm={handleMapConfirm}
         />
       )}
-      <div className="flex flex-col h-screen bg-bg overflow-hidden">
-        <BackHeader
-          title={t(lang, "distribution")}
-          onBack={() => router.push("/order/quantity")}
-        />
+      <div className="flex flex-col h-full bg-bg overflow-hidden">
         <StepHeader currentStep={2} />
 
-        <div className="flex-1 overflow-y-auto pb-24 lg:pb-6 pt-[124px] lg:pt-0">
+        <div className="flex-1 min-h-0 overflow-y-auto pb-24 lg:pb-6">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          lg:grid lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px]
-                          lg:gap-5 lg:items-start"
+                          md:grid md:grid-cols-2 md:gap-3 md:items-start
+                          lg:grid-cols-[minmax(10px,4.2fr)_minmax(250px,2.5fr)_minmax(0,8.5fr)]
+                          lg:gap-4"
           >
-            {/* ════ LEFT ════ */}
+            <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">Çatdırılma seçin</h2>
+            {/* ════ LEFT (1fr) ════ */}
+            {/* Sol sütun (1fr): Çatdırılma üsulu + altda Çatdırılma ünvanı/Götürmə məkanı */}
             <div className="flex flex-col gap-3">
+              {/* Desktop */}
               <Card
-                className={
-                  submitAttempted && !selectionOk
-                    ? "ring-2 ring-red-400 border-transparent"
-                    : ""
-                }
+                className={`hidden md:block ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
               >
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
-                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
+                  <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
                     {t(lang, "distMethod")}
                   </span>
                 </div>
-
                 {submitAttempted && !selectionOk && (
                   <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
                     <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                     {t(lang, "selectDelivery")}
                   </div>
                 )}
-
                 {OptionList()}
               </Card>
+              {needsLocation && AddressSection({ className: "hidden md:block", addressOnly: true })}
+              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "hidden md:block" })}
 
-              {/* Pickup info — mobile */}
-              {selectedKey === "ozum" && meatPickupLocation && (
-                PickupCard({ className: "lg:hidden" })
-              )}
-
-              {/* Address — mobile */}
-              {needsLocation && AddressSection({ className: "lg:hidden" })}
-              {selectedKey === "ozum" && AddressSection({ className: "lg:hidden", phoneOnly: true })}
+              {/* Mobile */}
+              <Card
+                className={`md:hidden ${submitAttempted && !selectionOk ? "ring-2 ring-red-400 border-transparent" : ""}`}
+              >
+                <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
+                  <span className="text-[9px] font-bold text-text-secondary tracking-wide uppercase">
+                    {t(lang, "distMethod")}
+                  </span>
+                </div>
+                {submitAttempted && !selectionOk && (
+                  <div className="mx-3 mt-2 flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    {t(lang, "selectDelivery")}
+                  </div>
+                )}
+                {OptionList()}
+              </Card>
+              {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "md:hidden" })}
+              {needsLocation && AddressSection({ className: "md:hidden", addressOnly: true })}
+              {needsPhone && AddressSection({ className: "md:hidden", phoneOnly: true })}
             </div>
 
-            {/* ════ RIGHT — desktop ════ */}
-            <div className="hidden lg:flex flex-col gap-3">
-              {selectedKey === "ozum" && meatPickupLocation && PickupCard({})}
-              {needsLocation && AddressSection({})}
-              {selectedKey === "ozum" && AddressSection({ phoneOnly: true })}
+            {/* Orta sütun (1fr): Əlaqə nömrəsi — tablet + desktop */}
+            <div className="hidden md:flex flex-col">
+              {(needsLocation || selectedKey === "ozum")
+                ? AddressSection({ className: "", phoneOnly: true })
+                : null}
+            </div>
+
+            {/* Sağ sütun (1.4fr): Sifariş xülasəsi — desktop only */}
+            <div className="hidden lg:flex flex-col">
 
               <Card>
-                <div className="px-3 py-1.5 border-b border-border bg-surface-alt/40">
+                <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
                   <span className="text-[10px] font-bold text-text-secondary tracking-wide uppercase">
                     {t(lang, "orderSummaryCard")}
                   </span>
                 </div>
+
+                <div className="grid grid-cols-2 divide-x divide-border">
 
                 {/* Animal base — subtract cut/head/feet fees from totalPrice */}
                 {(() => {
@@ -690,7 +727,7 @@ export default function DistributionPage() {
                   return (
                     <div className="border-b border-border">
                       <div className="px-3 pt-0.5 pb-0">
-                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Heyvan Seçimi</span>
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Qurbanlıq Növü</span>
                       </div>
                       <div className="flex justify-between items-center px-3 pb-1">
                         <div>
@@ -790,6 +827,8 @@ export default function DistributionPage() {
                   </div>
                 )}
 
+                </div>{/* end 2-col grid */}
+
                 <div className="p-2 border-t border-border bg-surface-alt/30">
                   <div className="flex justify-between items-baseline mb-1.5">
                     <span className="text-[10px] font-bold text-text-secondary uppercase">
@@ -814,9 +853,9 @@ export default function DistributionPage() {
           </div>
         </div>
 
-        {/* MOBILE action bar */}
-        <div className="fixed-action-bar lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-4 py-2.5 z-[999]">
-          <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
+        {/* Mobile + tablet action bar */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-4 py-2.5 z-[999]">
+          <div className="flex items-center justify-between gap-4 w-full">
             <div className="flex flex-col">
               <span className="text-[9px] text-text-secondary font-bold uppercase tracking-wide">
                 {t(lang, "totalAmountLabel")}
