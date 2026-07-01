@@ -157,7 +157,7 @@ function IanelerimContent() {
 
   if (isGuest) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-14 pb-24 lg:pb-14 text-center bg-[#fbfaff]">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-14 pb-3 lg:pb-14 text-center bg-[#fbfaff]">
         <div className="grid h-[72px] w-[72px] place-items-center rounded-2xl mb-5"
           style={{ background: "linear-gradient(135deg,#f0ebff,#e4d9ff)" }}>
           <Users size={32} style={{ color: "#4b14bd" }} />
@@ -206,7 +206,7 @@ function IanelerimContent() {
     });
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-2 md:py-3 pb-20 lg:pb-3">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-3 md:px-4 py-2 md:py-3 pb-3 lg:pb-3">
       <div className="mb-3 flex flex-col sm:flex-row overflow-hidden rounded-xl border border-[#e7e1f0] bg-white shadow-sm">
         <TopStat icon={Wallet} title="Bütün ianələrimin toplamı" value={`${fmtAmt(totalPaid)} AZN`} />
         <TopStat icon={Flag}   title="Ümumi ianə sayı"           value={String(orders.length)}       />

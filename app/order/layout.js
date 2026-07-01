@@ -231,7 +231,7 @@ function InnerLayout({ children }) {
             .order-scroll::-webkit-scrollbar-thumb:hover { background: #81c784; border: 5px solid #1c5e20; background-clip: padding-box; }
             .order-scroll { overflow-y: auto; scrollbar-color: #6abf69 #1c5e20; }
           `}</style>
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden" style={{ marginBottom: 15 }}>
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
             {children}
           </div>
         </div>

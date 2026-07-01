@@ -6,9 +6,10 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
   ArrowRight, Play, Truck, User, Menu, Video, LogOut, Settings, X,
-  HeartHandshake, Beef, Home, Info, LayoutGrid, HelpCircle, Phone,
+  HeartHandshake, Beef, Home, Info, LayoutGrid, HelpCircle, Phone, ChevronRight,
 } from "lucide-react";
 import { PiKnifeBold } from "react-icons/pi";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "../components/NotificationBell";
 
@@ -75,6 +76,13 @@ const colorMap = {
   emerald: { text: "text-[#0b6c24]", border: "border-[#0b6c24]/25", bg: "bg-[#0b6c24]" },
   violet:  { text: "text-[#6820a3]", border: "border-[#6820a3]/25", bg: "bg-[#6820a3]" },
   orange:  { text: "text-[#c85a13]", border: "border-[#c85a13]/25", bg: "bg-[#c85a13]" },
+};
+
+/* APK siyahı görünüşü üçün rənglər (ikon rəngi + dairə fonu) */
+const listTint = {
+  emerald: { fg: "#0b6c24", bg: "#e7f3ea" },
+  violet:  { fg: "#6820a3", bg: "#f0e9f7" },
+  orange:  { fg: "#c85a13", bg: "#fbede2" },
 };
 
 function ServiceCard({ item, idx = 0, onPlay, highlighted = false, onMouseEnter, onMouseLeave }) {
@@ -198,7 +206,12 @@ export default function HomePage() {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNative, setIsNative] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
+
+  useEffect(() => {
+    if (Capacitor?.isNativePlatform?.()) setIsNative(true);
+  }, []);
   const [glowCard, setGlowCard] = useState(-1);
   const [hoveredCard, setHoveredCard] = useState(-1);
   const pausedRef = useRef(false);
@@ -260,6 +273,25 @@ export default function HomePage() {
     [HeartHandshake, "Şəffaf Xeyriyyə", "Hesabatlı və şəffaf paylaşım"],
   ];
 
+  const profileInitials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "?";
+  const profileBtn = isGuest ? (
+    <Link href="/auth/login" className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eef0f2]">
+        <User className="h-5 w-5" />
+      </span>
+      <span className="hidden lg:inline">Daxil ol</span>
+    </Link>
+  ) : isNative ? (
+    // APK: profil → birbaşa Parametrlər (dropdown yox)
+    <Link href="/settings" aria-label="Parametrlər" className="flex items-center">
+      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px" }}>
+        {profileInitials}
+      </div>
+    </Link>
+  ) : (
+    <UserMenu user={user} onLogout={handleLogout} />
+  );
+
   return (
     <main className="hp-main bg-background p-0 font-sans text-foreground md:p-4" style={{ height: '100dvh', overflow: 'hidden' }}>
       <style>{`
@@ -311,7 +343,7 @@ export default function HomePage() {
         html.cap-native .hp-drawer,
         html.cap-native .hp-footer,
         html.cap-native .hp-copy { display: none !important; }
-        /* APK-da logo soldan mərkəzə */
+        /* APK-da logo soldan mərkəzə (hp-user/hp-profile qaydaları globals.css-də) */
         html.cap-native .hp-header { position: relative; }
         html.cap-native .hp-logo-box { position: absolute; left: 50%; transform: translateX(-50%); }
       `}</style>
@@ -380,6 +412,8 @@ export default function HomePage() {
 
         {/* ── Header ── */}
         <header className="hp-header flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
+          {/* Native-də sol tərəfdəki profil (yalnız APK) */}
+          <span className="hp-profile-native">{profileBtn}</span>
           <div className="hp-logo-box flex items-center gap-2">
             <button className="hp-hamburger md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors" onClick={() => setMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
@@ -407,14 +441,8 @@ export default function HomePage() {
               iconColor="#374151"
               hoverClass="hover:bg-black/5"
             />
-            {!isGuest ? (
-              <UserMenu user={user} onLogout={handleLogout} />
-            ) : (
-              <Link href="/auth/login" className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
-                <User className="h-5 w-5" />
-                <span className="hidden lg:inline">Daxil ol</span>
-              </Link>
-            )}
+            {/* Web-də sağdakı profil (APK-da gizli) */}
+            <span className="hp-profile-web">{profileBtn}</span>
           </div>
         </header>
 
@@ -455,18 +483,51 @@ export default function HomePage() {
         </div>
 
         {/* ── Services ── */}
-        <section className="bg-[#fbf7f2] px-6 pb-8 pt-0 md:px-12">
+        <section
+          className="bg-[#fbf7f2] px-6 pb-8 md:px-12"
+          style={isNative
+            ? { borderTopLeftRadius: 24, borderTopRightRadius: 24, marginTop: -22, position: "relative", zIndex: 5, paddingTop: 18 }
+            : { paddingTop: 0 }}
+        >
           {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
-            {cards.map((item, idx) => (
-              <ServiceCard
-                key={item.title} item={item} idx={idx} onPlay={setActiveVideo}
-                highlighted={glowCard === idx || hoveredCard === idx}
-                onMouseEnter={() => handleCardEnter(idx)}
-                onMouseLeave={handleCardLeave}
-              />
-            ))}
-          </div>
+          {isNative ? (
+            /* APK: kompakt siyahı görünüşü */
+            <div className="flex flex-col gap-3 pt-3">
+              {cards.map((item) => {
+                const tint = listTint[item.color];
+                const Icon = item.Icon;
+                const rowCls = "flex items-center gap-3 rounded-2xl bg-white px-3.5 py-3 shadow-[0_2px_12px_rgba(35,18,8,0.08)] active:scale-[0.99] transition-transform";
+                const inner = (
+                  <>
+                    <div className="grid place-items-center rounded-full shrink-0" style={{ width: 48, height: 48, background: tint.bg, color: tint.fg }}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-[15px] leading-tight" style={{ color: tint.fg }}>{item.title}</h3>
+                      <p className="mt-0.5 text-[11.5px] leading-snug text-neutral-500 line-clamp-2">{item.text}</p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-neutral-300 shrink-0" />
+                  </>
+                );
+                return item.href ? (
+                  <Link key={item.title} href={item.href} className={rowCls}>{inner}</Link>
+                ) : (
+                  <div key={item.title} className={`${rowCls} opacity-60`}>{inner}</div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" style={{ marginTop: "-60px", position: "relative", zIndex: 10 }}>
+              {cards.map((item, idx) => (
+                <ServiceCard
+                  key={item.title} item={item} idx={idx} onPlay={setActiveVideo}
+                  highlighted={glowCard === idx || hoveredCard === idx}
+                  onMouseEnter={() => handleCardEnter(idx)}
+                  onMouseLeave={handleCardLeave}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Why MeatBox */}
           <div className="hp-why mt-5 rounded-2xl border border-[#ead9cf] bg-white/80 p-4 sm:p-5">

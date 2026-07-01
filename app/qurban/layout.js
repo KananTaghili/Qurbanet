@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import NotificationBell from "../../components/NotificationBell";
 import { PiKnifeBold } from "react-icons/pi";
+import { Capacitor } from "@capacitor/core";
 
 const GREEN = "#1c5e20";
 
@@ -62,7 +63,14 @@ export default function QurbanLayout({ children }) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [isNative, setIsNative] = useState(false);
   const userMenuRef = useRef(null);
+
+  useEffect(() => { if (Capacitor?.isNativePlatform?.()) setIsNative(true); }, []);
+
+  const cleanPath = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const isDetailPage = cleanPath.startsWith("/my-orders/detail");
+  const showBackOnly = isNative && isDetailPage;
 
   useEffect(() => {
     if (!userMenuOpen) return;
@@ -166,7 +174,7 @@ export default function QurbanLayout({ children }) {
         <div className="flex-1 flex flex-col min-w-0">
           {/* TopBar */}
           <div
-            className="flex items-center justify-between gap-2 px-3 md:px-6 border-b border-green-900/20 shrink-0"
+            className={`flex items-center justify-between gap-2 px-3 md:px-6 border-b border-green-900/20 shrink-0 ${showBackOnly ? "topbar-detail" : ""}`}
             style={{
               backgroundColor: GREEN,
               height: 50,
@@ -174,7 +182,14 @@ export default function QurbanLayout({ children }) {
               maxHeight: 50,
             }}
           >
-            <div className="flex items-center gap-2 min-w-0">
+            {/* APK detal: yalnız geri ox */}
+            <button
+              onClick={() => router.push("/my-orders")}
+              className="tb-back w-8 h-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+            >
+              <ArrowLeft size={20} className="text-white" />
+            </button>
+            <div className="tb-full flex items-center gap-2 min-w-0">
               <button
                 className="nav-hamburger lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
                 onClick={() => setMobileMenuOpen(true)}
@@ -192,7 +207,7 @@ export default function QurbanLayout({ children }) {
                 Qurbanlıq Sifarişi
               </span>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="tb-full flex items-center gap-3 shrink-0">
               <NotificationBell accentColor="#1c5e20" ringColor="#1c5e20" />
               {isGuest ? (
                 <Link
@@ -412,7 +427,6 @@ export default function QurbanLayout({ children }) {
           `}</style>
           <div
             className="qurban-scroll flex-1 overflow-y-auto"
-            style={{ marginBottom: 15 }}
           >
             {children}
           </div>

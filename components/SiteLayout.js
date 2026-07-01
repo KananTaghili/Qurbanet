@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { User, Menu, X, LogOut, Settings, Home, Info, LayoutGrid, HelpCircle, Phone } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
@@ -84,8 +85,29 @@ export default function SiteLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNative, setIsNative] = useState(false);
+  useEffect(() => { if (Capacitor?.isNativePlatform?.()) setIsNative(true); }, []);
 
   const handleLogout = async () => { await logout(); router.push("/"); };
+
+  const profileInitials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || user?.name?.[0]?.toUpperCase() || "?";
+  const profileBtn = isGuest ? (
+    <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`} className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eef0f2]">
+        <User className="h-5 w-5" />
+      </span>
+      <span className="hidden lg:inline">Daxil ol</span>
+    </Link>
+  ) : isNative ? (
+    // APK: profil → birbaşa Parametrlər (dropdown yox)
+    <Link href="/settings" aria-label="Parametrlər" className="flex items-center">
+      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#f20b32", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", letterSpacing: "1.5px" }}>
+        {profileInitials}
+      </div>
+    </Link>
+  ) : (
+    <UserMenu user={user} onLogout={handleLogout} />
+  );
 
   return (
     <main className="bg-background p-0 font-sans text-foreground md:p-4 overflow-hidden" style={{ height: "100dvh" }}>
@@ -173,6 +195,8 @@ export default function SiteLayout({ children }) {
 
         {/* Header — identical to home page */}
         <header className="hp-header flex items-center justify-between bg-white px-4 text-neutral-950 md:px-10 flex-shrink-0" style={{ height: 56, zIndex: 50 }}>
+          {/* Native-də sol tərəfdəki profil (yalnız APK) */}
+          <span className="hp-profile-native">{profileBtn}</span>
           <div className="hp-logo-box flex items-center gap-2">
             <button className="hp-hamburger md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors"
               onClick={() => setMobileMenuOpen(true)}>
@@ -193,21 +217,15 @@ export default function SiteLayout({ children }) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="hp-user flex items-center gap-3">
             <NotificationBell
               accentColor="#f20b32"
               ringColor="#ffffff"
               iconColor="#374151"
               hoverClass="hover:bg-black/5"
             />
-            {!isGuest ? (
-              <UserMenu user={user} onLogout={handleLogout} />
-            ) : (
-              <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`} className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-[#f20b32] transition-colors">
-                <User className="h-5 w-5" />
-                <span className="hidden lg:inline">Daxil ol</span>
-              </Link>
-            )}
+            {/* Web-də sağdakı profil (APK-da gizli) */}
+            <span className="hp-profile-web">{profileBtn}</span>
           </div>
         </header>
 

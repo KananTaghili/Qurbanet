@@ -66,7 +66,7 @@ function TamamlanmisPageInner() {
   if (selected) return <IaneDetailPage item={selected} onBack={closeDetail} />;
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-4 py-2 pb-20 lg:pb-3">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] px-4 py-2 pb-3 lg:pb-3">
       {shareMessage && (
         <div className="fixed right-5 top-5 z-50 max-w-sm rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-[0_14px_36px_rgba(28,18,72,0.16)]">
           Səhifənin bağlantısı kopyalandı. Dostlarınla paylaşa bilərsən.

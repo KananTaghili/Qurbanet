@@ -466,3 +466,14 @@ html.cap-native .nav-home-btn { display: inline-flex; }
 html.cap-native .nav-hamburger { display: none !important; }
 /* APK-da gizlədilən ümumi elementlər (bildiriş düyməsi, step geri düyməsi və s.) */
 html.cap-native .apk-hide { display: none !important; }
+
+/* APK detal səhifələri: modul toolbar yalnız geri ox düyməsi olsun */
+.tb-back { display: none; }
+.topbar-detail .tb-back { display: inline-flex; }
+.topbar-detail .tb-full { display: none; }
+
+/* APK əsas-bölmə header (əsas + alt menyu səhifələri): profil sol, logo mərkəz, bildiriş sağ.
+   profil ayrıca flow elementidir; justify-between sol-sağ bölür, logo absolute mərkəzdədir. */
+.hp-profile-native { display: none; }
+html.cap-native .hp-profile-native { display: flex; }
+html.cap-native .hp-profile-web { display: none; }

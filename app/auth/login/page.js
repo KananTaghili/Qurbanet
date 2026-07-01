@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, Phone, Mail, KeyRound, ArrowLeft, ArrowRight, Beef } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
 
@@ -50,7 +51,10 @@ function LoginPageInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isExiting, setIsExiting] = useState(false);
+  const [isNative, setIsNative] = useState(false);
   const abortRef = useRef(null);
+
+  useEffect(() => { if (Capacitor?.isNativePlatform?.()) setIsNative(true); }, []);
 
   const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
 
@@ -100,6 +104,116 @@ function LoginPageInner() {
       setLoading(false);
     }
   };
+
+  // ── APK (native): təmiz ağ mobil-app görünüşü ──
+  if (isNative) {
+    const fromQ = searchParams.get("from") ? `?from=${encodeURIComponent(searchParams.get("from"))}` : "";
+    const inputBox = { display: "flex", overflow: "hidden", borderRadius: 14, background: "#f4f4f6", height: 52, alignItems: "center" };
+    const labelCss = { display: "block", marginBottom: 7, fontSize: 13, fontWeight: 700, color: "#1f2937" };
+    return (
+      <main style={{ minHeight: "100dvh", background: "#fff", fontFamily: "'Manrope', sans-serif", color: "#111827", position: "relative" }}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <Link href="/" className="flex items-center justify-center"
+          style={{ position: "absolute", top: 14, left: 14, width: 38, height: 38, borderRadius: "50%", background: "#f3f4f6", color: "#374151", zIndex: 5 }}>
+          <ArrowLeft size={18} />
+        </Link>
+
+        <div style={{ maxWidth: 430, width: "100%", margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "64px 28px 32px" }}>
+          {/* Logo + wordmark + slogan */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
+            <Image src="/meatbox_icon.png" alt="MeatBox" width={86} height={86} style={{ borderRadius: 20, objectFit: "contain" }} priority />
+            <div style={{ marginTop: 12, fontWeight: 900, fontSize: 27, letterSpacing: 0.5, lineHeight: 1 }}>
+              <span style={{ color: "#111827" }}>MEAT</span><span style={{ color: "#e10d0d" }}>BOX</span>
+            </div>
+            <div style={{ marginTop: 6, display: "flex", gap: 6, alignItems: "center" }}>
+              {["ETİBARLI", "HALAL", "SÜRƏTLİ"].map((t, i) => (
+                <span key={t} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#9ca3af" }}>{t}</span>
+                  {i < 2 && <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#d1d5db" }} />}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Tabs (underline) */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", marginBottom: 22 }}>
+            {[{ key: "phone", icon: <Phone size={15} />, label: "Telefon" }, { key: "email", icon: <Mail size={15} />, label: "Email" }].map(({ key, icon, label }) => (
+              <button key={key} type="button" onClick={() => switchMode(key)}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "10px 0", fontSize: 14, fontWeight: 700, background: "none", border: "none", borderBottom: mode === key ? "2px solid #111827" : "2px solid #ececec", color: mode === key ? "#111827" : "#9ca3af", cursor: "pointer", fontFamily: "inherit" }}>
+                {icon}{label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Phone / Email */}
+            <div>
+              <label style={labelCss}>{mode === "phone" ? "Telefon Nömrəsi" : "Email"}</label>
+              {mode === "phone" ? (
+                <div style={inputBox}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 14px", fontSize: 14, fontWeight: 800, color: "#e10d0d", whiteSpace: "nowrap" }}>AZ +994</span>
+                  <input type="tel" value={phone} inputMode="numeric"
+                    onChange={(e) => { setPhone(formatPhone(e.target.value.replace(/\D/g, "").slice(0, 9))); setError(""); }}
+                    placeholder="23 232 32 32"
+                    style={{ flex: 1, height: "100%", background: "transparent", border: "none", outline: "none", padding: "0 8px", fontSize: 15, color: "#374151", fontFamily: "inherit" }} />
+                </div>
+              ) : (
+                <input type="email" value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                  placeholder="ad@meatbox.az"
+                  style={{ height: 52, width: "100%", boxSizing: "border-box", borderRadius: 14, background: "#f4f4f6", border: "none", padding: "0 18px", fontSize: 15, color: "#374151", outline: "none", fontFamily: "inherit" }} />
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label style={labelCss}>Şifrə</label>
+              <div style={inputBox}>
+                <input type={showPassword ? "text" : "password"} value={password} maxLength={128}
+                  onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                  placeholder="Şifrənizi daxil edin"
+                  style={{ flex: 1, height: "100%", background: "transparent", border: "none", outline: "none", paddingLeft: 18, paddingRight: 4, fontSize: 15, color: "#374151", fontFamily: "inherit" }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  style={{ padding: "0 14px", background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Forgot */}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => navigate(`/auth/forgot-password${fromQ}`)}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#e10d0d", fontFamily: "inherit", padding: 0 }}>
+                Şifrəni unutdum
+              </button>
+            </div>
+
+            {error && (
+              <div style={{ background: "#FEF2F2", color: "#B91C1C", fontSize: 13, fontWeight: 600, padding: "11px 14px", borderRadius: 12 }}>{error}</div>
+            )}
+
+            {/* Submit */}
+            <button type="submit" disabled={loading} className="auth-btn-primary"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, height: 54, width: "100%", borderRadius: 999, border: "none", background: loading ? "#9ca3af" : "#f20b32", color: "#fff", fontSize: 16, fontWeight: 800, boxShadow: loading ? "none" : "0 10px 24px rgba(242,11,50,0.25)", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", marginTop: 4 }}>
+              {loading ? (
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
+                  Daxil olunur...
+                </span>
+              ) : (<>Daxil ol <ArrowRight size={17} /></>)}
+            </button>
+
+            {/* Register */}
+            <div style={{ textAlign: "center", fontSize: 13, color: "#9ca3af", marginTop: 2 }}>Hesabınız yoxdur?</div>
+            <button type="button" onClick={() => navigate(`/auth/register${fromQ}`)} className="auth-btn-outline"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 54, width: "100%", borderRadius: 999, border: "2px solid #e10d0d", background: "#fff", color: "#e10d0d", fontSize: 16, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>
+              Qeydiyyatdan keç
+            </button>
+          </form>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="h-screen overflow-hidden bg-background p-0 md:p-7" style={{ fontFamily: "'Manrope', sans-serif", color: "#111827" }}>

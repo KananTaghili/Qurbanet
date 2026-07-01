@@ -1460,7 +1460,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-20 lg:pb-0">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-3 lg:pb-0">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-2 backdrop-blur-sm sticky top-0 z-10">
         <button
@@ -1955,7 +1955,7 @@ function HomeContent() {
         </div>
       )}
 
-      <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
+      <main className="flex-1 overflow-y-auto pb-3 lg:pb-0">
         {/* Hero */}
         <div
           className="relative overflow-hidden rounded-xl md:rounded-2xl mx-3 md:mx-6 mt-3 mb-3"

@@ -105,6 +105,38 @@ export default function ClientShell({ children }) {
       try { backHandle?.remove?.(); } catch (_) {}
     };
   }, []);
+
+  // Native (APK): status bar = yuxarı toolbar rəngi, nav bar = aşağı menyu rəngi
+  useEffect(() => {
+    if (!Capacitor?.isNativePlatform?.()) return;
+    const p = pathname || "/";
+
+    // Status bar → toolbar rəngi
+    let statusColor = "#ffffff", statusDark = true; // əsas/landing → ağ, tünd ikon
+    if (p.startsWith("/charity")) { statusColor = "#301586"; statusDark = false; } // bənövşəyi
+    else if (p.startsWith("/qurban") || p.startsWith("/order") || p.startsWith("/my-orders") || p.startsWith("/how-it-works") || p.startsWith("/qurban-rules")) { statusColor = "#1c5e20"; statusDark = false; } // yaşıl
+
+    // Nav bar → aşağı menyu rəngi (bütün modullarda ağ menyu)
+    const navColor = "#ffffff", navDark = true;
+
+    // Native bridge (etibarlı). Bridge gec hazır ola / tema rəngi qaytara bilər —
+    // ona görə bir neçə dəfə tətbiq edirik.
+    const apply = () => {
+      try { window.AndroidNav?.setBars?.(statusColor, statusDark, navColor, navDark); } catch (_) {}
+    };
+    apply();
+    const t1 = setTimeout(apply, 120);
+    const t2 = setTimeout(apply, 450);
+
+    // Ehtiyat: status-bar plugin varsa o da çağırılsın
+    import("@capacitor/status-bar").then(({ StatusBar, Style }) => {
+      StatusBar.setBackgroundColor({ color: statusColor }).catch(() => {});
+      StatusBar.setStyle({ style: statusDark ? Style.Light : Style.Dark }).catch(() => {});
+    }).catch(() => {});
+
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [pathname]);
+
   const isLanding = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/charity") || pathname.startsWith("/qurban") || pathname.startsWith("/order") || pathname.startsWith("/my-orders") || pathname.startsWith("/how-it-works") || pathname.startsWith("/qurban-rules") || pathname.startsWith("/settings") || pathname.startsWith("/about") || pathname.startsWith("/services") || pathname.startsWith("/process") || pathname.startsWith("/contact");
   const isHome = false;
   const { isLoading: authLoading } = useAuth();

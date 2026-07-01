@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../../context/AuthContext";
 import {
   Plus, User, ChevronDown, ArrowLeft, X,
@@ -1073,7 +1074,7 @@ export default function CharityLayout({ children }) {
             .charity-scroll::-webkit-scrollbar-thumb:hover { background: #c4b5fd; border: 5px solid #301586; background-clip: padding-box; }
             .charity-scroll { overflow-y: auto; scrollbar-color: #a78bfa #301586; }
           `}</style>
-          <div className="charity-scroll flex-1 overflow-y-auto" style={{ marginBottom: 15 }}>
+          <div className="charity-scroll flex-1 overflow-y-auto bg-[#fbfaff]">
           {children}
           </div>
 
