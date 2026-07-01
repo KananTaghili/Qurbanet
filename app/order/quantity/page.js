@@ -372,7 +372,7 @@ export default function QuantityPage() {
       return;
     }
     if (needsHead && headAssigned === 0) {
-      setModalMsg("Baş & ayaqlar üçün bir seçim edin.");
+      setModalMsg("Baş və ayaqlar üçün bir seçim edin.");
       return;
     }
 
