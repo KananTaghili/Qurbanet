@@ -62,7 +62,7 @@ export default function SertlerPage() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden px-4 py-2 pb-20 lg:pb-3">
+    <div className="flex-1 flex flex-col overflow-hidden px-4 py-2 pb-3 lg:pb-3">
       <div className="mb-2.5">
         <h1 className="text-[#241a4d] font-extrabold text-[17px] leading-none">Şərtlərimiz</h1>
         <p className="text-gray-400 text-[11px] mt-0.5">Platforma qaydaları və istifadə şərtləri</p>

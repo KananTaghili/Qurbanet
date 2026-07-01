@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -105,6 +105,38 @@ export default function ClientShell({ children }) {
       try { backHandle?.remove?.(); } catch (_) {}
     };
   }, []);
+
+  // Native (APK): status bar = yuxarı toolbar rəngi, nav bar = aşağı menyu rəngi
+  useEffect(() => {
+    if (!Capacitor?.isNativePlatform?.()) return;
+    const p = pathname || "/";
+
+    // Status bar → toolbar rəngi
+    let statusColor = "#ffffff", statusDark = true; // əsas/landing → ağ, tünd ikon
+    if (p.startsWith("/charity")) { statusColor = "#301586"; statusDark = false; } // bənövşəyi
+    else if (p.startsWith("/qurban") || p.startsWith("/order") || p.startsWith("/my-orders") || p.startsWith("/how-it-works") || p.startsWith("/qurban-rules")) { statusColor = "#1c5e20"; statusDark = false; } // yaşıl
+
+    // Nav bar → aşağı menyu rəngi (bütün modullarda ağ menyu)
+    const navColor = "#ffffff", navDark = true;
+
+    // Native bridge (etibarlı). Bridge gec hazır ola / tema rəngi qaytara bilər —
+    // ona görə bir neçə dəfə tətbiq edirik.
+    const apply = () => {
+      try { window.AndroidNav?.setBars?.(statusColor, statusDark, navColor, navDark); } catch (_) {}
+    };
+    apply();
+    const t1 = setTimeout(apply, 120);
+    const t2 = setTimeout(apply, 450);
+
+    // Ehtiyat: status-bar plugin varsa o da çağırılsın
+    import("@capacitor/status-bar").then(({ StatusBar, Style }) => {
+      StatusBar.setBackgroundColor({ color: statusColor }).catch(() => {});
+      StatusBar.setStyle({ style: statusDark ? Style.Light : Style.Dark }).catch(() => {});
+    }).catch(() => {});
+
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [pathname]);
+
   const isLanding = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/charity") || pathname.startsWith("/qurban") || pathname.startsWith("/order") || pathname.startsWith("/my-orders") || pathname.startsWith("/how-it-works") || pathname.startsWith("/qurban-rules") || pathname.startsWith("/settings") || pathname.startsWith("/about") || pathname.startsWith("/services") || pathname.startsWith("/process") || pathname.startsWith("/contact");
   const isHome = false;
   const { isLoading: authLoading } = useAuth();
@@ -112,16 +144,83 @@ export default function ClientShell({ children }) {
 
   const appReady = !authLoading && settingsReady;
   const [showSplash, setShowSplash] = useState(true);
+  const mountRef = useRef(Date.now());
 
+  // Splash: APK-da minimum müddət (güclü internetdə də splash görünsün)
   useEffect(() => {
-    if (appReady) {
-      const t = setTimeout(() => setShowSplash(false), 1200);
-      return () => clearTimeout(t);
-    }
+    if (!appReady) return;
+    const isNat = !!Capacitor?.isNativePlatform?.();
+    const minTotal = isNat ? 2500 : 1200; // native: minimum 2.5s
+    const elapsed = Date.now() - mountRef.current;
+    const wait = Math.max(isNat ? 300 : 1200, minTotal - elapsed);
+    const t = setTimeout(() => setShowSplash(false), wait);
+    return () => clearTimeout(t);
   }, [appReady]);
+
+  // APK: internetsiz girişi blokla (@capacitor/network — navigator.onLine WebView-də etibarsızdır)
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    if (!Capacitor?.isNativePlatform?.()) return;
+    let handle;
+    const seenOffline = { v: false };
+    import("@capacitor/network").then(({ Network }) => {
+      Network.getStatus().then((s) => {
+        if (!s.connected) seenOffline.v = true;
+        setOffline(!s.connected);
+      }).catch(() => {});
+      Network.addListener("networkStatusChange", (s) => {
+        if (s.connected) {
+          if (seenOffline.v) { window.location.reload(); return; } // qayıdanda təzə yüklə
+          setOffline(false);
+        } else {
+          seenOffline.v = true;
+          setOffline(true);
+        }
+      }).then((h) => { handle = h; }).catch(() => {});
+    }).catch(() => {});
+    return () => { try { handle?.remove?.(); } catch (_) {} };
+  }, []);
 
   return (
     <>
+      {/* APK: internet yoxdursa girişi blokla */}
+      {offline && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 999999,
+          background: "#0d0d0d", display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center",
+        }}>
+          <div style={{
+            width: 96, height: 96, borderRadius: "50%",
+            background: "rgba(242,11,50,0.14)", display: "flex",
+            alignItems: "center", justifyContent: "center", marginBottom: 22,
+          }}>
+            <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#f20b32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 1l22 22" /><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+              <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" /><path d="M10.71 5.05A16 16 0 0 1 22.58 9" />
+              <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" /><path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+              <line x1="12" y1="20" x2="12.01" y2="20" />
+            </svg>
+          </div>
+          <div style={{ color: "#fff", fontSize: 19, fontWeight: 800, marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            İnternet bağlantısı yoxdur
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, lineHeight: 1.5, maxWidth: 300, marginBottom: 26 }}>
+            MeatBox-dan istifadə etmək üçün internetə qoşulun və yenidən cəhd edin.
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              background: "#f20b32", color: "#fff", border: "none", borderRadius: 14,
+              padding: "13px 34px", fontSize: 15, fontWeight: 800, cursor: "pointer",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            Yenidən cəhd et
+          </button>
+        </div>
+      )}
+
       {/* Splash */}
       <div style={{
         position: "fixed",

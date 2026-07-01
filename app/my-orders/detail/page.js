@@ -355,7 +355,7 @@ function OrderDetailInner() {
         {/* ── BACK BUTTON — absolute far left of content area ── */}
         <button
           onClick={() => router.push('/my-orders')}
-          className="absolute top-4 left-4 z-20 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
+          className="apk-hide absolute top-4 left-4 z-20 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all hover:opacity-85 active:scale-95"
           style={{ background: BRAND, color: '#fff', border: 'none' }}
         >
           <ChevronLeft size={15} strokeWidth={2.5} />

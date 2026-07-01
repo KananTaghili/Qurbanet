@@ -642,10 +642,10 @@ export default function DistributionPage() {
       <div className="flex flex-col h-full bg-bg overflow-hidden">
         <StepHeader currentStep={2} />
 
-        <div className="flex-1 min-h-0 overflow-y-auto pb-24 md:pb-6">
+        <div className="flex-1 min-h-0 overflow-y-auto pb-24 lg:pb-6">
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                          md:grid md:grid-cols-3 md:gap-3 md:items-start
+                          md:grid md:grid-cols-2 md:gap-3 md:items-start
                           lg:grid-cols-[minmax(10px,4.2fr)_minmax(250px,2.5fr)_minmax(0,8.5fr)]
                           lg:gap-4"
           >
@@ -691,8 +691,8 @@ export default function DistributionPage() {
                 {OptionList()}
               </Card>
               {selectedKey === "ozum" && meatPickupLocation && PickupCard({ className: "md:hidden" })}
-              {needsLocation && AddressSection({ className: "md:hidden" })}
-              {selectedKey === "ozum" && AddressSection({ className: "md:hidden", phoneOnly: true })}
+              {needsLocation && AddressSection({ className: "md:hidden", addressOnly: true })}
+              {needsPhone && AddressSection({ className: "md:hidden", phoneOnly: true })}
             </div>
 
             {/* Orta sütun (1fr): Əlaqə nömrəsi — tablet + desktop */}
@@ -702,8 +702,8 @@ export default function DistributionPage() {
                 : null}
             </div>
 
-            {/* Sağ sütun (1.4fr): Sifariş xülasəsi — tablet + desktop */}
-            <div className="hidden md:flex flex-col">
+            {/* Sağ sütun (1.4fr): Sifariş xülasəsi — desktop only */}
+            <div className="hidden lg:flex flex-col">
 
               <Card>
                 <div className="px-3 py-2 border-b border-border bg-surface-alt/40">
@@ -853,9 +853,9 @@ export default function DistributionPage() {
           </div>
         </div>
 
-        {/* MOBILE action bar */}
-        <div className="fixed-action-bar md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-4 py-2.5 z-[999]">
-          <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
+        {/* Mobile + tablet action bar */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-4 py-2.5 z-[999]">
+          <div className="flex items-center justify-between gap-4 w-full">
             <div className="flex flex-col">
               <span className="text-[9px] text-text-secondary font-bold uppercase tracking-wide">
                 {t(lang, "totalAmountLabel")}

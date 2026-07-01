@@ -55,8 +55,9 @@ function InnerLayout({ children }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [userMenuOpen]);
 
-  const pageTitle = PAGE_TITLES[pathname] || "Sifariş";
-  const backTo = BACK_ROUTES[pathname] || "/qurban";
+  const cleanPath = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const pageTitle = PAGE_TITLES[cleanPath] || "Sifariş";
+  const backTo = BACK_ROUTES[cleanPath] || "/qurban";
 
   // Hide "Sifarişlərim" link for guest users (not registered/logged in)
   const nav = SIDEBAR_NAV.filter(
@@ -75,7 +76,7 @@ function InnerLayout({ children }) {
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
             MeatBox Xidmətlərinə Keç
           </Link>
-          <div className="flex justify-center pb-4" style={{ paddingTop: 43 }}>
+          <div className="flex justify-center pb-4" style={{ paddingTop: 46 }}>
             <Link href="/" className="relative block" style={{ width: 160 }}>
               <div className="absolute -top-3 -right-3 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-[#1c5e20]/30 bg-white shadow-lg">
                 <PiKnifeBold className="h-7 w-7 text-[#1c5e20]" />
@@ -84,7 +85,7 @@ function InnerLayout({ children }) {
                 style={{ width: 160, height: "auto", objectFit: "contain" }} priority />
             </Link>
           </div>
-          <nav className="flex-1 min-h-0 overflow-y-auto px-3 space-y-0.5">
+          <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
             {nav.map(({ icon: Icon, label, href }) => {
               const active = href === "/qurban"; // order flow = heyvan seçimi aktiv
               return (
@@ -116,17 +117,22 @@ function InnerLayout({ children }) {
           <div className="flex items-center justify-between gap-2 px-3 md:px-6 shrink-0"
             style={{ backgroundColor: GREEN, height: 50, minHeight: 50, maxHeight: 50 }}>
             <div className="flex items-center gap-2.5 min-w-0">
-              {/* Mobile: menu button */}
-              <button className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
+              {/* Mobile: menu button (web) */}
+              <button className="nav-hamburger lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
                 onClick={openMenu}>
                 <Menu size={18} className="text-white" />
               </button>
+              {/* Geri ox — yalnız APK */}
+              <Link href={backTo}
+                className="nav-home-btn w-8 h-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0">
+                <ArrowLeft size={18} className="text-white" />
+              </Link>
               <span className="text-[13px] md:text-[15px] font-semibold text-white line-clamp-1">
                 Qurbanlıq Sifarişi
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors relative">
+              <button className="apk-hide w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors relative">
                 <Bell size={16} className="text-white" />
               </button>
               {isGuest ? (
@@ -225,7 +231,7 @@ function InnerLayout({ children }) {
             .order-scroll::-webkit-scrollbar-thumb:hover { background: #81c784; border: 5px solid #1c5e20; background-clip: padding-box; }
             .order-scroll { overflow-y: auto; scrollbar-color: #6abf69 #1c5e20; }
           `}</style>
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden" style={{ marginBottom: 15 }}>
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
             {children}
           </div>
         </div>

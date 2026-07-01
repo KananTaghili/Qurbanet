@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Bell, CheckCheck, Package, Heart, Beef, Newspaper, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -41,6 +42,14 @@ const NB_CSS = `
   .nb-scroll::-webkit-scrollbar-track        { background: transparent; }
   .nb-scroll::-webkit-scrollbar-thumb        { background: var(--nb-accent, #888); border-radius: 99px; }
   .nb-scroll { scrollbar-width: thin; scrollbar-color: var(--nb-accent, #888) transparent; }
+  /* APK: bildiriş paneli mərkəzdə, simmetrik kənarlarla */
+  html.cap-native .nb-panel {
+    left: 0 !important;
+    right: 0 !important;
+    width: min(420px, calc(100vw - 16px)) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 `;
 let _injected = false;
 function useNbCss() {
@@ -138,9 +147,10 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
 
   const hasUnread = nots.some(n => !n.read);
 
-  return (
+  if (typeof document === "undefined") return null;
+  return createPortal(
     <div
-      className="nb-panel-in fixed z-[9999] flex flex-col rounded-2xl border border-black/10 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.22)]"
+      className="nb-panel nb-panel-in fixed z-[9999] flex flex-col rounded-2xl border border-black/10 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.22)]"
       style={{ top: 66, right: 8, width: 'min(340px, calc(100vw - 16px))', maxHeight: 480 }}
       onClick={e => e.stopPropagation()}
     >
@@ -243,7 +253,8 @@ function NotificationPanel({ accentColor, ringColor, onClose }) {
           </ul>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -283,7 +294,11 @@ export default function NotificationBell({
 
   useEffect(() => {
     if (!open) return;
-    const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const h = e => {
+      if (ref.current && ref.current.contains(e.target)) return;
+      if (e.target.closest && e.target.closest(".nb-panel")) return; // panel portal-dadır
+      setOpen(false);
+    };
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, [open]);

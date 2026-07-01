@@ -8,6 +8,7 @@ import { useOrder } from '../../../context/OrderContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { t } from '../../../lib/i18n';
 import api from '../../../lib/api';
+import { openPayment } from '../../../lib/nativePay';
 
 function Spinner({ label }) {
   return (
@@ -112,7 +113,18 @@ export default function PaymentPage() {
         const res = await api.post(`/orders/${createdOrderId}/epoint/start`);
         if (res.data.success) {
           updateOrder({ paymentMethod: 'epoint' });
-          window.location.href = res.data.data.redirect_url;
+          await openPayment(res.data.data.redirect_url, (dest) => {
+            if (!dest) return; // əl ilə bağladı — ödəniş səhifəsində qal
+            if (dest.startsWith('/order/payment')) {
+              // Xəta → səhifə onsuz da açıqdır, mesajı URL-dən çıxarıb göstər (naviqasiya yox)
+              let msg = '';
+              try { msg = new URLSearchParams(dest.split('?')[1] || '').get('message') || ''; } catch (_) {}
+              setError(msg || t(lang, 'paymentFailed'));
+            } else {
+              router.push(dest); // Uğur → confirmation (context qorunsun)
+            }
+          });
+          setLoading(false);
           return;
         }
         setError(res.data.message || t(lang, 'paymentFailed'));
@@ -148,7 +160,7 @@ export default function PaymentPage() {
     <div className="flex flex-col h-full bg-bg overflow-hidden">
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[88px] md:pb-0">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[88px] md:pb-0 lg:pb-0">
         <div className="p-3 md:grid md:grid-cols-[1fr_240px] md:gap-3 md:items-start lg:p-4 lg:h-full lg:grid-cols-[1fr_320px] lg:gap-4 lg:items-stretch max-w-5xl mx-auto w-full">
           <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">{t(lang, 'payment')}</h2>
 
@@ -234,10 +246,13 @@ export default function PaymentPage() {
 
           </div>
 
-          {/* Pay button — full-width at tablet, right-col at desktop */}
-          <div className="hidden md:block md:col-span-full lg:col-span-1 lg:col-start-2 lg:mt-auto">
-            {PayButton}
-          </div>
+        </div>
+      </div>
+
+      {/* Tablet + desktop pay button — at very bottom right, outside scroll */}
+      <div className="hidden md:flex justify-end shrink-0 px-4 py-3 border-t border-border/20 w-full max-w-5xl mx-auto">
+        <div style={{ width: "fit-content" }}>
+          {PayButton}
         </div>
       </div>
 

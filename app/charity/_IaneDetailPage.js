@@ -33,7 +33,7 @@ export default function IaneDetailPage({ item, onBack, onDonate }) {
   const cfg = STATUS_CFG[item.status] || STATUS_CFG["Davam edir"];
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-20 lg:pb-0">
+    <div className="flex-1 overflow-y-auto bg-[#fbfaff] pb-3 lg:pb-0">
 
       {/* ── Header ── */}
       <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-purple-100 bg-white/80 px-4 md:px-6 py-2 backdrop-blur-sm">

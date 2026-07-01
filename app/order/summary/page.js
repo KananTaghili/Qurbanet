@@ -322,7 +322,7 @@ export default function SummaryPage() {
     <div className="flex flex-col h-full bg-bg overflow-hidden">
       <StepHeader currentStep={3} />
 
-      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[104px] md:pb-[120px]">
+      <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden pb-[104px] md:pb-0">
         <div className="p-3 md:grid md:grid-cols-[280px_1fr] md:gap-3 md:items-start lg:p-4 lg:h-full lg:grid-cols-[360px_1fr] lg:gap-4 lg:items-stretch max-w-6xl mx-auto w-full">
           <h2 className="text-base font-bold text-text-primary mb-1 md:hidden col-span-full">{t(lang, "orderSummary")}</h2>
           {/* ── LEFT: Order info ─────────────────────────────────────── */}
@@ -470,11 +470,11 @@ export default function SummaryPage() {
           </div>
         </div>
 
-        {/* ── Tablet + desktop action bar ───────────────────────────── */}
-        <div className="hidden md:block fixed bottom-5 right-5 z-[90] lg:bottom-6 lg:right-6">
-          <div className="mx-auto flex justify-end">
+        {/* Mobile action bar */}
+        <div className="fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden">
+          <div className="mx-auto flex max-w-6xl justify-center">
             <button
-              className="btn-primary min-w-[220px] rounded-xl px-8 py-2.5 text-sm font-bold shadow-[0_10px_30px_rgba(0,0,0,0.12)]"
+              className="btn-primary w-full max-w-md rounded-xl px-8 py-3.5 text-sm font-bold"
               onClick={handleCreateOrder}
               disabled={loading}
             >
@@ -485,23 +485,23 @@ export default function SummaryPage() {
               )}
             </button>
           </div>
-
         </div>
+      </div>
 
-        {/* ── Mobile action bar ─────────────────────────────────────── */}
-        <div className="mobile-action-bar md:hidden">
-          <button
-            className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm"
-            onClick={handleCreateOrder}
-            disabled={loading}
-          >
-            {loading ? (
-              <Spinner label={t(lang, "orderCreating")} />
-            ) : (
-              t(lang, "confirmOrder")
-            )}
-          </button>
-        </div>
+      {/* Tablet + desktop confirm button — fixed at very bottom right, outside scroll */}
+      <div className="hidden md:flex justify-end shrink-0 px-4 py-3 border-t border-border/20 w-full max-w-6xl mx-auto">
+        <button
+          className="btn-primary px-8 py-2.5 rounded-xl font-bold text-sm"
+          style={{ width: "auto" }}
+          onClick={handleCreateOrder}
+          disabled={loading}
+        >
+          {loading ? (
+            <Spinner label={t(lang, "orderCreating")} />
+          ) : (
+            t(lang, "confirmOrder")
+          )}
+        </button>
       </div>
     </div>
   );

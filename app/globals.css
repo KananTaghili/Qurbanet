@@ -459,3 +459,42 @@ html.cap-native [contenteditable="true"] {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* APK toolbar: hamburger gizlənir, "Xidmətlər" düyməsi görünür (qurban/charity layout) */
+.nav-home-btn { display: none; }
+html.cap-native .nav-home-btn { display: inline-flex; }
+html.cap-native .nav-hamburger { display: none !important; }
+/* APK-da gizlədilən ümumi elementlər (bildiriş düyməsi, step geri düyməsi və s.) */
+html.cap-native .apk-hide { display: none !important; }
+
+/* APK detal səhifələri: modul toolbar yalnız geri ox düyməsi olsun */
+.tb-back { display: none; }
+.topbar-detail .tb-back { display: inline-flex; }
+.topbar-detail .tb-full { display: none; }
+/* Charity detal (?campaign=) — səhifə <html>-ə charity-detail class qoyur */
+html.cap-native.charity-detail .charity-topbar .tb-back { display: inline-flex; }
+html.cap-native.charity-detail .charity-topbar .tb-full { display: none; }
+
+/* APK: ana səhifə giriş animasiyalarını söndür (hər girişdə elementlər "yenidən yüklənməsin") */
+html.cap-native .hp-logo,
+html.cap-native .hp-nav,
+html.cap-native .hp-user,
+html.cap-native .hp-hero,
+html.cap-native .hp-card,
+html.cap-native .hp-why,
+html.cap-native .hp-footer,
+html.cap-native .hp-copy {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* APK əsas-bölmə header (əsas + alt menyu səhifələri): profil sol, logo mərkəz, bildiriş sağ.
+   profil ayrıca flow elementidir; justify-between sol-sağ bölür, logo absolute mərkəzdədir. */
+.hp-profile-native { display: none; }
+html.cap-native .hp-profile-native { display: flex; }
+html.cap-native .hp-profile-web { display: none; }
+
+/* APK: logo hər səhifədə eyni mərkəzdə olsun (SiteLayout logosunun ml-[6px]-ni sıfırla) */
+html.cap-native .hp-logo-box a,
+html.cap-native .hp-logo-box .hp-logo { margin-left: 0 !important; margin-right: 0 !important; }
