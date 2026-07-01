@@ -815,7 +815,7 @@ export default function QuantityPage() {
               </S>
             )}
 
-            {/* Doğrama üsulu + Baş & Ayaqlar — alt-alta */}
+            {/* Doğrama üsulu + Baş və Ayaqlar — alt-alta */}
             {effectiveCutStyles.length > 0 && (
               <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
                 <div className="p-3 grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -842,7 +842,7 @@ export default function QuantityPage() {
             )}
 
             {needsHead && (
-              <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+              <S label="Baş və Ayaqlar" error={partsError ? "Seçim edin" : null}>
                 <div className="p-3 grid grid-cols-2 md:grid-cols-3 gap-2">
                   {activeHeadOptions.map((opt) => {
                     const on = (headBuckets[opt.key] || 0) > 0;
@@ -944,9 +944,9 @@ export default function QuantityPage() {
               </S>
 
               {/* ── Row 3 ── */}
-              {/* Col 1: Baş & Ayaqlar (or spacer) */}
+              {/* Col 1: Baş və Ayaqlar (or spacer) */}
               {needsHead ? (
-                <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                <S label="Baş və Ayaqlar" error={partsError ? "Seçim edin" : null}>
                   <div className="p-3 grid grid-cols-2 gap-2">
                     {activeHeadOptions.map((opt) => {
                       const on = (headBuckets[opt.key] || 0) > 0;
@@ -984,7 +984,7 @@ export default function QuantityPage() {
                   </S>
                 )}
                 {needsHead && (
-                  <S label="Baş & Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                  <S label="Baş və Ayaqlar" error={partsError ? "Seçim edin" : null}>
                     <div className="p-3 grid grid-cols-2 gap-2">
                       {activeHeadOptions.map((opt) => {
                         const on = (headBuckets[opt.key] || 0) > 0;
