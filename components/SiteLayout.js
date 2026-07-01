@@ -85,8 +85,7 @@ export default function SiteLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isNative, setIsNative] = useState(false);
-  useEffect(() => { if (Capacitor?.isNativePlatform?.()) setIsNative(true); }, []);
+  const [isNative] = useState(() => { try { return !!Capacitor?.isNativePlatform?.(); } catch { return false; } });
 
   const handleLogout = async () => { await logout(); router.push("/"); };
 

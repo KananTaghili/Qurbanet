@@ -206,12 +206,9 @@ export default function HomePage() {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isNative, setIsNative] = useState(false);
+  // Render zamanı sinxron təyin — client-side naviqasiyada web-flash olmasın
+  const [isNative] = useState(() => { try { return !!Capacitor?.isNativePlatform?.(); } catch { return false; } });
   const [activeVideo, setActiveVideo] = useState(null);
-
-  useEffect(() => {
-    if (Capacitor?.isNativePlatform?.()) setIsNative(true);
-  }, []);
   const [glowCard, setGlowCard] = useState(-1);
   const [hoveredCard, setHoveredCard] = useState(-1);
   const pausedRef = useRef(false);
@@ -563,7 +560,7 @@ export default function HomePage() {
           <div>
             <h4 className="font-bold">Əlaqə</h4>
             <div className="mt-3 text-sm text-white/70 flex flex-col gap-1">
-              <span>010 3990222</span>
+              <span>010 399 0222</span>
               <span>info@meatbox.az</span>
             </div>
           </div>

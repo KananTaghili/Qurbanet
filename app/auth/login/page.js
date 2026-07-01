@@ -51,10 +51,8 @@ function LoginPageInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isExiting, setIsExiting] = useState(false);
-  const [isNative, setIsNative] = useState(false);
+  const [isNative] = useState(() => { try { return !!Capacitor?.isNativePlatform?.(); } catch { return false; } });
   const abortRef = useRef(null);
-
-  useEffect(() => { if (Capacitor?.isNativePlatform?.()) setIsNative(true); }, []);
 
   const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
 
