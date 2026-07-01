@@ -322,7 +322,7 @@ const getAnimals = async (req, res) => {
 
     const [animals, deliveryOptions, charityOptions, appSettings] =
       await Promise.all([
-        Category.find({ pricePerShare: { $gt: 0 } })
+        Category.find({})
           .sort({ sortOrder: 1, createdAt: 1 })
           .select("-__v")
           .lean(),
