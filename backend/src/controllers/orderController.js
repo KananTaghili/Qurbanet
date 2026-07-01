@@ -345,7 +345,7 @@ const getAnimals = async (req, res) => {
 
     const fixed = animals.map((a) => {
       const obj = a.toObject();
-      obj.isActive = obj.isActive !== false && obj.isActive !== null && obj.isActive !== undefined ? obj.isActive : true;
+      obj.isActive = obj.isActive !== false;
       obj.emoji = getAnimalEmoji(obj.type, obj.emoji);
       obj.imageUrl = obj.imageFileId
         ? fileIdToUrl(obj.imageFileId, req)
