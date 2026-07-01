@@ -561,7 +561,7 @@ function MobileAnimalCard({
                 : "bg-primary text-white"
             }`}
           >
-            {inactive ? t(lang, "deactivated") : t(lang, "orderNow")}{" "}
+            {t(lang, "orderNow")}{" "}
             {!inactive && <ChevronRight size={12} strokeWidth={2.5} />}
           </span>
         </div>
@@ -658,7 +658,7 @@ function DesktopAnimalCard({
               : "bg-primary text-white shadow-[0_2px_8px_rgba(27,94,32,0.25)]"
           }`}
         >
-          {inactive ? t(lang, "deactivated") : t(lang, "orderNow")}{" "}
+          {t(lang, "orderNow")}{" "}
           {!inactive && <ChevronRight size={14} strokeWidth={2.5} />}
         </div>
       </div>
