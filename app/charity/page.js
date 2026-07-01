@@ -2037,7 +2037,7 @@ function HomeContent() {
                     <Plus size={12} /> Yeni açılış et
                   </button>
                   <button
-                    onClick={() => router.push("/how-it-works")}
+                    onClick={() => router.push("/charity/how-it-works")}
                     className="flex items-center gap-1.5 rounded-lg border bg-white/75 px-3 py-2 text-xs font-semibold text-[#4b14bd] backdrop-blur-sm transition-all hover:bg-white"
                     style={{ borderColor: "rgba(75,20,189,0.3)" }}
                   >
