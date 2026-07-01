@@ -317,9 +317,13 @@ export default function QurbanPage() {
 function HeroBanner({ router, isMobile }) {
   return (
     <section
+<<<<<<< HEAD
       className={`relative overflow-hidden rounded-2xl shadow-sm ${
         isMobile ? "px-4 py-3.5" : "px-5 py-3.5 lg:px-6 lg:py-4"
       }`}
+=======
+      className={`relative overflow-hidden rounded-2xl shadow-sm ${isMobile ? "px-4 py-3.5" : "px-5 py-3.5 lg:px-6 lg:py-4"}`}
+>>>>>>> 52edc42 (Fix qurban deactivated animal display and include inactive animals in API)
       style={
         !isMobile
           ? {
@@ -349,9 +353,7 @@ function HeroBanner({ router, isMobile }) {
       />
       <div className={`relative z-10 ${isMobile ? "max-w-[60%]" : "max-w-lg"}`}>
         <h2
-          className={`font-extrabold leading-tight text-[#082d15] mb-1.5 ${
-            isMobile ? "text-lg" : "text-xl lg:text-2xl"
-          }`}
+          className={`font-extrabold leading-tight text-[#082d15] mb-1.5 ${isMobile ? "text-lg" : "text-xl lg:text-2xl"}`}
         >
           Süfrəniz bərəkətli,
           <br />
@@ -600,9 +602,13 @@ function DesktopAnimalCard({
         setHovered(false);
         onMouseLeave?.(e);
       }}
+<<<<<<< HEAD
       className={`flex flex-col overflow-hidden text-left bg-white rounded-2xl lg:rounded-3xl w-full ${
         inactive ? "opacity-50 grayscale cursor-not-allowed" : "cursor-pointer"
       }`}
+=======
+      className={`flex flex-col overflow-hidden text-left bg-white rounded-2xl lg:rounded-3xl w-full ${inactive ? "opacity-50 grayscale cursor-not-allowed" : "cursor-pointer"}`}
+>>>>>>> 52edc42 (Fix qurban deactivated animal display and include inactive animals in API)
       style={{
         border:
           !inactive && active

@@ -1064,6 +1064,19 @@ const getMyOrders = async (req, res) => {
 
     const orders = await Order.find({
       user: req.userId,
+      $nor: [
+        // Epoint ödənişi tamamlanmadan tərk edilmiş sifarişlər gizlədilir
+        {
+          "payment.method": "epoint",
+          "payment.status": "failed",
+          status: ORDER_STATUS.AWAITING_PAYMENT,
+        },
+        {
+          "payment.method": "epoint",
+          "payment.status": "pending",
+          status: ORDER_STATUS.AWAITING_PAYMENT,
+        },
+      ],
     })
       .sort({ createdAt: -1 })
       .select("-__v");
