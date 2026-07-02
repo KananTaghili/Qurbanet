@@ -81,6 +81,7 @@ export default function ClientShell({ children }) {
       } else { return; }
 
       if (scrollHeight <= clientHeight + 4) { bar.style.opacity = "0"; return; }
+      areaH -= 10; // seliqəli görünüş üçün alt tərəfdə 10px boşluq
       const thumb = Math.max(28, (clientHeight / scrollHeight) * areaH);
       const top = areaTop + (scrollTop / (scrollHeight - clientHeight)) * (areaH - thumb);
       // Rəng web-dəki scrollbar-color ilə eyni (scroll edən konteynerdən oxunur)
