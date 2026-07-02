@@ -280,14 +280,7 @@ const forgotPassword = async (req, res) => {
     await OTP.deleteMany(otpQuery);
     const code = generateOTP();
     await OTP.create({ ...otpQuery, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
-
-    try {
-      await sendFn(code);
-    } catch (sendErr) {
-      console.error("forgotPassword göndərmə xətası:", sendErr.message);
-      await OTP.deleteMany(otpQuery);
-      return error(res, sendErr.message || "Göndərmə xətası.", 503);
-    }
+    await sendFn(code);
 
     return success(res, {}, "Doğrulama kodu göndərildi.");
   } catch (err) {

@@ -46,6 +46,10 @@ const defaultOrigins = [
   "http://localhost:3100",
   "http://localhost:3101",
   "http://localhost:5173",
+  // Capacitor (mobil APK) WebView origin-ləri
+  "http://localhost",
+  "https://localhost",
+  "capacitor://localhost",
 ];
 
 const envOrigins = process.env.CORS_ORIGIN

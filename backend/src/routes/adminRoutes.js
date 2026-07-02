@@ -54,7 +54,9 @@ const charityOptionUpload = multer({
 // ─── Public: Admin Auth (token tələb olunmur) ────────────────────────────
 router.post("/send-otp", adminController.adminSendOTP);
 router.post("/verify-otp", adminController.adminVerifyOTP);
-router.post("/register", adminController.adminRegister);
+if (process.env.ADMIN_REGISTER === "true") {
+  router.post("/register", adminController.adminRegister);
+}
 
 // ─── Qorunan admin route-lar ─────────────────────────────────────────────
 router.use(adminAuth);

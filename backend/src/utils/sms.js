@@ -126,18 +126,10 @@ const sendEmail = async (toEmail, code, lang = "az") => {
   const workspaceId = process.env.BIRD_WORKSPACE_ID;
   const channelId = process.env.BIRD_CHANNEL_ID;
   const accessKey = process.env.BIRD_ACCESS_KEY;
-  const senderEmail =
-    process.env.BIRD_SENDER_EMAIL || "no-reply@mail.qurbanet.az";
+  const senderEmail = process.env.BIRD_SENDER_EMAIL;
 
   console.log(
-    "[Bird Email] ENV check — workspaceId:",
-    workspaceId ? "OK" : "YOX",
-    "| channelId:",
-    channelId ? "OK" : "YOX",
-    "| accessKey:",
-    accessKey ? "OK" : "YOX",
-    "| senderEmail:",
-    senderEmail,
+    `[Bird Email] ENV check — workspaceId: ${workspaceId ? "OK" : "YOX"} | channelId: ${channelId ? "OK" : "YOX"} | accessKey: ${accessKey ? "OK" : "YOX"} | senderEmail: ${senderEmail}`
   );
 
   if (!workspaceId || !channelId || !accessKey) {
@@ -152,7 +144,10 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     ? "MeatBox — Təsdiqləmə Kodu"
     : "MeatBox — Verification Code";
 
-  const logoUrl = "https://meatbox.az/meatbox_icon.png";
+  const logoUrl = `${process.env.FRONTEND_URL}/meatbox-logo-right-slogan-black.png`;
+  const logoQurban = `${process.env.FRONTEND_URL}/icon_qurban.png`;
+  const logoCharity = `${process.env.FRONTEND_URL}/icon_charity.png`;
+  const logoSale = `${process.env.FRONTEND_URL}/icon_sale.png`;
 
   const html = `<!DOCTYPE html>
 <html lang="${isAz ? "az" : "en"}">
@@ -167,8 +162,8 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     img{border:0;display:block;}
     @media only screen and (max-width:600px){
       .wr{padding:12px 8px!important;}
-      .hd{padding:22px 20px 18px!important;border-radius:14px 14px 0 0!important;}
-      .logo{width:44px!important;height:44px!important;}
+      .hd{padding:24px 20px 16px!important;border-radius:14px 14px 0 0!important;}
+      .logo{max-width:210px!important; width:100%!important; height:auto!important;}
       .bn{font-size:22px!important;}
       .bd{padding:22px 18px 18px!important;}
       .cb{padding:20px 12px!important;border-radius:12px!important;}
@@ -183,21 +178,26 @@ const sendEmail = async (toEmail, code, lang = "az") => {
 <div class="wr" style="width:100%;background:#E8E8E8;padding:28px 16px;box-sizing:border-box;">
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:560px;margin:0 auto;">
 
-  <!-- ══ HEADER ══ -->
   <tr>
-    <td class="hd" style="background:linear-gradient(140deg,#B91C1C 0%,#7F1D1D 100%);border-radius:18px 18px 0 0;padding:28px 36px 22px;text-align:center;">
-      <img src="${logoUrl}" class="logo" alt="MeatBox" width="72" height="72"
-        style="width:72px;height:72px;border-radius:16px;background:#fff;padding:6px;object-fit:contain;display:inline-block;">
+    <td class="hd" style="background:#ffffff;border-radius:18px 18px 0 0;padding:36px 40px 20px;text-align:center;">
+      <img src="${logoUrl}" class="logo" alt="MeatBox" width="240"
+        style="width:100%; max-width:240px; height:auto; padding:0; object-fit:contain; display:inline-block;">
     </td>
   </tr>
 
-  <!-- ══ BODY ══ -->
   <tr>
-    <td class="bd" style="background:#ffffff;padding:34px 40px 26px;">
+    <td style="background:#ffffff; padding:0 40px;">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-top:1px solid #E5E7EB;">
+        <tr><td></td></tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="bd" style="background:#ffffff;padding:28px 40px 26px;">
       <p style="margin:0 0 6px;font-size:15px;color:#1F2937;line-height:1.7;font-weight:600;">${isAz ? "Hörmətli istifadəçi," : "Dear user,"}</p>
       <p style="margin:0 0 24px;font-size:13.5px;color:#6B7280;line-height:1.75;">${isAz ? "Hesabınıza daxil olmaq üçün aşağıdakı təsdiqləmə kodundan istifadə edin:" : "Use the verification code below to access your account:"}</p>
 
-      <!-- OTP -->
       <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
         <tr>
           <td class="cb" style="background:#FFF5F5;border-radius:16px;padding:28px 16px;text-align:center;">
@@ -212,7 +212,6 @@ const sendEmail = async (toEmail, code, lang = "az") => {
         </tr>
       </table>
 
-      <!-- NOTICE -->
       <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:20px;">
         <tr>
           <td style="background:#FFFBEB;border-left:3px solid #F59E0B;border-radius:0 8px 8px 0;padding:11px 15px;">
@@ -226,20 +225,22 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     </td>
   </tr>
 
-  <!-- ══ SERVICES ══ -->
   <tr>
     <td class="sv" style="background:#F5F3F1;padding:22px 32px 26px;border-top:1px solid #EAE5E0;">
       <p style="margin:0 0 14px;font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:2.5px;font-weight:700;text-align:center;">${isAz ? "Xidmətlərimiz" : "Our Services"}</p>
       <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
         <tr>
 
-          <!-- Qurbanlıq -->
           <td width="33%" valign="top" style="padding:0 3px;">
             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
               <tr>
                 <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
-                  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
-                    <tr><td width="36" height="36" bgcolor="#0B6C24" style="border-radius:9px;width:36px;height:36px;text-align:center;vertical-align:middle;font-size:18px;line-height:36px;">🐑</td></tr>
+                  <table align="center" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;border-collapse:separate;">
+                    <tr>
+                      <td width="36" height="36" align="center" valign="middle" style="background:#FFFFFF;border:2px solid #D1E2D6;border-radius:50%;width:36px;height:36px;text-align:center;vertical-align:middle;padding:4px;box-sizing:border-box;">
+                        <img src="${logoQurban}" alt="Logo" width="24" height="24" style="display:block;margin:0 auto;width:24px;height:24px;object-fit:contain;" />
+                      </td>
+                    </tr>
                   </table>
                   <p style="margin:0;font-size:11px;font-weight:800;color:#0B6C24;line-height:1.3;">${isAz ? "Qurbanlıq" : "Qurban"}</p>
                   <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Onlayn sifariş" : "Online order"}</p>
@@ -248,13 +249,16 @@ const sendEmail = async (toEmail, code, lang = "az") => {
             </table>
           </td>
 
-          <!-- Kollektiv -->
           <td width="33%" valign="top" style="padding:0 3px;">
             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
               <tr>
                 <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
-                  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
-                    <tr><td width="36" height="36" bgcolor="#6820A3" style="border-radius:9px;width:36px;height:36px;text-align:center;vertical-align:middle;font-size:18px;line-height:36px;">👥</td></tr>
+                  <table align="center" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;border-collapse:separate;">
+                    <tr>
+                      <td width="36" height="36" align="center" valign="middle" style="background:#FFFFFF;border:2px solid #D9CEEE;border-radius:50%;width:36px;height:36px;text-align:center;vertical-align:middle;padding:4px;box-sizing:border-box;">
+                        <img src="${logoCharity}" alt="Charity Logo" width="24" height="24" style="display:block;margin:0 auto;width:24px;height:24px;object-fit:contain;" />
+                      </td>
+                    </tr>
                   </table>
                   <p style="margin:0;font-size:11px;font-weight:800;color:#6820A3;line-height:1.3;">${isAz ? "Kollektiv" : "Collective"}</p>
                   <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Birlikdə qurban" : "Group qurban"}</p>
@@ -263,13 +267,16 @@ const sendEmail = async (toEmail, code, lang = "az") => {
             </table>
           </td>
 
-          <!-- Ət Satışı -->
           <td width="33%" valign="top" style="padding:0 3px;">
             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
               <tr>
                 <td style="background:#ffffff;border-radius:12px;border:1px solid #EAE5E0;padding:14px 8px;text-align:center;">
-                  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;">
-                    <tr><td width="36" height="36" bgcolor="#C85A13" style="border-radius:9px;width:36px;height:36px;text-align:center;vertical-align:middle;font-size:18px;line-height:36px;">🥩</td></tr>
+                  <table align="center" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 8px;border-collapse:separate;">
+                    <tr>
+                      <td width="36" height="36" align="center" valign="middle" style="background:#FFFFFF;border:2px solid #E3A857;border-radius:50%;width:36px;height:36px;text-align:center;vertical-align:middle;padding:4px;box-sizing:border-box;">
+                        <img src="${logoSale}" alt="Sale Logo" width="24" height="24" style="display:block;margin:0 auto;width:24px;height:24px;object-fit:contain;" />
+                      </td>
+                    </tr>
                   </table>
                   <p style="margin:0;font-size:11px;font-weight:800;color:#C85A13;line-height:1.3;">${isAz ? "Ət Satışı" : "Meat Sales"}</p>
                   <p style="margin:3px 0 0;font-size:10px;color:#9CA3AF;line-height:1.3;">${isAz ? "Evə çatdırılma" : "Home delivery"}</p>
@@ -283,16 +290,20 @@ const sendEmail = async (toEmail, code, lang = "az") => {
     </td>
   </tr>
 
-  <!-- ══ FOOTER ══ -->
   <tr>
     <td class="ft" style="background:#ffffff;border-radius:0 0 18px 18px;border-top:1px solid #F0EEEC;padding:18px 36px 24px;text-align:center;">
-      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">
+      <p style="margin:0 0 6px;font-size:12px;color:#6B7280;line-height:1.5;">
+        <b>Telefon:</b>&nbsp;<a href="tel:+994103990222" style="color:#B91C1C;text-decoration:none;font-weight:600;">+994 10 399 02 22</a>
+        &nbsp;&middot;&nbsp;
         <b>E-mail:</b>&nbsp;<a href="mailto:info@meatbox.az" style="color:#B91C1C;text-decoration:none;font-weight:600;">info@meatbox.az</a>
+      </p>
+      <p style="margin:0 0 14px;font-size:12px;color:#6B7280;">
+        <b>Veb-sayt:</b>&nbsp;<a href="https://www.meatbox.az" target="_blank" style="color:#B91C1C;text-decoration:none;font-weight:600;">www.meatbox.az</a>
       </p>
       <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 14px;">
         <tr>
           <td style="padding:0 4px;">
-            <a href="https://www.instagram.com/meatbox.az/" target="_blank">
+            <a href="https://www.instagram.com/meatbox.az/" target="_blank" style="text-decoration:none;">
               <table cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td style="background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border-radius:999px;padding:7px 16px;">
@@ -303,7 +314,7 @@ const sendEmail = async (toEmail, code, lang = "az") => {
             </a>
           </td>
           <td style="padding:0 4px;">
-            <a href="https://www.facebook.com/meatbox.az" target="_blank">
+            <a href="https://www.facebook.com/meatbox.az" target="_blank" style="text-decoration:none;">
               <table cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td style="background:#1877F2;border-radius:999px;padding:7px 16px;">
@@ -327,8 +338,8 @@ const sendEmail = async (toEmail, code, lang = "az") => {
 </html>`;
 
   const text = isAz
-    ? `MeatBox — Təsdiqləmə Kodu\n\nHörmətli istifadəçi,\n\nHesabınıza giriş üçün kodunuz: ${code}\n\nKod 5 dəqiqə ərzində etibarlıdır.\n\nDiqqət: Bu sorğunu siz göndərməmisinizsə, bu emaili nəzərə almayın.\n\nMeatBox | meatbox.az`
-    : `MeatBox — Verification Code\n\nDear user,\n\nYour verification code: ${code}\n\nThis code is valid for 5 minutes.\n\nNotice: If you did not request this, please ignore this email.\n\nMeatBox | meatbox.az`;
+    ? `MeatBox — Təsdiqləmə Kodu\n\nHörmətli istifadəçi,\n\nHesabınıza giriş üçün kodunuz: ${code}\n\nKod 5 dəqiqə ərzində etibarlıdır.\n\nƏlaqə: +994103990222\nVeb-sayt: www.meatbox.az\n\nDiqqət: Bu sorğunu siz göndərməmisinizsə, bu emaili nəzərə almayın.\n\nMeatBox | meatbox.az`
+    : `MeatBox — Verification Code\n\nDear user,\n\nYour verification code: ${code}\n\nThis code is valid for 5 minutes.\n\nContact: +994103990222\nWebsite: www.meatbox.az\n\nNotice: If you did not request this, please ignore this email.\n\nMeatBox | meatbox.az`;
 
   const url = `https://api.bird.com/workspaces/${workspaceId}/channels/${channelId}/messages`;
 

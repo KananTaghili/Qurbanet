@@ -166,7 +166,8 @@ const publicCampaign = (c) => {
       note:        d.isAnonymous ? null : d.note,
       paidAt:      d.paidAt,
     })),
-    media: (c.status === "completed" || c.status === "delivered") ? c.media : [],
+    media:     (c.status === "completed" || c.status === "delivered") ? c.media : [],
+    adminNote: c.adminNote || null,
   };
 };
 

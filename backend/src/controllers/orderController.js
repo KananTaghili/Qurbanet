@@ -324,8 +324,7 @@ const getAnimals = async (req, res) => {
       await Promise.all([
         Category.find({})
           .sort({ sortOrder: 1, createdAt: 1 })
-          .select("-__v")
-          .lean(),
+          .select("-__v"),
         DeliveryOption.find({ isActive: true })
           .populate("categorySpecificPrices.categoryId", "nameAz type")
           .sort({ key: 1 }),
@@ -347,27 +346,19 @@ const getAnimals = async (req, res) => {
       const obj = a.toObject();
       obj.isActive = obj.isActive !== false;
       obj.emoji = getAnimalEmoji(obj.type, obj.emoji);
-      obj.imageUrl = obj.imageFileId
-        ? fileIdToUrl(obj.imageFileId, req)
-        : fixMediaUrl(obj.imageUrl, req);
-      obj.videoUrl = obj.videoFileId
-        ? fileIdToUrl(obj.videoFileId, req)
-        : fixMediaUrl(obj.videoUrl, req);
+      obj.imageUrl = obj.imageFileId ? fileIdToUrl(obj.imageFileId, req) : fixMediaUrl(obj.imageUrl, req);
+      obj.videoUrl = obj.videoFileId ? fileIdToUrl(obj.videoFileId, req) : fixMediaUrl(obj.videoUrl, req);
 
-      obj.weightOptions = (obj.weightOptions || []).filter(
-        (w) => w.isActive !== false,
-      );
+      obj.weightOptions = (obj.weightOptions || []).filter((w) => w.isActive !== false);
       // weightRange varsa amma weightOptions yoxdursa — weightRange-dən avtomatik bir seçim yarat
       if (!obj.weightOptions.length && obj.weightRange) {
-        obj.weightOptions = [
-          {
-            key: "default",
-            labelAz: obj.weightRange,
-            label: obj.weightRange,
-            price: obj.pricePerShare || 0,
-            isActive: true,
-          },
-        ];
+        obj.weightOptions = [{
+          key: "default",
+          labelAz: obj.weightRange,
+          label: obj.weightRange,
+          price: obj.pricePerShare || 0,
+          isActive: true,
+        }];
       }
 
       // Baş seçimləri - admin panelindən
@@ -406,12 +397,8 @@ const getAnimals = async (req, res) => {
 
     const fixedCharityOptions = charityOptions.map((c) => {
       const obj = c.toObject();
-      obj.imageUrl = obj.imageFileId
-        ? fileIdToUrl(obj.imageFileId, req)
-        : fixMediaUrl(obj.imageUrl, req);
-      obj.videoUrl = obj.videoFileId
-        ? fileIdToUrl(obj.videoFileId, req)
-        : fixMediaUrl(obj.videoUrl, req);
+      obj.imageUrl = obj.imageFileId ? fileIdToUrl(obj.imageFileId, req) : fixMediaUrl(obj.imageUrl, req);
+      obj.videoUrl = obj.videoFileId ? fileIdToUrl(obj.videoFileId, req) : fixMediaUrl(obj.videoUrl, req);
       return obj;
     });
 
@@ -471,7 +458,11 @@ const createOrder = async (req, res) => {
 
     if (normalizedMode === "serikli") {
       if (!animal.serikliEnabled) {
-        return error(res, "Bu heyvan üçün şərikli sifariş aktiv deyil.", 400);
+        return error(
+          res,
+          "Bu heyvan üçün şərikli sifariş aktiv deyil.",
+          400,
+        );
       }
 
       const animalTotalShares = Math.max(2, Number(animal.totalShares) || 2);
@@ -568,17 +559,20 @@ const createOrder = async (req, res) => {
       return error(res, "Çatdırılma saat intervalı düzgün deyil.", 400);
     }
 
-    const userMobile =
-      String(
-        contactInfo?.mobile || contactInfo?.phone || req.phone || "",
-      ).trim() || undefined;
+    const userMobile = String(
+      contactInfo?.mobile || contactInfo?.phone || req.phone || "",
+    ).trim() || undefined;
     const firstName = String(contactInfo?.firstName || "").trim();
     const lastName = String(contactInfo?.lastName || "").trim();
 
     // Mobile required only for guests; authenticated users are identified via JWT
     const isAuthenticated = !!req.userId;
     if (!firstName || (!userMobile && !isAuthenticated)) {
-      return error(res, "Əlaqə məlumatları (ad, mobil) tələb olunur.", 400);
+      return error(
+        res,
+        "Əlaqə məlumatları (ad, mobil) tələb olunur.",
+        400,
+      );
     }
 
     const normalizedPaymentMethod =
@@ -595,8 +589,8 @@ const createOrder = async (req, res) => {
     const headTotalCount = hasCountFields
       ? toCount(qurbanParts?.headTotalCount)
       : Boolean(qurbanParts?.head)
-      ? 1
-      : 0;
+        ? 1
+        : 0;
     const headFreeCount = hasCountFields
       ? toCount(qurbanParts?.headFreeCount)
       : headTotalCount - (legacyHeadReady ? 1 : 0);
@@ -609,14 +603,14 @@ const createOrder = async (req, res) => {
     const headReadyCount = hasCountFields
       ? toCount(qurbanParts?.headReadyCount)
       : legacyHeadReady
-      ? 1
-      : 0;
+        ? 1
+        : 0;
 
     const feetTotalCount = hasCountFields
       ? toCount(qurbanParts?.feetTotalCount)
       : Boolean(qurbanParts?.feet)
-      ? 4
-      : 0;
+        ? 4
+        : 0;
     const feetFreeCount = hasCountFields
       ? toCount(qurbanParts?.feetFreeCount)
       : feetTotalCount - (legacyFeetReady ? 1 : 0);
@@ -629,8 +623,8 @@ const createOrder = async (req, res) => {
     const feetReadyCount = hasCountFields
       ? toCount(qurbanParts?.feetReadyCount)
       : legacyFeetReady
-      ? 1
-      : 0;
+        ? 1
+        : 0;
 
     // Detect if user has charity parts
     const hasCharityParts = headCharityCount > 0 || feetCharityCount > 0;
@@ -656,10 +650,10 @@ const createOrder = async (req, res) => {
         headReadyCount > 0
           ? "utulun"
           : headCharityCount > 0
-          ? "sedeqe"
-          : headTorchedCount > 0
-          ? "utulun"
-          : "none",
+            ? "sedeqe"
+            : headTorchedCount > 0
+              ? "utulun"
+              : "none",
       feet: feetTotalCount > 0,
       feetTotalCount,
       feetFreeCount,
@@ -671,10 +665,10 @@ const createOrder = async (req, res) => {
         feetReadyCount > 0
           ? "utulun"
           : feetCharityCount > 0
-          ? "sedeqe"
-          : feetTorchedCount > 0
-          ? "utulun"
-          : "none",
+            ? "sedeqe"
+            : feetTorchedCount > 0
+              ? "utulun"
+              : "none",
       confirmed: headTotalCount > 0 || feetTotalCount > 0,
       headFee: 0,
       feetFee: 0,
@@ -811,9 +805,7 @@ const createOrder = async (req, res) => {
     let finalPricePerUnit;
     let finalTotalPrice;
     let normalizedLambSelection;
-    const availableWeightOptions = (animal.weightOptions || []).filter(
-      (w) => w.isActive !== false,
-    );
+    const availableWeightOptions = (animal.weightOptions || []).filter((w) => w.isActive !== false);
     const selectedWeight = availableWeightOptions.find(
       (item) => item.key === lambSelection?.weightCategoryKey,
     );
@@ -826,8 +818,7 @@ const createOrder = async (req, res) => {
     if (selectedWeight) {
       normalizedLambSelection = {
         weightCategoryKey: selectedWeight.key,
-        weightCategoryLabel:
-          selectedWeight.labelAz || selectedWeight.label || selectedWeight.key,
+        weightCategoryLabel: selectedWeight.labelAz || selectedWeight.label || selectedWeight.key,
       };
       if (normalizedMode === "serikli") {
         finalPricePerUnit = Number(
@@ -887,14 +878,15 @@ const createOrder = async (req, res) => {
         );
         deliveryFeeCharge += catSpecific
           ? catSpecific.price
-          : delivOpt.basePrice ?? 0;
+          : (delivOpt.basePrice ?? 0);
       }
     }
 
     // 2) Ehtiyac sahibləri fee — auto-applied whenever anything goes to charity
     const charityPortionCount = Number(portionSplit?.charityParts) || 0;
     const hasAnythingForCharity =
-      distribution.type === "ehtiyac_sahibleri" || charityPortionCount > 0;
+      distribution.type === "ehtiyac_sahibleri" ||
+      charityPortionCount > 0;
     if (hasAnythingForCharity) {
       const ehtiyacOpt = await DeliveryOption.findOne({
         key: "ehtiyac_sahibleri",
@@ -905,7 +897,7 @@ const createOrder = async (req, res) => {
         );
         deliveryFeeCharge += catSpecific
           ? catSpecific.price
-          : ehtiyacOpt.basePrice ?? 0;
+          : (ehtiyacOpt.basePrice ?? 0);
       }
     }
 
@@ -921,14 +913,13 @@ const createOrder = async (req, res) => {
       animalEmoji: getAnimalEmoji(animal.type, animal.emoji),
       animalImageUrl: animal.imageFileId
         ? fileIdToUrl(animal.imageFileId, req)
-        : animal.imageUrl || "",
+        : (animal.imageUrl || ""),
       quantity: qty,
       orderMode: normalizedMode,
       sharedPortion:
         normalizedMode === "serikli" ? normalizedSharedPortion : undefined,
       shareCount: normalizedMode === "serikli" ? shareCount : undefined,
-      totalShares:
-        normalizedMode === "serikli" ? animal.totalShares : undefined,
+      totalShares: normalizedMode === "serikli" ? animal.totalShares : undefined,
       lambSelection: normalizedLambSelection,
       qurbanParts: finalQurbanParts,
       cutStyle: finalCutStyle,
@@ -954,14 +945,12 @@ const createOrder = async (req, res) => {
               lng: Number(distribution.coordinates.lng),
             }
           : undefined,
-        phones:
-          requiresAddress && Array.isArray(deliveryPhones)
-            ? deliveryPhones.map((p) => String(p).trim()).filter(Boolean)
-            : [],
-        note:
-          requiresAddress && addressNote
-            ? String(addressNote).trim().slice(0, 300)
-            : undefined,
+        phones: requiresAddress && Array.isArray(deliveryPhones)
+          ? deliveryPhones.map((p) => String(p).trim()).filter(Boolean)
+          : [],
+        note: requiresAddress && addressNote
+          ? String(addressNote).trim().slice(0, 300)
+          : undefined,
       },
       selfPickup: selfPickup === true || selfPickup === "true" || false,
       distSnapshot: distSnapshot || undefined,
@@ -971,10 +960,7 @@ const createOrder = async (req, res) => {
       },
       status: ORDER_STATUS.AWAITING_PAYMENT,
       statusHistory: [
-        {
-          status: ORDER_STATUS.AWAITING_PAYMENT,
-          note: "Sifariş yaradıldı, ödəniş gözlənilir.",
-        },
+        { status: ORDER_STATUS.AWAITING_PAYMENT, note: "Sifariş yaradıldı, ödəniş gözlənilir." },
       ],
       contactInfo: {
         firstName,
@@ -1059,24 +1045,14 @@ const processPayment = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
   try {
-    try {
-      await upsertAutoConfirmForUser(req.userId);
-    } catch (_) {}
+    try { await upsertAutoConfirmForUser(req.userId); } catch (_) {}
 
     const orders = await Order.find({
       user: req.userId,
       $nor: [
         // Epoint ödənişi tamamlanmadan tərk edilmiş sifarişlər gizlədilir
-        {
-          "payment.method": "epoint",
-          "payment.status": "failed",
-          status: ORDER_STATUS.AWAITING_PAYMENT,
-        },
-        {
-          "payment.method": "epoint",
-          "payment.status": "pending",
-          status: ORDER_STATUS.AWAITING_PAYMENT,
-        },
+        { "payment.method": "epoint", "payment.status": "failed",  status: ORDER_STATUS.AWAITING_PAYMENT },
+        { "payment.method": "epoint", "payment.status": "pending", status: ORDER_STATUS.AWAITING_PAYMENT },
       ],
     })
       .sort({ createdAt: -1 })
