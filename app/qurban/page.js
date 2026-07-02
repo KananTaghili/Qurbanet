@@ -325,7 +325,7 @@ function HeroBanner({ router, isMobile }) {
           ? {
               backgroundImage:
                 "linear-gradient(to right, #e9f1eb 0%, #e9f1eb 28%, rgba(233,241,235,0.94) 40%, rgba(233,241,235,0.72) 52%, rgba(233,241,235,0.35) 65%, rgba(233,241,235,0.06) 80%, transparent 92%), url('/qurbanliq_sf_pc_image.png')",
-              backgroundPosition: "left center, right bottom",
+              backgroundPosition: "left center, right top",
               backgroundSize: "100% 100%, auto 160%",
               backgroundRepeat: "no-repeat, no-repeat",
               backgroundColor: "#e9f1eb",
@@ -337,7 +337,7 @@ function HeroBanner({ router, isMobile }) {
       <img
         src="/qurban_sifarisi_mobil_foto.png"
         alt="Qurbanlıq heyvanlar"
-        className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-right block lg:hidden"
+        className="absolute inset-y-0 right-0 h-full w-[55%] object-cover object-[right_top] block lg:hidden"
       />
       {/* Mobile gradient */}
       <div
