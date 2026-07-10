@@ -1,0 +1,454 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const OTP = require("../models/OTP");
+const User = require("../models/User");
+const { generateOTP, sendSMS, sendWhatsApp, sendEmail } = require("../utils/sms");
+const { normalizeAzPhone } = require("../utils/phone");
+const { success, error } = require("../utils/response");
+
+const OTP_MAX_ATTEMPTS = 5;
+const OTP_EXPIRY_MS = Number(process.env.OTP_EXPIRY_MINUTES || 5) * 60 * 1000;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+const makeToken = (user) =>
+  jwt.sign(
+    { userId: user._id, phone: user.phone, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || "7d" },
+  );
+
+const userPayload = (user) => ({
+  id: user._id,
+  phone: user.phone,
+  email: user.email,
+  name: user.name,
+  lastName: user.lastName,
+  isVerified: user.isVerified,
+  isGuest: user.isGuest || false,
+});
+
+// ─── OTP Göndər ─────────────────────────────────────────────────────────────
+//
+// Body:
+//   { phone, channel: "sms"|"email", deliveryEmail? }  — AZ istifadəçi
+//   { email }                                           — Xarici istifadəçi
+//
+// channel="email" + AZ phone → OTP həm phone-a, həm deliveryEmail-ə göndərilir.
+// channel="sms"  + AZ phone → OTP SMS ilə göndərilir.
+// Yalnız email → OTP email-ə göndərilir (xarici istifadəçi).
+// ─────────────────────────────────────────────────────────────────────────────
+const sendOTP = async (req, res) => {
+  try {
+    const { phone: rawPhone, email: rawEmail, channel = "sms", deliveryEmail, isRegister } = req.body;
+
+    // ── Email (xarici istifadəçi) ──
+    if (!rawPhone && rawEmail) {
+      const email = rawEmail.trim().toLowerCase();
+      if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+
+      if (isRegister) {
+        const existingByEmail = await User.findOne({ email });
+        if (existingByEmail) {
+          return error(res, `Bu email ünvanı (${email}) artıq sistemdə qeydiyyatdan keçib. Daxil ol səhifəsinə keçin.`, 409);
+        }
+      }
+
+      await OTP.deleteMany({ email });
+      const code = generateOTP();
+      await OTP.create({ email, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
+      await sendEmail(email, code, "en");
+
+      return success(res, { method: "email", email }, `Doğrulama kodu ${email} ünvanına göndərildi.`);
+    }
+
+    // ── Telefon (AZ istifadəçi) ──
+    if (rawPhone) {
+      const phone = normalizeAzPhone(rawPhone.trim());
+      if (!phone) return error(res, "Düzgün Azərbaycan telefon nömrəsi daxil edin (+994XXXXXXXXX).", 400);
+
+      const existingByPhone = await User.findOne({ phone });
+      const isExisting = !!existingByPhone;
+
+      if (isRegister && isExisting) {
+        return error(res, `Bu telefon nömrəsi (${phone}) artıq sistemdə qeydiyyatdan keçib. Daxil ol səhifəsinə keçin.`, 409);
+      }
+
+      await OTP.deleteMany({ phone });
+      const code = generateOTP();
+      await OTP.create({ phone, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
+
+      if (channel === "email") {
+        const dEmail = (deliveryEmail || "").trim().toLowerCase();
+        if (!isValidEmail(dEmail)) return error(res, "Email kanalı üçün düzgün email ünvanı daxil edin.", 400);
+        await sendEmail(dEmail, code, "az");
+        return success(res, { method: "email", phone, deliveryEmail: dEmail }, `Doğrulama kodu ${dEmail} ünvanına göndərildi.`);
+      }
+
+      if (channel === "whatsapp") {
+        await sendWhatsApp(phone, code);
+        return success(res, { method: "whatsapp", phone }, `Doğrulama kodu WhatsApp ilə göndərildi.`);
+      }
+
+      // Default: SMS
+      await sendSMS(phone, code);
+      return success(res, { method: "sms", phone, isExisting }, `Doğrulama kodu ${phone} nömrəsinə SMS ilə göndərildi.`);
+    }
+
+    return error(res, "Telefon nömrəsi və ya email ünvanı tələb olunur.", 400);
+  } catch (err) {
+    console.error("sendOTP xətası:", err);
+    return error(res, "Doğrulama kodu göndərərkən xəta baş verdi.", 500);
+  }
+};
+
+// ─── OTP Yoxla ───────────────────────────────────────────────────────────────
+//
+// Body: { phone OR email, code (4 rəqəm), password? }
+// password isteğe bağlıdır: verilsə yenilənir, verilməsə mövcud şifrə saxlanır.
+// ─────────────────────────────────────────────────────────────────────────────
+const verifyOTP = async (req, res) => {
+  try {
+    const { phone: rawPhone, email: rawEmail, code, password } = req.body;
+
+    if (!code || !/^\d{4}$/.test(code)) {
+      return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
+    }
+
+    if (password && password.length < 6) {
+      return error(res, "Şifrə ən az 6 simvol olmalıdır.", 400);
+    }
+
+    // ── Identifier müəyyən et ──
+    let otpQuery;
+    let identifierType; // "phone" | "email"
+    let identifier;
+
+    if (rawPhone) {
+      const phone = normalizeAzPhone(rawPhone.trim());
+      if (!phone) return error(res, "Düzgün telefon nömrəsi daxil edin.", 400);
+      otpQuery = { phone };
+      identifierType = "phone";
+      identifier = phone;
+    } else if (rawEmail) {
+      const email = rawEmail.trim().toLowerCase();
+      if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+      otpQuery = { email };
+      identifierType = "email";
+      identifier = email;
+    } else {
+      return error(res, "Telefon nömrəsi və ya email tələb olunur.", 400);
+    }
+
+    // ── OTP yoxla ──
+    const otpRecord = await OTP.findOne(otpQuery);
+    if (!otpRecord) return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
+
+    if (otpRecord.expiresAt < new Date()) {
+      await OTP.deleteMany(otpQuery);
+      return error(res, "OTP kodunun vaxtı keçib. Yenidən göndərin.", 400);
+    }
+
+    if (otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
+      await OTP.deleteMany(otpQuery);
+      return error(res, "Çox sayda yanlış cəhd. Yenidən kod göndərin.", 400);
+    }
+
+    if (otpRecord.code !== code) {
+      await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
+      const remaining = OTP_MAX_ATTEMPTS - (otpRecord.attempts + 1);
+      return error(res, `Yanlış kod. ${remaining} cəhdiniz qalıb.`, 400);
+    }
+
+    await OTP.deleteMany(otpQuery);
+
+    // ── İstifadəçini tap və ya yarat ──
+    const userQuery = identifierType === "phone" ? { phone: identifier } : { email: identifier };
+    let user = await User.findOne(userQuery).select("+password");
+
+    if (!user) {
+      const userData = {
+        ...(identifierType === "phone" ? { phone: identifier } : { email: identifier }),
+        isVerified: true,
+      };
+      if (password) userData.password = await bcrypt.hash(password, 10);
+      try {
+        user = await User.create(userData);
+      } catch (createErr) {
+        if (createErr.code === 11000) {
+          // Race condition: başqa sorğu eyni anda yaratdı — mövcud istifadəçini tap
+          user = await User.findOne(userQuery).select("+password");
+          if (!user) return error(res, "Bu nömrə/email artıq qeydiyyatdan keçib.", 409);
+        } else {
+          throw createErr;
+        }
+      }
+    } else {
+      if (password) user.password = await bcrypt.hash(password, 10);
+      user.isVerified = true;
+      await user.save();
+    }
+
+    if (user.isBlocked) return error(res, "Hesabınız bloklanıb. Dəstəklə əlaqə saxlayın.", 403);
+
+    const token = makeToken(user);
+
+    return success(
+      res,
+      { token, needsName: !user.name, user: userPayload(user) },
+      user.name ? "Uğurla daxil oldunuz." : "Qeydiyyat tamamlandı. Adınızı daxil edin.",
+    );
+  } catch (err) {
+    console.error("verifyOTP xətası:", err);
+    return error(res, "Doğrulama zamanı xəta baş verdi.", 500);
+  }
+};
+
+// ─── Şifrə ilə sürətli giriş (token mövcuddursa avtomatik) ──────────────────
+//
+// Body: { phone OR email, password }
+// ─────────────────────────────────────────────────────────────────────────────
+const loginWithPassword = async (req, res) => {
+  try {
+    const { phone: rawPhone, email: rawEmail, password } = req.body;
+
+    if (!password) return error(res, "Şifrə tələb olunur.", 400);
+
+    let userQuery;
+    if (rawPhone) {
+      const phone = normalizeAzPhone(rawPhone.trim());
+      if (!phone) return error(res, "Düzgün telefon nömrəsi daxil edin.", 400);
+      userQuery = { phone };
+    } else if (rawEmail) {
+      const email = rawEmail.trim().toLowerCase();
+      if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+      userQuery = { email };
+    } else {
+      return error(res, "Telefon nömrəsi və ya email tələb olunur.", 400);
+    }
+
+    const user = await User.findOne(userQuery).select("+password");
+    if (!user) return error(res, "İstifadəçi tapılmadı. Qeydiyyatdan keçin.", 404);
+    if (!user.password) return error(res, "Bu hesab üçün şifrə təyin edilməyib. OTP ilə daxil olun.", 401);
+    if (user.isBlocked) return error(res, "Hesabınız bloklanıb.", 403);
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return error(res, "Şifrə yanlışdır.", 401);
+
+    const token = makeToken(user);
+
+    return success(
+      res,
+      { token, needsName: !user.name, user: userPayload(user) },
+      "Uğurla daxil oldunuz.",
+    );
+  } catch (err) {
+    console.error("loginWithPassword xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Şifrəni unutdum ─────────────────────────────────────────────────────────
+const forgotPassword = async (req, res) => {
+  try {
+    const { phone: rawPhone, email: rawEmail } = req.body;
+
+    let userQuery, otpQuery, sendFn;
+
+    if (rawPhone) {
+      const phone = normalizeAzPhone(rawPhone.trim());
+      if (!phone) return error(res, "Düzgün telefon nömrəsi daxil edin.", 400);
+      userQuery = { phone };
+      otpQuery = { phone };
+      sendFn = async (code) => sendSMS(phone, code);
+    } else if (rawEmail) {
+      const email = rawEmail.trim().toLowerCase();
+      if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+      userQuery = { email };
+      otpQuery = { email };
+      sendFn = async (code) => sendEmail(email, code, "en");
+    } else {
+      return error(res, "Telefon nömrəsi və ya email tələb olunur.", 400);
+    }
+
+    const user = await User.findOne(userQuery);
+    if (!user) return error(res, "Bu ünvanla qeydiyyatdan keçmiş hesab tapılmadı.", 404);
+    if (user.isBlocked) return error(res, "Hesabınız bloklanıb.", 403);
+
+    await OTP.deleteMany(otpQuery);
+    const code = generateOTP();
+    await OTP.create({ ...otpQuery, code, expiresAt: new Date(Date.now() + OTP_EXPIRY_MS) });
+
+    try {
+      await sendFn(code);
+    } catch (sendErr) {
+      console.error("forgotPassword göndərmə xətası:", sendErr.message);
+      await OTP.deleteMany(otpQuery);
+      return error(res, sendErr.message || "Göndərmə xətası.", 503);
+    }
+
+    return success(res, {}, "Doğrulama kodu göndərildi.");
+  } catch (err) {
+    console.error("forgotPassword xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Forgot-password OTP yoxla (şifrəni dəyişmədən) ─────────────────────────
+const verifyForgotOtp = async (req, res) => {
+  try {
+    const { phone: rawPhone, email: rawEmail, code } = req.body;
+    if (!code || !/^\d{4}$/.test(code)) return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
+
+    let otpQuery;
+    if (rawPhone) {
+      const phone = normalizeAzPhone(rawPhone.trim());
+      if (!phone) return error(res, "Düzgün telefon nömrəsi daxil edin.", 400);
+      otpQuery = { phone };
+    } else if (rawEmail) {
+      const email = rawEmail.trim().toLowerCase();
+      if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+      otpQuery = { email };
+    } else {
+      return error(res, "Telefon nömrəsi və ya email tələb olunur.", 400);
+    }
+
+    const otpRecord = await OTP.findOne(otpQuery);
+    if (!otpRecord) return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
+    if (otpRecord.expiresAt < new Date()) { await OTP.deleteMany(otpQuery); return error(res, "OTP kodunun vaxtı keçib.", 400); }
+    if (otpRecord.attempts >= OTP_MAX_ATTEMPTS) { await OTP.deleteMany(otpQuery); return error(res, "Çox sayda yanlış cəhd.", 400); }
+    if (otpRecord.code !== code) {
+      await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
+      return error(res, `Yanlış kod. ${OTP_MAX_ATTEMPTS - otpRecord.attempts - 1} cəhdiniz qalıb.`, 400);
+    }
+
+    return success(res, {}, "Kod doğrulandı.");
+  } catch (err) {
+    console.error("verifyForgotOtp xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Şifrəni sıfırla ─────────────────────────────────────────────────────────
+const resetPassword = async (req, res) => {
+  try {
+    const { phone: rawPhone, email: rawEmail, code, newPassword } = req.body;
+
+    if (!code || !/^\d{4}$/.test(code)) return error(res, "OTP kodu 4 rəqəmli olmalıdır.", 400);
+    if (!newPassword || newPassword.length < 6) return error(res, "Şifrə ən az 6 simvol olmalıdır.", 400);
+
+    let otpQuery, userQuery;
+
+    if (rawPhone) {
+      const phone = normalizeAzPhone(rawPhone.trim());
+      if (!phone) return error(res, "Düzgün telefon nömrəsi daxil edin.", 400);
+      otpQuery = { phone };
+      userQuery = { phone };
+    } else if (rawEmail) {
+      const email = rawEmail.trim().toLowerCase();
+      if (!isValidEmail(email)) return error(res, "Düzgün email ünvanı daxil edin.", 400);
+      otpQuery = { email };
+      userQuery = { email };
+    } else {
+      return error(res, "Telefon nömrəsi və ya email tələb olunur.", 400);
+    }
+
+    const otpRecord = await OTP.findOne(otpQuery);
+    if (!otpRecord) return error(res, "OTP kodu tapılmadı. Yenidən göndərin.", 400);
+    if (otpRecord.expiresAt < new Date()) { await OTP.deleteMany(otpQuery); return error(res, "OTP kodunun vaxtı keçib.", 400); }
+    if (otpRecord.attempts >= OTP_MAX_ATTEMPTS) { await OTP.deleteMany(otpQuery); return error(res, "Çox sayda yanlış cəhd.", 400); }
+    if (otpRecord.code !== code) {
+      await OTP.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
+      return error(res, `Yanlış kod. ${OTP_MAX_ATTEMPTS - otpRecord.attempts - 1} cəhdiniz qalıb.`, 400);
+    }
+
+    await OTP.deleteMany(otpQuery);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    let user = await User.findOne(userQuery);
+    if (!user) {
+      user = await User.create({ ...userQuery, password: hashedPassword, isVerified: true });
+    } else {
+      user.password = hashedPassword;
+      user.isVerified = true;
+      await user.save();
+    }
+
+    if (user.isBlocked) return error(res, "Hesabınız bloklanıb.", 403);
+
+    const token = makeToken(user);
+    return success(res, { token, needsName: !user.name, user: userPayload(user) }, "Şifrə uğurla yeniləndi.");
+  } catch (err) {
+    console.error("resetPassword xətası:", err);
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+// ─── Qonaq giriş — DB-yə yazılmır ───────────────────────────────────────────
+const guestLogin = async (req, res) => {
+  try {
+    const guestId = new (require("mongoose").Types.ObjectId)();
+    const fakeUser = { _id: guestId, id: guestId.toString(), isGuest: true, isVerified: true };
+    const token = makeToken(fakeUser);
+    return success(res, { token, user: { ...fakeUser, id: guestId.toString() } }, "Qonaq olaraq daxil oldunuz.");
+  } catch (err) {
+    return error(res, "Qonaq girişi zamanı xəta baş verdi.", 500);
+  }
+};
+
+// ─── Profil ──────────────────────────────────────────────────────────────────
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-__v");
+    if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+    return success(res, { user });
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    const { name, lastName, password, currentPassword } = req.body;
+
+    if (password) {
+      if (!currentPassword) return error(res, "Şifrə dəyişmək üçün cari şifrənizi daxil edin.", 400);
+      const user = await User.findById(req.userId).select("+password");
+      if (!user) return error(res, "İstifadəçi tapılmadı.", 404);
+      if (!user.password) return error(res, "Bu hesab üçün şifrə təyin edilməyib.", 400);
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) return error(res, "Cari şifrə yanlışdır.", 401);
+    }
+
+    if (name !== undefined && (!name || name.trim().length < 2))
+      return error(res, "Ad ən az 2 simvol olmalıdır.", 400);
+    if (lastName !== undefined && lastName !== null && lastName.trim().length > 0 && lastName.trim().length < 2)
+      return error(res, "Soyad ən az 2 simvol olmalıdır.", 400);
+    if (password && password.length < 6) return error(res, "Şifrə ən az 6 simvol olmalıdır.", 400);
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name.trim();
+    if (lastName !== undefined && lastName.trim()) updateData.lastName = lastName.trim();
+    if (password) updateData.password = await bcrypt.hash(password, 10);
+
+    const user = await User.findByIdAndUpdate(req.userId, updateData, { new: true, select: "-__v -password" });
+    const token = makeToken(user);
+    return success(res, { token, user: userPayload(user) }, "Profil yeniləndi.");
+  } catch (err) {
+    return error(res, "Server xətası.", 500);
+  }
+};
+
+module.exports = {
+  sendOTP,
+  verifyOTP,
+  loginWithPassword,
+  forgotPassword,
+  verifyForgotOtp,
+  resetPassword,
+  guestLogin,
+  getProfile,
+  updateProfile,
+};

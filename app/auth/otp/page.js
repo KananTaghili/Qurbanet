@@ -1,8 +1,9 @@
 'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
 
@@ -16,9 +17,14 @@ export default function OtpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isExiting, setIsExiting] = useState(false);
   const [identifier, setIdentifier] = useState('');
+
+  const navigate = (path) => { setIsExiting(true); setTimeout(() => router.push(path), 260); };
   const [identifierType, setIdentifierType] = useState('phone');
   const [isLogin, setIsLogin] = useState(false);
+
+  const onlyLetters = (val) => val.replace(/[^a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s\-]/g, '');
   const inputs = useRef([]);
   const nameRef = useRef(null);
   const passwordRef = useRef(null);
@@ -47,7 +53,6 @@ export default function OtpPage() {
       inputs.current[i + 1]?.focus();
     } else if (digit && i === 3) {
       if (isLogin) {
-        // Auto-submit on last digit for login
         handleSubmit(null, next.join(''));
       } else {
         nameRef.current?.focus();
@@ -76,11 +81,12 @@ export default function OtpPage() {
     sessionStorage.removeItem('otp_identifier_type');
     sessionStorage.removeItem('otp_phone');
     sessionStorage.removeItem('otp_flow');
+    sessionStorage.removeItem('otp_from');
   };
 
   const handleBack = () => {
     clearOtpSession();
-    router.push(isLogin ? '/auth/login' : '/auth/register');
+    navigate(isLogin ? '/auth/login' : '/auth/register');
   };
 
   const handleSubmit = async (e, autoCode) => {
@@ -88,7 +94,10 @@ export default function OtpPage() {
     const otp = autoCode || code.join('');
     if (otp.length < 4) { setError('4 rəqəmli kodu daxil edin.'); return; }
     if (!isLogin) {
-      if (name.trim().length < 2) { setError('Ad ən az 2 simvol olmalıdır.'); return; }
+      if (name.trim().length < 2) { setError('Ad ən az 2 hərf olmalıdır.'); return; }
+      if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s\-]+$/.test(name.trim())) { setError('Ad yalnız hərf ola bilər.'); return; }
+      if (lastName.trim().length < 2) { setError('Soyad ən az 2 hərf olmalıdır.'); return; }
+      if (!/^[a-zA-ZəƏıİöÖüÜçÇşŞğĞ\s\-]+$/.test(lastName.trim())) { setError('Soyad yalnız hərf ola bilər.'); return; }
       if (!password || password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır.'); return; }
     }
     if (submittingRef.current) return;
@@ -111,8 +120,7 @@ export default function OtpPage() {
 
         if (!isLogin && name.trim()) {
           try {
-            const body = { name: name.trim() };
-            if (lastName.trim()) body.lastName = lastName.trim();
+            const body = { name: name.trim(), lastName: lastName.trim() };
             const profileRes = await api.put('/auth/profile', body, { signal: abortRef.current.signal });
             const freshToken = profileRes.data.data?.token || token;
             const updatedUser = profileRes.data.data?.user || { ...user, name: name.trim() };
@@ -126,12 +134,21 @@ export default function OtpPage() {
           }
         }
 
+        const otpFrom = sessionStorage.getItem('otp_from') || '/';
         clearOtpSession();
-        router.push('/');
+        router.push(otpFrom);
       }
     } catch (err) {
       if (err.name === 'AbortError' || err.code === 'ERR_CANCELED') return;
-      setError(err.response?.data?.message || 'Yanlış kod. Yenidən cəhd edin.');
+      const status = err.response?.status;
+      const msg = err.response?.data?.message;
+      if (!status || status >= 500) {
+        setError('Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən cəhd edin.');
+      } else if (status === 404) {
+        setError('Kod müddəti bitib və ya tapılmadı. Yenidən kod göndərin.');
+      } else {
+        setError(msg || 'Daxil etdiyiniz kod yanlışdır. Yenidən cəhd edin.');
+      }
       setCode(['', '', '', '']);
       inputs.current[0]?.focus();
     } finally {
@@ -141,67 +158,136 @@ export default function OtpPage() {
   };
 
   const subtitle = identifierType === 'email'
-    ? `ünvanına göndərilən 4 rəqəmli kodu daxil edin.`
-    : `nömrəsinə göndərilən 4 rəqəmli kodu daxil edin.`;
+    ? 'ünvanına göndərilən 4 rəqəmli kodu daxil edin.'
+    : 'nömrəsinə göndərilən 4 rəqəmli kodu daxil edin.';
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="flex-1 flex flex-col lg:flex-row">
+    <>
+      <main className="h-screen overflow-hidden bg-background p-0 md:p-7" style={{ fontFamily: "'Manrope', sans-serif" }}>
+      <div
+        className="lg:grid auth-grid-cols-otp md:rounded-[1.75rem] md:border md:border-white/[0.13]"
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 25px 80px rgba(0,0,0,0.55)',
+          background: '#130807',
+          height: '100%',
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+        }}
+      >
+        {/* Background */}
+        <Image
+          src="/auth_bg.jpg"
+          alt=""
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center', opacity: 0.55, zIndex: 0 }}
+          priority
+        />
 
-        {/* ── Brand panel ── */}
-        <div
-          className="relative flex flex-col items-center justify-center py-10 px-8 lg:py-0 lg:w-[44%]"
-          style={{ background: 'linear-gradient(160deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)' }}
+        {/* Mobile-only back to home */}
+        <Link href="/" className="flex lg:hidden" style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center', color: '#fff', backdropFilter: 'blur(4px)' }}>
+          <ArrowLeft size={18} />
+        </Link>
+
+        {/* ── Left panel (desktop only) ── */}
+        <section
+          className="hidden lg:flex flex-col justify-center px-[6vw] py-[4vh] h-full overflow-y-auto"
+          style={{ position: 'relative', zIndex: 1, color: '#fff' }}
         >
-          <button
-            type="button"
-            onClick={handleBack}
-            className="lg:hidden absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-2xl transition-colors"
-            style={{ background: 'rgba(255,255,255,0.18)', color: '#fff' }}
-            aria-label="Geri qayıt"
+          <Link
+            href="/"
+            className="hidden lg:flex"
+            style={{
+              position: 'absolute', top: 20, left: 20,
+              width: 36, height: 36, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.15)',
+              alignItems: 'center', justifyContent: 'center',
+              color: '#fff',
+            }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+            <ArrowLeft size={18} />
+          </Link>
 
-          <div className="flex flex-col items-center gap-5 text-center animate-fade-up">
-            <div
-              className="w-24 h-24 lg:w-32 lg:h-32 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.25)' }}
-            >
-              <Image src="/logo.png" alt="QurbanEt" width={128} height={128} className="w-full h-full object-cover" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 420, margin: '0 auto', width: '100%', textAlign: 'center' }}>
+            {/* Logo (includes MEATBOX text) */}
+            <div style={{ width: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ loqosu" width={200} height={154} style={{ objectFit: 'contain', width: '100%', height: 'auto' }} />
             </div>
 
-            <div>
-              <div className="text-4xl lg:text-5xl font-black text-white italic leading-none">
-                Qurban<span style={{ color: '#86efac' }}>Et</span>
-              </div>
-              <div className="text-sm lg:text-base mt-3 leading-relaxed max-w-[220px] mx-auto" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                İlahi qurbanınızı etibarla kəsdirin
-              </div>
+            {/* Slogan below logo */}
+            <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {['ETİBARLI', 'HALAL', 'SÜRƏTLİ'].map((t, i) => (
+                <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.75)' }}>{t}</span>
+                  {i < 2 && <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', display: 'inline-block' }} />}
+                </span>
+              ))}
             </div>
 
-            <div className="flex items-center gap-3 text-[10px] font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              <span>ETİBARLI</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
-              <span>HALAL</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
-              <span>SÜRƏTLİ</span>
+          </div>
+        </section>
+
+        {/* ── Right panel — form ── */}
+        <section
+          style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px', overflowX: 'hidden' }}
+          className="h-full overflow-y-auto"
+        >
+          <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: '100%', paddingTop: 8, paddingBottom: 8 }}>
+          {/* Mobile branding — above card, hidden on desktop */}
+          <div className="flex lg:hidden flex-col items-center auth-mobile-brand">
+            <div className="auth-mobile-logo" style={{ width: 160 }}>
+              <Image src="/meatbox logo bottom white.png" alt="MEATBOX.AZ" width={160} height={123} style={{ objectFit: 'contain', width: '100%', height: 'auto' }} />
+            </div>
+            <div style={{ marginTop: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
+              {['ETİBARLI', 'HALAL', 'SÜRƏTLİ'].map((t, i) => (
+                <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.85)' }}>{t}</span>
+                  {i < 2 && <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', display: 'inline-block' }} />}
+                </span>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* ── Form panel ── */}
-        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10 bg-surface">
-          <div className="w-full max-w-sm animate-fade-up">
-            <h2 className="text-2xl font-black text-text-primary mb-1">Kodu daxil edin</h2>
-            <p className="text-sm text-text-secondary mb-6 leading-5">
-              <strong>{identifier}</strong>{' '}{subtitle}
+          <div className={`auth-card${isExiting ? ' auth-card-out' : ''}`} style={{
+            width: '100%',
+            maxWidth: 380,
+            borderRadius: 20,
+            border: '1px solid rgba(255,255,255,0.6)',
+            background: 'rgba(255,255,255,0.97)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            boxShadow: '0 24px 90px rgba(15,23,42,0.16)',
+            padding: '18px 24px 22px',
+            fontFamily: "'Manrope', sans-serif",
+          }}>
+
+            {/* ── Back + Title row ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <button
+                type="button"
+                onClick={handleBack}
+                style={{
+                  width: 34, height: 34, borderRadius: 10,
+                  background: '#f5f5f7', border: 'none',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#241331', flexShrink: 0,
+                }}
+                aria-label="Geri qayıt"
+              >
+                <ArrowLeft size={17} strokeWidth={2.5} />
+              </button>
+              <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.04em', color: '#111827', margin: 0 }}>
+                Kodu daxil edin
+              </h2>
+            </div>
+
+            <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 12, lineHeight: 1.55, paddingLeft: 44 }}>
+              <strong style={{ color: '#241331' }}>{identifier}</strong>{' '}{subtitle}
             </p>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {/* 4-digit code boxes */}
+            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* OTP inputs */}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }} onPaste={handlePaste}>
                 {code.map((d, i) => (
                   <input
@@ -213,68 +299,75 @@ export default function OtpPage() {
                     value={d}
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
+                    autoComplete="one-time-code"
                     style={{
-                      width: 64, height: 72, textAlign: 'center', fontSize: 28, fontWeight: 700,
-                      border: `2px solid ${d ? '#1B5E20' : '#E0E0E0'}`,
-                      borderRadius: 16, outline: 'none',
-                      background: d ? '#E8F5E9' : '#F8F9FA',
-                      color: d ? '#1B5E20' : '#111827',
+                      width: 48, height: 52, textAlign: 'center', fontSize: 20, fontWeight: 700,
+                      border: d ? '2px solid #c8102e' : '2px solid #e5e7eb',
+                      borderRadius: 14, outline: 'none',
+                      background: d ? '#fff5f5' : '#f9fafb',
+                      color: d ? '#c8102e' : '#111827',
                       transition: 'border-color 0.15s, background 0.15s',
                       fontFamily: 'inherit',
+                      flexShrink: 0,
                     }}
                     autoFocus={i === 0}
                   />
                 ))}
               </div>
 
-              {/* Register-only fields: name, surname, password */}
               {!isLogin && (
                 <>
                   <div>
-                    <label className="text-sm font-semibold text-text-primary mb-2 block">Ad *</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Ad *</label>
                     <input
                       ref={nameRef}
                       type="text"
+                      name="given-name"
+                      autoComplete="given-name"
                       value={name}
-                      onChange={(e) => { setName(e.target.value); setError(''); }}
+                      onChange={(e) => { setName(onlyLetters(e.target.value)); setError(''); }}
                       placeholder="Məsələn: Əli"
-                      className="field-input"
                       autoCapitalize="words"
                       maxLength={60}
+                      style={{ width: '100%', height: 44, border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-text-primary mb-2 block">Soyad</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Soyad *</label>
                     <input
                       type="text"
+                      name="family-name"
+                      autoComplete="family-name"
                       value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
+                      onChange={(e) => { setLastName(onlyLetters(e.target.value)); setError(''); }}
                       placeholder="Məsələn: Hüseynov"
-                      className="field-input"
                       autoCapitalize="words"
                       maxLength={60}
+                      style={{ width: '100%', height: 44, border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-text-primary mb-2 block">Şifrə *</label>
-                    <div className="relative">
+                    <label style={{ fontSize: 12, fontWeight: 800, color: '#1f2937', marginBottom: 4, display: 'block' }}>Şifrə *</label>
+                    <div style={{ position: 'relative' }}>
                       <input
                         ref={passwordRef}
                         type={showPassword ? 'text' : 'password'}
+                        name="new-password"
+                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => { setPassword(e.target.value); setError(''); }}
                         placeholder="Ən az 6 simvol"
-                        className="field-input pr-10"
                         maxLength={128}
+                        style={{ width: '100%', height: 44, border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 44px 0 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#f9fafb', color: '#111827', boxSizing: 'border-box' }}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center', padding: 0 }}
                       >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                       </button>
                     </div>
                   </div>
@@ -282,40 +375,77 @@ export default function OtpPage() {
               )}
 
               {error && (
-                <div className="bg-red-50 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
+                <div style={{ background: '#fef2f2', color: '#b91c1c', fontSize: 12, fontWeight: 600, padding: '10px 14px', borderRadius: 10 }}>
                   {error}
                 </div>
               )}
 
-              {/* Login: show spinner while auto-submitting, or manual button */}
               {isLogin ? (
                 loading && (
-                  <div className="flex justify-center py-2">
-                    <span className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
+                    <span style={{ width: 28, height: 28, border: '3px solid #c8102e', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
                   </div>
                 )
               ) : (
-                <button type="submit" className="btn-primary" disabled={loading}>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="auth-btn-primary"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    height: 44, width: '100%', borderRadius: 14, border: 'none',
+                    background: loading ? '#9ca3af' : '#f20b32',
+                    color: '#fff', fontSize: 14, fontWeight: 800,
+                    boxShadow: loading ? 'none' : '0 10px 20px rgba(242,11,50,0.15)',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
                   {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <>
+                      <span style={{ width: 15, height: 15, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
                       Yoxlanılır...
-                    </span>
+                    </>
                   ) : 'Təsdiq et'}
                 </button>
               )}
 
               <button
                 type="button"
-                onClick={() => router.push(isLogin ? '/auth/login' : '/auth/register')}
-                className="w-full text-center text-sm text-text-secondary py-1 hover:text-primary transition-colors"
+                onClick={() => { clearOtpSession(); navigate(isLogin ? '/auth/login' : '/auth/register'); }}
+                style={{ width: '100%', textAlign: 'center', fontSize: 12, color: '#6b7280', padding: '2px 0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.opacity = '0.6'}
+                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
               >
-                ← {identifierType === 'email' ? 'Email ünvanını dəyiş' : 'Telefon nömrəsini dəyiş'}
+                {identifierType === 'email' ? '← Email ünvanını dəyiş' : '← Telefon nömrəsini dəyiş'}
               </button>
             </form>
           </div>
-        </div>
+          </div>{/* end margin:auto wrapper */}
+        </section>
       </div>
-    </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes authCardIn { from { opacity:0; transform:translateY(28px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes authCardOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-18px) scale(0.97); } }
+        .auth-card { animation: authCardIn 0.38s cubic-bezier(0.34,1.4,0.64,1) both; }
+        .auth-card-out { animation: authCardOut 0.24s ease-in both !important; }
+        .auth-btn-primary { transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease; }
+        .auth-btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 16px 32px rgba(242,11,50,0.28) !important; }
+        .auth-btn-primary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        @media (min-width: 1024px) {
+          .auth-grid-cols-otp { grid-template-columns: 1.22fr 0.78fr !important; }
+        }
+        @media (max-height: 720px) and (max-width: 1023px) {
+          .auth-mobile-logo { width: 110px !important; }
+          .auth-mobile-brand { gap: 4px !important; }
+        }
+        @media (max-height: 620px) and (max-width: 1023px) {
+          .auth-mobile-brand { display: none !important; }
+        }
+      `}</style>
+      </main>
+    </>
   );
 }

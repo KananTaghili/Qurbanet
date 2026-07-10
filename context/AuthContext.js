@@ -51,6 +51,7 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
     await createGuest();
+    window.location.href = '/';
   };
 
   const updateUser = (updatedFields) => {

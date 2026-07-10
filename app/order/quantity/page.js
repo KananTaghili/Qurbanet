@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, Clock, AlertTriangle, Beef } from "lucide-react";
-import BackHeader from "../../../components/BackHeader";
+import { CalendarDays, Clock, AlertTriangle, Beef, ArrowRight } from "lucide-react";
+import { useMobileMenu } from "../../../context/MobileMenuContext";
 import StepHeader from "../../../components/StepHeader";
 import { useOrder } from "../../../context/OrderContext";
 import api from "../../../lib/api";
@@ -32,7 +32,7 @@ const Card = ({ children, className = "" }) => (
 );
 
 const CardHead = ({ label, Icon }) => (
-  <div className="px-4 py-3 border-b border-border text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase flex items-center gap-2">
+  <div className="px-4 py-2 border-b border-border text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase flex items-center gap-2">
     {Icon && <Icon className="w-3.5 h-3.5 flex-shrink-0" />}
     {label}
   </div>
@@ -69,11 +69,43 @@ function getTomorrow() {
   return d;
 }
 
+/* ─── Section card — defined outside to prevent remount on every render ─── */
+function S({ label, Icon, error, hideOnXl = false, className: sCls = "", overflow = "hidden", children }) {
+  return (
+    <div
+      className={`bg-white rounded-xl flex flex-col ${hideOnXl ? "xl:hidden" : ""}
+      ${error ? "shadow-[0_0_0_1.5px_#f87171]" : "shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]"} ${sCls}`}
+      style={{ overflow }}
+    >
+      <div
+        className={`flex items-center justify-between px-2.5 py-1 border-b ${error ? "border-red-100 bg-red-50/50" : "border-[#f0f0f0]"}`}
+      >
+        <span
+          className="flex items-center gap-1.5 text-[9.5px] font-bold tracking-[0.12em] uppercase"
+          style={{ color: error ? "#ef4444" : "#9ca3af" }}
+        >
+          {Icon && <Icon className="w-3 h-3" />}
+          {label}
+        </span>
+        {error && (
+          <span className="flex items-center gap-1 text-[9.5px] font-bold text-red-500">
+            <AlertTriangle className="w-3 h-3" />
+            {error}
+          </span>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export default function QuantityPage() {
   const router = useRouter();
+  const { openMenu } = useMobileMenu();
   const { updateOrder } = useOrder();
 
   const [animal, setAnimal] = useState(null);
+  const [modalMsg, setModalMsg] = useState(null);
   const [deliveryWindows, setDeliveryWindows] = useState(TIME_SLOTS);
   const [mode, setMode] = useState("tam");
   const [qty, setQty] = useState(1);
@@ -89,8 +121,9 @@ export default function QuantityPage() {
   const [headBuckets, setHeadBuckets] = useState({});
   const [feetBuckets, setFeetBuckets] = useState({});
   const [maxSlaughterDays, setMaxSlaughterDays] = useState(14);
-  const [quickDateTodayEnabled, setQuickDateTodayEnabled]       = useState(true);
-  const [quickDateTomorrowEnabled, setQuickDateTomorrowEnabled] = useState(true);
+  const [quickDateTodayEnabled, setQuickDateTodayEnabled] = useState(true);
+  const [quickDateTomorrowEnabled, setQuickDateTomorrowEnabled] =
+    useState(true);
 
   useEffect(() => {
     try {
@@ -181,8 +214,10 @@ export default function QuantityPage() {
       .then((res) => {
         const d = res.data?.data;
         if (d?.maxSlaughterDays > 0) setMaxSlaughterDays(d.maxSlaughterDays);
-        if (d?.quickDateTodayEnabled !== undefined) setQuickDateTodayEnabled(d.quickDateTodayEnabled);
-        if (d?.quickDateTomorrowEnabled !== undefined) setQuickDateTomorrowEnabled(d.quickDateTomorrowEnabled);
+        if (d?.quickDateTodayEnabled !== undefined)
+          setQuickDateTodayEnabled(d.quickDateTodayEnabled);
+        if (d?.quickDateTomorrowEnabled !== undefined)
+          setQuickDateTomorrowEnabled(d.quickDateTomorrowEnabled);
       })
       .catch(() => {});
   }, []);
@@ -226,7 +261,7 @@ export default function QuantityPage() {
   // (useEffect conditional return-dən ƏVVƏL olmalıdır — React Hooks qaydası)
   useEffect(() => {
     if (!selectedDate) return;
-    const todayStr = new Date(new Date().setHours(0,0,0,0)).toDateString();
+    const todayStr = new Date(new Date().setHours(0, 0, 0, 0)).toDateString();
     const isTodayCheck = new Date(selectedDate).toDateString() === todayStr;
     if (!isTodayCheck) return;
     const now = new Date();
@@ -236,12 +271,24 @@ export default function QuantityPage() {
       return startH * 60 > nowMins + 240;
     });
     if (validSlots.length === 0) {
-      const tomorrow = new Date(new Date().setHours(0,0,0,0));
+      const tomorrow = new Date(new Date().setHours(0, 0, 0, 0));
       tomorrow.setDate(tomorrow.getDate() + 1);
       setSelectedDate(new Date(tomorrow));
       if (deliveryWindows[0]) setTimeSlot(deliveryWindows[0]);
     }
   }, [selectedDate, deliveryWindows]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const calendarRef = useRef(null);
+  useEffect(() => {
+    if (!showCalendar) return;
+    const handler = (e) => {
+      if (calendarRef.current && !calendarRef.current.contains(e.target)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showCalendar]);
 
   if (!animal) return null;
 
@@ -313,18 +360,19 @@ export default function QuantityPage() {
   const handleContinue = () => {
     setSubmitAttempted(true);
     if (!selectedDate) {
-      alert("Kəsim tarixini seçin.");
+      setModalMsg("Kəsim tarixini seçin.");
       return;
     }
     if (!timeSlot) {
-      alert("Çatdırılma vaxtını seçin.");
+      setModalMsg("Çatdırılma vaxtını seçin.");
       return;
     }
     if (effectiveCutStyles.length > 0 && totalCutCount === 0) {
+      setModalMsg("Doğrama üsulunu seçin.");
       return;
     }
     if (needsHead && headAssigned === 0) {
-      alert("Baş & ayaqlar üçün bir seçim edin.");
+      setModalMsg("Baş və ayaqlar üçün bir seçim edin.");
       return;
     }
 
@@ -376,10 +424,14 @@ export default function QuantityPage() {
   const tomorrowMidnight = new Date(todayMidnight);
   tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
 
-  const isToday    = selectedDate && new Date(selectedDate).toDateString() === todayMidnight.toDateString();
-  const isTomorrow = selectedDate && new Date(selectedDate).toDateString() === tomorrowMidnight.toDateString();
+  const isToday =
+    selectedDate &&
+    new Date(selectedDate).toDateString() === todayMidnight.toDateString();
+  const isTomorrow =
+    selectedDate &&
+    new Date(selectedDate).toDateString() === tomorrowMidnight.toDateString();
 
-  const isCustom   = selectedDate && !isToday && !isTomorrow;
+  const isCustom = selectedDate && !isToday && !isTomorrow;
 
   // ── 4-saat interval məntiqi ───────────────────────────────────────────────
   const getValidWindowsForToday = (windows) => {
@@ -400,41 +452,63 @@ export default function QuantityPage() {
     : null;
 
   const CalendarBlock = () => (
-    <div className="p-3 flex flex-col gap-2">
+    <div className="p-2 flex flex-col gap-1.5">
       {/* Quick picks */}
       {(quickDateTodayEnabled || quickDateTomorrowEnabled) && (
-        <div className={`grid gap-2 ${quickDateTodayEnabled && quickDateTomorrowEnabled ? "grid-cols-2" : "grid-cols-1"}`}>
+        <div
+          className={`grid gap-2 ${quickDateTodayEnabled && quickDateTomorrowEnabled ? "grid-cols-2" : "grid-cols-1"}`}
+        >
           {[
             // "Bu gün" — məntiqi yazılıb amma hələlik deaktiv (imkanımız yoxdur)
-            { label: "Bu gün", date: todayMidnight,    active: isToday,    enabled: false },
-            { label: "Sabah",  date: tomorrowMidnight, active: isTomorrow, enabled: quickDateTomorrowEnabled },
-          ].filter(o => o.enabled).map(({ label, date, active }) => (
-            <button
-              key={label}
-              onClick={() => { setSelectedDate(new Date(date)); setShowCalendar(false); }}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
-                ${active
-                  ? "border-primary bg-primary-surface text-primary"
-                  : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"}`}
-            >
-              <span>{label}</span>
-              <span className="text-[11px] font-semibold opacity-60">
-                {date.getDate()} {AZ_MONTHS[date.getMonth()]}
-              </span>
-            </button>
-          ))}
+            {
+              label: "Bu gün",
+              date: todayMidnight,
+              active: isToday,
+              enabled: false,
+            },
+            {
+              label: "Sabah",
+              date: tomorrowMidnight,
+              active: isTomorrow,
+              enabled: quickDateTomorrowEnabled,
+            },
+          ]
+            .filter((o) => o.enabled)
+            .map(({ label, date, active }) => (
+              <button
+                key={label}
+                onClick={() => {
+                  setSelectedDate(new Date(date));
+                  setShowCalendar(false);
+                }}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 font-bold text-sm cursor-pointer transition-all
+                ${
+                  active
+                    ? "border-primary bg-primary-surface text-primary"
+                    : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"
+                }`}
+              >
+                <span>{label}</span>
+                <span className="text-[11px] font-semibold opacity-60">
+                  {date.getDate()} {AZ_MONTHS[date.getMonth()]}
+                </span>
+              </button>
+            ))}
         </div>
       )}
 
       {/* Custom date toggle */}
+      <div ref={calendarRef} className="relative" style={{ zIndex: 50 }}>
       <button
         onClick={() => setShowCalendar((v) => !v)}
         className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-semibold cursor-pointer transition-all
-          ${isCustom
-            ? "border-primary bg-primary-surface text-primary"
-            : showCalendar
-              ? "border-primary/50 bg-surface text-text-secondary"
-              : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"}`}
+          ${
+            isCustom
+              ? "border-primary bg-primary-surface text-primary"
+              : showCalendar
+                ? "border-primary/50 bg-surface text-text-secondary"
+                : "border-border bg-surface-alt text-text-secondary hover:border-primary/40"
+          }`}
       >
         <span className="flex items-center gap-2">
           <CalendarDays className="w-4 h-4 flex-shrink-0" />
@@ -443,25 +517,44 @@ export default function QuantityPage() {
         <span className="text-xs opacity-50">{showCalendar ? "▲" : "▼"}</span>
       </button>
 
-      {/* Inline calendar */}
+      {/* Floating calendar */}
       {showCalendar && (
-        <div className="border border-border rounded-xl p-3 bg-surface">
+        <div className="absolute left-0 right-0 top-full mt-1.5 border border-border rounded-xl p-3 bg-white shadow-lg" style={{ zIndex: 9999 }}>
           <div className="flex items-center justify-between mb-2.5">
             <button
-              onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear((y) => y - 1); } else setCalMonth((m) => m - 1); }}
+              onClick={() => {
+                if (calMonth === 0) {
+                  setCalMonth(11);
+                  setCalYear((y) => y - 1);
+                } else setCalMonth((m) => m - 1);
+              }}
               className="w-8 h-8 flex items-center justify-center bg-surface-alt rounded-lg text-base font-bold text-text-secondary border-none cursor-pointer"
-            >‹</button>
+            >
+              ‹
+            </button>
             <span className="text-xs sm:text-[13px] font-bold text-text-primary">
               {AZ_MONTHS[calMonth]} {calYear}
             </span>
             <button
-              onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear((y) => y + 1); } else setCalMonth((m) => m + 1); }}
+              onClick={() => {
+                if (calMonth === 11) {
+                  setCalMonth(0);
+                  setCalYear((y) => y + 1);
+                } else setCalMonth((m) => m + 1);
+              }}
               className="w-8 h-8 flex items-center justify-center bg-surface-alt rounded-lg text-base font-bold text-text-secondary border-none cursor-pointer"
-            >›</button>
+            >
+              ›
+            </button>
           </div>
           <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1.5">
             {["BE", "ÇA", "Ç", "CA", "C", "Ş", "B"].map((d, i) => (
-              <div key={i} className="text-center text-[9px] font-bold text-text-muted py-1">{d}</div>
+              <div
+                key={i}
+                className="text-center text-[9px] font-bold text-text-muted py-1"
+              >
+                {d}
+              </div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
@@ -469,28 +562,45 @@ export default function QuantityPage() {
               const maxDate = new Date(todayMidnight);
               maxDate.setDate(maxDate.getDate() + maxSlaughterDays);
               const cellDate = d ? new Date(calYear, calMonth, d) : null;
-              const disabled = !d || cellDate < todayMidnight || cellDate > maxDate;
-              const sel = d && selectedDate && cellDate.toDateString() === new Date(selectedDate).toDateString();
+              const disabled =
+                !d || cellDate < todayMidnight || cellDate > maxDate;
+              const sel =
+                d &&
+                selectedDate &&
+                cellDate.toDateString() ===
+                  new Date(selectedDate).toDateString();
               return (
                 <button
                   key={i}
                   disabled={!d || disabled}
-                  onClick={() => { if (d && !disabled) { setSelectedDate(cellDate); setShowCalendar(false); } }}
+                  onClick={() => {
+                    if (d && !disabled) {
+                      setSelectedDate(cellDate);
+                      setShowCalendar(false);
+                    }
+                  }}
                   className={`h-7 sm:h-8 rounded-lg border-none text-[11px] sm:text-xs font-medium transition-colors
-                    ${sel      ? "bg-primary text-white font-extrabold"
-                    : disabled  ? "text-border bg-transparent cursor-default"
-                                : "text-text-primary bg-transparent cursor-pointer hover:bg-surface-alt"}`}
-                >{d || ""}</button>
+                    ${
+                      sel
+                        ? "bg-primary text-white font-extrabold"
+                        : disabled
+                          ? "text-border bg-transparent cursor-default"
+                          : "text-text-primary bg-transparent cursor-pointer hover:bg-surface-alt"
+                    }`}
+                >
+                  {d || ""}
+                </button>
               );
             })}
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 
   const TimeSlotBlock = ({ cols = "grid-cols-3" }) => (
-    <div className={`p-3 grid ${cols} gap-2`}>
+    <div className={`p-2 grid ${cols} gap-1.5`}>
       {visibleWindows.map((slot) => (
         <button
           key={slot}
@@ -507,134 +617,176 @@ export default function QuantityPage() {
     </div>
   );
 
+  /* ─── Price Summary (desktop right col) ─── */
   const PriceSummary = () => (
-    <div className="bg-primary rounded-2xl p-4 sm:p-5 text-white shadow-[0_4px_20px_rgba(27,94,32,0.35)]">
-      <div className="text-[11px] sm:text-xs font-semibold opacity-75 mb-1">
-        Ümumi məbləğ
+    <div
+      className="rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(27,94,32,0.22)]"
+      style={{ background: "linear-gradient(145deg,#1B5E20 0%,#2E7D32 60%,#388E3C 100%)" }}
+    >
+      <div className="px-4 py-3 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[9px] font-bold text-white/50 uppercase tracking-[0.15em]">Ümumi məbləğ</p>
+          <div className="flex items-baseline gap-1 mt-0.5">
+            <span className="text-3xl font-black text-white tracking-tight leading-none">{totalPrice}</span>
+            <span className="text-base font-bold text-white/60">AZN</span>
+          </div>
+        </div>
+        <button
+          onClick={handleContinue}
+          className="flex-shrink-0 flex items-center gap-1.5 bg-white text-primary rounded-xl py-2 px-4 text-[13px] font-extrabold border-none cursor-pointer transition-all active:scale-[0.98] hover:bg-green-50 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+        >
+          Davam et <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+        </button>
       </div>
-      <div className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-1">
-        {totalPrice} AZN
-      </div>
-      <div className="text-[11px] sm:text-xs opacity-70 mb-4 leading-relaxed">
-        {mode === "serikli"
-          ? `${animal.nameAz} · ${qty}/${maxShares} pay${partsFee > 0 ? ` + baş/ayaq ${partsFee.toFixed(0)} AZN` : ""}`
-          : `${animal.nameAz} × ${qty} ədəd${selectedWeight ? ` · ${selectedWeight.labelAz || selectedWeight.label}` : ""}`}
-      </div>
-      <button
-        onClick={handleContinue}
-        className="w-full bg-white text-primary border-none rounded-xl py-3 text-sm font-extrabold cursor-pointer hover:bg-opacity-90 transition-all active:scale-[0.98]"
-      >
-        Davam et →
-      </button>
     </div>
   );
 
+  /* ─── Animal card inner content ─── */
+  const animalCard = () => (
+    <>
+      <div className="flex items-stretch min-h-[90px]">
+        <div className="w-[160px] sm:w-[190px] flex-shrink-0 overflow-hidden"
+          style={{ background: "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)" }}>
+          {animal.imageUrl ? (
+            <img src={animal.imageUrl} alt={animal.nameAz} className="w-full h-full object-cover" style={{ objectPosition: "center calc(50% - 15px)" }} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Beef className="w-8 h-8" style={{ color: "#1B5E20", opacity: 0.3 }} />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0 flex flex-col justify-between px-3 py-2.5">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-text-muted">Seçilmiş heyvan</p>
+            <h2 className="text-[15px] font-extrabold text-text-primary mt-0.5 leading-tight">{animal.nameAz}</h2>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-[22px] font-black text-primary leading-none tracking-tight">{effectivePrice}</span>
+              <span className="text-[11px] font-semibold text-text-muted ml-0.5">AZN{!isSingle ? " / əd." : ""}</span>
+            </div>
+          </div>
+          {!isSingle && (
+            <div className="flex items-center justify-between mt-1.5">
+              <span className="text-[9px] font-bold uppercase tracking-wide text-text-muted">Miqdar</span>
+              <div className="flex items-center gap-1.5">
+                <QtyBtn onClick={() => setQty((q) => Math.max(1, q - 1))} disabled={qty <= 1}>−</QtyBtn>
+                <span className="w-6 text-center text-lg font-black text-primary">{qty}</span>
+                <QtyBtn onClick={() => setQty((q) => mode === "serikli" ? Math.min(maxShares, q + 1) : Math.min(maxQty, q + 1))}
+                  disabled={(mode === "serikli" && qty >= maxShares) || (mode !== "serikli" && qty >= maxQty)}>+</QtyBtn>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      {!isSingle && (
+        <div className="flex items-center justify-between px-3 py-1.5 border-t border-[#f0f0f0]" style={{ background: "rgba(27,94,32,0.04)" }}>
+          <span className="text-[10px] text-text-muted font-medium">
+            {mode === "serikli" ? `${qty}/${maxShares} pay` : `${qty} × ${effectivePrice} AZN`}
+          </span>
+          <span className="text-[12px] font-extrabold text-primary">= {basePrice} AZN</span>
+        </div>
+      )}
+    </>
+  );
+
+  /* ─── Option row (radio style) ─── */
+  const Opt = ({ selected, onClick, label, sub, subGreen = false }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left cursor-pointer transition-all duration-150 border-2
+        ${selected ? "border-primary bg-primary-surface" : "border-border bg-[#f7f8f7] hover:bg-[#eef5ee]"}`}
+    >
+      <div
+        className={`w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all
+        ${selected ? "border-primary bg-primary" : "border-[#d1d5db]"}`}
+      >
+        {selected && <div className="w-1 h-1 rounded-full bg-white" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className={`text-[11px] font-semibold leading-none block ${selected ? "text-primary" : "text-text-primary"}`}>
+          {label}
+        </span>
+        {sub && (
+          <span className={`text-[9px] font-bold leading-none mt-0.5 block ${subGreen ? "text-emerald-600" : "text-primary"}`}>
+            {sub}
+          </span>
+        )}
+      </div>
+    </button>
+  );
+
+  /* ─── Weight pill ─── */
+  const WPill = ({ w }) => {
+    const lbl = w.labelAz || w.label || w.key;
+    const on =
+      selectedWeight?.key === w.key || selectedWeight?.labelAz === w.labelAz;
+    return (
+      <button
+        onClick={() => setSelectedWeight(w)}
+        className={`w-full h-full flex flex-col items-start gap-0.5 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border-2
+          ${on ? "border-primary bg-primary-surface text-primary" : "border-border bg-[#f7f8f7] text-text-primary hover:bg-[#eef5ee]"}`}
+      >
+        <span className="text-[11px] font-bold leading-tight">
+          {lbl} — {w.price} AZN
+        </span>
+        {getMeatWeight(lbl) && (
+          <span
+            className={`text-[9px] font-semibold ${on ? "text-primary/70" : "text-text-muted"}`}
+          >
+            {getMeatWeight(lbl)}
+          </span>
+        )}
+      </button>
+    );
+  };
+
   return (
-    <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Miqdar seçin" onBack={() => router.replace("/")} />
+    <div
+      className="flex flex-col flex-1 min-h-0"
+      style={{ background: "#f2f5f2" }}
+    >
+      {/* Info Modal */}
+      {modalMsg && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setModalMsg(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 mx-4 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-50 border-2 border-amber-200 mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-amber-500" />
+            </div>
+            <p className="text-center text-[15px] font-semibold text-text-primary mb-5">{modalMsg}</p>
+            <button
+              onClick={() => setModalMsg(null)}
+              className="w-full py-2.5 rounded-xl bg-primary text-white text-[13px] font-extrabold border-none cursor-pointer hover:opacity-90 transition-all"
+            >
+              Anladım
+            </button>
+          </div>
+        </div>
+      )}
       <StepHeader currentStep={1} />
 
-      <div className="flex-1 overflow-y-auto pb-24 xl:pb-6 pt-[124px] md:pt-4 xl:pt-0">
-        <div
-          className="max-w-full mx-auto px-0 sm:px-4 md:px-5 py-3 sm:py-4 xl:py-6
-                     xl:grid xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px]
-                     xl:gap-5 xl:items-start"
-        >
-          {/* ════ LEFT COLUMN ════ */}
-          <div className="flex flex-col gap-2 sm:gap-3 min-w-0">
-            {/* Animal card */}
-            <Card>
-              <div className="flex items-center min-w-0 p-3 gap-3">
-                <div className="w-36 h-24 sm:w-44 sm:h-28 md:w-52 md:h-32 flex-shrink-0 bg-surface-alt overflow-hidden rounded-xl">
-                  {animal.imageUrl ? (
-                    <img
-                      src={animal.imageUrl}
-                      alt={animal.nameAz}
-                      className="w-full h-full object-cover object-center"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-text-muted">
-                      <Beef className="w-10 h-10 opacity-30" />
-                    </div>
-                  )}
-                </div>
+      {/* ── Scrollable body ── */}
+      <div
+        className="order-scroll flex-1 overflow-y-auto min-h-0 flex flex-col"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "#1B5E20 transparent",
+        }}
+      >
+        <div className="p-2.5 xl:p-4">
+          <h2 className="text-base font-bold text-text-primary mb-2 lg:hidden">Miqdar seçin</h2>
+          {/* ══ LEFT — mobile only ══ */}
+          <div className="flex flex-col gap-2 xl:hidden">
+            {/* Animal hero card */}
+            <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
+              {animalCard()}
+            </div>
 
-                {isSingle ? (
-                  <div className="flex-1 min-w-0 flex flex-col justify-center gap-2 self-stretch py-1">
-                    <div className="text-xl sm:text-2xl font-extrabold text-text-primary leading-tight">
-                      {animal.nameAz}
-                    </div>
-                    <div className="text-3xl sm:text-4xl font-extrabold text-primary leading-none">
-                      {effectivePrice} AZN
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex-1 min-w-0 flex flex-col justify-between gap-3 self-stretch py-1">
-                    <div>
-                      <div className="text-base sm:text-lg font-extrabold text-text-primary leading-tight">
-                        {animal.nameAz}
-                      </div>
-                      <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-2xl sm:text-3xl font-extrabold text-primary">
-                          {effectivePrice} AZN
-                        </span>
-                        <span className="text-[10px] sm:text-xs text-text-secondary">
-                          / ədəd
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-wide">
-                        Miqdar
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <QtyBtn
-                          onClick={() => setQty((q) => Math.max(1, q - 1))}
-                          disabled={qty <= 1}
-                        >
-                          −
-                        </QtyBtn>
-                        <span className="w-7 text-center text-2xl font-extrabold text-primary leading-none">
-                          {qty}
-                        </span>
-                        <QtyBtn
-                          onClick={() =>
-                            setQty((q) =>
-                              mode === "serikli"
-                                ? Math.min(maxShares, q + 1)
-                                : Math.min(maxQty, q + 1),
-                            )
-                          }
-                          disabled={(mode === "serikli" && qty >= maxShares) || (mode !== "serikli" && qty >= maxQty)}
-                        >
-                          +
-                        </QtyBtn>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {!isSingle && (
-                <div className="px-4 py-2.5 bg-surface-alt border-t border-border flex items-center justify-between gap-2">
-                  <span className="text-xs text-text-secondary font-medium">
-                    {mode === "serikli"
-                      ? `${qty}/${maxShares} pay`
-                      : `${qty} × ${effectivePrice} AZN`}
-                  </span>
-                  <span className="text-sm font-extrabold text-primary whitespace-nowrap">
-                    Cəmi: {basePrice} AZN
-                  </span>
-                </div>
-              )}
-            </Card>
-
+            {/* Sifariş növü */}
             {!animal.orderMode &&
               animal.totalShares > 1 &&
               animal.serikliEnabled && (
-                <Card>
-                  <CardHead label="Sifariş növü" />
-                  <div className="p-3 flex gap-2">
+                <S label="Sifariş növü">
+                  <div className="p-2 flex gap-2">
                     {[
                       { k: "tam", l: "Tam heyvan" },
                       { k: "serikli", l: `Şərikli (/${maxShares})` },
@@ -642,193 +794,88 @@ export default function QuantityPage() {
                       <button
                         key={m.k}
                         onClick={() => setMode(m.k)}
-                        className={`flex-1 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-bold border-2 transition-all cursor-pointer ${
-                          mode === m.k
-                            ? "border-primary bg-primary text-white"
-                            : "border-border bg-surface-alt text-text-secondary"
-                        }`}
+                        className={`flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-150 cursor-pointer
+                        ${mode === m.k ? "bg-primary text-white shadow-[0_2px_8px_rgba(27,94,32,0.25)]" : "bg-[#f7f8f7] text-text-secondary hover:bg-[#eef5ee]"}`}
                       >
                         {m.l}
                       </button>
                     ))}
                   </div>
-                </Card>
+                </S>
               )}
 
+            {/* Diri çəki — mobile only */}
             {weights.length > 0 && (
-              <Card className="xl:hidden">
-                <CardHead label="DİRİ ÇƏKİ KATEQORİYASI" />
-                <div className="p-3 grid grid-cols-2 gap-2">
-                  {weights.map((w) => {
-                    const lbl = w.labelAz || w.label || w.key;
-                    const isSel =
-                      selectedWeight?.key === w.key ||
-                      selectedWeight?.labelAz === w.labelAz;
-                    return (
-                      <button
-                        key={w.key || lbl}
-                        onClick={() => setSelectedWeight(w)}
-                        className={`px-3 py-2 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-0.5 ${
-                          isSel
-                            ? "border-primary bg-primary-surface text-primary"
-                            : "border-border bg-surface-alt text-text-primary"
-                        }`}
-                      >
-                        <span className="text-[10px] sm:text-[11px] font-bold">
-                          {lbl} — {w.price} AZN
-                        </span>
-                        {getMeatWeight(lbl) && (
-                          <span
-                            className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}
-                          >
-                            {getMeatWeight(lbl)}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+              <S label="Diri çəki kateqoriyası" hideOnXl>
+                <div className="p-2 grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                  {weights.map((w) => (
+                    <WPill key={w.key || w.labelAz} w={w} />
+                  ))}
                 </div>
-              </Card>
+              </S>
             )}
 
+            {/* Doğrama üsulu + Baş və Ayaqlar — alt-alta */}
             {effectiveCutStyles.length > 0 && (
-              <Card className={cutStyleError ? "ring-2 ring-red-400" : ""}>
-                <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-2 flex-wrap">
-                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide">
-                    DOĞRAMA ÜSULU
-                  </span>
+              <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
+                <div className="p-3 grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {effectiveCutStyles.map((cs) => (
+                    <Opt
+                      key={cs.key}
+                      selected={(cutStyles[cs.key] || 0) > 0}
+                      onClick={() => {
+                        if ((cutStyles[cs.key] || 0) > 0) return;
+                        setCutStyles(() => {
+                          const z = Object.fromEntries(
+                            effectiveCutStyles.map((c) => [c.key, 0]),
+                          );
+                          return { ...z, [cs.key]: qty };
+                        });
+                      }}
+                      label={cs.labelAz}
+                      sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"}
+                      subGreen={cs.fee === 0}
+                    />
+                  ))}
                 </div>
-
-                {cutStyleError && (
-                  <div className="mx-3 mt-3 px-3 py-2 bg-red-50 border border-red-200 rounded-xl">
-                    <p className="text-[11px] sm:text-xs font-bold text-red-600">
-                      <AlertTriangle className="w-3.5 h-3.5 inline-block mr-1 flex-shrink-0" />
-                      Doğrama üsulu seçin. Xanı boş ola bilməz.
-                    </p>
-                  </div>
-                )}
-
-                <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {effectiveCutStyles.map((cs) => {
-                    const isSelected = (cutStyles[cs.key] || 0) > 0;
-                    return (
-                      <button
-                        key={cs.key}
-                        type="button"
-                        onClick={() =>
-                          setCutStyles(() => {
-                            const allZero = Object.fromEntries(
-                              effectiveCutStyles.map((c) => [c.key, 0]),
-                            );
-                            return { ...allZero, [cs.key]: qty };
-                          })
-                        }
-                        className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
-                          isSelected
-                            ? "border-primary bg-primary-surface"
-                            : "border-border bg-surface-alt"
-                        }`}
-                      >
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <span className="text-[11px] sm:text-xs font-semibold text-text-primary leading-tight">
-                            {cs.labelAz}
-                          </span>
-                          {cs.fee > 0 && (
-                            <span className="text-[10px] text-primary font-bold">
-                              +{cs.fee * qty} AZN
-                            </span>
-                          )}
-                        </div>
-                        <div
-                          className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
-                            isSelected ? "border-primary" : "border-slate-300"
-                          }`}
-                        >
-                          {isSelected && (
-                            <div className="w-2 h-2 rounded-full bg-primary" />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </Card>
+              </S>
             )}
 
             {needsHead && (
-              <Card className={partsError ? "ring-2 ring-red-400" : ""}>
-                <div className="px-3 sm:px-4 py-3 border-b border-border">
-                  <span className="text-[10px] sm:text-xs font-bold text-text-secondary tracking-wide uppercase">
-                    Baş & Ayaqlar
-                  </span>
-                </div>
-                {partsError && (
-                  <div className="mx-3 mt-3 px-3 py-2 bg-red-50 border border-red-200 rounded-xl">
-                    <p className="text-[11px] sm:text-xs font-bold text-red-600">
-                      <AlertTriangle className="w-3.5 h-3.5 inline-block mr-1 flex-shrink-0" />
-                      Baş & ayaqlar üçün bir seçim edin.
-                    </p>
-                  </div>
-                )}
-                <div className="p-3 flex flex-col gap-2">
+              <S label="Baş və Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                <div className="p-3 grid grid-cols-2 md:grid-cols-3 gap-2">
                   {activeHeadOptions.map((opt) => {
-                    const isSelected = (headBuckets[opt.key] || 0) > 0;
+                    const on = (headBuckets[opt.key] || 0) > 0;
                     const fee = opt.fee || 0;
                     return (
-                      <button
+                      <Opt
                         key={opt.key}
-                        type="button"
+                        selected={on}
                         onClick={() => {
-                          const headAllZero = Object.fromEntries(Object.keys(headBuckets).map((k) => [k, 0]));
-                          const feetAllZero = Object.fromEntries(Object.keys(feetBuckets).map((k) => [k, 0]));
-                          if (isSelected) {
-                            setHeadBuckets(headAllZero);
-                            setFeetBuckets(feetAllZero);
-                          } else {
-                            setHeadBuckets({ ...headAllZero, [opt.key]: headTotal });
-                            setFeetBuckets({ ...feetAllZero, [opt.key]: feetTotal });
-                          }
+                          if (on) return;
+                          const hZ = Object.fromEntries(
+                            Object.keys(headBuckets).map((k) => [k, 0]),
+                          );
+                          const fZ = Object.fromEntries(
+                            Object.keys(feetBuckets).map((k) => [k, 0]),
+                          );
+                          setHeadBuckets({ ...hZ, [opt.key]: headTotal });
+                          setFeetBuckets({ ...fZ, [opt.key]: feetTotal });
                         }}
-                        className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all text-left w-full cursor-pointer ${
-                          isSelected
-                            ? "border-primary bg-primary-surface"
-                            : "border-border bg-surface-alt"
-                        }`}
-                      >
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <span className="text-[11px] sm:text-xs font-semibold text-text-primary leading-tight">
-                            {opt.labelAz}
-                          </span>
-                          <span className={`text-[10px] font-bold ${fee > 0 ? "text-primary" : "text-emerald-600"}`}>
-                            {fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
-                          </span>
-                        </div>
-                        <div
-                          className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ml-3 flex items-center justify-center transition-all ${
-                            isSelected ? "border-primary" : "border-slate-300"
-                          }`}
-                        >
-                          {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
-                        </div>
-                      </button>
+                        label={opt.labelAz}
+                        sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
+                        subGreen={fee === 0}
+                      />
                     );
                   })}
                 </div>
-              </Card>
+              </S>
             )}
 
-            <div className="xl:hidden flex flex-col gap-3">
-              <Card>
-                <CardHead label="Kəsim tarixi" Icon={CalendarDays} />
-                <CalendarBlock />
-              </Card>
-              <Card>
-                <CardHead label="Çatdırılma vaxtı" Icon={Clock} />
-                <TimeSlotBlock cols="grid-cols-3" />
-              </Card>
-              <Card>
-                <CardHead label="Qeydlər" />
-                <div className="p-3">
+            {/* Qeydlər — mobile-da Doğrama+Baş altında */}
+            <div className="xl:hidden">
+              <S label="Qeydlər">
+                <div className="p-2">
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -837,100 +884,138 @@ export default function QuantityPage() {
                     className="field-input resize-none w-full text-sm"
                   />
                 </div>
-              </Card>
+              </S>
+            </div>
+
+            {/* Date / Time — mobile */}
+            <div className="xl:hidden flex flex-col gap-2">
+              <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
+                {CalendarBlock()}
+              </S>
+              <S label="Çatdırılma vaxtı" Icon={Clock}>
+                {TimeSlotBlock({ cols: "grid-cols-3" })}
+              </S>
             </div>
           </div>
 
-          {/* ════ RIGHT COLUMN — xl+ only ════ */}
-          <div className="hidden xl:flex flex-col gap-3">
-            {weights.length > 0 && (
-              <Card>
-                <CardHead label="DİRİ ÇƏKİ KATEQORİYASI" />
-                <div className="p-3 grid grid-cols-2 gap-2">
-                  {weights.map((w) => {
-                    const lbl = w.labelAz || w.label || w.key;
-                    const isSel =
-                      selectedWeight?.key === w.key ||
-                      selectedWeight?.labelAz === w.labelAz;
-                    return (
-                      <button
-                        key={w.key || lbl}
-                        onClick={() => setSelectedWeight(w)}
-                        className={`px-3 py-2 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-0.5 ${
-                          isSel
-                            ? "border-primary bg-primary-surface text-primary"
-                            : "border-border bg-surface-alt text-text-primary"
-                        }`}
-                      >
-                        <span className="text-[10px] sm:text-[11px] font-bold">
-                          {lbl} — {w.price} AZN
-                        </span>
-                        {getMeatWeight(lbl) && (
-                          <span
-                            className={`text-[9px] font-semibold ${isSel ? "text-primary" : "text-text-muted"}`}
-                          >
-                            {getMeatWeight(lbl)}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </Card>
-            )}
-            <Card>
-              <CardHead label="Kəsim tarixi" Icon={CalendarDays} />
-              <CalendarBlock />
-            </Card>
-            <Card>
-              <CardHead label="Çatdırılma vaxtı" Icon={Clock} />
-              <TimeSlotBlock cols="grid-cols-2" />
-            </Card>
-            <Card>
-              <CardHead label="Qeydlər" />
-              <div className="p-3">
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Xüsusi istəklərinizi qeyd edin..."
-                  rows={3}
-                  className="field-input resize-none w-full text-sm"
-                />
+          {/* ══ DESKTOP xl+ — 3-col flat grid ══ */}
+          {weights.length > 0 ? (
+            <div className="hidden xl:grid xl:grid-cols-[320px_1fr_minmax(280px,320px)] xl:gap-3 xl:items-stretch">
+              {/* ── Row 1 ── */}
+              {/* Col 1: Animal */}
+              <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
+                {animalCard()}
               </div>
-            </Card>
-            <PriceSummary />
-          </div>
+              {/* Col 2: Diri çəki */}
+              <S label="Diri çəki kateqoriyası">
+                <div className="p-2 grid grid-cols-2 gap-1.5">
+                  {weights.map((w) => <WPill key={w.key || w.labelAz} w={w} />)}
+                </div>
+              </S>
+              {/* Col 3 Row 1: Kəsim tarixi */}
+              <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
+                {CalendarBlock()}
+              </S>
+
+              {/* ── Row 2 ── */}
+              {/* Col 1: Doğrama üsulu (or spacer) */}
+              {effectiveCutStyles.length > 0 ? (
+                <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
+                  <div className="p-3 grid grid-cols-2 gap-2">
+                    {effectiveCutStyles.map((cs) => (
+                      <Opt key={cs.key} selected={(cutStyles[cs.key] || 0) > 0}
+                        onClick={() => { if ((cutStyles[cs.key] || 0) > 0) return; setCutStyles(() => { const z = Object.fromEntries(effectiveCutStyles.map((c) => [c.key, 0])); return { ...z, [cs.key]: qty }; }); }}
+                        label={cs.labelAz} sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"} subGreen={cs.fee === 0} />
+                    ))}
+                  </div>
+                </S>
+              ) : <div />}
+              {/* Col 2 Row 2: Qeydlər */}
+              <S label="Qeydlər">
+                <div className="p-2 h-full">
+                  <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Xüsusi istəklərinizi qeyd edin..." rows={4}
+                    className="field-input resize-none w-full h-full text-sm" />
+                </div>
+              </S>
+              {/* Col 3 Row 2: Çatdırılma vaxtı */}
+              <S label="Çatdırılma vaxtı" Icon={Clock}>
+                {TimeSlotBlock({ cols: "grid-cols-2" })}
+              </S>
+
+              {/* ── Row 3 ── */}
+              {/* Col 1: Baş və Ayaqlar (or spacer) */}
+              {needsHead ? (
+                <S label="Baş və Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                  <div className="p-3 grid grid-cols-2 gap-2">
+                    {activeHeadOptions.map((opt) => {
+                      const on = (headBuckets[opt.key] || 0) > 0;
+                      const fee = opt.fee || 0;
+                      return (
+                        <Opt key={opt.key} selected={on}
+                          onClick={() => { if (on) return; const hZ = Object.fromEntries(Object.keys(headBuckets).map((k) => [k, 0])); const fZ = Object.fromEntries(Object.keys(feetBuckets).map((k) => [k, 0])); setHeadBuckets({ ...hZ, [opt.key]: headTotal }); setFeetBuckets({ ...fZ, [opt.key]: feetTotal }); }}
+                          label={opt.labelAz} sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"} subGreen={fee === 0} />
+                      );
+                    })}
+                  </div>
+                </S>
+              ) : <div />}
+              {/* Col 2 Row 3: spacer */}
+              <div />
+              {/* Col 3 Row 3: PriceSummary */}
+              {PriceSummary()}
+            </div>
+          ) : (
+            <div className="hidden xl:grid xl:grid-cols-[300px_1fr] xl:gap-3 xl:items-start">
+              {/* No weights: animal + right col */}
+              <div className="flex flex-col gap-2">
+                <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_8px_rgba(0,0,0,0.04)]">
+                  {animalCard()}
+                </div>
+                {effectiveCutStyles.length > 0 && (
+                  <S label="Doğrama üsulu" error={cutStyleError ? "Seçim edin" : null}>
+                    <div className="p-3 grid grid-cols-2 gap-2">
+                      {effectiveCutStyles.map((cs) => (
+                        <Opt key={cs.key} selected={(cutStyles[cs.key] || 0) > 0}
+                          onClick={() => { if ((cutStyles[cs.key] || 0) > 0) return; setCutStyles(() => { const z = Object.fromEntries(effectiveCutStyles.map((c) => [c.key, 0])); return { ...z, [cs.key]: qty }; }); }}
+                          label={cs.labelAz} sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"} subGreen={cs.fee === 0} />
+                      ))}
+                    </div>
+                  </S>
+                )}
+                {needsHead && (
+                  <S label="Baş və Ayaqlar" error={partsError ? "Seçim edin" : null}>
+                    <div className="p-3 grid grid-cols-2 gap-2">
+                      {activeHeadOptions.map((opt) => {
+                        const on = (headBuckets[opt.key] || 0) > 0;
+                        const fee = opt.fee || 0;
+                        return (
+                          <Opt key={opt.key} selected={on}
+                            onClick={() => { if (on) return; const hZ = Object.fromEntries(Object.keys(headBuckets).map((k) => [k, 0])); const fZ = Object.fromEntries(Object.keys(feetBuckets).map((k) => [k, 0])); setHeadBuckets({ ...hZ, [opt.key]: headTotal }); setFeetBuckets({ ...fZ, [opt.key]: feetTotal }); }}
+                            label={opt.labelAz} sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"} subGreen={fee === 0} />
+                        );
+                      })}
+                    </div>
+                  </S>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <S label="Kəsim tarixi" Icon={CalendarDays} overflow="visible">
+                  {CalendarBlock()}
+                </S>
+                <S label="Çatdırılma vaxtı" Icon={Clock}>
+                  {TimeSlotBlock({ cols: "grid-cols-2" })}
+                </S>
+                {PriceSummary()}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ════ MOBILE action bar ════ */}
-      <div className="fixed-action-bar xl:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 z-[9999]">
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col flex-1 min-w-0">
-            <span className="text-[10px] sm:text-xs text-text-secondary font-medium">
-              Cəmi məbləğ
-            </span>
-            <span className="text-xl sm:text-2xl font-extrabold text-primary leading-tight">
-              {totalPrice} AZN
-            </span>
-            {!isSingle &&
-              (mode === "serikli" ? (
-                <span className="text-[10px] text-text-muted truncate">
-                  {qty}/{maxShares} pay
-                </span>
-              ) : (
-                <span className="text-[10px] text-text-muted truncate">
-                  {qty} × {effectivePrice} AZN
-                </span>
-              ))}
-          </div>
-          <button
-            onClick={handleContinue}
-            className="flex-shrink-0 bg-primary text-white rounded-2xl py-3.5 px-6 sm:px-8 text-sm font-extrabold border-none cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
-          >
-            Davam et →
-          </button>
-        </div>
+      {/* ══ Mobile sticky price bar ══ */}
+      <div className="xl:hidden shrink-0 p-2.5 pt-2" style={{ background: "#f2f5f2" }}>
+        {PriceSummary()}
       </div>
     </div>
   );

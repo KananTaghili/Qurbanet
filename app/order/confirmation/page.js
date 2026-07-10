@@ -61,7 +61,7 @@ export default function ConfirmationPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-bg">
-      <div className="flex-1 page-scroll">
+      <div className="flex-1 min-h-0 overflow-y-auto pb-[210px] lg:pb-0">
         <div className="max-w-[520px] mx-auto p-4 flex flex-col gap-4">
 
           {/* Success circle */}

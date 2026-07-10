@@ -1,33 +1,66 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import {
-  Lock, User, Eye, EyeOff, Phone, Mail, CheckCircle,
-  AlertCircle, LogOut, ChevronRight, Shield, IdCard, Pencil, X,
+  Lock, User, Eye, EyeOff, Phone, Mail,
+  CheckCircle, AlertCircle, LogOut, Pencil, X, ArrowLeft, Shield,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
-import BackHeader from "../../components/BackHeader";
-import BottomNav from "../../components/BottomNav";
 
-function PasswordInput({ value, onChange, placeholder, show, onToggle, autoFocus }) {
+const RED = "#f20b32";
+const RED_BG = "#fff1f3";
+
+/* ─── tiny helpers ─────────────────────────────────── */
+function Spinner() {
+  return <span style={{ width: 14, height: 14, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", display: "inline-block", animation: "spin .7s linear infinite" }} />;
+}
+
+function Alert({ ok, msg }) {
   return (
-    <div className="relative">
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 13px", borderRadius: 10, fontSize: 12, fontWeight: 600, background: ok ? "#f0fdf4" : "#fff1f3", border: `1px solid ${ok ? "#bbf7d0" : "#ffd0d8"}`, color: ok ? "#15803d" : "#b91c1c" }}>
+      {ok ? <CheckCircle size={13} style={{ flexShrink: 0 }} /> : <AlertCircle size={13} style={{ flexShrink: 0 }} />}
+      {msg}
+    </div>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", letterSpacing: "0.06em", marginBottom: 5 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+function TextInput({ value, onChange, placeholder, name, autoComplete, autoFocus }) {
+  return (
+    <input
+      type="text" value={value} onChange={onChange} placeholder={placeholder}
+      name={name} autoComplete={autoComplete} autoFocus={autoFocus}
+      style={{ width: "100%", height: 42, boxSizing: "border-box", border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "0 13px", fontSize: 13, fontFamily: "inherit", outline: "none", background: "#f9fafb", color: "#111827", transition: "border-color .15s" }}
+      onFocus={e => e.target.style.borderColor = RED}
+      onBlur={e => e.target.style.borderColor = "#e5e7eb"}
+    />
+  );
+}
+
+function PasswordInput({ value, onChange, placeholder, name, autoComplete, autoFocus }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div style={{ position: "relative" }}>
       <input
-        type={show ? "text" : "password"}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        autoFocus={autoFocus}
-        maxLength={128}
-        className="w-full bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 pr-11 text-sm text-text-primary placeholder:text-text-muted outline-none font-medium transition-all focus:border-primary focus:bg-white"
+        type={show ? "text" : "password"} value={value} onChange={onChange}
+        placeholder={placeholder} name={name} autoComplete={autoComplete} autoFocus={autoFocus}
+        style={{ width: "100%", height: 42, boxSizing: "border-box", border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "0 42px 0 13px", fontSize: 13, fontFamily: "inherit", outline: "none", background: "#f9fafb", color: "#111827", transition: "border-color .15s" }}
+        onFocus={e => e.target.style.borderColor = RED}
+        onBlur={e => e.target.style.borderColor = "#e5e7eb"}
       />
-      <button
-        type="button"
-        onClick={onToggle}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
-      >
-        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      <button type="button" onClick={() => setShow(v => !v)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0, display: "flex" }}>
+        {show ? <EyeOff size={15} /> : <Eye size={15} />}
       </button>
     </div>
   );
@@ -35,373 +68,291 @@ function PasswordInput({ value, onChange, placeholder, show, onToggle, autoFocus
 
 function InfoRow({ icon: Icon, label, value }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-primary-surface flex items-center justify-center flex-shrink-0">
-        <Icon size={16} className="text-primary" />
+    <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "12px 18px", borderBottom: "1px solid #f5f5f7" }}>
+      <div style={{ width: 30, height: 30, borderRadius: 8, background: RED_BG, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <Icon size={13} color={RED} />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[11px] text-text-secondary font-semibold uppercase tracking-wide mb-0.5">{label}</p>
-        <p className="text-sm font-bold text-text-primary truncate">{value || "—"}</p>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em" }}>{label}</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value || "—"}</div>
       </div>
     </div>
   );
 }
 
-function PasswordCard({ onSuccess }) {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword]         = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrent, setShowCurrent]         = useState(false);
-  const [showNew, setShowNew]                 = useState(false);
-  const [showConfirm, setShowConfirm]         = useState(false);
-  const [loading, setLoading]                 = useState(false);
-  const [error, setError]                     = useState("");
-  const [success, setSuccess]                 = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(""); setSuccess("");
-    if (!currentPassword)                        { setError("Cari şifrənizi daxil edin."); return; }
-    if (!newPassword || newPassword.length < 6)  { setError("Yeni şifrə ən az 6 simvol olmalıdır."); return; }
-    if (newPassword !== confirmPassword)          { setError("Yeni şifrələr uyğun gəlmir."); return; }
-    if (currentPassword === newPassword)          { setError("Yeni şifrə cari şifrə ilə eyni ola bilməz."); return; }
-    setLoading(true);
-    try {
-      await api.put("/auth/profile", { currentPassword, password: newPassword });
-      setSuccess("Şifrə uğurla yeniləndi!");
-      setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
-      setTimeout(() => setSuccess(""), 3000);
-      onSuccess?.();
-    } catch (err) {
-      setError(err.response?.data?.message || "Şifrə dəyişdirilə bilmədi. Yenidən cəhd edin.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+/* ─── Card shell ────────────────────────────────────── */
+function CardShell({ children, fullHeight }) {
   return (
-    <div className="bg-surface rounded-2xl shadow-card border border-border overflow-hidden h-fit">
-      <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
-          <Lock size={15} className="text-primary" />
-        </div>
-        <div>
-          <p className="text-sm font-extrabold text-text-primary">Şifrəni Dəyiş</p>
-          <p className="text-[11px] text-text-secondary">Güclü şifrə istifadə edin</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
-        <div>
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
-            Cari Şifrə *
-          </label>
-          <PasswordInput
-            value={currentPassword}
-            onChange={(e) => { setCurrentPassword(e.target.value); setError(""); }}
-            placeholder="Cari şifrənizi daxil edin"
-            show={showCurrent}
-            onToggle={() => setShowCurrent((v) => !v)}
-          />
-        </div>
-
-        <div>
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
-            Yeni Şifrə *
-          </label>
-          <PasswordInput
-            value={newPassword}
-            onChange={(e) => { setNewPassword(e.target.value); setError(""); }}
-            placeholder="Ən az 6 simvol"
-            show={showNew}
-            onToggle={() => setShowNew((v) => !v)}
-          />
-        </div>
-
-        <div>
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">
-            Şifrəni Təsdiqlə *
-          </label>
-          <PasswordInput
-            value={confirmPassword}
-            onChange={(e) => { setConfirmPassword(e.target.value); setError(""); }}
-            placeholder="Yeni şifrənizi yenidən daxil edin"
-            show={showConfirm}
-            onToggle={() => setShowConfirm((v) => !v)}
-          />
-        </div>
-
-        {error && (
-          <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
-            <AlertCircle size={16} className="flex-shrink-0" />
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-semibold px-4 py-3 rounded-xl">
-            <CheckCircle size={16} className="flex-shrink-0" />
-            {success}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-white font-extrabold text-sm py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
-          style={{ boxShadow: "0 4px 14px rgba(27,94,32,0.25)" }}
-        >
-          {loading ? (
-            <>
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Yadda saxlanır...
-            </>
-          ) : (
-            <>
-              <Lock size={15} />
-              Şifrəni Yenilə
-            </>
-          )}
-        </button>
-      </form>
+    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #ebebeb", boxShadow: "0 2px 10px rgba(0,0,0,.06)", overflow: "hidden", ...(fullHeight ? { display: "flex", flexDirection: "column", height: "100%" } : {}) }}>
+      {children}
     </div>
   );
 }
 
-function AccountCard({ user, updateUser }) {
-  const [editing, setEditing] = useState(false);
-  const [name, setName]         = useState(user.name || "");
-  const [lastName, setLastName] = useState(user.lastName || "");
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState("");
-  const [success, setSuccess]   = useState("");
+function CardHead({ icon: Icon, title, sub, action }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 18px", background: "#fafafa", borderBottom: "1px solid #f0f0f0", flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 9, background: RED_BG, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Icon size={14} color={RED} />
+        </div>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: "#111827" }}>{title}</div>
+          {sub && <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>{sub}</div>}
+        </div>
+      </div>
+      {action}
+    </div>
+  );
+}
 
-  const handleSave = async (e) => {
+/* ─── Account card ──────────────────────────────────── */
+const LETTERS_RE = /^[a-zA-ZüöğışçəÜÖĞIŞÇƏ\s'-]+$/;
+
+function AccountCard({ user, updateUser, fullHeight }) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(user.name || "");
+  const [lastName, setLastName] = useState(user.lastName || "");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const hasChanges = name.trim() !== (user.name || "").trim() || lastName.trim() !== (user.lastName || "").trim();
+
+  const save = async (e) => {
     e.preventDefault();
     setError("");
-    if (!name.trim() || name.trim().length < 2)         { setError("Ad ən az 2 simvol olmalıdır."); return; }
-    if (!lastName.trim() || lastName.trim().length < 2) { setError("Soyad ən az 2 simvol olmalıdır."); return; }
+    if (!hasChanges) return;
+    if (name.trim().length < 2) { setError("Ad ən az 2 simvol olmalıdır."); return; }
+    if (!LETTERS_RE.test(name.trim())) { setError("Ad yalnız hərflərdən ibarət olmalıdır."); return; }
+    if (lastName.trim() && !LETTERS_RE.test(lastName.trim())) { setError("Soyad yalnız hərflərdən ibarət olmalıdır."); return; }
     setLoading(true);
     try {
       await api.put("/auth/profile", { name: name.trim(), lastName: lastName.trim() });
       updateUser({ name: name.trim(), lastName: lastName.trim() });
-      setSuccess("Məlumatlar yeniləndi!");
-      setEditing(false);
+      setSuccess("Məlumatlar yeniləndi!"); setEditing(false);
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err.response?.data?.message || "Xəta baş verdi.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { setError(err.response?.data?.message || "Xəta baş verdi."); }
+    finally { setLoading(false); }
   };
 
-  const handleCancel = () => {
-    setName(user.name || "");
-    setLastName(user.lastName || "");
-    setError("");
-    setEditing(false);
-  };
+  const cancel = () => { setName(user.name || ""); setLastName(user.lastName || ""); setError(""); setEditing(false); };
 
   return (
-    <div className="bg-surface rounded-2xl shadow-card border border-border overflow-hidden h-fit">
-      <div className="px-5 py-4 border-b border-border bg-surface-alt/40 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-primary-surface flex items-center justify-center">
-            <IdCard size={15} className="text-primary" />
-          </div>
-          <p className="text-sm font-extrabold text-text-primary">Hesab Məlumatları</p>
-        </div>
-        {!editing && (
-          <button
-            onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors px-2.5 py-1.5 rounded-xl hover:bg-primary-surface"
-          >
-            <Pencil size={13} />
-            Redaktə et
+    <CardShell fullHeight={fullHeight}>
+      <CardHead icon={User} title="Hesab məlumatları" sub="Ad, soyad, əlaqə"
+        action={!editing && (
+          <button onClick={() => setEditing(true)} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, color: RED, background: RED_BG, border: "none", borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>
+            <Pencil size={11} /> Redaktə
           </button>
         )}
-      </div>
+      />
 
       {editing ? (
-        <form onSubmit={handleSave} className="p-5 flex flex-col gap-4">
-          <div>
-            <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">Ad *</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => { setName(e.target.value); setError(""); }}
-              placeholder="Adınızı daxil edin"
-              autoFocus
-              className="w-full bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted outline-none font-medium transition-all focus:border-primary focus:bg-white"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1.5 block">Soyad *</label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => { setLastName(e.target.value); setError(""); }}
-              placeholder="Soyadınızı daxil edin"
-              className="w-full bg-surface-alt border-2 border-border rounded-2xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted outline-none font-medium transition-all focus:border-primary focus:bg-white"
-            />
-          </div>
-          <InfoRow icon={Phone} label="Telefon" value={user.phone} />
-          {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
-
-          {error && (
-            <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
-              <AlertCircle size={16} className="flex-shrink-0" />
-              {error}
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="flex-1 py-3 rounded-2xl border-2 border-border bg-surface text-sm font-bold text-text-secondary hover:border-primary/30 transition-all flex items-center justify-center gap-2"
-            >
-              <X size={15} />
-              Ləğv et
+        /* ── Edit form ── */
+        <div style={{ flex: 1, padding: "16px 18px", display: "flex", flexDirection: "column", gap: 11, overflowY: "auto" }} className="no-sb">
+          <Field label="AD *">
+            <TextInput value={name} onChange={e => { const v = e.target.value; if (v === "" || LETTERS_RE.test(v)) { setName(v); setError(""); } }} placeholder="Adınızı daxil edin" name="given-name" autoComplete="given-name" autoFocus />
+          </Field>
+          <Field label="SOYAD">
+            <TextInput value={lastName} onChange={e => { const v = e.target.value; if (v === "" || LETTERS_RE.test(v)) { setLastName(v); setError(""); } }} placeholder="Soyadınızı daxil edin" name="family-name" autoComplete="family-name" />
+          </Field>
+          {error && <Alert msg={error} />}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button type="button" onClick={cancel} style={{ flex: 1, height: 40, borderRadius: 10, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontFamily: "inherit" }}>
+              <X size={12} /> Ləğv et
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-primary text-white font-extrabold text-sm py-3 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-primary/90 disabled:opacity-60"
-            >
-              {loading ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <CheckCircle size={15} />
-              )}
-              Yadda saxla
+            <button onClick={save} disabled={loading || !hasChanges} style={{ flex: 1, height: 40, borderRadius: 10, border: "none", background: (loading || !hasChanges) ? "#9ca3af" : RED, color: "#fff", fontSize: 12, fontWeight: 800, cursor: (loading || !hasChanges) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontFamily: "inherit", boxShadow: (loading || !hasChanges) ? "none" : "0 3px 10px rgba(242,11,50,.22)", opacity: !hasChanges && !loading ? 0.6 : 1 }}>
+              {loading ? <Spinner /> : <><CheckCircle size={12} /> Yadda saxla</>}
             </button>
           </div>
-        </form>
+          {/* Contact info at bottom — same style as InfoRow */}
+          <div style={{ borderTop: "1px solid #f3f4f6", margin: "0 -18px -16px" }}>
+            {user.phone && <InfoRow icon={Phone} label="Telefon" value={user.phone} />}
+            {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
+          </div>
+        </div>
       ) : (
+        /* ── Display mode ── */
         <>
-          <InfoRow icon={User}  label="Ad"      value={user.name} />
-          <InfoRow icon={User}  label="Soyad"   value={user.lastName} />
-          <InfoRow icon={Phone} label="Telefon" value={user.phone} />
+          <InfoRow icon={User} label="Ad" value={user.name} />
+          <InfoRow icon={User} label="Soyad" value={user.lastName} />
+          {user.phone && <InfoRow icon={Phone} label="Telefon" value={user.phone} />}
           {user.email && <InfoRow icon={Mail} label="Email" value={user.email} />}
-          {success && (
-            <div className="flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-semibold px-5 py-3">
-              <CheckCircle size={15} className="flex-shrink-0" />
-              {success}
-            </div>
-          )}
+          {success && <div style={{ padding: "10px 18px" }}><Alert ok msg={success} /></div>}
         </>
       )}
-    </div>
+    </CardShell>
   );
 }
 
-export default function SettingsPage() {
-  const router = useRouter();
-  const { user, logout, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState("password");
+/* ─── Password card ─────────────────────────────────── */
+function PasswordCard({ fullHeight }) {
+  const [vals, setVals]   = useState({ current: "", next: "", confirm: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError]   = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleLogout = () => { logout(); router.push("/auth/login"); };
+  const set = key => e => { setVals(v => ({ ...v, [key]: e.target.value })); setError(""); };
 
-  if (!user) { router.push("/auth/login"); return null; }
+  const submit = async (e) => {
+    e.preventDefault();
+    setError(""); setSuccess("");
+    if (!vals.current)              { setError("Cari şifrənizi daxil edin."); return; }
+    if (vals.next.length < 6)       { setError("Yeni şifrə ən az 6 simvol olmalıdır."); return; }
+    if (vals.next !== vals.confirm)  { setError("Şifrələr uyğun gəlmir."); return; }
+    if (vals.current === vals.next)  { setError("Yeni şifrə cari ilə eyni ola bilməz."); return; }
+    setLoading(true);
+    try {
+      await api.put("/auth/profile", { currentPassword: vals.current, password: vals.next });
+      setSuccess("Şifrə uğurla yeniləndi!");
+      setVals({ current: "", next: "", confirm: "" });
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) { setError(err.response?.data?.message || "Şifrə dəyişdirilə bilmədi."); }
+    finally { setLoading(false); }
+  };
 
-  const tabs = [
-    { key: "password", label: "Şifrəni Dəyiş", Icon: Lock },
-    { key: "account",  label: "Hesab",          Icon: User },
+  const fields = [
+    { key: "current", label: "CARİ ŞİFRƏ *", ph: "Cari şifrənizi daxil edin", ac: "current-password", af: true },
+    { key: "next",    label: "YENİ ŞİFRƏ *",  ph: "Ən az 6 simvol",            ac: "new-password" },
+    { key: "confirm", label: "TƏSDİQLƏ *",     ph: "Yeni şifrəni təkrarlayın",  ac: "new-password" },
   ];
 
-  const LogoutButton = (
-    <button
-      onClick={handleLogout}
-      className="w-full flex items-center justify-between gap-3 bg-surface border border-border rounded-2xl px-5 py-4 shadow-card hover:bg-red-50 hover:border-red-200 transition-all group"
+  return (
+    <CardShell fullHeight={fullHeight}>
+      <CardHead icon={Shield} title="Şifrəni dəyiş" sub="Güclü şifrə istifadə edin" />
+      <form onSubmit={submit} autoComplete="off" style={{ flex: 1, padding: "16px 18px", display: "flex", flexDirection: "column", gap: 11 }}>
+        {fields.map(({ key, label, ph, ac, af }) => (
+          <Field key={key} label={label}>
+            <PasswordInput value={vals[key]} onChange={set(key)} placeholder={ph} name={`${key}-pw`} autoComplete={ac} autoFocus={af} />
+          </Field>
+        ))}
+        {error   && <Alert msg={error} />}
+        {success && <Alert ok msg={success} />}
+        <button type="submit" disabled={loading} style={{ marginTop: "auto", width: "100%", height: 42, borderRadius: 10, border: "none", background: loading ? "#9ca3af" : RED, color: "#fff", fontSize: 13, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontFamily: "inherit", boxShadow: loading ? "none" : "0 4px 14px rgba(242,11,50,.25)" }}>
+          {loading ? <><Spinner /> Yadda saxlanır...</> : <><Lock size={14} /> Şifrəni yenilə</>}
+        </button>
+      </form>
+    </CardShell>
+  );
+}
+
+/* ─── Logout ────────────────────────────────────────── */
+function LogoutBtn({ onLogout }) {
+  return (
+    <button onClick={onLogout} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 20px", background: "#fff", borderRadius: 16, border: "1px solid #fee2e2", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,.05)", fontFamily: "inherit", flexShrink: 0 }}
+      onMouseEnter={e => { e.currentTarget.style.background = "#fff5f5"; e.currentTarget.style.borderColor = "#fca5a5"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#fee2e2"; }}
     >
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
-          <LogOut size={16} className="text-red-500" />
-        </div>
-        <div className="text-left">
-          <p className="text-sm font-bold text-red-600">Çıxış et</p>
-          <p className="text-[11px] text-text-secondary">Hesabdan çıx</p>
-        </div>
+      <div style={{ width: 36, height: 36, borderRadius: 10, background: RED_BG, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <LogOut size={15} color={RED} />
       </div>
-      <ChevronRight size={16} className="text-red-400" />
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: RED }}>Çıxış et</div>
+        <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>Hesabdan çıx</div>
+      </div>
     </button>
   );
+}
+
+/* ─── Page ──────────────────────────────────────────── */
+export default function SettingsPage() {
+  const router = useRouter();
+  const { user, isGuest, isLoading, logout, updateUser } = useAuth();
+  const [tab, setTab] = useState("account");
+
+  useEffect(() => {
+    if (!isLoading && isGuest) router.replace("/auth/login");
+  }, [isLoading, isGuest, router]);
+
+  if (isLoading || !user || isGuest) return null;
+
+  const logout_ = async () => { await logout(); router.push("/"); };
+  const initials = [user?.name?.[0], user?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "?";
+  const fullName = [user.name, user.lastName].filter(Boolean).join(" ");
 
   return (
-    <div className="flex flex-col flex-1 bg-bg">
-      <BackHeader title="Parametrlər" onBack={() => router.push("/")} />
-
-      <div className="flex-1 page-scroll">
-
-        {/* Hero */}
-        <div
-          className="relative rounded-2xl overflow-hidden mb-5"
-          style={{ background: "linear-gradient(135deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%)" }}
-        >
-          <div
-            className="absolute inset-0 opacity-10"
-            style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%)" }}
-          />
-          <div className="relative flex items-center gap-4 px-5 py-6">
-            <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(255,255,255,0.15)" }}
-            >
-              <Shield className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-extrabold text-white leading-tight">Parametrlər</h1>
-              <p className="text-sm text-white/70 mt-1 leading-snug">
-                {[user.name, user.lastName].filter(Boolean).join(" ")} · {user.phone}
-              </p>
-            </div>
-          </div>
+    <>
+      {/* Header */}
+      <header style={{ position: "sticky", top: 0, zIndex: 50, height: 56, background: "rgba(255,255,255,.97)", backdropFilter: "blur(14px)", borderBottom: "1px solid #f0f0f0", boxShadow: "0 1px 4px rgba(0,0,0,.05)", display: "flex", alignItems: "center" }}>
+        <div style={{ maxWidth: 900, width: "100%", margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <button onClick={() => router.back()} style={{ width: 34, height: 34, borderRadius: 10, background: "#f5f5f7", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#374151" }}>
+            <ArrowLeft size={17} strokeWidth={2.5} />
+          </button>
+          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+            <Image src="/meatbox logo right black.png" alt="MEATBOX" width={140} height={40} style={{ objectFit: "contain", height: 32, width: "auto" }} />
+          </Link>
+          <div style={{ width: 34 }} />
         </div>
+      </header>
 
-        {/* ── Desktop: 2 columns ── */}
-        <div className="hidden md:grid md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-4">
-            <AccountCard user={user} updateUser={updateUser} />
-            {LogoutButton}
-          </div>
-          <div>
-            <PasswordCard />
-          </div>
-        </div>
+      {/* Main — fixed height, no page scroll */}
+      <main style={{ height: "calc(100vh - 56px)", overflow: "hidden", background: "#f6f7f9", fontFamily: "'Manrope', sans-serif" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "18px 16px 16px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 14 }}>
 
-        {/* ── Mobile: tabs ── */}
-        <div className="md:hidden">
-          <div className="bg-surface rounded-2xl shadow-card border border-border p-1.5 flex gap-1.5 mb-4">
-            {tabs.map(({ key, label, Icon }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                  activeTab === key
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-text-secondary hover:text-text-primary"
-                }`}
-              >
-                <Icon size={15} />
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {activeTab === "password" && <PasswordCard />}
-
-          {activeTab === "account" && (
-            <div className="flex flex-col gap-3">
-              <AccountCard user={user} updateUser={updateUser} />
-              {LogoutButton}
+          {/* Profile hero */}
+          <div style={{ flexShrink: 0, background: `linear-gradient(135deg, ${RED} 0%, #a8001a 100%)`, borderRadius: 16, padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 6px 22px rgba(242,11,50,.24)" }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,.18)", border: "2px solid rgba(255,255,255,.35)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "2px", flexShrink: 0 }}>
+              {initials}
             </div>
-          )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", letterSpacing: "-.03em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fullName}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,.7)", marginTop: 2 }}>{user.phone || user.email}</div>
+            </div>
+          </div>
+
+          {/* ── DESKTOP layout (md+) ── */}
+          <div className="s-desktop" style={{ gridTemplateColumns: "1fr 1fr", gap: 14, flex: 1, minHeight: 0, alignItems: "stretch" }}>
+            {/* Left col */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, height: "100%" }}>
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <AccountCard user={user} updateUser={updateUser} fullHeight />
+              </div>
+              <LogoutBtn onLogout={logout_} />
+            </div>
+            {/* Right col */}
+            <div style={{ height: "100%" }}>
+              <PasswordCard fullHeight />
+            </div>
+          </div>
+
+          {/* ── MOBILE layout ── */}
+          <div className="s-mobile" style={{ flex: 1, minHeight: 0, flexDirection: "column", gap: 12 }}>
+            {/* Tab switcher */}
+            <div style={{ display: "flex", gap: 4, background: "#fff", borderRadius: 12, padding: 4, border: "1px solid #ebebeb", flexShrink: 0 }}>
+              {[["account", "Hesab", User], ["password", "Şifrə", Shield]].map(([key, label, Icon]) => (
+                <button key={key} onClick={() => setTab(key)} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 0", borderRadius: 8, border: "none", background: tab === key ? RED : "transparent", color: tab === key ? "#fff" : "#6b7280", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: tab === key ? "0 2px 8px rgba(242,11,50,.2)" : "none" }}>
+                  <Icon size={13} /> {label}
+                </button>
+              ))}
+            </div>
+            {/* Tab content */}
+            <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+              {tab === "account" ? (
+                <>
+                  <div style={{ flex: 1, minHeight: 0 }}><AccountCard user={user} updateUser={updateUser} fullHeight /></div>
+                  <LogoutBtn onLogout={logout_} />
+                </>
+              ) : (
+                <div style={{ flex: 1, minHeight: 0 }}><PasswordCard fullHeight /></div>
+              )}
+            </div>
+          </div>
+
         </div>
+      </main>
 
-      </div>
-
-      <BottomNav />
-    </div>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .no-sb::-webkit-scrollbar { display: none; }
+        .no-sb { -ms-overflow-style: none; scrollbar-width: none; }
+        .s-desktop { display: none !important; }
+        .s-mobile  { display: flex !important; }
+        @media (min-width: 768px) {
+          .s-desktop { display: grid !important; }
+          .s-mobile  { display: none !important; }
+        }
+      `}</style>
+    </>
   );
 }

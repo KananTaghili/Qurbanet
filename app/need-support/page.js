@@ -67,7 +67,7 @@ export default function NeedSupportPage() {
     if (!item?.isActive) return;
     const cfg = ICON_CONFIG[item.key] || { accent: "#1B5E20" };
     sessionStorage.setItem("charity_target", JSON.stringify({ ...item, accentColor: cfg.accent }));
-    router.push(`/need-support/${item.key}`);
+    router.push(`/need-support/detail?type=${item.key}`);
   };
 
   const selectedItem = options.find(o => o.key === selected);

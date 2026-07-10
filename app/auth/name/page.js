@@ -1,12 +1,13 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
 
-export default function NamePage() {
+function NamePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, token, user } = useAuth();
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -27,7 +28,7 @@ export default function NamePage() {
       const freshToken = res.data.data?.token || token;
       const updatedUser = res.data.data?.user || { ...user, name: trimmedName };
       login(freshToken, updatedUser);
-      router.push('/');
+      router.push(searchParams.get('from') || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'Xəta baş verdi. Yenidən cəhd edin.');
     } finally {
@@ -64,15 +65,8 @@ export default function NamePage() {
               </div>
             </div>
 
-            <div
-              className="flex items-center gap-3 text-[10px] font-bold tracking-widest"
-              style={{ color: 'rgba(255,255,255,0.4)' }}
-            >
-              <span>ETİBARLI</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
-              <span>HALAL</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.35)' }} />
-              <span>SÜRƏTLİ</span>
+            <div className="text-[10px] font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              ETİBARLI · HALAL · SÜRƏTLİ
             </div>
           </div>
         </div>
@@ -131,4 +125,8 @@ export default function NamePage() {
       </div>
     </div>
   );
+}
+
+export default function NamePage() {
+  return <Suspense><NamePageInner /></Suspense>;
 }
