@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const CharityOrder = require("../models/CharityOrder");
+const MeatOrder = require("../models/MeatOrder");
 const { ORDER_STATUS } = require("../config/constants");
 const {
   createPayment,
@@ -24,6 +25,10 @@ const parseEpointOrderId = (raw) => {
     const parts = raw.split("_");
     return { type: "charity", realId: parts[1] };
   }
+  if (raw.startsWith("meat_")) {
+    const parts = raw.split("_");
+    return { type: "meat", realId: parts[1] };
+  }
   return { type: "order", realId: raw.split("_")[0] };
 };
 
@@ -39,19 +44,26 @@ const callbackUrls = (type, mongoOrderId) => {
 };
 
 const frontendFailUrl = (type, message) => {
-  const page = type === "charity" ? "/charity/payment" : "/order/payment";
+  const page =
+    type === "charity" ? "/charity/payment" :
+    type === "meat" ? "/meat/checkout/payment" :
+    "/order/payment";
   const params = new URLSearchParams({ payment: "fail" });
   if (message) params.set("message", message);
   return `${FRONTEND_URL()}${page}?${params.toString()}`;
 };
 
-const frontendSuccessUrl = (type) =>
-  type === "charity"
-    ? `${FRONTEND_URL()}/charity/confirmation`
-    : `${FRONTEND_URL()}/order/confirmation?payment=success`;
+const frontendSuccessUrl = (type) => {
+  if (type === "charity") return `${FRONTEND_URL()}/charity/confirmation`;
+  if (type === "meat") return `${FRONTEND_URL()}/meat/checkout/confirmation?payment=success`;
+  return `${FRONTEND_URL()}/order/confirmation?payment=success`;
+};
 
-const findOrderByType = (type, id) =>
-  type === "charity" ? CharityOrder.findById(id) : Order.findById(id);
+const findOrderByType = (type, id) => {
+  if (type === "charity") return CharityOrder.findById(id);
+  if (type === "meat") return MeatOrder.findById(id);
+  return Order.findById(id);
+};
 
 // Sifarişi "ödənildi" et (idempotent — artıq ödənilibsə heç nə dəyişmir)
 const applyPaid = async (type, order, transaction) => {
@@ -64,6 +76,30 @@ const applyPaid = async (type, order, transaction) => {
     if (transaction) order.transactionId = transaction;
     await order.save();
     console.log(`[EPoint] Xeyriyyə sifarişi ödənildi: ${order._id}`);
+    return;
+  }
+
+  if (type === "meat") {
+    if (order.payment?.status === "paid") return;
+    order.payment.status = "paid";
+    order.payment.paidAt = new Date();
+    if (transaction) order.payment.transactionId = transaction;
+    if (order.status === "awaiting_payment") {
+      order.status = "placed";
+      order.statusHistory.push({ status: "placed", note: "Ödəniş tamamlandı." });
+    }
+    await order.save();
+    if (order.user) {
+      const num = order.orderNumber ? `#${order.orderNumber}` : "";
+      notify(order.user, {
+        module: "meat",
+        type: "order_paid",
+        title: "Ödəniş qəbul edildi",
+        body: `Ət Satışı sifarişiniz ${num} üçün ödəniş uğurla tamamlandı.`,
+        data: { orderId: String(order._id), orderNumber: order.orderNumber, status: order.status },
+      }).catch(() => {});
+    }
+    console.log(`[EPoint] Ət Satışı sifarişi ödənildi: ${order._id}`);
     return;
   }
 
@@ -111,6 +147,41 @@ const applyFailed = async (type, order) => {
   if (order.payment?.status === "paid") return;
   order.payment.status = "failed";
   await order.save();
+};
+
+// ─── Ət Satışı sifarişi: ödənişi başlat ─────────────────────────────────────
+// POST /api/meat/:orderId/epoint/start
+const startMeatOrderPayment = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await MeatOrder.findOne({ _id: orderId, user: req.userId });
+    if (!order) return error(res, "Sifariş tapılmadı.", 404);
+    if (order.payment?.status === "paid") {
+      return error(res, "Bu sifariş artıq ödənilib.", 400);
+    }
+
+    const epointOrderId = `meat_${order._id}_${Date.now()}`;
+    const { successUrl, errorUrl } = callbackUrls("meat", order._id);
+
+    const result = await createPayment({
+      orderId: epointOrderId,
+      amount: order.totalPrice,
+      description: `MeatBox #${order.orderNumber || orderId}`,
+      successUrl,
+      errorUrl,
+    });
+
+    order.payment.method = "epoint";
+    order.payment.status = "pending";
+    order.payment.epointOrderId = epointOrderId;
+    order.payment.transactionId = result.transaction;
+    await order.save();
+
+    return success(res, { redirect_url: result.redirect_url });
+  } catch (err) {
+    console.error("[EPoint] startMeatOrderPayment xətası:", err.message);
+    return error(res, err.message || "Ödəniş başladıla bilmədi.", 500);
+  }
 };
 
 // Epoint-dən sifarişin real statusunu soruş (transaction ID və ya order_id ilə)
@@ -326,6 +397,7 @@ const handleResult = async (req, res) => {
 module.exports = {
   startPayment,
   startCharityPayment,
+  startMeatOrderPayment,
   handleSuccessCallback,
   handleErrorCallback,
   handleResult,

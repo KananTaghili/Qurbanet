@@ -403,7 +403,9 @@ exports.addDonation = async (req, res) => {
       ? (campaign.collectedAmount / campaign.totalAmount) * 100 : 0;
     const isNearlyFull   = completionPct >= settings.nearlyFullPercent;
     const baseMin        = isNearlyFull ? settings.nearlyFullMinDonation : settings.minDonation;
-    const effectiveMin   = Math.min(baseMin, remaining);
+    // Qalan məbləğ minimum ianədən azdırsa, istifadəçini qalanın hamısını verməyə məcbur etmə —
+    // ən kiçik pul vahidinə (0.01 AZN) qədər enməyə icazə ver.
+    const effectiveMin   = remaining < baseMin ? 0.01 : baseMin;
 
     if (parsedAmount < effectiveMin)
       return error(res, `Minimum ianə məbləği ${effectiveMin} AZN-dir`, 400);

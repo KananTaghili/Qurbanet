@@ -13,6 +13,7 @@ const cashPaymentController = require("../controllers/cashPaymentController");
 const deliveryConfirmController = require("../controllers/deliveryConfirmController");
 const pricingConfigController    = require("../controllers/pricingConfigController");
 const charityCampaignController  = require("../controllers/charityCampaignController");
+const meatAdminController = require("../controllers/meatAdminController");
 const adminAuth = require("../middleware/adminAuth");
 
 // ─── Multer konfiqurasiyası (memory — fayllar GridFS-ə göndərilir) ───────
@@ -262,5 +263,21 @@ router.get("/charity-orders/:orderId",                     charityOrderControlle
 router.put("/charity-orders/:orderId/status",              charityOrderController.updateCharityOrderStatus);
 router.post("/charity-orders/:orderId/media",              upload.array("files", 10), charityOrderController.addCharityOrderMedia);
 router.delete("/charity-orders/:orderId/media/:mediaIndex", charityOrderController.deleteCharityOrderMedia);
+
+// ─── Ət Satışı (MeatBox) ────────────────────────────────────────────────────────
+// GET /api/admin/meat-animals
+router.get("/meat-animals", meatAdminController.listAnimals);
+// PATCH /api/admin/meat-animals/:animalId/active
+router.patch("/meat-animals/:animalId/active", meatAdminController.toggleAnimalActive);
+// POST /api/admin/meat-animals/:animalId/parts/:partKey/cuts
+router.post("/meat-animals/:animalId/parts/:partKey/cuts", meatAdminController.createCut);
+// PUT /api/admin/meat-animals/:animalId/parts/:partKey/cuts/:cutId
+router.put("/meat-animals/:animalId/parts/:partKey/cuts/:cutId", meatAdminController.updateCut);
+// DELETE /api/admin/meat-animals/:animalId/parts/:partKey/cuts/:cutId
+router.delete("/meat-animals/:animalId/parts/:partKey/cuts/:cutId", meatAdminController.deleteCut);
+// GET /api/admin/meat-orders
+router.get("/meat-orders", meatAdminController.listMeatOrders);
+// PUT /api/admin/meat-orders/:orderId/status
+router.put("/meat-orders/:orderId/status", meatAdminController.updateMeatOrderStatus);
 
 module.exports = router;

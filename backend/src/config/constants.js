@@ -178,6 +178,9 @@ const QURBAN_PART_PROCESSING_FEES_BY_ANIMAL = {
 // Çatdırılma pulu (özünüz götürsəniz pulsuz)
 const DELIVERY_FEE = 10;
 
+// Ət Satışı (MeatBox) çatdırılma pulu — hazırda yalnız Bakı daxilində
+const MEAT_DELIVERY_FEE = 5;
+
 const CUT_STYLE_LABELS = {
   tam_cemdek: "Tam cəmdək",
   kababliq: "Kabablıq",
@@ -264,6 +267,7 @@ module.exports = {
   QURBAN_PART_FEES_BY_ANIMAL,
   QURBAN_PART_PROCESSING_FEES_BY_ANIMAL,
   DELIVERY_FEE,
+  MEAT_DELIVERY_FEE,
   CUT_STYLE_LABELS,
   CUT_STYLE_FEES_BY_ANIMAL,
   GRINDING_METHOD_OPTIONS,

@@ -10,6 +10,7 @@ const connectDB = require("./src/config/database");
 const {
   seedCharityOptions,
   seedDeliveryOptions,
+  seedMeatAnimals,
 } = require("./src/utils/seedDefaults");
 const authRoutes = require("./src/routes/authRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
@@ -20,6 +21,7 @@ const adminRoutes = require("./src/routes/adminRoutes");
 const appConfigRoutes = require("./src/routes/appConfigRoutes");
 const epointRoutes = require("./src/routes/epointRoutes");
 const fileRoutes = require("./src/routes/fileRoutes");
+const meatRoutes = require("./src/routes/meatRoutes");
 const socketService = require("./src/socket");
 
 const app = express();
@@ -117,6 +119,7 @@ app.post(
 app.use("/api/charity-orders", charityOrderRoutes);
 app.use("/api/campaigns",     charityCampaignRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/meat", meatRoutes);
 app.use("/api/admin", adminRoutes);
 
 // ─── Health Check / Up ──────────────────────────────────────────────────────
@@ -152,6 +155,7 @@ const startServer = async () => {
     await connectDB();
     await seedCharityOptions();
     await seedDeliveryOptions();
+    await seedMeatAnimals();
     // Köhnə qonaq istifadəçiləri DB-dən bir dəfəlik sil
     try {
       const User = require("./src/models/User");
@@ -178,9 +182,12 @@ const startServer = async () => {
 
       // Render üçün ping mexanizmi (Yalnız dev mühitində deyilsə işləyir)
       if (process.env.BACKEND_URL && process.env.NODE_ENV !== "development") {
-        const https = require("https");
+        const pingUrl = `${process.env.BACKEND_URL}/api/health`;
+        const client = pingUrl.startsWith("https:") ? require("https") : require("http");
         setInterval(() => {
-          https.get(`${process.env.BACKEND_URL}/api/health`, () => {}).on("error", () => {});
+          try {
+            client.get(pingUrl, () => {}).on("error", () => {});
+          } catch (_) {}
         }, 10 * 60 * 1000);
       }
     });
