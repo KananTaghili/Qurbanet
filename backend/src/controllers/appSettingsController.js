@@ -33,7 +33,7 @@ const getSettings = async (req, res) => {
 const updateSettings = async (req, res) => {
   try {
     const settings = await getOrCreateSettings();
-    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, enabledLanguages, quickDateTodayEnabled, quickDateTomorrowEnabled,
+    const { timeWindows, charityWeightInfoText, deliveryFee, cashPickupLocation, meatPickupLocation, storageQuotaGB, cashPaymentEnabled, charityPageEnabled, meatCountrySelectionEnabled, deliveryCountries, singleAnimalMode, maxSlaughterDays, multiLanguageEnabled, enabledLanguages, quickDateTodayEnabled, quickDateTomorrowEnabled,
       campaignMinOpenPercent, campaignMinDonation, campaignAllowAnonymous, campaignAllowGuest, campaignGuestNameRequired, campaignGuestPhoneRequired, campaignOnePerAnimal, campaignMaxPerAnimal,
       campaignNearlyFullPercent, campaignNearlyFullMinDonation } = req.body;
 
@@ -81,6 +81,37 @@ const updateSettings = async (req, res) => {
 
     if (charityPageEnabled !== undefined) {
       settings.charityPageEnabled = Boolean(charityPageEnabled);
+    }
+
+    if (meatCountrySelectionEnabled !== undefined) {
+      settings.meatCountrySelectionEnabled = Boolean(meatCountrySelectionEnabled);
+    }
+
+    if (Array.isArray(deliveryCountries)) {
+      settings.deliveryCountries = deliveryCountries
+        .filter((c) => c && c.code && String(c.code).trim() && c.nameAz && String(c.nameAz).trim())
+        .map((c) => ({
+          code: String(c.code).trim().toUpperCase().slice(0, 10),
+          nameAz: String(c.nameAz).trim().slice(0, 60),
+          flagCode: String(c.flagCode || "az").trim().toLowerCase().slice(0, 5),
+          enabled: Boolean(c.enabled),
+          cities: Array.isArray(c.cities)
+            ? c.cities
+                .filter((ci) => ci && ci.key && String(ci.key).trim() && ci.nameAz && String(ci.nameAz).trim())
+                .map((ci) => ({
+                  key: String(ci.key).trim().slice(0, 40),
+                  nameAz: String(ci.nameAz).trim().slice(0, 60),
+                  enabled: Boolean(ci.enabled),
+                  lat: Number(ci.lat) || 0,
+                  lng: Number(ci.lng) || 0,
+                  deliveryPrice:
+                    Number.isFinite(Number(ci.deliveryPrice)) && Number(ci.deliveryPrice) >= 0
+                      ? Number(ci.deliveryPrice)
+                      : 5,
+                }))
+            : [],
+        }));
+      settings.markModified("deliveryCountries");
     }
 
     if (singleAnimalMode !== undefined) {
@@ -181,6 +212,8 @@ const getPublicSettings = async (req, res) => {
       deliveryFee: settings.deliveryFee ?? 10,
       cashPaymentEnabled: settings.cashPaymentEnabled !== false,
       charityPageEnabled: settings.charityPageEnabled !== false,
+      meatCountrySelectionEnabled: settings.meatCountrySelectionEnabled === true,
+      deliveryCountries: (settings.deliveryCountries?.toObject ? settings.deliveryCountries.toObject() : settings.deliveryCountries) || [],
       singleAnimalMode: settings.singleAnimalMode === true,
       maxSlaughterDays: settings.maxSlaughterDays ?? 14,
       multiLanguageEnabled: settings.multiLanguageEnabled !== false,

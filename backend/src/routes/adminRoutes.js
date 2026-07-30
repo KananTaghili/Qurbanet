@@ -14,6 +14,7 @@ const deliveryConfirmController = require("../controllers/deliveryConfirmControl
 const pricingConfigController    = require("../controllers/pricingConfigController");
 const charityCampaignController  = require("../controllers/charityCampaignController");
 const meatAdminController = require("../controllers/meatAdminController");
+const meatCatalogAdminController = require("../controllers/meatCatalogAdminController");
 const adminAuth = require("../middleware/adminAuth");
 
 // ─── Multer konfiqurasiyası (memory — fayllar GridFS-ə göndərilir) ───────
@@ -270,14 +271,40 @@ router.get("/meat-animals", meatAdminController.listAnimals);
 // PATCH /api/admin/meat-animals/:animalId/active
 router.patch("/meat-animals/:animalId/active", meatAdminController.toggleAnimalActive);
 // POST /api/admin/meat-animals/:animalId/parts/:partKey/cuts
-router.post("/meat-animals/:animalId/parts/:partKey/cuts", meatAdminController.createCut);
+router.post("/meat-animals/:animalId/parts/:partKey/cuts", upload.single("image"), meatAdminController.createCut);
 // PUT /api/admin/meat-animals/:animalId/parts/:partKey/cuts/:cutId
-router.put("/meat-animals/:animalId/parts/:partKey/cuts/:cutId", meatAdminController.updateCut);
+router.put("/meat-animals/:animalId/parts/:partKey/cuts/:cutId", upload.single("image"), meatAdminController.updateCut);
 // DELETE /api/admin/meat-animals/:animalId/parts/:partKey/cuts/:cutId
 router.delete("/meat-animals/:animalId/parts/:partKey/cuts/:cutId", meatAdminController.deleteCut);
 // GET /api/admin/meat-orders
 router.get("/meat-orders", meatAdminController.listMeatOrders);
+// GET /api/admin/meat-orders/:orderId
+router.get("/meat-orders/:orderId", meatAdminController.getMeatOrderById);
 // PUT /api/admin/meat-orders/:orderId/status
 router.put("/meat-orders/:orderId/status", meatAdminController.updateMeatOrderStatus);
+
+// ─── Ət Satışı: Bildirişlər (bütün müştərilərə yayım) ────────────────────────────
+// GET /api/admin/meat-notifications/presets
+router.get("/meat-notifications/presets", meatAdminController.listNotificationPresets);
+// POST /api/admin/meat-notifications/broadcast
+router.post("/meat-notifications/broadcast", meatAdminController.broadcastNotification);
+
+// ─── Ət Satışı: Yeməklər (Food) ──────────────────────────────────────────────────
+router.get("/meat-foods", meatCatalogAdminController.listFoods);
+router.post("/meat-foods", upload.single("image"), meatCatalogAdminController.createFood);
+router.put("/meat-foods/:foodId", upload.single("image"), meatCatalogAdminController.updateFood);
+router.delete("/meat-foods/:foodId", meatCatalogAdminController.deleteFood);
+
+// ─── Ət Satışı: Çəkilmiş Ət (Ground meat) ────────────────────────────────────────
+router.get("/meat-ground-products", meatCatalogAdminController.listGroundProducts);
+router.post("/meat-ground-products", upload.single("image"), meatCatalogAdminController.createGroundProduct);
+router.put("/meat-ground-products/:productId", upload.single("image"), meatCatalogAdminController.updateGroundProduct);
+router.delete("/meat-ground-products/:productId", meatCatalogAdminController.deleteGroundProduct);
+
+// ─── Ət Satışı: Daxili Orqanlar (Internal organs) ────────────────────────────────
+router.get("/meat-organs", meatCatalogAdminController.listOrgans);
+router.post("/meat-organs", upload.single("image"), meatCatalogAdminController.createOrgan);
+router.put("/meat-organs/:organId", upload.single("image"), meatCatalogAdminController.updateOrgan);
+router.delete("/meat-organs/:organId", meatCatalogAdminController.deleteOrgan);
 
 module.exports = router;

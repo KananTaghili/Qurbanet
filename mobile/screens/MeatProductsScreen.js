@@ -7,11 +7,12 @@ import {
   ScrollView,
   StyleSheet,
   Platform,
-  Alert,
   ActivityIndicator,
   useWindowDimensions,
-  Animated,
   PanResponder,
+  LayoutAnimation,
+  UIManager,
+  Animated,
   Easing,
 } from "react-native";
 import {
@@ -53,8 +54,24 @@ import AnimalBodyMap, {
 const BRAND = "#4B0F0F";
 const PARTS_PAGE_SIZE = 6;
 
-function comingSoon() {
-  Alert.alert("Tezliklə", "Bu bölmə hələ hazırlanır.");
+// Köhnə arxitekturada (Fabric aktiv deyilsə) Android-də LayoutAnimation
+// defolt söndürülüb — buna icazə verməsək səbət panelinin aç/bağla
+// animasiyası Android-də sıçrayışlı (animasiyasız) görünər.
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+// Yeməklərə görə filtr aktivdirsə, yalnız seçilmiş yeməklərdən ən azı birinə
+// uyğun olan məhsul göstərilir. Filtr boşdursa hamısı keçir. (Veb-dəki
+// cutMatchesFoods-un eynisi.)
+function cutMatchesFoods(item, foodFilterIds) {
+  if (!foodFilterIds || foodFilterIds.length === 0) return true;
+  return (item.suitableFoods || []).some((id) =>
+    foodFilterIds.includes(String(id?._id || id)),
+  );
 }
 
 /* ── Heyvan seçici tablar ── */
@@ -116,7 +133,7 @@ function PartButton({ part, isSelected, onPress }) {
           !hasStock && styles.partBtnTextDisabled,
           isSelected && styles.partBtnTextSelected,
         ]}
-        numberOfLines={1}
+        numberOfLines={2}
       >
         {part.displayName || part.nameAz}
       </Text>
@@ -125,7 +142,7 @@ function PartButton({ part, isSelected, onPress }) {
 }
 
 /* ── Bədən hissəsi seçici — 2 sətir x 3 sütun, lazım olanda < > ilə səhifələnir ── */
-function PartsPager({ parts, selectedPartKey, onSelectPart }) {
+function PartsPager({ parts, selectedPartKey, onSelectPart, onDragActive }) {
   const [page, setPage] = useState(0);
   const totalPages = Math.max(1, Math.ceil(parts.length / PARTS_PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
@@ -134,18 +151,97 @@ function PartsPager({ parts, selectedPartKey, onSelectPart }) {
     safePage * PARTS_PAGE_SIZE + PARTS_PAGE_SIZE,
   );
   const hasPager = totalPages > 1;
+  // Son səhifədə 6-dan az element olsa belə, sıra sayı (2 sətir) sabit
+  // qalsın deyə boş "placeholder" xanalarla tamamlanır — veb-dəki kimi ox
+  // düymələri səhifədən-səhifəyə tullanmasın.
+  const placeholderCount = hasPager
+    ? PARTS_PAGE_SIZE - pageParts.length
+    : 0;
+
+  const partsTranslateX = useRef(new Animated.Value(0)).current;
+  const partsOpacity = useRef(new Animated.Value(1)).current;
+  const safePageRef = useRef(safePage);
+  safePageRef.current = safePage;
+
+  const goToPage = (nextPage, dir) => {
+    partsTranslateX.setValue(dir === "right" ? 14 : -14);
+    partsOpacity.setValue(0);
+    Animated.parallel([
+      Animated.timing(partsTranslateX, {
+        toValue: 0,
+        duration: 200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(partsOpacity, {
+        toValue: 1,
+        duration: 200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+    setPage(nextPage);
+  };
+
+  // DİQQƏT: sadə onTouchStart/onTouchEnd bəzən üst ScrollView-un öz şaquli
+  // scroll jesti ilə "yarışırdı" (barmaq bir az əyri hərəkət edəndə scroll
+  // udurdu, sürüşdürmə işləmirdi). PanResponder-in "capture" mərhələsi ilə —
+  // yalnız aydın üfüqi hərəkət başlayanda (adi tıklamalarda YOX) — jesti
+  // ScrollView-dan ƏVVƏL tuturuq, bu da problemi tam həll edir.
+  const partsPanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponderCapture: () => false,
+      onMoveShouldSetPanResponderCapture: (_, g) =>
+        hasPager &&
+        Math.abs(g.dx) > 12 &&
+        Math.abs(g.dy) < Math.abs(g.dx) * 1.8,
+      onPanResponderGrant: () => {
+        onDragActive?.(true);
+      },
+      onPanResponderRelease: (_, g) => {
+        onDragActive?.(false);
+        const dx = g.dx;
+        const dy = g.dy;
+        if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx) * 1.8) return;
+        const total = Math.max(
+          1,
+          Math.ceil(parts.length / PARTS_PAGE_SIZE),
+        );
+        if (dx < 0) {
+          goToPage((safePageRef.current + 1) % total, "right");
+        } else {
+          goToPage((safePageRef.current - 1 + total) % total, "left");
+        }
+      },
+      onPanResponderTerminate: () => {
+        onDragActive?.(false);
+      },
+    }),
+  ).current;
 
   return (
     <View style={styles.partsPagerWrap}>
       {hasPager && (
         <Pressable
           style={[styles.partsArrow, { left: 0 }]}
-          onPress={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
+          onPress={() =>
+            goToPage((safePage - 1 + totalPages) % totalPages, "left")
+          }
         >
-          <ChevronLeft size={16} color={BRAND} />
+          <ChevronLeft size={18} color={BRAND} />
         </Pressable>
       )}
-      <View style={[styles.partsGrid, hasPager && { marginHorizontal: 28 }]}>
+      <Animated.View
+        style={[
+          styles.partsGrid,
+          hasPager && { marginHorizontal: 28 },
+          {
+            opacity: partsOpacity,
+            transform: [{ translateX: partsTranslateX }],
+          },
+        ]}
+        {...partsPanResponder.panHandlers}
+      >
         {pageParts.map((part) => (
           <PartButton
             key={part.key}
@@ -154,13 +250,16 @@ function PartsPager({ parts, selectedPartKey, onSelectPart }) {
             onPress={() => onSelectPart(part.key)}
           />
         ))}
-      </View>
+        {Array.from({ length: placeholderCount }).map((_, i) => (
+          <View key={`ph-${i}`} style={styles.partBtnPlaceholder} />
+        ))}
+      </Animated.View>
       {hasPager && (
         <Pressable
           style={[styles.partsArrow, { right: 0 }]}
-          onPress={() => setPage((p) => (p + 1) % totalPages)}
+          onPress={() => goToPage((safePage + 1) % totalPages, "right")}
         >
-          <ChevronRight size={16} color={BRAND} />
+          <ChevronRight size={18} color={BRAND} />
         </Pressable>
       )}
     </View>
@@ -224,7 +323,7 @@ function CutCard({ animal, part, cut }) {
           />
         ) : (
           <View style={styles.cutImgFallback}>
-            <ShoppingCart size={20} color="rgba(75,15,15,0.3)" />
+            <ShoppingCart size={23} color="rgba(75,15,15,0.3)" />
           </View>
         )}
 
@@ -240,14 +339,14 @@ function CutCard({ animal, part, cut }) {
         {inCartQty > 0 && (
           <View style={styles.cutInCartOverlay}>
             <View style={styles.cutInCartCircle}>
-              <ShoppingCart size={15} color={BRAND} strokeWidth={2.4} />
+              <ShoppingCart size={17} color={BRAND} strokeWidth={2.4} />
             </View>
           </View>
         )}
       </View>
 
       <View style={styles.cutBody}>
-        <Text style={styles.cutName} numberOfLines={1}>
+        <Text style={styles.cutName} numberOfLines={2}>
           {cut.nameAz}
         </Text>
 
@@ -257,7 +356,7 @@ function CutCard({ animal, part, cut }) {
           ) : soldByWeight ? (
             <View style={styles.stepper}>
               <Pressable style={styles.stepperBtn} onPress={dec}>
-                <Minus size={12} color="#57534e" />
+                <Minus size={14} color="#57534e" />
               </Pressable>
               <Text style={styles.stepperText}>{qty} kq</Text>
               <Pressable
@@ -265,7 +364,7 @@ function CutCard({ animal, part, cut }) {
                 onPress={inc}
                 disabled={qty >= remaining}
               >
-                <Plus size={12} color="#57534e" />
+                <Plus size={14} color="#57534e" />
               </Pressable>
             </View>
           ) : (
@@ -281,9 +380,9 @@ function CutCard({ animal, part, cut }) {
             onPress={isRemove ? () => removeItem(lineId) : handleAdd}
           >
             {isRemove ? (
-              <Trash2 size={13} color="#fff" />
+              <Trash2 size={15} color="#fff" />
             ) : (
-              <ShoppingCart size={13} color="#fff" />
+              <ShoppingCart size={15} color="#fff" />
             )}
           </Pressable>
         </View>
@@ -301,17 +400,27 @@ export default function MeatProductsScreen() {
   const { user } = useAuth();
   const { items, itemsTotal, itemCount, updateQuantity, removeItem } =
     useMeatCart();
-  const { location, setLocation, deliveryPrice } = useMeatDeliveryLocation();
+  const { location, setLocation, deliveryPrice, isLoaded: locationLoaded } =
+    useMeatDeliveryLocation();
 
   const [animals, setAnimals] = useState([]);
   const [foods, setFoods] = useState([]);
   const [foodFilterIds, setFoodFilterIds] = useState([]);
+  const [organs, setOrgans] = useState([]);
+  const [groundProducts, setGroundProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Diaqram/hissə seçicisində üfüqi sürüşdürmə gedərkən əsas səhifənin
+  // şaquli scroll-u müvəqqəti söndürülür — barmaq bir az əyri getsə belə
+  // scroll "udmasın", sürüşdürmə hər dəfə düzgün işləsin.
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const [selectedAnimalKey, setSelectedAnimalKey] = useState(
     route.params?.animal || "qoyun",
   );
   const [selectedPartKey, setSelectedPartKey] = useState(null);
   const [extraMode, setExtraMode] = useState(null); // null | "organs" | "ground"
+  const [swipeDir, setSwipeDir] = useState(null); // "left" | "right" | null
+  const diagramTranslateX = useRef(new Animated.Value(0)).current;
+  const diagramOpacity = useRef(new Animated.Value(1)).current;
 
   // Sol (çatdırılma) və sağ (yeməyə görə filtr) üzən dairələr — basılan
   // düymənin ekrandakı mərkəzini ölçüb MobileGrowModal-a ötürürük ki, panel
@@ -320,28 +429,49 @@ export default function MeatProductsScreen() {
   const foodBtnRef = useRef(null);
   const [deliveryOpen, setDeliveryOpen] = useState(false);
   const [foodOpen, setFoodOpen] = useState(false);
+  // Bu ekran ilk dəfə (fresh) açılanda, çatdırılma yeri hələ seçilməyibsə,
+  // modal avtomatik açılsın — veb-dəki eyni davranış. "autoModalChecked"
+  // bunu YALNIZ BİR DƏFƏ edir: React Navigation stack-də "geri" düyməsi
+  // (məs. Ödəniş xülasəsindən) bu ekranı YENİDƏN MOUNT ETMİR (stack-də artıq
+  // canlı qalır) — ona görə geri qayıdanda modal bir də açılmır, yalnız
+  // TƏZƏ (ilk) girişdə açılır.
+  const [autoModalChecked, setAutoModalChecked] = useState(false);
   const [showCartSheet, setShowCartSheet] = useState(false);
   const [deliveryAnchor, setDeliveryAnchor] = useState(null);
   const [foodAnchor, setFoodAnchor] = useState(null);
-  // Veb-dəki kimi: panel rail-in altından HÜNDÜRLÜYÜ (0 → maxHeight) artaraq
-  // "açılır" — sürüşərək aşağıdan gəlmir. Bu, "translateY" sürüşməsindən
-  // fərqli olaraq veb-in maxHeight-transition davranışının məhz özüdür.
-  const cartPanelHeight = useRef(new Animated.Value(0)).current;
   const cartSwipeStartY = useRef(null);
   // PanResponder callback-ləri yalnız YARADILDIQLARI anda tutulan "closure"
   // dəyərlərini görür (useRef(PanResponder.create(...)) yalnız ilk render-i
-  // saxlayır) — ona görə cari showCartSheet/cartSheetMaxHeight-i bu ref-lər
-  // üzərindən oxuyuruq ki, sürüşdürmə həmişə həqiqi vəziyyətə uyğun olsun.
+  // saxlayır) — ona görə cari showCartSheet-i bu ref üzərindən oxuyuruq ki,
+  // sürüşdürmə həmişə həqiqi vəziyyətə uyğun olsun.
   const showCartSheetRef = useRef(showCartSheet);
-  const cartSheetMaxHeightRef = useRef(0);
+
+  // Panelin aç/bağla hündürlük keçidi "Animated.Value" ilə deyil, RN-in bunun
+  // üçün nəzərdə tutulmuş "LayoutAnimation" API-si ilə edilir — JS-driven
+  // (useNativeDriver:false) Animated.Value ilə height/maxHeight animasiya
+  // etmək RN-də tanınmış "Cannot add new property '_tracking'" çökməsinə
+  // səbəb olurdu (dev-də effektlərin təkrar işə düşməsi zamanı). Vəziyyəti
+  // dəyişdirmədən BİR addım əvvəl çağırılmalıdır.
+  const setCartSheetOpen = (next) => {
+    LayoutAnimation.configureNext({
+      duration: 280,
+      update: { type: LayoutAnimation.Types.easeInEaseOut },
+    });
+    setShowCartSheet(next);
+  };
 
   const total = itemsTotal + (items.length ? deliveryPrice : 0);
   const canCheckout =
     itemCount > 0 && !!location && location.phones?.length > 0;
   const cartThumbnailCount = viewportWidth >= 420 ? 4 : 3;
   const cartSheetMaxHeight = Math.min(Math.round(viewportHeight * 0.68), 520);
-  const floatingBtnTop = insets.top + 8;
-  const contentTopPadding = Math.max(66, insets.top + 72);
+  // DİQQƏT: "insets.top" burada YENİDƏN əlavə edilməməlidir — MeatStepHeader
+  // artıq öz daxilində insets.top-u hesaba qatıb (status bar-ın altına düşür),
+  // "iconAnchor" isə HƏMİN header-dən dərhal SONRA gəlir, yəni artıq təhlükəsiz
+  // zonanın altındadır. insets.top-u bir də əlavə etmək səhifənin lap
+  // yuxarısında lazımsız boş sahə yaradırdı (bu, indi bildirilən bug idi).
+  const floatingBtnTop = 8;
+  const contentTopPadding = 58;
 
   const openDelivery = () => {
     if (!deliveryBtnRef.current?.measureInWindow) {
@@ -360,6 +490,16 @@ export default function MeatProductsScreen() {
       setFoodOpen(true);
     });
   };
+
+  // İlk dəfə "Ət Satışı"na daxil olanda çatdırılma yeri seçilməyibsə modalı
+  // aç (veb-dəki eyni məntiq). "locationLoaded" gözlənilir ki, AsyncStorage-
+  // dən əvvəlki seçim oxunmamış modal bir anlıq yanlışlıqla açılıb-bağlanmasın.
+  useEffect(() => {
+    if (!locationLoaded || autoModalChecked) return;
+    setAutoModalChecked(true);
+    if (!location) openDelivery();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locationLoaded, autoModalChecked, location]);
 
   useFocusEffect(
     useCallback(() => {
@@ -391,11 +531,22 @@ export default function MeatProductsScreen() {
       .get("/meat/foods")
       .then((res) => setFoods(res.data?.data?.foods || []))
       .catch(() => {}); // backend-də bu route hələ hər mühitdə mövcud olmaya bilər
+
+    api
+      .get("/meat/organs")
+      .then((res) => setOrgans(res.data?.data?.organs || []))
+      .catch(() => {});
+
+    api
+      .get("/meat/ground-products")
+      .then((res) => setGroundProducts(res.data?.data?.products || []))
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (itemCount === 0 && showCartSheet) setShowCartSheet(false);
+    if (itemCount === 0 && showCartSheet) setCartSheetOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemCount, showCartSheet]);
 
   useEffect(() => {
@@ -403,20 +554,32 @@ export default function MeatProductsScreen() {
   }, [showCartSheet]);
 
   useEffect(() => {
-    cartSheetMaxHeightRef.current = cartSheetMaxHeight;
-  }, [cartSheetMaxHeight]);
+    // Yalnız sürüşdürmə ilə keçiddə animasiya edir (tab-a klikləmədə yox —
+    // "handleTabSelectAnimal" swipeDir-i null edir). "opacity"/"transform"
+    // native driver dəstəklədiyi üçün əvvəlki "height" bug-ına uğramır.
+    if (!swipeDir) return;
+    diagramTranslateX.setValue(swipeDir === "right" ? 18 : -18);
+    diagramOpacity.setValue(0);
+    Animated.parallel([
+      Animated.timing(diagramTranslateX, {
+        toValue: 0,
+        duration: 220,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(diagramOpacity, {
+        toValue: 1,
+        duration: 220,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAnimalKey]);
 
-  useEffect(() => {
-    // "height" layout xüsusiyyətidir — native driver dəstəkləmir (yalnız
-    // transform/opacity dəstəklənir), ona görə useNativeDriver: false.
-    Animated.timing(cartPanelHeight, {
-      toValue: showCartSheet ? cartSheetMaxHeight : 0,
-      duration: 320,
-      easing: Easing.bezier(0.22, 0.85, 0.28, 1),
-      useNativeDriver: false,
-    }).start();
-  }, [showCartSheet, cartPanelHeight, cartSheetMaxHeight]);
-
+  // Sadə sürüşdürmə: canlı izləmə (drag-follow) yoxdur — sadəcə buraxıldıqda
+  // istiqaməti ölçüb aç/bağla vəziyyətini dəyişir, animasiyanı isə yenə
+  // "setCartSheetOpen" (LayoutAnimation) idarə edir.
   const cartSheetPanResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -425,34 +588,12 @@ export default function MeatProductsScreen() {
       onPanResponderGrant: () => {
         cartSwipeStartY.current = null;
       },
-      onPanResponderMove: (_, gestureState) => {
-        if (cartSwipeStartY.current == null) {
-          cartSwipeStartY.current = gestureState.y0;
-        }
-        const isOpen = showCartSheetRef.current;
-        const maxHeight = cartSheetMaxHeightRef.current;
-        const deltaY = gestureState.dy;
-        if (deltaY > 0 && isOpen) {
-          // Aşağı sürüşdürmə — bağlı vəziyyətə doğru kiçilir.
-          cartPanelHeight.setValue(Math.max(0, maxHeight - deltaY));
-        } else if (deltaY < 0 && !isOpen) {
-          // Yuxarı sürüşdürmə — açıq vəziyyətə doğru böyüyür.
-          cartPanelHeight.setValue(Math.min(maxHeight, -deltaY));
-        }
-      },
       onPanResponderRelease: (_, gestureState) => {
         const isOpen = showCartSheetRef.current;
-        if (gestureState.dy > 70 && isOpen) {
-          setShowCartSheet(false);
-        } else if (gestureState.dy < -70 && !isOpen) {
-          setShowCartSheet(true);
-        } else {
-          Animated.timing(cartPanelHeight, {
-            toValue: isOpen ? cartSheetMaxHeightRef.current : 0,
-            duration: 180,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: false,
-          }).start();
+        if (gestureState.dy > 40 && isOpen) {
+          setCartSheetOpen(false);
+        } else if (gestureState.dy < -40 && !isOpen) {
+          setCartSheetOpen(true);
         }
         cartSwipeStartY.current = null;
       },
@@ -467,6 +608,16 @@ export default function MeatProductsScreen() {
   const selectedPart = selectedAnimal?.bodyParts?.find(
     (p) => p.key === selectedPartKey,
   );
+  const organsAvailable = organs.some(
+    (o) =>
+      o.animalKey === selectedAnimalKey && cutMatchesFoods(o, foodFilterIds),
+  );
+  const groundAvailable = groundProducts.some(
+    (p) =>
+      p.animalKey === selectedAnimalKey &&
+      p.stockKg > 0 &&
+      cutMatchesFoods(p, foodFilterIds),
+  );
 
   const handleSelectAnimal = (key) => {
     setSelectedAnimalKey(key);
@@ -475,9 +626,45 @@ export default function MeatProductsScreen() {
     setSelectedPartKey(getFirstDisplayPartKey(key, animal?.bodyParts));
   };
 
+  // Diaqramı barmaqla sağa/sola sürüşdürərək heyvanlar arası keçid — veb-
+  // dəki eyni davranış: AnimalSwitcher tab sırası ilə, sonuncudan sonra
+  // birinciyə (loop), yeni məzmun yüngül slide+fade ilə görünür.
+  const handleTabSelectAnimal = (key) => {
+    setSwipeDir(null);
+    handleSelectAnimal(key);
+  };
+
+  // DİQQƏT: bunu artıq AnimalBodyMap-ın öz "onSwipe" prop-u çağırır (bax
+  // components/meat/AnimalBodyMap.js) — diaqramın üzərinə əlavə etdiyimiz
+  // ayrıca onTouchStart/onTouchEnd işləmirdi, çünki AnimalBodyMap toxunmanı
+  // dərhal (onStartShouldSetResponder) özü tutur və buraxmır
+  // (onResponderTerminationRequest: () => false) — ona görə valideyndəki
+  // sadə toxunma dinləyiciləri ümumiyyətlə işə düşmürdü.
+  const handleDiagramSwipe = (direction) => {
+    if (animals.length < 2) return;
+    const idx = animals.findIndex((a) => a.key === selectedAnimalKey);
+    if (idx === -1) return;
+    if (direction === "next") {
+      // Sola sürüşdürmə → növbəti heyvan (yeni məzmun sağdan girir)
+      const next = animals[(idx + 1) % animals.length];
+      setSwipeDir("right");
+      handleSelectAnimal(next.key);
+    } else {
+      // Sağa sürüşdürmə → əvvəlki heyvan (yeni məzmun soldan girir)
+      const prev = animals[(idx - 1 + animals.length) % animals.length];
+      setSwipeDir("left");
+      handleSelectAnimal(prev.key);
+    }
+  };
+
   const handleSelectPart = (key) => {
     setExtraMode(null);
     setSelectedPartKey(key);
+  };
+
+  const handleSelectExtra = (mode) => {
+    setExtraMode((prev) => (prev === mode ? null : mode));
+    setSelectedPartKey(null);
   };
 
   const handleCheckout = () => {
@@ -486,8 +673,8 @@ export default function MeatProductsScreen() {
       openDelivery();
       return;
     }
-    setShowCartSheet(false);
-    navigation.navigate("MeatCart");
+    setCartSheetOpen(false);
+    navigation.navigate("MeatCheckoutSummary");
   };
 
   return (
@@ -508,7 +695,7 @@ export default function MeatProductsScreen() {
           style={[styles.iconBtnLeft, { top: floatingBtnTop }]}
           onPress={openDelivery}
         >
-          <MapPin size={18} color="#fff" strokeWidth={2.3} />
+          <MapPin size={20} color="#fff" strokeWidth={2.3} />
           {!!location && <View style={styles.iconDot} />}
         </Pressable>
         <Pressable
@@ -516,7 +703,7 @@ export default function MeatProductsScreen() {
           style={[styles.iconBtnRight, { top: floatingBtnTop }]}
           onPress={openFood}
         >
-          <UtensilsCrossed size={18} color="#dc2626" strokeWidth={2.3} />
+          <UtensilsCrossed size={20} color="#dc2626" strokeWidth={2.3} />
           {foodFilterIds.length > 0 && (
             <View style={styles.iconBadge}>
               <Text style={styles.iconBadgeText}>{foodFilterIds.length}</Text>
@@ -532,6 +719,7 @@ export default function MeatProductsScreen() {
       ) : (
         <ScrollView
           style={{ flex: 1 }}
+          scrollEnabled={scrollEnabled}
           contentContainerStyle={{
             padding: 14,
             paddingTop: contentTopPadding,
@@ -545,23 +733,34 @@ export default function MeatProductsScreen() {
                 <AnimalSwitcher
                   animals={animals}
                   selectedKey={selectedAnimalKey}
-                  onSelect={handleSelectAnimal}
+                  onSelect={handleTabSelectAnimal}
                 />
 
-                <View style={styles.diagramWrap}>
+                <Animated.View
+                  style={[
+                    styles.diagramWrap,
+                    {
+                      opacity: diagramOpacity,
+                      transform: [{ translateX: diagramTranslateX }],
+                    },
+                  ]}
+                >
                   <AnimalBodyMap
                     animalKey={selectedAnimalKey}
                     parts={selectedAnimal.bodyParts || []}
                     selectedPartKey={extraMode ? null : selectedPartKey}
                     onSelectPart={handleSelectPart}
                     foodFilterIds={foodFilterIds}
+                    onSwipe={handleDiagramSwipe}
+                    onDragActive={(active) => setScrollEnabled(!active)}
                   />
-                </View>
+                </Animated.View>
 
                 <PartsPager
                   parts={displayParts}
                   selectedPartKey={extraMode ? null : selectedPartKey}
                   onSelectPart={handleSelectPart}
+                  onDragActive={(active) => setScrollEnabled(!active)}
                 />
 
                 <View style={styles.extraRow}>
@@ -569,16 +768,16 @@ export default function MeatProductsScreen() {
                     style={[
                       styles.extraBtn,
                       extraMode === "organs" && styles.extraBtnActive,
+                      !organsAvailable && styles.extraBtnDisabled,
                     ]}
-                    onPress={() => {
-                      setExtraMode("organs");
-                      comingSoon();
-                    }}
+                    disabled={!organsAvailable}
+                    onPress={() => handleSelectExtra("organs")}
                   >
                     <Text
                       style={[
                         styles.extraBtnText,
                         extraMode === "organs" && styles.extraBtnTextActive,
+                        !organsAvailable && styles.extraBtnTextDisabled,
                       ]}
                     >
                       Daxili orqanlar
@@ -588,16 +787,16 @@ export default function MeatProductsScreen() {
                     style={[
                       styles.extraBtn,
                       extraMode === "ground" && styles.extraBtnActive,
+                      !groundAvailable && styles.extraBtnDisabled,
                     ]}
-                    onPress={() => {
-                      setExtraMode("ground");
-                      comingSoon();
-                    }}
+                    disabled={!groundAvailable}
+                    onPress={() => handleSelectExtra("ground")}
                   >
                     <Text
                       style={[
                         styles.extraBtnText,
                         extraMode === "ground" && styles.extraBtnTextActive,
+                        !groundAvailable && styles.extraBtnTextDisabled,
                       ]}
                     >
                       Çəkilmiş ət
@@ -607,7 +806,74 @@ export default function MeatProductsScreen() {
               </View>
 
               <View style={styles.productsGrid}>
-                {(selectedPart?.cuts || []).length === 0 ? (
+                {extraMode === "organs" ? (
+                  (() => {
+                    const matches = organs.filter(
+                      (o) =>
+                        o.animalKey === selectedAnimalKey &&
+                        cutMatchesFoods(o, foodFilterIds),
+                    );
+                    return matches.length === 0 ? (
+                      <Text style={styles.emptyText}>
+                        Bu heyvan üçün hələ daxili orqan əlavə olunmayıb.
+                      </Text>
+                    ) : (
+                      matches.map((organ) => (
+                        <CutCard
+                          key={organ._id}
+                          animal={selectedAnimal}
+                          part={{
+                            key: "daxili-orqan",
+                            nameAz: "Daxili orqan",
+                          }}
+                          cut={{
+                            _id: organ._id,
+                            nameAz: organ.nameAz,
+                            pricePerKg: organ.pricePerKg,
+                            stockKg: organ.weightKg,
+                            stepKg: organ.weightKg,
+                            minKg: organ.weightKg,
+                            imageUrl: organ.imageUrl,
+                          }}
+                        />
+                      ))
+                    );
+                  })()
+                ) : extraMode === "ground" ? (
+                  (() => {
+                    const matches = groundProducts.filter(
+                      (p) =>
+                        p.animalKey === selectedAnimalKey &&
+                        cutMatchesFoods(p, foodFilterIds),
+                    );
+                    return matches.length === 0 ? (
+                      <Text style={styles.emptyText}>
+                        Bu heyvan üçün hələ çəkilmiş ət məhsulu əlavə
+                        olunmayıb.
+                      </Text>
+                    ) : (
+                      matches.map((product) => (
+                        <CutCard
+                          key={product._id}
+                          animal={selectedAnimal}
+                          part={{
+                            key: "cekilmis-et",
+                            nameAz: "Çəkilmiş ət",
+                          }}
+                          cut={{
+                            _id: product._id,
+                            nameAz: product.nameAz,
+                            pricePerKg: product.pricePerKg,
+                            stockKg: product.stockKg,
+                            stepKg: 0.5,
+                            minKg: 0.5,
+                            imageUrl: product.imageUrl,
+                          }}
+                        />
+                      ))
+                    );
+                  })()
+                ) : (selectedPart?.cuts || []).length === 0 ? (
                   <Text style={styles.emptyText}>
                     Bu hissə üçün hələ məhsul əlavə olunmayıb.
                   </Text>
@@ -635,18 +901,18 @@ export default function MeatProductsScreen() {
           {showCartSheet && (
             <Pressable
               style={styles.cartSheetBackdrop}
-              onPress={() => setShowCartSheet(false)}
+              onPress={() => setCartSheetOpen(false)}
             />
           )}
 
           <View style={styles.cartDock}>
-            <Animated.View
+            <View
               style={styles.cartTopRail}
               {...cartSheetPanResponder.panHandlers}
             >
               <Pressable
                 style={styles.cartToggleArea}
-                onPress={() => setShowCartSheet((v) => !v)}
+                onPress={() => setCartSheetOpen(!showCartSheet)}
               >
                 <View style={styles.cartBubble}>
                   <ShoppingCart size={24} color="#fff" strokeWidth={2.25} />
@@ -676,7 +942,7 @@ export default function MeatProductsScreen() {
                           resizeMode="contain"
                         />
                       ) : (
-                        <Beef size={19} color="rgba(75,15,15,0.6)" />
+                        <Beef size={21} color="rgba(75,15,15,0.6)" />
                       )}
                     </View>
                   ))}
@@ -706,9 +972,9 @@ export default function MeatProductsScreen() {
                   </View>
                 </Pressable>
               )}
-            </Animated.View>
+            </View>
 
-            <Animated.View
+            <View
               style={styles.cartSheetPanel}
               pointerEvents={showCartSheet ? "auto" : "none"}
             >
@@ -717,13 +983,16 @@ export default function MeatProductsScreen() {
                   məzmun bu tavandan qısadırsa qutu ONA sıxılır (boşluq
                   qalmır), uzundursa daxildə scroll aktivləşir. */}
               <ScrollView
-                  style={[styles.cartSheetList, { maxHeight: cartPanelHeight }]}
+                  style={[
+                    styles.cartSheetList,
+                    { maxHeight: showCartSheet ? cartSheetMaxHeight : 0 },
+                  ]}
                   contentContainerStyle={styles.cartSheetListContent}
                   showsVerticalScrollIndicator={true}
                 >
                   {items.length === 0 ? (
                     <View style={styles.cartEmptyState}>
-                      <ShoppingBag size={26} color="#e7e5e4" />
+                      <ShoppingBag size={30} color="#e7e5e4" />
                       <Text style={styles.cartEmptyText}>Səbətiniz boşdur</Text>
                     </View>
                   ) : (
@@ -737,7 +1006,7 @@ export default function MeatProductsScreen() {
                               resizeMode="contain"
                             />
                           ) : (
-                            <Beef size={22} color="rgba(75,15,15,0.7)" />
+                            <Beef size={25} color="rgba(75,15,15,0.7)" />
                           )}
                         </View>
 
@@ -746,7 +1015,7 @@ export default function MeatProductsScreen() {
                             <View style={{ flex: 1, minWidth: 0 }}>
                               <Text
                                 style={styles.sheetItemTitle}
-                                numberOfLines={1}
+                                numberOfLines={2}
                               >
                                 {it.cutNameAz}
                               </Text>
@@ -761,7 +1030,7 @@ export default function MeatProductsScreen() {
                               style={styles.sheetTrashBtn}
                               onPress={() => removeItem(it.lineId)}
                             >
-                              <Trash2 size={16} color="#d6d3d1" />
+                              <Trash2 size={18} color="#d6d3d1" />
                             </Pressable>
                           </View>
 
@@ -781,7 +1050,7 @@ export default function MeatProductsScreen() {
                                     )
                                   }
                                 >
-                                  <Minus size={13} color="#57534e" />
+                                  <Minus size={15} color="#57534e" />
                                 </Pressable>
                                 <Text style={styles.sheetStepperText}>
                                   {it.quantityKg.toFixed(2)} kq
@@ -796,7 +1065,7 @@ export default function MeatProductsScreen() {
                                   }
                                   disabled={it.quantityKg >= it.stockKg}
                                 >
-                                  <Plus size={13} color="#57534e" />
+                                  <Plus size={15} color="#57534e" />
                                 </Pressable>
                               </View>
                             )}
@@ -844,7 +1113,7 @@ export default function MeatProductsScreen() {
                     <Text style={styles.sheetCheckoutBtnText}>Ödə</Text>
                   </Pressable>
                 </ScrollView>
-            </Animated.View>
+            </View>
           </View>
         </>
       )}
@@ -950,7 +1219,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 3,
   },
-  iconBadgeText: { color: "#fff", fontSize: 9, fontWeight: "900" },
+  iconBadgeText: { color: "#fff", fontSize: 10.5, fontWeight: "900" },
 
   card: {
     backgroundColor: "#fff",
@@ -974,29 +1243,33 @@ const styles = StyleSheet.create({
   },
   switcherTab: {
     flex: 1,
-    paddingVertical: 7,
+    paddingVertical: 9,
     borderRadius: 8,
     alignItems: "center",
   },
   switcherTabActive: { backgroundColor: BRAND },
-  switcherText: { fontSize: 12, fontWeight: "700", color: "#57534e" },
+  switcherText: { fontSize: 14, fontWeight: "700", color: "#57534e" },
   switcherTextActive: { color: "#fff" },
 
-  diagramWrap: { height: 210, width: "100%" },
+  // overflow:"hidden" — sürüşdürmə animasiyası (translateX) zamanı məzmun
+  // kartın dəyirmi kənarlarından bayıra çıxıb "kart genəlirmiş" kimi
+  // görünməsin deyə.
+  diagramWrap: { height: 210, width: "100%", overflow: "hidden" },
 
   partsPagerWrap: {
     position: "relative",
     justifyContent: "center",
     paddingHorizontal: 5,
+    overflow: "hidden",
   },
   partsArrow: {
     position: "absolute",
     top: "50%",
-    marginTop: -14,
+    marginTop: -16,
     zIndex: 10,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
@@ -1029,10 +1302,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 8,
   },
+  partBtnPlaceholder: {
+    width: "32%",
+    height: 32,
+  },
   partBtnDisabled: { backgroundColor: "#f5f5f4", borderColor: "#eee" },
   partBtnSelected: { backgroundColor: "#B01818", borderWidth: 0 },
   partBtnText: {
-    fontSize: 11.5,
+    fontSize: 13,
     fontWeight: "700",
     color: "#57534e",
     flexShrink: 1,
@@ -1040,16 +1317,16 @@ const styles = StyleSheet.create({
   partBtnTextDisabled: { color: "#a8a29e" },
   partBtnTextSelected: { color: "#fff" },
   partBadge: {
-    height: 15,
-    minWidth: 15,
-    borderRadius: 8,
+    height: 17,
+    minWidth: 17,
+    borderRadius: 9,
     backgroundColor: "#F1E5E5",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 2,
   },
   partBadgeSelected: { backgroundColor: "#fff" },
-  partBadgeText: { fontSize: 9, fontWeight: "900", color: BRAND },
+  partBadgeText: { fontSize: 10.5, fontWeight: "900", color: BRAND },
   partBadgeTextSelected: { color: "#B01818" },
 
   extraRow: { flexDirection: "row", gap: 6 },
@@ -1063,8 +1340,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   extraBtnActive: { backgroundColor: "#B01818", borderColor: "#B01818" },
-  extraBtnText: { fontSize: 11.5, fontWeight: "800", color: "#57534e" },
+  extraBtnDisabled: { backgroundColor: "#f5f5f4", borderColor: "#eee" },
+  extraBtnText: { fontSize: 13, fontWeight: "800", color: "#57534e" },
   extraBtnTextActive: { color: "#fff" },
+  extraBtnTextDisabled: { color: "#a8a29e" },
 
   productsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   emptyText: {
@@ -1072,13 +1351,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 30,
     color: "#a8a29e",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
   },
 
   cutCard: {
     width: "48%",
-    flexGrow: 1,
     backgroundColor: "#fff",
     borderRadius: 14,
     borderWidth: 1,
@@ -1111,7 +1389,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  cutBadgeText: { color: "#fff", fontSize: 10, fontWeight: "800" },
+  cutBadgeText: { color: "#fff", fontSize: 11.5, fontWeight: "800" },
   cutInCartOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.22)",
@@ -1126,16 +1404,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  cutBody: { padding: 8, gap: 6 },
-  cutName: { fontSize: 12.5, fontWeight: "800", color: "#292524" },
+  cutBody: { padding: 9, gap: 7 },
+  cutName: { fontSize: 14.5, fontWeight: "800", color: "#292524" },
   cutRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 4,
   },
-  cutOutOfStock: { fontSize: 10, fontWeight: "700", color: "#dc2626" },
-  cutPriceLabel: { fontSize: 10.5, fontWeight: "600", color: "#a8a29e" },
+  cutOutOfStock: { fontSize: 11.5, fontWeight: "700", color: "#dc2626" },
+  cutPriceLabel: { fontSize: 12, fontWeight: "600", color: "#a8a29e" },
   cutAddBtn: {
     width: 28,
     height: 28,
@@ -1155,12 +1433,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   stepperBtn: {
-    width: 22,
-    height: 22,
+    width: 25,
+    height: 25,
     alignItems: "center",
     justifyContent: "center",
   },
-  stepperText: { fontSize: 10.5, fontWeight: "800", color: "#292524" },
+  stepperText: { fontSize: 13.5, fontWeight: "800", color: "#292524" },
 
   cartSheetBackdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -1177,7 +1455,7 @@ const styles = StyleSheet.create({
     zIndex: 40,
   },
   cartTopRail: {
-    height: 60,
+    height: 44,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     backgroundColor: "#F1E5E5",
@@ -1208,7 +1486,7 @@ const styles = StyleSheet.create({
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: -28,
+    marginTop: -40,
     zIndex: 5,
     shadowColor: "#000",
     shadowOpacity: 0.2,
@@ -1232,9 +1510,9 @@ const styles = StyleSheet.create({
   },
   cartBubbleBadgeText: {
     color: "#fff",
-    fontSize: 11,
+    fontSize: 12.5,
     fontWeight: "900",
-    lineHeight: 13,
+    lineHeight: 14.5,
   },
   cartThumbsRow: {
     flex: 1,
@@ -1250,7 +1528,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 2,
     borderColor: BRAND,
-    marginTop: -26,
+    marginTop: -36,
     zIndex: 4,
     alignItems: "center",
     justifyContent: "center",
@@ -1263,7 +1541,7 @@ const styles = StyleSheet.create({
   cartThumbStack: { marginLeft: -14 },
   cartThumbImage: { width: "100%", height: "100%", resizeMode: "contain" },
   cartExpandedTotal: {
-    fontSize: 15,
+    fontSize: 16.5,
     color: "#292524",
     fontWeight: "900",
     paddingHorizontal: 4,
@@ -1277,9 +1555,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 9,
+    marginTop: -37,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
   },
   cartPayBtnDisabled: { opacity: 0.45 },
-  cartPayBtnText: { color: "#fff", fontSize: 14.5, fontWeight: "900" },
+  cartPayBtnText: { color: "#fff", fontSize: 16, fontWeight: "900" },
   cartPayDivider: {
     width: 1,
     alignSelf: "stretch",
@@ -1290,10 +1574,10 @@ const styles = StyleSheet.create({
     alignItems: "baseline",
     gap: 4,
   },
-  cartPayAmountText: { color: "#fff", fontSize: 13, fontWeight: "900" },
+  cartPayAmountText: { color: "#fff", fontSize: 14.5, fontWeight: "900" },
   cartPayAznText: {
     color: "rgba(255,255,255,0.84)",
-    fontSize: 10,
+    fontSize: 11.5,
     fontWeight: "700",
   },
 
@@ -1306,11 +1590,13 @@ const styles = StyleSheet.create({
     // üstündəki rail-i də yuxarı qaldırır (dock "bottom"-a görə mövqelənir).
     // Height 0-dan başladığı üçün bağlı olanda artıq yer tutmur — əvvəlki
     // "rail düşmür" bug-ı statik maxHeight-dən irəli gəlirdi, indi yoxdur.
+    // DİQQƏT: bura paddingTop/Bottom YAZILMASIN — panel HƏMİŞƏ mount
+    // olunduğu üçün (bağlı olanda da) belə bir padding ekranda kiçik ağ
+    // boşluq kimi qalırdı, hətta ScrollView-un məzmunu 0 hündürlüyə enəndə
+    // belə. Padding ona görə aşağıda ScrollView-un "contentContainerStyle"-
+    // ində, yəni animasiya olunan sahənin ÖZÜNDƏ verilir.
     overflow: "hidden",
     backgroundColor: "#fff",
-    paddingHorizontal: 10,
-    paddingTop: 8,
-    paddingBottom: 10,
     borderLeftWidth: 2,
     borderRightWidth: 2,
     borderColor: BRAND,
@@ -1321,27 +1607,32 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cartSheetList: { flexGrow: 0 },
-  cartSheetListContent: { gap: 8, paddingBottom: 8 },
+  cartSheetListContent: {
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingTop: 8,
+    paddingBottom: 10,
+  },
   cartEmptyState: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 30,
     gap: 6,
   },
-  cartEmptyText: { fontSize: 13, color: "#a8a29e", fontWeight: "600" },
+  cartEmptyText: { fontSize: 14.5, color: "#a8a29e", fontWeight: "600" },
   sheetItemRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 11,
     backgroundColor: "#fff",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "#f0ede8",
-    padding: 8,
+    padding: 9,
   },
   sheetItemImageWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 10,
+    width: 62,
+    height: 62,
+    borderRadius: 11,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
@@ -1355,62 +1646,62 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 6,
   },
-  sheetItemTitle: { fontSize: 14, fontWeight: "800", color: "#292524" },
+  sheetItemTitle: { fontSize: 15.5, fontWeight: "800", color: "#292524" },
   sheetItemMeta: {
-    marginTop: 1,
-    fontSize: 12,
+    marginTop: 2,
+    fontSize: 13.5,
     color: "#a8a29e",
     fontWeight: "600",
   },
-  sheetTrashBtn: { padding: 2 },
+  sheetTrashBtn: { padding: 3 },
   sheetItemBottom: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 8,
-    marginTop: 6,
+    marginTop: 7,
   },
-  sheetQtyText: { fontSize: 13, fontWeight: "800", color: "#292524" },
+  sheetQtyText: { fontSize: 14.5, fontWeight: "800", color: "#292524" },
   sheetStepper: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 5,
     backgroundColor: "#f5f5f4",
     borderRadius: 8,
-    paddingHorizontal: 3,
-    paddingVertical: 2,
+    paddingHorizontal: 4,
+    paddingVertical: 3,
   },
   sheetStepperBtn: {
-    width: 26,
-    height: 26,
+    width: 29,
+    height: 29,
     alignItems: "center",
     justifyContent: "center",
   },
-  sheetStepperText: { fontSize: 12.5, fontWeight: "800", color: "#292524" },
-  sheetItemPrice: { fontSize: 14, fontWeight: "900", color: BRAND },
+  sheetStepperText: { fontSize: 14, fontWeight: "800", color: "#292524" },
+  sheetItemPrice: { fontSize: 15.5, fontWeight: "900", color: BRAND },
   sheetSummaryCard: {
     borderRadius: 12,
     backgroundColor: "#FBF8F4",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    gap: 5,
+    paddingHorizontal: 11,
+    paddingVertical: 9,
+    gap: 6,
   },
   sheetSummaryRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  sheetSummaryLabel: { fontSize: 12, color: "#78716c", fontWeight: "600" },
+  sheetSummaryLabel: { fontSize: 13.5, color: "#78716c", fontWeight: "600" },
   sheetSummaryTotalRow: {
-    marginTop: 2,
-    paddingTop: 6,
+    marginTop: 3,
+    paddingTop: 7,
     borderTopWidth: 1,
     borderTopColor: "#f0ede8",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  sheetSummaryTotalText: { fontSize: 15, fontWeight: "900", color: "#292524" },
+  sheetSummaryTotalText: { fontSize: 17, fontWeight: "900", color: "#292524" },
   sheetCheckoutBtn: {
     marginTop: 8,
     height: 48,
@@ -1420,5 +1711,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   sheetCheckoutBtnDisabled: { opacity: 0.45 },
-  sheetCheckoutBtnText: { color: "#fff", fontSize: 16, fontWeight: "900" },
+  sheetCheckoutBtnText: { color: "#fff", fontSize: 17, fontWeight: "900" },
 });

@@ -19,7 +19,7 @@ jobs:
         with:
           host: ${{ secrets.TEST_SERVER_HOST }}
           username: ${{ secrets.TEST_SERVER_USER }}
-          key: ${{ secrets.TEST_SERVER_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.TEST_SERVER_PASSWORD }}
           port: 22
           script: |
             # Node.js və NVM mühitini server terminalında aktivləşdiririk
@@ -30,9 +30,10 @@ jobs:
             set -e
             
             cd /var/www/qurbanetbackend-uat
-            
+
             # 3. KODLARI ÇƏKMƏK: SCP əvəzinə birbaşa SSH ilə GitHub-dan sürətli çəkirik
-            git pull origin uat
+            git fetch origin uat
+            git reset --hard origin/uat
             
             # Yeni paketləri yoxlayırıq (Yalnız production paketləri)
             npm install --production

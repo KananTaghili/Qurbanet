@@ -39,7 +39,16 @@ exports.createCharityOrder = async (req, res) => {
 // GET /api/charity-orders
 exports.getCharityOrders = async (req, res) => {
   try {
-    const orders = await CharityOrder.find({ user: req.userId }).sort({ createdAt: -1 }).select("-__v");
+    const orders = await CharityOrder.find({
+      user: req.userId,
+      $nor: [
+        // Epoint ödənişi təsdiqlənmədən tərk edilmiş sifarişlər gizlədilir
+        { paymentMethod: "epoint", paymentStatus: "failed" },
+        { paymentMethod: "epoint", paymentStatus: "pending" },
+      ],
+    })
+      .sort({ createdAt: -1 })
+      .select("-__v");
     return success(res, orders, "Xeyriyyə ödənişləri");
   } catch {
     return error(res, "Xəta baş verdi", 500);

@@ -31,11 +31,23 @@ async function notify(userIds, { module, type, title, body = "", data = {} }) {
     return [];
   }
 
-  // Canlı badge yenilənməsi üçün hər istifadəçinin socket otağına xəbər ver
+  // Canlı badge yenilənməsi + toast bildirişi üçün hər istifadəçinin socket otağına
+  // öz sənədini göndəririk (badge sayğacını yeniləmək üçün, həm də ekranda anında
+  // banner göstərmək üçün title/body kifayətdir — əlavə sorğu lazım deyil).
   try {
     const { getIo } = require("../socket");
     const io = getIo();
-    ids.forEach((u) => io.to(`user:${u}`).emit("notification_new", {}));
+    created.forEach((n) => {
+      io.to(`user:${n.user}`).emit("notification_new", {
+        _id: n._id,
+        module: n.module,
+        type: n.type,
+        title: n.title,
+        body: n.body,
+        data: n.data,
+        createdAt: n.createdAt,
+      });
+    });
   } catch (_) {}
 
   // FUTURE: push notification — buraya əlavə olunacaq (FCM/APNs və s.)

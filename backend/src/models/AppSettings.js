@@ -6,6 +6,30 @@ const timeWindowSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
 });
 
+const deliveryCitySchema = new mongoose.Schema(
+  {
+    key: { type: String, trim: true, required: true },
+    nameAz: { type: String, trim: true, required: true },
+    enabled: { type: Boolean, default: false },
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+    // Ət Satışı — bu şəhərə çatdırılma qiyməti (AZN) — hər şəhər üçün ayrıca
+    deliveryPrice: { type: Number, default: 5, min: 0 },
+  },
+  { _id: false },
+);
+
+const deliveryCountrySchema = new mongoose.Schema(
+  {
+    code: { type: String, trim: true, required: true },
+    nameAz: { type: String, trim: true, required: true },
+    flagCode: { type: String, trim: true, default: "az" },
+    enabled: { type: Boolean, default: false },
+    cities: { type: [deliveryCitySchema], default: [] },
+  },
+  { _id: false },
+);
+
 const appSettingsSchema = new mongoose.Schema(
   {
     singleton: { type: String, default: "global", unique: true },
@@ -58,6 +82,47 @@ const appSettingsSchema = new mongoose.Schema(
     charityPageEnabled: {
       type: Boolean,
       default: true,
+    },
+    // Ət Satışı — çatdırılma zamanı ölkə seçimi açıq/bağlı (hazırda yalnız Azərbaycan aktivdir)
+    meatCountrySelectionEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    // Ət Satışı — çatdırılma üçün ölkə/şəhər siyahısı
+    deliveryCountries: {
+      type: [deliveryCountrySchema],
+      default: [
+        {
+          code: "AZE",
+          nameAz: "Azərbaycan",
+          flagCode: "az",
+          enabled: true,
+          cities: [
+            { key: "baku", nameAz: "Bakı", enabled: true, lat: 40.4093, lng: 49.8671 },
+            { key: "sumqayit", nameAz: "Sumqayıt", enabled: true, lat: 40.5891, lng: 49.6686 },
+            { key: "ganja", nameAz: "Gəncə", enabled: false, lat: 40.6828, lng: 46.3606 },
+          ],
+        },
+        {
+          code: "TUR",
+          nameAz: "Türkiyə",
+          flagCode: "tr",
+          enabled: false,
+          cities: [],
+        },
+        {
+          code: "UZB",
+          nameAz: "Özbəkistan",
+          flagCode: "uz",
+          enabled: true,
+          cities: [
+            { key: "tashkent", nameAz: "Daşkənd", enabled: true, lat: 41.2995, lng: 69.2401 },
+            { key: "samarkand", nameAz: "Səmərqənd", enabled: false, lat: 39.6542, lng: 66.9597 },
+          ],
+        },
+        { code: "RUS", nameAz: "Rusiya", flagCode: "ru", enabled: false, cities: [] },
+        { code: "GEO", nameAz: "Gürcüstan", flagCode: "ge", enabled: false, cities: [] },
+      ],
     },
     singleAnimalMode: {
       type: Boolean,

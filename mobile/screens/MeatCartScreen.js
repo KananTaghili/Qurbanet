@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   Image,
-  Alert,
   Platform,
   StatusBar as RNStatusBar,
 } from "react-native";
@@ -44,7 +43,6 @@ export default function MeatCartScreen() {
   const { items, updateQuantity, removeItem, itemsTotal } = useMeatCart();
   const { location, setLocation, deliveryPrice } = useMeatDeliveryLocation();
   const [deliveryOpen, setDeliveryOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const total = itemsTotal + (items.length ? deliveryPrice : 0);
@@ -63,11 +61,7 @@ export default function MeatCartScreen() {
       navigation.navigate("Login");
       return;
     }
-    setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      Alert.alert("Tezliklə", "Ödəniş bölməsi hələ hazırlanır.");
-    }, 250);
+    navigation.navigate("MeatCheckoutSummary");
   };
 
   return (
@@ -82,7 +76,7 @@ export default function MeatCartScreen() {
               : navigation.navigate("MeatProducts")
           }
         >
-          <ArrowLeft size={18} color="#fff" strokeWidth={2.5} />
+          <ArrowLeft size={22} color="#fff" strokeWidth={2.5} />
         </Pressable>
         <View style={styles.headerTitleWrap}>
           <Text style={styles.headerTitle}>Səbətim</Text>
@@ -103,7 +97,7 @@ export default function MeatCartScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.cardHeaderLeft}>
-              <ShoppingCart size={16} color={BRAND} strokeWidth={2.2} />
+              <ShoppingCart size={19} color={BRAND} strokeWidth={2.2} />
               <Text style={styles.cardHeaderText}>Səbətdəki məhsullar</Text>
             </View>
             <View style={styles.cardHeaderChip}>
@@ -115,7 +109,7 @@ export default function MeatCartScreen() {
 
           {items.length === 0 ? (
             <View style={styles.emptyState}>
-              <ShoppingBag size={34} color="#d6d3d1" />
+              <ShoppingBag size={40} color="#d6d3d1" />
               <Text style={styles.emptyTitle}>Səbətiniz boşdur</Text>
               <Text style={styles.emptySubtitle}>
                 Məhsullara baxıb seçiminizi edin.
@@ -136,14 +130,14 @@ export default function MeatCartScreen() {
                         resizeMode="cover"
                       />
                     ) : (
-                      <Beef size={20} color="rgba(75,15,15,0.55)" />
+                      <Beef size={24} color="rgba(75,15,15,0.55)" />
                     )}
                   </View>
 
                   <View style={styles.itemBody}>
                     <View style={styles.itemTopRow}>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.itemName} numberOfLines={1}>
+                        <Text style={styles.itemName} numberOfLines={2}>
                           {it.cutNameAz}
                         </Text>
                         <Text style={styles.itemMeta} numberOfLines={1}>
@@ -154,7 +148,7 @@ export default function MeatCartScreen() {
                         onPress={() => removeItem(it.lineId)}
                         style={styles.removeBtn}
                       >
-                        <Trash2 size={14} color="#d6d3d1" />
+                        <Trash2 size={17} color="#d6d3d1" />
                       </Pressable>
                     </View>
 
@@ -174,7 +168,7 @@ export default function MeatCartScreen() {
                               )
                             }
                           >
-                            <Minus size={11} color="#57534e" />
+                            <Minus size={13} color="#57534e" />
                           </Pressable>
                           <Text style={styles.stepperText}>
                             {it.quantityKg.toFixed(2)} kq
@@ -189,7 +183,7 @@ export default function MeatCartScreen() {
                             }
                             disabled={it.quantityKg >= it.stockKg}
                           >
-                            <Plus size={11} color="#57534e" />
+                            <Plus size={13} color="#57534e" />
                           </Pressable>
                         </View>
                       )}
@@ -209,7 +203,7 @@ export default function MeatCartScreen() {
           onPress={() => setDeliveryOpen(true)}
         >
           <View style={styles.sectionIconWrap}>
-            <MapPin size={17} color={BRAND} strokeWidth={2.2} />
+            <MapPin size={20} color={BRAND} strokeWidth={2.2} />
           </View>
           <View style={styles.sectionBody}>
             <Text style={styles.sectionLabel}>Çatdırılma yeri</Text>
@@ -222,7 +216,7 @@ export default function MeatCartScreen() {
               <Text style={styles.sectionSubValue}>{location.phones[0]}</Text>
             ) : null}
           </View>
-          <ChevronRight size={15} color="#a8a29e" />
+          <ChevronRight size={18} color="#a8a29e" />
         </Pressable>
 
         <View style={styles.summaryCard}>
@@ -251,26 +245,22 @@ export default function MeatCartScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 8 }]}>
         <Pressable style={styles.secondaryBtn} onPress={goToProducts}>
-          <ArrowLeft size={14} color={BRAND} />
-          <Text style={styles.secondaryBtnText}>Alış-verişə davam et</Text>
+          <ArrowLeft size={17} color={BRAND} />
+          <Text style={styles.secondaryBtnText}>
+            {items.length > 0 ? "Alış-verişə davam et" : "Alış-verişə başla"}
+          </Text>
         </Pressable>
         <Pressable
           style={[styles.primaryBtn, !canCheckout && styles.primaryBtnDisabled]}
           onPress={handleCheckout}
-          disabled={!canCheckout || submitting}
+          disabled={!canCheckout}
         >
-          {submitting ? (
-            <Text style={styles.primaryBtnText}>Yönləndirilir...</Text>
-          ) : (
-            <>
-              <View style={styles.primaryBtnIconWrap}>
-                <CreditCard size={14} color="#fff" />
-              </View>
-              <Text style={styles.primaryBtnText}>
-                Ödə · {total.toFixed(2)} AZN
-              </Text>
-            </>
-          )}
+          <View style={styles.primaryBtnIconWrap}>
+            <CreditCard size={17} color="#fff" />
+          </View>
+          <Text style={styles.primaryBtnText}>
+            Ödə · {total.toFixed(2)} AZN
+          </Text>
         </Pressable>
       </View>
 
@@ -321,14 +311,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  headerTitle: { fontSize: 18, fontWeight: "900", color: "#fff" },
+  headerTitle: { fontSize: 21, fontWeight: "900", color: "#fff" },
   headerBadge: {
     backgroundColor: "rgba(255,255,255,0.16)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 11,
+    paddingVertical: 5,
     borderRadius: 999,
   },
-  headerBadgeText: { color: "#fff", fontSize: 11, fontWeight: "800" },
+  headerBadgeText: { color: "#fff", fontSize: 13, fontWeight: "800" },
   scroll: { flex: 1 },
   content: { padding: 14, gap: 12 },
   card: {
@@ -353,9 +343,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#e7e2da",
   },
-  cardHeaderLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
+  cardHeaderLeft: { flexDirection: "row", alignItems: "center", gap: 9 },
   cardHeaderText: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: "800",
     color: BRAND,
     textTransform: "uppercase",
@@ -363,27 +353,27 @@ const styles = StyleSheet.create({
   cardHeaderChip: {
     backgroundColor: "rgba(255,255,255,0.7)",
     borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
   },
-  cardHeaderChipText: { color: "#6b1717", fontSize: 11, fontWeight: "700" },
+  cardHeaderChipText: { color: "#6b1717", fontSize: 13, fontWeight: "700" },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 32,
+    paddingVertical: 34,
     paddingHorizontal: 20,
-    gap: 6,
+    gap: 8,
   },
-  emptyTitle: { fontSize: 15, fontWeight: "800", color: "#292524" },
-  emptySubtitle: { fontSize: 12.5, color: "#a8a29e", textAlign: "center" },
+  emptyTitle: { fontSize: 17, fontWeight: "800", color: "#292524" },
+  emptySubtitle: { fontSize: 14.5, color: "#a8a29e", textAlign: "center" },
   emptyBtn: {
-    marginTop: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    marginTop: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 11,
     borderRadius: 999,
     backgroundColor: "#F1E5E5",
   },
-  emptyBtnText: { color: BRAND, fontSize: 13, fontWeight: "800" },
+  emptyBtnText: { color: BRAND, fontSize: 15, fontWeight: "800" },
   itemsList: { padding: 12, gap: 10 },
   itemRow: {
     flexDirection: "row",
@@ -395,9 +385,9 @@ const styles = StyleSheet.create({
     borderColor: "#ede7e2",
   },
   itemImageWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
+    width: 64,
+    height: 64,
+    borderRadius: 13,
     backgroundColor: "#F1E5E5",
     alignItems: "center",
     justifyContent: "center",
@@ -411,33 +401,33 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 6,
   },
-  itemName: { fontSize: 12.5, fontWeight: "800", color: "#292524" },
-  itemMeta: { fontSize: 10.5, color: "#78716c", marginTop: 1 },
-  removeBtn: { padding: 4 },
+  itemName: { fontSize: 15, fontWeight: "800", color: "#292524" },
+  itemMeta: { fontSize: 12.5, color: "#78716c", marginTop: 2 },
+  removeBtn: { padding: 5 },
   itemBottomRow: {
-    marginTop: 8,
+    marginTop: 9,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  itemQtyText: { fontSize: 11.5, fontWeight: "700", color: "#292524" },
+  itemQtyText: { fontSize: 13.5, fontWeight: "700", color: "#292524" },
   stepper: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
     backgroundColor: "#f5f5f4",
-    borderRadius: 8,
-    paddingHorizontal: 3,
-    paddingVertical: 2,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    paddingVertical: 3,
   },
   stepperBtn: {
-    width: 22,
-    height: 22,
+    width: 26,
+    height: 26,
     alignItems: "center",
     justifyContent: "center",
   },
-  stepperText: { fontSize: 10.5, fontWeight: "800", color: "#292524" },
-  itemPrice: { fontSize: 12.5, fontWeight: "900", color: BRAND },
+  stepperText: { fontSize: 12.5, fontWeight: "800", color: "#292524" },
+  itemPrice: { fontSize: 15, fontWeight: "900", color: BRAND },
   sectionCard: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -449,9 +439,9 @@ const styles = StyleSheet.create({
     borderColor: "#e7e2da",
   },
   sectionIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 13,
     backgroundColor: "#F1E5E5",
     alignItems: "center",
     justifyContent: "center",
@@ -459,52 +449,52 @@ const styles = StyleSheet.create({
   },
   sectionBody: { flex: 1, minWidth: 0 },
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "800",
     color: "#78716c",
     textTransform: "uppercase",
   },
   sectionValue: {
-    marginTop: 2,
-    fontSize: 13,
+    marginTop: 3,
+    fontSize: 15,
     fontWeight: "700",
     color: "#292524",
   },
-  sectionSubValue: { marginTop: 2, fontSize: 11.5, color: "#78716c" },
+  sectionSubValue: { marginTop: 3, fontSize: 13.5, color: "#78716c" },
   summaryCard: {
     backgroundColor: "#fff",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#e7e2da",
-    padding: 14,
-    gap: 8,
+    padding: 15,
+    gap: 9,
   },
   summaryRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  summaryLabel: { fontSize: 12.5, color: "#78716c" },
-  summaryValue: { fontSize: 13, fontWeight: "700", color: "#292524" },
+  summaryLabel: { fontSize: 14.5, color: "#78716c" },
+  summaryValue: { fontSize: 15, fontWeight: "700", color: "#292524" },
   summaryRowTotal: {
-    marginTop: 2,
-    paddingTop: 8,
+    marginTop: 3,
+    paddingTop: 9,
     borderTopWidth: 1,
     borderTopColor: "#f3f0ea",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  summaryTotalLabel: { fontSize: 13, fontWeight: "800", color: "#292524" },
-  summaryTotalValue: { fontSize: 16, fontWeight: "900", color: BRAND },
+  summaryTotalLabel: { fontSize: 15, fontWeight: "800", color: "#292524" },
+  summaryTotalValue: { fontSize: 19, fontWeight: "900", color: BRAND },
   errorBox: {
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#fecaca",
     backgroundColor: "#fef2f2",
-    padding: 10,
+    padding: 11,
   },
-  errorText: { color: "#b91c1c", fontSize: 12.5, fontWeight: "700" },
+  errorText: { color: "#b91c1c", fontSize: 14.5, fontWeight: "700" },
   footer: {
     position: "absolute",
     left: 0,
@@ -521,29 +511,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
-    borderRadius: 12,
-    paddingVertical: 10,
+    gap: 7,
+    borderRadius: 13,
+    paddingVertical: 12,
     backgroundColor: "#F1E5E5",
   },
-  secondaryBtnText: { color: BRAND, fontSize: 13, fontWeight: "800" },
+  secondaryBtnText: { color: BRAND, fontSize: 15, fontWeight: "800" },
   primaryBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    borderRadius: 12,
-    paddingVertical: 12,
+    gap: 9,
+    borderRadius: 13,
+    paddingVertical: 14,
     backgroundColor: BRAND,
   },
   primaryBtnDisabled: { opacity: 0.6 },
   primaryBtnIconWrap: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: "rgba(255,255,255,0.16)",
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryBtnText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+  primaryBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
 });

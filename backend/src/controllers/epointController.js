@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
 const CharityOrder = require("../models/CharityOrder");
 const MeatOrder = require("../models/MeatOrder");
+const { releaseStaleMeatOrders } = require("./meatOrderController");
 const { ORDER_STATUS } = require("../config/constants");
 const {
   createPayment,
@@ -147,6 +148,18 @@ const applyFailed = async (type, order) => {
   if (order.payment?.status === "paid") return;
   order.payment.status = "failed";
   await order.save();
+
+  // Ət Satışında tam hissə kəsimləri (soldByWeight: false) sifariş YARADILANDA
+  // dərhal kilidlənir (bax meatOrderController.decrementStock) — ödəniş
+  // uğursuz olduqda bu kilidi dərhal sərbəst burax, əks halda kəsim ödəniş heç
+  // vaxt tamamlanmadığı halda "mövcud deyil" olaraq qalır.
+  if (type === "meat") {
+    try {
+      await releaseStaleMeatOrders({ userId: order.user });
+    } catch (err) {
+      console.error("[EPoint] applyFailed: meat stok buraxma xətası:", err.message);
+    }
+  }
 };
 
 // ─── Ət Satışı sifarişi: ödənişi başlat ─────────────────────────────────────

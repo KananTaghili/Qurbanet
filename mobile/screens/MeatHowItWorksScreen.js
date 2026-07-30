@@ -101,9 +101,21 @@ function HeroBanner() {
           resizeMode="cover"
         />
       </View>
+      {/* Fotodan mətn sahəsinə keçid — MeatHomeScreen-dəki hero ilə eyni,
+          daha çox aralıq nöqtəli enli və tədricən yumşalan zolaq. */}
       <LinearGradient
-        colors={["#F8F5EF", "#F8F5EF", "rgba(248,245,239,0.6)", "rgba(248,245,239,0)", "rgba(248,245,239,0)"]}
-        locations={[0, 0.3, 0.42, 0.58, 1]}
+        colors={[
+          "#F8F5EF",
+          "#F8F5EF",
+          "rgba(248,245,239,0.92)",
+          "rgba(248,245,239,0.7)",
+          "rgba(248,245,239,0.45)",
+          "rgba(248,245,239,0.22)",
+          "rgba(248,245,239,0.08)",
+          "rgba(248,245,239,0)",
+          "rgba(248,245,239,0)",
+        ]}
+        locations={[0, 0.2, 0.32, 0.42, 0.52, 0.62, 0.7, 0.78, 1]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={StyleSheet.absoluteFill}
@@ -130,13 +142,13 @@ function StepSlide({ step, isActive, pulse }) {
       <View style={styles.slideHeadRow}>
         <View style={styles.slideIconWrap}>
           <Animated.View style={isActive && { transform: [{ scale }] }}>
-            <step.Icon size={17} color={BRAND} strokeWidth={2} />
+            <step.Icon size={20} color={BRAND} strokeWidth={2} />
           </Animated.View>
           <View style={styles.slideNumBadge}>
             <Text style={styles.slideNumText}>{step.num}</Text>
           </View>
         </View>
-        <Text style={styles.slideTitle} numberOfLines={1}>{step.title}</Text>
+        <Text style={styles.slideTitle} numberOfLines={2}>{step.title}</Text>
       </View>
       <Text style={styles.slideDesc}>{step.text}</Text>
     </View>
@@ -217,10 +229,10 @@ function StepsCarousel() {
         </View>
 
         <Pressable style={[styles.carouselArrow, { left: 6 }]} onPress={goPrev}>
-          <ChevronLeft size={18} color={BRAND} strokeWidth={2.5} />
+          <ChevronLeft size={21} color={BRAND} strokeWidth={2.5} />
         </Pressable>
         <Pressable style={[styles.carouselArrow, { right: 6 }]} onPress={goNext}>
-          <ChevronRight size={18} color={BRAND} strokeWidth={2.5} />
+          <ChevronRight size={21} color={BRAND} strokeWidth={2.5} />
         </Pressable>
       </View>
 
@@ -259,7 +271,7 @@ export default function MeatHowItWorksScreen() {
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <View style={styles.headerLeft}>
           <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
-            <Menu size={20} color="#fff" />
+            <Menu size={26} color="#fff" />
           </Pressable>
           <Text style={styles.headerTitle} numberOfLines={1}>Ət Satışı</Text>
         </View>
@@ -267,7 +279,7 @@ export default function MeatHowItWorksScreen() {
           <NotificationBell accentColor={BRAND} iconColor="#fff" />
           {isGuest ? (
             <Pressable style={styles.loginBtn} onPress={() => navigation.navigate("Login")}>
-              <User size={18} color="#fff" />
+              <User size={22} color="#fff" />
               <Text style={styles.loginText}>Daxil ol</Text>
             </Pressable>
           ) : (
@@ -299,14 +311,14 @@ export default function MeatHowItWorksScreen() {
           <View style={styles.badgesRow}>
             {MINI_BADGES.map(({ Icon, title }) => (
               <View key={title} style={styles.badgeItem}>
-                <Icon size={13} color={BRAND} />
+                <Icon size={16} color={BRAND} />
                 <Text style={styles.badgeText}>{title}</Text>
               </View>
             ))}
           </View>
           <Pressable style={styles.ctaBtn} onPress={comingSoon}>
             <Text style={styles.ctaText}>Sifarişə başla</Text>
-            <ShoppingCart size={13} color="#fff" strokeWidth={2.5} />
+            <ShoppingCart size={16} color="#fff" strokeWidth={2.5} />
           </Pressable>
         </View>
       </View>
@@ -329,33 +341,33 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1, minWidth: 0 },
   headerRight: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 0 },
-  menuBtn: { width: 30, height: 30, alignItems: "center", justifyContent: "center" },
-  headerTitle: { flex: 1, color: "#fff", fontSize: 15, fontWeight: "800" },
+  menuBtn: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
+  headerTitle: { flex: 1, color: "#fff", fontSize: 22, fontWeight: "800" },
   loginBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginRight: 5 },
-  loginText: { color: "#fff", fontSize: 13, fontWeight: "700" },
+  loginText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 
   hero: {
     borderRadius: 16,
     overflow: "hidden",
     backgroundColor: "#F8F5EF",
-    minHeight: 128,
+    minHeight: 136,
     justifyContent: "center",
   },
   heroImageBox: { position: "absolute", top: 0, bottom: 0, right: 0, width: "58%", overflow: "hidden" },
   heroText: { padding: 16, maxWidth: "56%" },
-  heroTitle: { fontSize: 18, fontWeight: "900", color: "#0a0a0a", letterSpacing: -0.2, lineHeight: 21 },
-  heroSub: { fontSize: 11, color: "#525252", lineHeight: 15, fontWeight: "500", marginTop: 6 },
+  heroTitle: { fontSize: 21, fontWeight: "900", color: "#0a0a0a", letterSpacing: -0.2, lineHeight: 25 },
+  heroSub: { fontSize: 13.5, color: "#525252", lineHeight: 18, fontWeight: "500", marginTop: 7 },
 
-  sectionTitle: { fontSize: 14, fontWeight: "900", color: "#171717" },
+  sectionTitle: { fontSize: 18, fontWeight: "900", color: "#171717" },
 
   carouselWrap: { position: "relative" },
   carouselViewport: { overflow: "hidden", borderRadius: 12 },
   carouselArrow: {
     position: "absolute",
     top: 94,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.92)",
@@ -383,11 +395,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   slidePhotoImg: { width: "100%", height: "100%" },
-  slideHeadRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 12 },
+  slideHeadRow: { flexDirection: "row", alignItems: "center", gap: 11, marginTop: 14 },
   slideIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     borderWidth: 2,
     borderColor: BRAND,
     backgroundColor: "#fff",
@@ -396,18 +408,18 @@ const styles = StyleSheet.create({
   },
   slideNumBadge: {
     position: "absolute",
-    top: -4,
-    right: -4,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    top: -5,
+    right: -5,
+    width: 19,
+    height: 19,
+    borderRadius: 9.5,
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
   },
-  slideNumText: { color: "#fff", fontSize: 9, fontWeight: "900" },
-  slideTitle: { flex: 1, fontSize: 15, fontWeight: "900", color: "#171717" },
-  slideDesc: { fontSize: 12.5, color: "#737373", fontWeight: "500", marginTop: 6, lineHeight: 17 },
+  slideNumText: { color: "#fff", fontSize: 10.5, fontWeight: "900" },
+  slideTitle: { flex: 1, fontSize: 17.5, fontWeight: "900", color: "#171717" },
+  slideDesc: { fontSize: 15, color: "#737373", fontWeight: "500", marginTop: 8, lineHeight: 20 },
 
   dotsRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6, marginTop: 10 },
   dot: { height: 6, borderRadius: 3 },
@@ -420,25 +432,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(75,15,15,0.1)",
     backgroundColor: "#FDFBF7",
-    padding: 12,
-    gap: 10,
+    padding: 13,
+    gap: 11,
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: -2 },
     elevation: 4,
   },
-  badgesRow: { flexDirection: "row", flexWrap: "wrap", gap: 12, justifyContent: "center" },
-  badgeItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-  badgeText: { fontSize: 11, fontWeight: "700", color: "#404040" },
+  badgesRow: { flexDirection: "row", flexWrap: "wrap", gap: 13, justifyContent: "center" },
+  badgeItem: { flexDirection: "row", alignItems: "center", gap: 7 },
+  badgeText: { fontSize: 13.5, fontWeight: "700", color: "#404040" },
   ctaBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 7,
     backgroundColor: BRAND,
-    borderRadius: 10,
-    paddingVertical: 11,
+    borderRadius: 11,
+    paddingVertical: 13,
   },
-  ctaText: { color: "#fff", fontWeight: "800", fontSize: 13 },
+  ctaText: { color: "#fff", fontWeight: "800", fontSize: 15.5 },
 });

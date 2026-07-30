@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import Svg, { Path, G, Rect, Ellipse, Text as SvgText } from "react-native-svg";
 
@@ -9,7 +9,6 @@ import Svg, { Path, G, Rect, Ellipse, Text as SvgText } from "react-native-svg";
 // davranışı 1:1 portlanıb.
 
 export const VIEWBOX = "0 0 480 300";
-const LABEL_VERTICAL_OFFSET = -1.5;
 
 const SHEEP_REGION_GEOMETRY = {
   bas:
@@ -256,7 +255,11 @@ function SheepShape({ color, withHorn }) {
   return (
     <G>
       <Path d={SHEEP_OUTLINE} fill={color} />
-      <G fill={HOOF}>
+      {/* react-native-svg-nin render mühərriki bəzən iki bitişik path
+          arasında (dırnaq/bədən sərhədində) çox incə, "şəffaf" görünən bir
+          boşluq (anti-aliasing seam) buraxır — brauzerdə bu görünmür. Eyni
+          rəngdə nazik "stroke" bu boşluğu bağlayır, formanı dəyişmədən. */}
+      <G fill={HOOF} stroke={HOOF} strokeWidth={1}>
         {SHEEP_HOOF_PATHS.map((d, i) => (
           <Path key={i} d={d} />
         ))}
@@ -666,6 +669,8 @@ export default function AnimalBodyMap({
   selectedPartKey,
   onSelectPart,
   foodFilterIds,
+  onSwipe,
+  onDragActive,
 }) {
   const geometry = getRegionGeometry(animalKey);
   const displayParts = getDisplayParts(animalKey, parts);
@@ -683,8 +688,25 @@ export default function AnimalBodyMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animalKey, geometry]);
 
-  const handleTouch = (evt) => {
-    const { locationX, locationY } = evt.nativeEvent;
+  // Toxunma başlanan andaca (onResponderGrant) seçim edilirdi — bu, "barmaqla
+  // sağa/sola sürüşdürəndə heyvan dəyişsin" tələbini qeyri-mümkün edirdi,
+  // çünki barmaq diaqrama TOXUNDUĞU anda artıq hansısa bölgə seçilmiş olurdu,
+  // hələ sürüşdürmə hərəkəti başlamamış. İndi qərar buraxılana (release)
+  // qədər gecikdirilir: əgər hərəkət aydın üfüqi sürüşdürmədirsə "onSwipe"
+  // çağırılır, əks halda toxunma nöqtəsində bölgə seçimi icra olunur.
+  //
+  // "gestureIntent" bir addım da irəli aparır: hərəkət aydın ŞAQULİ olarsa
+  // (yəni istifadəçi əslində səhifəni scroll etmək istəyir, diaqramın
+  // üzərindən başlasa belə), responder-i ƏSAS ScrollView-a BURAXIRIQ
+  // (onResponderTerminationRequest → true) ki, normal scroll işləsin.
+  // Yalnız üfüqi niyyət müəyyənləşəndə ScrollView-un scroll-u söndürülür
+  // (onDragActive) — əvvəlcədən, hər toxunuşda YOX, çünki əks halda
+  // ScrollView öz "scrollEnabled=false" halında olduğu üçün şaquli
+  // hərəkəti heç tanıya bilməzdi.
+  const touchStartRef = useRef({ pageX: 0, pageY: 0, locationX: 0, locationY: 0 });
+  const gestureIntentRef = useRef("pending"); // "pending" | "horizontal" | "vertical"
+
+  const selectPartAt = (locationX, locationY) => {
     const { width, height } = containerSize;
     if (!width || !height) return;
     const scale = Math.min(width / 480, height / 300);
@@ -702,6 +724,48 @@ export default function AnimalBodyMap({
     }
   };
 
+  const handleResponderGrant = (evt) => {
+    const { pageX, pageY, locationX, locationY } = evt.nativeEvent;
+    touchStartRef.current = { pageX, pageY, locationX, locationY };
+    gestureIntentRef.current = "pending";
+  };
+
+  const handleResponderMove = (evt) => {
+    if (gestureIntentRef.current !== "pending") return;
+    const { pageX, pageY } = evt.nativeEvent;
+    const dx = pageX - touchStartRef.current.pageX;
+    const dy = pageY - touchStartRef.current.pageY;
+    if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx) * 1.3) {
+      // Aydın şaquli hərəkət — bu bir scroll cəhdidir, ScrollView-a burax.
+      gestureIntentRef.current = "vertical";
+    } else if (Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 0.7) {
+      // Aydın üfüqi hərəkət — indi ScrollView-un scroll-unu söndür.
+      gestureIntentRef.current = "horizontal";
+      onDragActive?.(true);
+    }
+  };
+
+  const handleResponderRelease = (evt) => {
+    const wasHorizontal = gestureIntentRef.current === "horizontal";
+    gestureIntentRef.current = "pending";
+    onDragActive?.(false);
+    const { pageX, pageY } = evt.nativeEvent;
+    const dx = pageX - touchStartRef.current.pageX;
+    const dy = pageY - touchStartRef.current.pageY;
+    if (
+      wasHorizontal &&
+      onSwipe &&
+      Math.abs(dx) > 32 &&
+      Math.abs(dy) < Math.abs(dx) * 1.8
+    ) {
+      onSwipe(dx < 0 ? "next" : "prev");
+      return;
+    }
+    if (!wasHorizontal) {
+      selectPartAt(touchStartRef.current.locationX, touchStartRef.current.locationY);
+    }
+  };
+
   return (
     <View
       style={{ flex: 1 }}
@@ -716,8 +780,16 @@ export default function AnimalBodyMap({
         })
       }
       onStartShouldSetResponder={() => true}
-      onResponderTerminationRequest={() => false}
-      onResponderGrant={handleTouch}
+      onResponderTerminationRequest={() =>
+        gestureIntentRef.current === "vertical"
+      }
+      onResponderGrant={handleResponderGrant}
+      onResponderMove={handleResponderMove}
+      onResponderRelease={handleResponderRelease}
+      onResponderTerminate={() => {
+        gestureIntentRef.current = "pending";
+        onDragActive?.(false);
+      }}
     >
       <Svg
         viewBox={VIEWBOX}
@@ -741,13 +813,15 @@ export default function AnimalBodyMap({
           if (!hasStock) {
             fill = GRAY;
             fillOpacity = 0.7;
-            stroke = isSel ? ACCENT : GRAY_STROKE;
-            strokeWidth = isSel ? 3 : 1.5;
+            // Bölgələrin heç birində sərhəd (border) olmasın — seçilsə belə
+            // — veb-dəki kimi.
+            stroke = "none";
+            strokeWidth = 0;
           } else if (!matchesFood) {
             fill = FOOD_EXCLUDED_FILL;
             fillOpacity = 0.7;
-            stroke = isSel ? ACCENT : FOOD_EXCLUDED_STROKE;
-            strokeWidth = isSel ? 3 : 1.5;
+            stroke = "none";
+            strokeWidth = 0;
           } else if (isSel) {
             fill = SELECTED_FILL;
             fillOpacity = 1;
@@ -795,12 +869,12 @@ export default function AnimalBodyMap({
             <SvgText
               key={`lbl-${i}`}
               x={L.x}
-              y={L.y + LABEL_VERTICAL_OFFSET}
+              y={L.y + 12}
               textAnchor="middle"
-              // Web-də "dominantBaseline=middle" var idi, mən onu portlayanda
-              // buraxmışdım — onsuz SVG y-nı mətnin ORTASI yox, ALT XƏTTİ
-              // (baseline) kimi oxuyur, ona görə bütün rəqəmlər real
-              // mərkəzindən yuxarıda görünürdü.
+              // react-native-svg-nin "dominantBaseline=middle" render
+              // mühərriki veb-dəkindən (brauzer) bir az fərqli hesablayır —
+              // real cihazda mətn tam mərkəzdən bir tük yuxarıda görünürdü,
+              // ona görə kiçik (4px) aşağı düzəliş var.
               dominantBaseline="middle"
               fontSize={L.s}
               fontWeight="800"

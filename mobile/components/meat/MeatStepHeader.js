@@ -15,7 +15,7 @@ export default function MeatStepHeader({ currentStep, backTo = "MeatHome" }) {
   return (
     <View style={styles.root}>
       <Pressable style={[styles.backBtn, { top: insets.top }]} onPress={() => navigation.navigate(backTo)}>
-        <ArrowLeft size={18} color="#fff" strokeWidth={2.5} />
+        <ArrowLeft size={22} color="#fff" strokeWidth={2.5} />
       </Pressable>
 
       <View style={[styles.stepsRow, { paddingTop: insets.top + 8 }]}>
@@ -58,19 +58,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     zIndex: 10,
-    width: 56,
-    height: 56,
-    borderBottomRightRadius: 56,
+    width: 60,
+    height: 60,
+    borderBottomRightRadius: 60,
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
   },
-  stepsRow: { flexDirection: "row", alignItems: "flex-start", paddingLeft: 70, paddingRight: 2 },
+  stepsRow: { flexDirection: "row", alignItems: "flex-start", paddingLeft: 74, paddingRight: 4 },
   stepItemWrap: { flexDirection: "row", alignItems: "flex-start", flex: 1 },
-  stepCol: { alignItems: "center", gap: 4, width: 88 },
-  circle: { width: 26, height: 26, borderRadius: 13, alignItems: "center", justifyContent: "center", backgroundColor: "#f0f0f0", borderWidth: 1.5, borderColor: "#e5e7eb" },
+  stepCol: { alignItems: "center", gap: 5, width: 96 },
+  circle: { width: 31, height: 31, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#f0f0f0", borderWidth: 1.5, borderColor: "#e5e7eb" },
   circleActive: { shadowColor: BRAND, shadowOpacity: 0.3, shadowRadius: 4, elevation: 2 },
-  circleText: { fontSize: 12, fontWeight: "800", color: "#9ca3af" },
-  stepLabel: { fontSize: 10, fontWeight: "700", color: "#9ca3af", textAlign: "center" },
-  connector: { flex: 1, height: 2, marginTop: 12, marginHorizontal: 2, backgroundColor: "#e5e7eb", borderRadius: 1 },
+  circleText: { fontSize: 14, fontWeight: "800", color: "#9ca3af" },
+  stepLabel: { fontSize: 12, fontWeight: "700", color: "#9ca3af", textAlign: "center" },
+  connector: { flex: 1, height: 6, marginTop: 13, marginHorizontal: 2, backgroundColor: "#e5e7eb", borderRadius: 3 },
 });

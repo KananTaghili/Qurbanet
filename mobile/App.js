@@ -25,6 +25,8 @@ import MeatProductsScreen from "./screens/MeatProductsScreen";
 import MeatCartScreen from "./screens/MeatCartScreen";
 import MeatMyOrdersScreen from "./screens/MeatMyOrdersScreen";
 import MeatOrderDetailScreen from "./screens/MeatOrderDetailScreen";
+import MeatCheckoutSummaryScreen from "./screens/MeatCheckoutSummaryScreen";
+import MeatCheckoutPaymentScreen from "./screens/MeatCheckoutPaymentScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import OrderQuantityScreen from "./screens/OrderQuantityScreen";
 import OrderDistributionScreen from "./screens/OrderDistributionScreen";
@@ -85,6 +87,8 @@ function AppShell() {
         <Stack.Screen name="MeatCart" component={MeatCartScreen} />
         <Stack.Screen name="MeatMyOrders" component={MeatMyOrdersScreen} />
         <Stack.Screen name="MeatOrderDetail" component={MeatOrderDetailScreen} />
+        <Stack.Screen name="MeatCheckoutSummary" component={MeatCheckoutSummaryScreen} />
+        <Stack.Screen name="MeatCheckoutPayment" component={MeatCheckoutPaymentScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="OrderQuantity" component={OrderQuantityScreen} />
         <Stack.Screen

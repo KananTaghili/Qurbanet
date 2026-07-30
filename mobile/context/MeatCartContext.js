@@ -83,9 +83,40 @@ export function MeatCartProvider({ children }) {
   const itemsTotal = items.reduce((s, i) => s + i.pricePerKg * i.quantityKg, 0);
   const itemCount = items.reduce((s, i) => s + i.quantityKg, 0);
 
+  // Sifariş göndərilərkən (POST /meat/orders) həmin sətirlərin stoku elə bu
+  // sifarişin özü tərəfindən kilidlənir — checkout ekranı bunu öz "başqa
+  // müştəri alıb" bildirişi kimi yozmamalıdır (bax web-dəki MeatCartContext).
+  const pendingLineIdsRef = useRef(new Set());
+  const markOrderPending = (lineIds) => {
+    lineIds.forEach((id) => pendingLineIdsRef.current.add(id));
+  };
+  const clearOrderPending = (lineIds) => {
+    lineIds.forEach((id) => pendingLineIdsRef.current.delete(id));
+  };
+
+  // Checkout zamanı server bəzi sətirlərin artıq stokda qalmadığını
+  // bildirsə, onları səbətdən silir (web-dəki removeUnavailableItems ilə eyni).
+  const removeUnavailableItems = (unavailableItems) => {
+    if (!Array.isArray(unavailableItems) || unavailableItems.length === 0) return;
+    const ids = new Set(unavailableItems.map((u) => makeLineId(u.animalKey, u.partKey, u.cutId)));
+    persist(itemsRef.current.filter((i) => !ids.has(i.lineId)));
+  };
+
   return (
     <MeatCartContext.Provider
-      value={{ items, isLoaded, addToCart, updateQuantity, removeItem, clearCart, itemsTotal, itemCount }}
+      value={{
+        items,
+        isLoaded,
+        addToCart,
+        updateQuantity,
+        removeItem,
+        clearCart,
+        itemsTotal,
+        itemCount,
+        markOrderPending,
+        clearOrderPending,
+        removeUnavailableItems,
+      }}
     >
       {children}
     </MeatCartContext.Provider>

@@ -18,7 +18,7 @@ import {
   User,
   Menu,
 } from "lucide-react-native";
-import { Knife } from "phosphor-react-native/src/icons/Knife";
+import { KnifeIcon } from "phosphor-react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
@@ -33,10 +33,13 @@ const cards = [
     title: "Qurbanlıq Sifarişi",
     text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.",
     button: "SİFARİŞ ET",
-    Icon: Knife,
+    Icon: KnifeIcon,
     color: "#0b6c24",
     videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1",
     videoType: "youtube",
+    fallbackVideoUrl:
+      "https://videos.pexels.com/video-files/3195650/3195650-hd_1920_1080_25fps.mp4",
+    fallbackVideoType: "mp4",
     screen: "Qurban",
   },
   {
@@ -44,10 +47,13 @@ const cards = [
     text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",
     button: "QOŞUL",
     Icon: HeartHandshake,
-    color: "#6820a3",
+    color: "#301586",
     videoUrl:
       "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm",
-    videoType: "mp4",
+    videoType: "html5",
+    fallbackVideoUrl:
+      "https://videos.pexels.com/video-files/3209298/3209298-hd_1920_1080_25fps.mp4",
+    fallbackVideoType: "mp4",
     screen: "CollectiveQurban",
   },
   {
@@ -55,9 +61,13 @@ const cards = [
     text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",
     button: "MƏHSULLARA BAX",
     Icon: Beef,
-    color: "#f97316",
+    color: "#4B0F0F",
     videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1",
     videoType: "youtube",
+    fallbackVideoUrl:
+      "https://videos.pexels.com/video-files/3191887/3191887-hd_1920_1080_25fps.mp4",
+    fallbackVideoType: "mp4",
+    screen: "MeatHome",
   },
 ];
 
@@ -69,11 +79,22 @@ function ServiceCard({ item, onPress }) {
         <Icon size={30} color={item.color} weight="bold" />
       </View>
       <View style={styles.cardBody}>
-        <Text style={[styles.cardTitle, { color: item.color }]}>{item.title}</Text>
-        <CardVideo videoUrl={item.videoUrl} videoType={item.videoType} />
+        <Text style={[styles.cardTitle, { color: item.color }]}>
+          {item.title}
+        </Text>
+        <CardVideo
+          videoUrl={item.videoUrl}
+          videoType={item.videoType}
+          fallbackVideoUrl={item.fallbackVideoUrl}
+          fallbackVideoType={item.fallbackVideoType}
+        />
         <Text style={styles.cardText}>{item.text}</Text>
         <Pressable
-          style={[styles.cardBtn, { backgroundColor: item.color }, !item.screen && { opacity: 0.5 }]}
+          style={[
+            styles.cardBtn,
+            { backgroundColor: item.color },
+            !item.screen && { opacity: 0.5 },
+          ]}
           onPress={() => item.screen && onPress(item.screen)}
           disabled={!item.screen}
         >
@@ -90,14 +111,19 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { isGuest, user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const initials = [user?.name, user?.lastName].filter(Boolean).map(n => n[0]).join("").toUpperCase() || "?";
+  const initials =
+    [user?.name, user?.lastName]
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "?";
 
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== "android") return;
       NavigationBar.setButtonStyleAsync("dark").catch(() => {});
       NavigationBar.setBackgroundColorAsync("#ffffff").catch(() => {});
-    }, [])
+    }, []),
   );
 
   return (
@@ -120,7 +146,10 @@ export default function HomeScreen() {
           <View style={styles.headerRight}>
             <NotificationBell accentColor="#0b6c24" iconColor="#171717" />
             {isGuest ? (
-              <Pressable style={styles.loginBtn} onPress={() => navigation.navigate("Login")}>
+              <Pressable
+                style={styles.loginBtn}
+                onPress={() => navigation.navigate("Login")}
+              >
                 <User size={18} color="#171717" />
                 <Text style={styles.loginText}>Daxil ol</Text>
               </Pressable>
@@ -133,7 +162,10 @@ export default function HomeScreen() {
 
       <SideMenu visible={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+      >
         {/* Hero */}
         <ImageBackground
           source={require("../assets/images/hero-bg.jpg")}
@@ -147,15 +179,22 @@ export default function HomeScreen() {
             style={StyleSheet.absoluteFill}
           />
           <View style={styles.heroContent}>
-            <Text style={styles.heroTitle}>Bərəkətli qurbanlıq,{"\n"}Rahat ət sifarişi!</Text>
-            <Text style={styles.heroSlogan}>ETİBARLI  •  HALAL  •  SÜRƏTLİ</Text>
+            <Text style={styles.heroTitle}>
+              Bərəkətli qurbanlıq,{"\n"}Rahat ət sifarişi!
+            </Text>
+            <Text style={styles.heroSlogan}>ETİBARLI • HALAL • SÜRƏTLİ</Text>
             {isGuest ? (
-              <Pressable style={styles.ctaBtn} onPress={() => navigation.navigate("Register")}>
-                <Text style={styles.ctaText}>Qeydiyyatdan keç  →</Text>
+              <Pressable
+                style={styles.ctaBtn}
+                onPress={() => navigation.navigate("Register")}
+              >
+                <Text style={styles.ctaText}>Qeydiyyatdan keç →</Text>
               </Pressable>
             ) : (
               <View style={styles.ctaBtn}>
-                <Text style={styles.ctaText}>Xoş gəlmisiniz, {user?.name}!</Text>
+                <Text style={styles.ctaText}>
+                  Xoş gəlmisiniz, {user?.name}!
+                </Text>
               </View>
             )}
           </View>
@@ -164,7 +203,11 @@ export default function HomeScreen() {
         {/* Services */}
         <View style={styles.servicesSection}>
           {cards.map((item) => (
-            <ServiceCard key={item.title} item={item} onPress={(screen) => navigation.navigate(screen)} />
+            <ServiceCard
+              key={item.title}
+              item={item}
+              onPress={(screen) => navigation.navigate(screen)}
+            />
           ))}
         </View>
       </ScrollView>
@@ -196,7 +239,12 @@ const styles = StyleSheet.create({
   headerLogo: { width: 110, height: 28 },
   headerRight: { flexDirection: "row", alignItems: "center", gap: 14 },
   bellBtn: { alignItems: "center", justifyContent: "center" },
-  loginBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginRight: 5 },
+  loginBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginRight: 5,
+  },
   loginText: { fontSize: 14, fontWeight: "600", color: "#171717" },
   avatar: {
     width: 30,
@@ -289,7 +337,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardTitle: { fontSize: 19, fontWeight: "800", paddingRight: 72 },
-  cardText: { paddingVertical: 8, fontSize: 12, lineHeight: 18, color: "#404040" },
+  cardText: {
+    paddingVertical: 8,
+    fontSize: 12,
+    lineHeight: 18,
+    color: "#404040",
+  },
   cardBtn: {
     flexDirection: "row",
     alignItems: "center",

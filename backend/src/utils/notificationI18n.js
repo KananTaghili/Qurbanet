@@ -54,6 +54,23 @@ const T = {
     en: { title: "Slaughter media added", body: "New media was added to the {animalName} sacrifice (#{campaignNumber})." },
     ru: { title: "Добавлено медиа",       body: "К жертве {animalName} (#{campaignNumber}) добавлено новое медиа." },
   },
+  // Admin tərəfindən Ət Satışı bölməsindən bütün istifadəçilərə göndərilən hazır şablonlar
+  // (meatAdminController.js → BROADCAST_PRESETS ilə key-lər uyğun olmalıdır)
+  meat_new_parts: {
+    az: { title: "Yeni hissələr əlavə olundu", body: "Yeni heyvan kəsildi və paketlənib satışa hazır şəkildə müştərilərini gözləyir!" },
+    en: { title: "New cuts available",         body: "A new animal has been slaughtered and packaged — fresh cuts are ready and waiting for you!" },
+    ru: { title: "Добавлены новые части",      body: "Забито и упаковано новое животное — свежие части уже ждут вас!" },
+  },
+  meat_restock: {
+    az: { title: "Stok yeniləndi", body: "Sevimli ət məhsullarınız yenidən stokdadır! Məhdud miqdarda olduğu üçün tez sifariş edin." },
+    en: { title: "Back in stock",  body: "Your favorite cuts are back in stock! Quantities are limited, order soon." },
+    ru: { title: "Товар снова в наличии", body: "Ваши любимые части мяса снова в наличии! Количество ограничено — заказывайте скорее." },
+  },
+  meat_discount: {
+    az: { title: "Endirim fürsəti", body: "Ət Satışında xüsusi endirimlər başladı! İndi sifariş verin." },
+    en: { title: "Special discount", body: "Special discounts have started in Meat Sale! Order now." },
+    ru: { title: "Специальная скидка", body: "В разделе продажи мяса начались специальные скидки! Заказывайте прямо сейчас." },
+  },
 };
 
 const normalizeLang = (lang) => (LANGS.includes(lang) ? lang : DEFAULT_LANG);

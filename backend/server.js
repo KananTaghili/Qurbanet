@@ -23,6 +23,7 @@ const epointRoutes = require("./src/routes/epointRoutes");
 const fileRoutes = require("./src/routes/fileRoutes");
 const meatRoutes = require("./src/routes/meatRoutes");
 const socketService = require("./src/socket");
+const { releaseStaleMeatOrders } = require("./src/controllers/meatOrderController");
 
 const app = express();
 const httpServer = createServer(app);
@@ -179,6 +180,14 @@ const startServer = async () => {
         process.send("ready");
         console.log("📢 PM2 prosesinə 'ready' siqnalı uğurla ötürüldü.");
       }
+
+      // Ödənişi heç vaxt tamamlanmamış (tərk edilmiş) Ət Satışı sifarişlərinin
+      // kilidlədiyi stoku dövri olaraq sərbəst burax — istifadəçi retry etməsə belə.
+      setInterval(() => {
+        releaseStaleMeatOrders({ olderThanMinutes: 30 }).catch((err) =>
+          console.error("[MeatOrder] köhnəlmiş sifarişlərin təmizlənməsi xətası:", err.message),
+        );
+      }, 10 * 60 * 1000);
 
       // Render üçün ping mexanizmi (Yalnız dev mühitində deyilsə işləyir)
       if (process.env.BACKEND_URL && process.env.NODE_ENV !== "development") {

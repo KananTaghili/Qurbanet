@@ -4,6 +4,15 @@ import api from "../lib/api";
 
 const AuthContext = createContext(null);
 
+const parseStoredUser = (raw) => {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -11,14 +20,18 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     (async () => {
-      const storedToken = await AsyncStorage.getItem("token");
-      const storedUser = await AsyncStorage.getItem("user");
-      if (storedToken) {
-        setToken(storedToken);
-        setUser(storedUser ? JSON.parse(storedUser) : null);
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedToken) {
+          setToken(storedToken);
+          setUser(parseStoredUser(storedUser));
+          setIsLoading(false);
+        } else {
+          await createGuest();
+        }
+      } catch {
         setIsLoading(false);
-      } else {
-        await createGuest();
       }
     })();
   }, []);
@@ -64,7 +77,9 @@ export function AuthProvider({ children }) {
   const isGuest = !user?.name || user?.isGuest;
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, isGuest, login, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{ user, token, isLoading, isGuest, login, logout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
