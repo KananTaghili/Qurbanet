@@ -49,11 +49,8 @@ export default function MeatCartScreen() {
   const [submitting, setSubmitting] = useState(false);
 
   const total = itemsTotal + (items.length ? deliveryPrice : 0);
-  // Çatdırılma seçilməyəndə də düymə basıla bilməlidir — basanda naviqasiya
-  // etmək əvəzinə çatdırılma modalı açılır (aşağı bax), veb-dəki eyni
-  // davranış. Düymə yalnız səbət boşdursa deaktivdir.
-  const canCheckout = items.length > 0;
-  const hasDelivery = !!location && location.phones?.length > 0;
+  const canCheckout =
+    items.length > 0 && !!location && location.phones?.length > 0;
 
   const goToProducts = () => navigation.navigate("MeatProducts");
 
