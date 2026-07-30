@@ -46,15 +46,19 @@ export default function MeatCartScreen() {
   const [error, setError] = useState("");
 
   const total = itemsTotal + (items.length ? deliveryPrice : 0);
-  const canCheckout =
-    items.length > 0 && !!location && location.phones?.length > 0;
+  // Çatdırılma seçilməyəndə də düymə basıla bilməlidir — basanda naviqasiya
+  // etmək əvəzinə çatdırılma modalı açılır (aşağı bax), veb-dəki eyni
+  // davranış. Düymə yalnız səbət boşdursa deaktivdir.
+  const canCheckout = items.length > 0;
+  const hasDelivery = !!location && location.phones?.length > 0;
 
   const goToProducts = () => navigation.navigate("MeatProducts");
 
   const handleCheckout = () => {
     setError("");
-    if (!canCheckout) {
-      setError("Çatdırılma ünvanı və əlaqə nömrəsi seçilməlidir.");
+    if (!canCheckout) return;
+    if (!hasDelivery) {
+      setDeliveryOpen(true);
       return;
     }
     if (isGuest) {

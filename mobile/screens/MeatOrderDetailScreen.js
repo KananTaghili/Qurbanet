@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { View, Text, Image, Pressable, ScrollView, ActivityIndicator, StyleSheet, Platform, StatusBar } from "react-native";
+import { View, Text, Image, Pressable, ScrollView, StyleSheet, Platform, StatusBar } from "react-native";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
@@ -21,6 +21,7 @@ import {
 } from "lucide-react-native";
 import OrderAnimalPicker from "../components/meat/OrderAnimalPicker";
 import { BRAND, TINT, STATUS_STEP, PipelineVertical } from "../components/meat/MeatOrderPipeline";
+import MeatSpinner from "../components/meat/MeatSpinner";
 import api from "../lib/api";
 
 const STATUS_LABELS = {
@@ -126,7 +127,7 @@ export default function MeatOrderDetailScreen() {
     return (
       <View style={[styles.root, { alignItems: "center", justifyContent: "center" }]}>
         <StatusBar barStyle="dark-content" backgroundColor="#FAF8F5" />
-        <ActivityIndicator size="large" color={BRAND} />
+        <MeatSpinner size={32} />
       </View>
     );
   }
