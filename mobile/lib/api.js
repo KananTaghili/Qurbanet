@@ -1,8 +1,11 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Local backend (dev makinanın LAN IP-si — telefon eyni WiFi-də olmalıdır)
-const BASE_URL = "http://10.214.215.205:4000/api";
+// Dev branch backend (tars-dev mühiti) — real domen olduğu üçün telefon/kompüter
+// eyni şəbəkədə olmasa da işləyir. Görürsən nə "Ət Satışı" datası varsa elə budur.
+const BASE_URL = "https://api-tars-dev.qurbanet.az/api";
+// const BASE_URL = "http://10.1.31.195:4000/api"; // lokal backend (eyni Wi-Fi lazımdır)
+// const BASE_URL = "https://api.qurbanet.az/api"; // production
 
 const api = axios.create({
   baseURL: BASE_URL,

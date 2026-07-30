@@ -8,6 +8,15 @@ const authenticate = require("../middleware/auth");
 // GET /api/meat/animals — Ət Satışı üçün aktiv heyvanlar + hissələr + kəsimlər
 router.get("/animals", meatController.getAnimals);
 
+// GET /api/meat/foods — Yeməklər üzrə axtarış üçün aktiv yemək siyahısı
+router.get("/foods", meatController.getFoods);
+
+// GET /api/meat/organs — aktiv daxili orqanlar (heyvana görə filtrlənir)
+router.get("/organs", meatController.getOrgans);
+
+// GET /api/meat/ground-products — aktiv çəkilmiş ət məhsulları
+router.get("/ground-products", meatController.getGroundProducts);
+
 // GET /api/meat/orders/my — Öz Ət Satışı sifarişlərim
 router.get("/orders/my", authenticate, meatOrderController.getMyMeatOrders);
 

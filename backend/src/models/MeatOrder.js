@@ -10,6 +10,9 @@ const meatOrderItemSchema = new mongoose.Schema({
   pricePerKg: { type: Number, required: true, min: 0 },
   quantityKg: { type: Number, required: true, min: 0.5 },
   lineTotal: { type: Number, required: true, min: 0 },
+  soldByWeight: { type: Boolean, default: true },
+  // cut = MeatAnimal bədən hissəsi kəsimi, organ = daxili orqan, ground = çəkilmiş ət
+  itemType: { type: String, enum: ["cut", "organ", "ground"], default: "cut" },
 });
 
 const deliveryLocationSchema = new mongoose.Schema({
@@ -71,6 +74,9 @@ const meatOrderSchema = new mongoose.Schema(
       epointOrderId: String,
     },
     status: { type: String, enum: MEAT_ORDER_STATUS, default: "awaiting_payment" },
+    // Ödəniş uğursuz/tərk edilmiş sifarişdə kilidlənmiş stok (stockKg/isActive)
+    // geri qaytarılıbmı — təkrar buraxılışın qarşısını alır (idempotentlik üçün).
+    stockReleased: { type: Boolean, default: false },
     statusHistory: [
       {
         status: { type: String, enum: MEAT_ORDER_STATUS, required: true },

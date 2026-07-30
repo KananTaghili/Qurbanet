@@ -6,6 +6,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { MeatCartProvider } from "./context/MeatCartContext";
+import { MeatDeliveryLocationProvider } from "./context/MeatDeliveryLocationContext";
 import SplashScreen from "./components/SplashScreen";
 import HomeScreen from "./screens/HomeScreen";
 import AboutScreen from "./screens/AboutScreen";
@@ -17,6 +19,12 @@ import RegisterScreen from "./screens/RegisterScreen";
 import OtpScreen from "./screens/OtpScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import QurbanScreen from "./screens/QurbanScreen";
+import MeatHomeScreen from "./screens/MeatHomeScreen";
+import MeatHowItWorksScreen from "./screens/MeatHowItWorksScreen";
+import MeatProductsScreen from "./screens/MeatProductsScreen";
+import MeatCartScreen from "./screens/MeatCartScreen";
+import MeatMyOrdersScreen from "./screens/MeatMyOrdersScreen";
+import MeatOrderDetailScreen from "./screens/MeatOrderDetailScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import OrderQuantityScreen from "./screens/OrderQuantityScreen";
 import OrderDistributionScreen from "./screens/OrderDistributionScreen";
@@ -71,22 +79,52 @@ function AppShell() {
         <Stack.Screen name="Otp" component={OtpScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="Qurban" component={QurbanScreen} />
+        <Stack.Screen name="MeatHome" component={MeatHomeScreen} />
+        <Stack.Screen name="MeatHowItWorks" component={MeatHowItWorksScreen} />
+        <Stack.Screen name="MeatProducts" component={MeatProductsScreen} />
+        <Stack.Screen name="MeatCart" component={MeatCartScreen} />
+        <Stack.Screen name="MeatMyOrders" component={MeatMyOrdersScreen} />
+        <Stack.Screen name="MeatOrderDetail" component={MeatOrderDetailScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="OrderQuantity" component={OrderQuantityScreen} />
-        <Stack.Screen name="OrderDistribution" component={OrderDistributionScreen} />
+        <Stack.Screen
+          name="OrderDistribution"
+          component={OrderDistributionScreen}
+        />
         <Stack.Screen name="OrderSummary" component={OrderSummaryScreen} />
         <Stack.Screen name="OrderPayment" component={OrderPaymentScreen} />
-        <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
-        <Stack.Screen name="HowItWorksQurban" component={HowItWorksQurbanScreen} />
+        <Stack.Screen
+          name="OrderConfirmation"
+          component={OrderConfirmationScreen}
+        />
+        <Stack.Screen
+          name="HowItWorksQurban"
+          component={HowItWorksQurbanScreen}
+        />
         <Stack.Screen name="QurbanRules" component={QurbanRulesScreen} />
         <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
         <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
-        <Stack.Screen name="CollectiveQurban" component={CollectiveQurbanScreen} />
-        <Stack.Screen name="HowItWorksCollective" component={HowItWorksCollectiveScreen} />
-        <Stack.Screen name="TermsCollective" component={TermsCollectiveScreen} />
-        <Stack.Screen name="CollectiveConfirmation" component={CollectiveConfirmationScreen} />
+        <Stack.Screen
+          name="CollectiveQurban"
+          component={CollectiveQurbanScreen}
+        />
+        <Stack.Screen
+          name="HowItWorksCollective"
+          component={HowItWorksCollectiveScreen}
+        />
+        <Stack.Screen
+          name="TermsCollective"
+          component={TermsCollectiveScreen}
+        />
+        <Stack.Screen
+          name="CollectiveConfirmation"
+          component={CollectiveConfirmationScreen}
+        />
         <Stack.Screen name="CampaignDetail" component={CampaignDetailScreen} />
-        <Stack.Screen name="CompletedCampaigns" component={CompletedCampaignsScreen} />
+        <Stack.Screen
+          name="CompletedCampaigns"
+          component={CompletedCampaignsScreen}
+        />
         <Stack.Screen name="MyDonations" component={MyDonationsScreen} />
       </Stack.Navigator>
       <StatusBar style="dark" />
@@ -98,7 +136,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <AppShell />
+        <MeatCartProvider>
+          <MeatDeliveryLocationProvider>
+            <AppShell />
+          </MeatDeliveryLocationProvider>
+        </MeatCartProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

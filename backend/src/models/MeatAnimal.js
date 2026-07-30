@@ -6,9 +6,18 @@ const meatCutSchema = new mongoose.Schema({
   nameRu: { type: String, trim: true, default: "" },
   nameAr: { type: String, trim: true, default: "" },
   pricePerKg: { type: Number, required: true, min: 0 },
+  // true = çəki ilə satış (müştəri 0.5/1/1.5 kq addımlarla ala bilər, stockKg/stepKg/minKg istifadə olunur)
+  // false = tam hissə satışı (sabit weightKg, müştəri hamısını birdən alır)
+  soldByWeight: { type: Boolean, default: false },
+  // Köhnə klo+addım satış sahələri — hazırkı ictimai Ət Satışı səhifəsi bunlardan istifadə edir,
+  // "tam hissə" admin formasında artıq göstərilmir amma geriyə uyğunluq üçün saxlanılır.
   stockKg: { type: Number, required: true, min: 0, default: 0 },
   stepKg: { type: Number, default: 1, min: 0.5 },
   minKg: { type: Number, default: 1, min: 0.5 },
+  // Tam hissə satışı: sabit çəki (kq) × pricePerKg = total (admin formasında hesablanır).
+  weightKg: { type: Number, default: 0, min: 0 },
+  imageFileId: { type: mongoose.Schema.Types.ObjectId, default: null },
+  suitableFoods: [{ type: mongoose.Schema.Types.ObjectId, ref: "Food" }],
   isActive: { type: Boolean, default: true },
   sortOrder: { type: Number, default: 0 },
 });
