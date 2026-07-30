@@ -7,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   Platform,
-  ActivityIndicator,
   useWindowDimensions,
   PanResponder,
   LayoutAnimation,
@@ -50,6 +49,7 @@ import AnimalBodyMap, {
   getFirstDisplayPartKey,
   getDisplayParts,
 } from "../components/meat/AnimalBodyMap";
+import MeatSpinner from "../components/meat/MeatSpinner";
 
 const BRAND = "#4B0F0F";
 const PARTS_PAGE_SIZE = 6;
@@ -329,11 +329,16 @@ function CutCard({ animal, part, cut }) {
 
         {!outOfStock && (
           <View style={styles.cutQtyBadge}>
-            <Text style={styles.cutBadgeText}>{displayQty} kq</Text>
+            <Text style={styles.cutQtyBadgeText}>
+              {isWholePiece ? `${pieceWeight} kq` : `Stok: ${remaining} kq`}
+            </Text>
           </View>
         )}
         <View style={styles.cutPriceBadge}>
-          <Text style={styles.cutBadgeText}>{totalPrice.toFixed(2)} AZN</Text>
+          <Text style={styles.cutBadgeText}>
+            {isWholePiece ? totalPrice.toFixed(2) : cut.pricePerKg} AZN
+            {soldByWeight ? "/kq" : ""}
+          </Text>
         </View>
 
         {inCartQty > 0 && (
@@ -362,22 +367,29 @@ function CutCard({ animal, part, cut }) {
             <Text style={styles.cutOutOfStock}>Stokda qalmayıb</Text>
           ) : soldByWeight ? (
             <View style={styles.stepper}>
-              <Pressable style={styles.stepperBtn} onPress={dec}>
-                <Minus size={14} color="#57534e" />
+              <Pressable
+                style={styles.stepperBtn}
+                onPress={dec}
+                hitSlop={8}
+              >
+                <Minus size={16} color="#57534e" />
               </Pressable>
               <Text style={styles.stepperText}>{qty} kq</Text>
               <Pressable
                 style={styles.stepperBtn}
                 onPress={inc}
                 disabled={qty >= remaining}
+                hitSlop={8}
               >
-                <Plus size={14} color="#57534e" />
+                <Plus size={16} color="#57534e" />
               </Pressable>
             </View>
           ) : (
             <Text style={styles.cutPriceLabel}>{cut.pricePerKg} AZN/kq</Text>
           )}
 
+          {/* Veb-dəki kimi: dairəvi düymə həmişə səbət ikonu göstərir, yalnız
+              künc nişanı ("+" / "−") və rəng (yaşıl/qırmızı) dəyişir. */}
           <Pressable
             style={[
               styles.cutAddBtn,
@@ -385,12 +397,19 @@ function CutCard({ animal, part, cut }) {
             ]}
             disabled={outOfStock && !isRemove}
             onPress={isRemove ? () => removeItem(lineId) : handleAdd}
+            hitSlop={6}
           >
-            {isRemove ? (
-              <Trash2 size={15} color="#fff" />
-            ) : (
-              <ShoppingCart size={15} color="#fff" />
-            )}
+            <ShoppingCart size={15} color="#fff" strokeWidth={2.2} />
+            <View style={styles.cutAddBtnBadge}>
+              <Text
+                style={[
+                  styles.cutAddBtnBadgeText,
+                  { color: isRemove ? "#dc2626" : "#15803d" },
+                ]}
+              >
+                {isRemove ? "−" : "+"}
+              </Text>
+            </View>
           </Pressable>
         </View>
       </View>
@@ -468,8 +487,10 @@ export default function MeatProductsScreen() {
   };
 
   const total = itemsTotal + (items.length ? deliveryPrice : 0);
-  const canCheckout =
-    itemCount > 0 && !!location && location.phones?.length > 0;
+  // Çatdırılma seçilməyəndə də düymə basıla bilməlidir — "handleCheckout"
+  // artıq bu halda naviqasiya etmək əvəzinə çatdırılma modalını açır (aşağı
+  // bax), veb-dəki eyni davranış. Düymə yalnız səbət boşdursa deaktivdir.
+  const canCheckout = itemCount > 0;
   const cartThumbnailCount = viewportWidth >= 420 ? 4 : 3;
   const cartSheetMaxHeight = Math.min(Math.round(viewportHeight * 0.68), 520);
   // DİQQƏT: "insets.top" burada YENİDƏN əlavə edilməməlidir — MeatStepHeader
@@ -692,38 +713,42 @@ export default function MeatProductsScreen() {
           düyməsi + addım göstəricisi ən üstdə gəlir. */}
       <MeatStepHeader currentStep={1} />
 
-      {/* Çatdırılma ünvanı (sol) və yeməyə görə filtr (sağ) — "fixed" kimi
-          scroll-dan təsirlənmirlər. Bu wrapper addım-başlığından dərhal sonra
-          normal axında gəlir (hündürlüyü 0-dır), düymələr ona nisbətən mütləq
-          mövqeləndiyi üçün ekranın yox, məhz addım-başlığının altında qalır. */}
-      <View style={styles.iconAnchor}>
-        <Pressable
-          ref={deliveryBtnRef}
-          style={[styles.iconBtnLeft, { top: floatingBtnTop }]}
-          onPress={openDelivery}
-        >
-          <MapPin size={20} color="#fff" strokeWidth={2.3} />
-          {!!location && <View style={styles.iconDot} />}
-        </Pressable>
-        <Pressable
-          ref={foodBtnRef}
-          style={[styles.iconBtnRight, { top: floatingBtnTop }]}
-          onPress={openFood}
-        >
-          <UtensilsCrossed size={20} color="#dc2626" strokeWidth={2.3} />
-          {foodFilterIds.length > 0 && (
-            <View style={styles.iconBadge}>
-              <Text style={styles.iconBadgeText}>{foodFilterIds.length}</Text>
-            </View>
-          )}
-        </Pressable>
-      </View>
-
       {loading ? (
+        // Veb-dəki eyni erkən "return" davranışı — yüklənən zaman YALNIZ
+        // başlıq + mərkəzləşmiş spinner görünür, çatdırılma/yemək filtri
+        // dairələri (aşağıda) hələ göstərilmir (bu, əvvəlki bug idi).
         <View style={styles.centerBox}>
-          <ActivityIndicator size="large" color={BRAND} />
+          <MeatSpinner size={32} />
         </View>
       ) : (
+        <>
+          {/* Çatdırılma ünvanı (sol) və yeməyə görə filtr (sağ) — "fixed" kimi
+              scroll-dan təsirlənmirlər. Bu wrapper addım-başlığından dərhal sonra
+              normal axında gəlir (hündürlüyü 0-dır), düymələr ona nisbətən mütləq
+              mövqeləndiyi üçün ekranın yox, məhz addım-başlığının altında qalır. */}
+          <View style={styles.iconAnchor}>
+            <Pressable
+              ref={deliveryBtnRef}
+              style={[styles.iconBtnLeft, { top: floatingBtnTop }]}
+              onPress={openDelivery}
+            >
+              <MapPin size={20} color="#fff" strokeWidth={2.3} />
+              {!!location && <View style={styles.iconDot} />}
+            </Pressable>
+            <Pressable
+              ref={foodBtnRef}
+              style={[styles.iconBtnRight, { top: floatingBtnTop }]}
+              onPress={openFood}
+            >
+              <UtensilsCrossed size={20} color="#dc2626" strokeWidth={2.3} />
+              {foodFilterIds.length > 0 && (
+                <View style={styles.iconBadge}>
+                  <Text style={styles.iconBadgeText}>{foodFilterIds.length}</Text>
+                </View>
+              )}
+            </Pressable>
+          </View>
+
         <ScrollView
           style={{ flex: 1 }}
           scrollEnabled={scrollEnabled}
@@ -898,6 +923,7 @@ export default function MeatProductsScreen() {
             </>
           )}
         </ScrollView>
+        </>
       )}
 
       {itemCount > 0 && (
@@ -1378,20 +1404,28 @@ const styles = StyleSheet.create({
   cutImgWrap: { width: "100%", aspectRatio: 1.4, backgroundColor: "#F1E5E5" },
   cutImg: { width: "100%", height: "100%" },
   cutImgFallback: { flex: 1, alignItems: "center", justifyContent: "center" },
+  // Veb-dəki kimi: sol (stok/çəki) nişanı AĞ fon + QARA yazı, sağ (qiymət)
+  // nişanı isə tünd fon + AĞ yazı.
   cutQtyBadge: {
     position: "absolute",
     top: 6,
     left: 6,
-    backgroundColor: "rgba(75,15,15,0.85)",
+    backgroundColor: "rgba(255,255,255,0.95)",
     borderRadius: 8,
     paddingHorizontal: 6,
     paddingVertical: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
+  cutQtyBadgeText: { color: "#292524", fontSize: 11.5, fontWeight: "800" },
   cutPriceBadge: {
     position: "absolute",
     top: 6,
     right: 6,
-    backgroundColor: "rgba(75,15,15,0.85)",
+    backgroundColor: BRAND,
     borderRadius: 8,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -1440,26 +1474,47 @@ const styles = StyleSheet.create({
   cutOutOfStock: { fontSize: 11.5, fontWeight: "700", color: "#dc2626" },
   cutPriceLabel: { fontSize: 12, fontWeight: "600", color: "#a8a29e" },
   cutAddBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   cutAddBtnAdd: { backgroundColor: "#15803d" },
   cutAddBtnRemove: { backgroundColor: "#dc2626" },
+  // Veb-dəki kimi düymənin küncündə kiçik "+" / "−" nişanı.
+  cutAddBtnBadge: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cutAddBtnBadgeText: { fontSize: 11, fontWeight: "900", lineHeight: 13 },
 
   stepper: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
     backgroundColor: "#f5f5f4",
-    borderRadius: 8,
+    borderRadius: 9,
     paddingHorizontal: 2,
   },
+  // İstifadəçi rahat basa bilsin deyə toxunma sahəsi böyüdüldü (25 → 34).
   stepperBtn: {
-    width: 25,
-    height: 25,
+    width: 34,
+    height: 34,
     alignItems: "center",
     justifyContent: "center",
   },
