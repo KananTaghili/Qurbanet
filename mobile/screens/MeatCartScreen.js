@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
   Platform,
+  ActivityIndicator,
   StatusBar as RNStatusBar,
 } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
@@ -29,6 +30,7 @@ import { useMeatCart } from "../context/MeatCartContext";
 import { useMeatDeliveryLocation } from "../context/MeatDeliveryLocationContext";
 import MobileGrowModal from "../components/meat/MobileGrowModal";
 import MeatDeliveryLocationModal from "../components/meat/MeatDeliveryLocationModal";
+import api from "../lib/api";
 
 const BRAND = "#4B0F0F";
 
@@ -40,10 +42,11 @@ export default function MeatCartScreen() {
     Platform.OS === "android" ? RNStatusBar.currentHeight || 0 : 0,
   );
   const { user, isGuest } = useAuth();
-  const { items, updateQuantity, removeItem, itemsTotal } = useMeatCart();
+  const { items, updateQuantity, removeItem, itemsTotal, markOrderPending, clearOrderPending, removeUnavailableItems } = useMeatCart();
   const { location, setLocation, deliveryPrice } = useMeatDeliveryLocation();
   const [deliveryOpen, setDeliveryOpen] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const total = itemsTotal + (items.length ? deliveryPrice : 0);
   // Çatdırılma seçilməyəndə də düymə basıla bilməlidir — basanda naviqasiya
@@ -54,9 +57,15 @@ export default function MeatCartScreen() {
 
   const goToProducts = () => navigation.navigate("MeatProducts");
 
-  const handleCheckout = () => {
+  // Veb-dəki Səbətim səhifəsi ilə eyni davranış — buradan "Sifariş xülasəsi"
+  // addımı YOXDUR: sifariş birbaşa yaradılır, sonra Ödəniş ekranına
+  // "autoPay" ilə keçirik — o ekran Epoint-i özü başladıb tətbiq-daxili
+  // <WebView>-də açır (bax MeatCheckoutPaymentScreen.js), Epoint-in
+  // özünü/WebView məntiqini burada TƏKRARLAMIRIQ. Yalnız Məhsullar
+  // (MeatProductsScreen) səhifəsindəki "Ödə" xülasəyə aparır.
+  const handleCheckout = async () => {
     setError("");
-    if (!canCheckout) return;
+    if (!canCheckout || submitting) return;
     if (!hasDelivery) {
       setDeliveryOpen(true);
       return;
@@ -65,7 +74,49 @@ export default function MeatCartScreen() {
       navigation.navigate("Login");
       return;
     }
-    navigation.navigate("MeatCheckoutSummary");
+
+    setSubmitting(true);
+    const lineIds = items.map((i) => i.lineId);
+    markOrderPending(lineIds);
+    try {
+      const res = await api.post("/meat/orders", {
+        items: items.map((i) => ({
+          animalKey: i.animalKey,
+          partKey: i.partKey,
+          cutId: i.cutId,
+          quantityKg: i.quantityKg,
+        })),
+        deliveryLocation: location,
+        contactInfo: {
+          firstName: user?.name || "",
+          lastName: user?.lastName || "",
+          mobile: location.phones[0],
+          additionalMobiles: location.phones.slice(1),
+        },
+      });
+      if (!res.data.success) {
+        setError(res.data.message || "Sifariş yaradıla bilmədi.");
+        clearOrderPending(lineIds);
+        setSubmitting(false);
+        return;
+      }
+
+      const order = res.data.data.order;
+      navigation.navigate("MeatCheckoutPayment", {
+        orderId: order._id,
+        totalPrice: order.totalPrice,
+        autoPay: true,
+      });
+    } catch (err) {
+      const unavailableItems = err.response?.data?.errors;
+      if (Array.isArray(unavailableItems) && unavailableItems.length > 0) {
+        removeUnavailableItems(unavailableItems);
+      } else {
+        setError(err.response?.data?.message || "Sifariş yaradıla bilmədi.");
+      }
+    }
+    clearOrderPending(lineIds);
+    setSubmitting(false);
   };
 
   return (
@@ -255,16 +306,25 @@ export default function MeatCartScreen() {
           </Text>
         </Pressable>
         <Pressable
-          style={[styles.primaryBtn, !canCheckout && styles.primaryBtnDisabled]}
+          style={[styles.primaryBtn, (!canCheckout || submitting) && styles.primaryBtnDisabled]}
           onPress={handleCheckout}
-          disabled={!canCheckout}
+          disabled={!canCheckout || submitting}
         >
-          <View style={styles.primaryBtnIconWrap}>
-            <CreditCard size={17} color="#fff" />
-          </View>
-          <Text style={styles.primaryBtnText}>
-            Ödə · {total.toFixed(2)} AZN
-          </Text>
+          {submitting ? (
+            <>
+              <ActivityIndicator size="small" color="#fff" />
+              <Text style={styles.primaryBtnText}>Yönləndirilir...</Text>
+            </>
+          ) : (
+            <>
+              <View style={styles.primaryBtnIconWrap}>
+                <CreditCard size={17} color="#fff" />
+              </View>
+              <Text style={styles.primaryBtnText}>
+                Ödə · {total.toFixed(2)} AZN
+              </Text>
+            </>
+          )}
         </Pressable>
       </View>
 

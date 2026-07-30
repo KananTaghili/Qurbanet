@@ -37,7 +37,7 @@ export default function MeatStepHeader({ currentStep, backTo = "MeatHome" }) {
                     {done ? "✓" : idx}
                   </Text>
                 </View>
-                <Text style={[styles.stepLabel, active && { color: BRAND }, done && { color: "#8a5a5a" }]} numberOfLines={1}>
+                <Text style={[styles.stepLabel, active && { color: BRAND }, done && { color: "#8a5a5a" }]} numberOfLines={2}>
                   {label}
                 </Text>
               </View>
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   stepsRow: { flexDirection: "row", alignItems: "flex-start", paddingLeft: 74, paddingRight: 4 },
   stepItemWrap: { flexDirection: "row", alignItems: "flex-start", flex: 1 },
-  stepCol: { alignItems: "center", gap: 5, width: 96 },
+  stepCol: { alignItems: "center", gap: 5, width: 78 },
   circle: { width: 31, height: 31, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#f0f0f0", borderWidth: 1.5, borderColor: "#e5e7eb" },
   circleActive: { shadowColor: BRAND, shadowOpacity: 0.3, shadowRadius: 4, elevation: 2 },
   circleText: { fontSize: 14, fontWeight: "800", color: "#9ca3af" },

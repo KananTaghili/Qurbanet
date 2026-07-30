@@ -1,99 +1,108 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, Pressable, Linking, AppState, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, ActivityIndicator, StyleSheet, Platform, BackHandler } from "react-native";
+import { WebView } from "react-native-webview";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { CreditCard, Lock } from "lucide-react-native";
+import { CreditCard, Lock, X } from "lucide-react-native";
 import MeatStepHeader from "../components/meat/MeatStepHeader";
 import { useMeatCart } from "../context/MeatCartContext";
 import api from "../lib/api";
 
 const BRAND = "#4B0F0F";
 
-// Veb-dəki lib/nativePay.js Capacitor-un daxili WebView-ında ödəniş
-// səhifəsinin naviqasiyasını izləyib nəticəni avtomatik tuta bilir — bu, sırf
-// Capacitor APK-ya xasdır. Expo-da (bu layihə) həmin plaginin qarşılığı
-// yoxdur, ona görə Epoint-i cihazın öz brauzerində (Linking.openURL) açırıq.
-// İstifadəçi ödənişi tamamlayıb tətbiqə qayıdanda (AppState "active" olanda)
-// sifarişi yenidən yoxlayıb nəticəni özümüz müəyyən edirik.
+// Qurbanlıq axınındakı OrderPaymentScreen.js ilə eyni üsul — Epoint TƏTBİQ
+// DAXİLİNDƏ, gömülü <WebView> ilə açılır (xarici brauzerə/başqa tətbiqə heç
+// vaxt çıxmır). Naviqasiya "nəticə" URL-inə çatan kimi (backend Epoint-dən
+// sonra frontend-in /meat/checkout/confirmation və ya
+// /meat/checkout/payment?payment=fail səhifəsinə yönləndirir) avtomatik tutulur.
+function isResultUrl(u) {
+  if (!u) return false;
+  const low = u.toLowerCase();
+  if (low.includes("epoint") || low.includes("pashabank") || low.includes("/api/")) return false;
+  return low.includes("meat/checkout") || low.includes("payment=");
+}
+
+function isSuccessUrl(u) {
+  return u.toLowerCase().includes("/meat/checkout/confirmation");
+}
+
 export default function MeatCheckoutPaymentScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { orderId, totalPrice } = route.params || {};
+  const insets = useSafeAreaInsets();
+  const { orderId, totalPrice, autoPay } = route.params || {};
   const { clearCart } = useMeatCart();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [checkingReturn, setCheckingReturn] = useState(false);
-  const awaitingReturnRef = useRef(false);
+  const [payUrl, setPayUrl] = useState(null);
+  const finishedRef = useRef(false);
+  const autoPayTriedRef = useRef(false);
 
   useEffect(() => {
     if (!orderId) navigation.replace("MeatHome");
   }, [orderId]);
 
-  const checkOrderStatus = useCallback(async () => {
-    if (!orderId) return;
-    setCheckingReturn(true);
-    try {
-      const res = await api.get(`/meat/orders/${orderId}`);
-      const order = res.data?.data?.order;
-      if (order?.payment?.status === "paid") {
-        clearCart();
-        navigation.replace("MeatOrderDetail", { orderId: order._id });
-        return;
-      }
-      if (order?.payment?.status === "failed" || order?.status === "cancelled") {
-        setError("Ödəniş uğursuz oldu. Yenidən cəhd edin.");
-      }
-    } catch (_) {
-      /* sükutla keç — istifadəçi düyməni yenidən basa bilər */
-    } finally {
-      setCheckingReturn(false);
-    }
-  }, [orderId, clearCart, navigation]);
-
-  // Brauzerdən tətbiqə qayıdışı tutmaq üçün — yalnız BİZ brauzeri açdıqdan
-  // sonra (awaitingReturnRef) "active" olan zaman sifarişi yoxlayır.
   useEffect(() => {
-    const sub = AppState.addEventListener("change", (next) => {
-      if (next === "active" && awaitingReturnRef.current) {
-        awaitingReturnRef.current = false;
-        checkOrderStatus();
-      }
+    if (Platform.OS !== "android" || !payUrl) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      setPayUrl(null);
+      return true;
     });
     return () => sub.remove();
-  }, [checkOrderStatus]);
+  }, [payUrl]);
 
-  useFocusEffect(
-    useCallback(() => {
-      checkOrderStatus();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
-
-  if (!orderId) return null;
-
-  const handlePay = async () => {
+  const handlePay = useCallback(async () => {
+    if (!orderId) return;
     setError("");
     setLoading(true);
     try {
       const res = await api.post(`/meat/orders/${orderId}/epoint/start`);
       if (res.data.success) {
-        awaitingReturnRef.current = true;
-        await Linking.openURL(res.data.data.redirect_url);
-        setLoading(false);
-        return;
+        finishedRef.current = false;
+        setPayUrl(res.data.data.redirect_url);
+      } else {
+        setError(res.data.message || "Ödəniş başladıla bilmədi.");
       }
-      setError(res.data.message || "Ödəniş başladıla bilmədi.");
     } catch (err) {
       setError(err.response?.data?.message || "Ödəniş başladıla bilmədi.");
     }
     setLoading(false);
+  }, [orderId]);
+
+  // Səbətdən birbaşa gələndə ("Ət Satışı"nda xülasə addımı olmadan) ödəniş
+  // ekranı açılan kimi Epoint-i avtomatik başladır — istifadəçi ayrıca
+  // "ödə" düyməsinə basmır (veb-in "birbaşa Epoint-ə keçid" davranışı).
+  useFocusEffect(
+    useCallback(() => {
+      if (autoPay && !autoPayTriedRef.current) {
+        autoPayTriedRef.current = true;
+        handlePay();
+      }
+    }, [autoPay, handlePay]),
+  );
+
+  const handleWebViewNav = (navState) => {
+    if (finishedRef.current) return;
+    if (isResultUrl(navState.url)) {
+      finishedRef.current = true;
+      setPayUrl(null);
+      if (isSuccessUrl(navState.url)) {
+        clearCart();
+        navigation.replace("MeatOrderDetail", { orderId });
+      } else {
+        setError("Ödəniş uğursuz oldu. Yenidən cəhd edin.");
+      }
+    }
   };
+
+  if (!orderId) return null;
 
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
-      <MeatStepHeader currentStep={3} />
+      <MeatStepHeader currentStep={3} backTo="MeatCheckoutSummary" />
 
       <View style={{ padding: 14, gap: 12 }}>
         <View style={styles.amountCard}>
@@ -116,13 +125,6 @@ export default function MeatCheckoutPaymentScreen() {
           </Text>
         </View>
 
-        {checkingReturn && (
-          <View style={styles.checkingRow}>
-            <ActivityIndicator size="small" color={BRAND} />
-            <Text style={styles.checkingText}>Ödəniş nəticəsi yoxlanılır...</Text>
-          </View>
-        )}
-
         {error ? (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{error}</Text>
@@ -133,6 +135,30 @@ export default function MeatCheckoutPaymentScreen() {
           <Text style={styles.payBtnText}>{loading ? "Yönləndirilir..." : `${totalPrice} AZN ödə`}</Text>
         </Pressable>
       </View>
+
+      {!!payUrl && (
+        <View style={styles.webviewOverlay}>
+          <StatusBar style="dark" />
+          <View style={[styles.webviewHeader, { paddingTop: insets.top + 8 }]}>
+            <Pressable style={styles.webviewCloseBtn} onPress={() => setPayUrl(null)}>
+              <X size={18} color="#374151" />
+            </Pressable>
+            <Text style={styles.webviewTitle}>MeatBox Ödəniş</Text>
+            <View style={{ width: 32 }} />
+          </View>
+          <WebView
+            style={{ flex: 1 }}
+            source={{ uri: payUrl }}
+            onNavigationStateChange={handleWebViewNav}
+            startInLoadingState
+            renderLoading={() => (
+              <View style={styles.webviewLoading}>
+                <ActivityIndicator size="large" color={BRAND} />
+              </View>
+            )}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -150,13 +176,16 @@ const styles = StyleSheet.create({
   lockNotice: { flexDirection: "row", alignItems: "flex-start", gap: 10, borderRadius: 12, borderWidth: 1, borderColor: "#bfdbfe", backgroundColor: "#eff6ff", paddingHorizontal: 14, paddingVertical: 12 },
   lockNoticeText: { flex: 1, fontSize: 14, color: "#1d4ed8" },
 
-  checkingRow: { flexDirection: "row", alignItems: "center", gap: 9, justifyContent: "center" },
-  checkingText: { fontSize: 14.5, color: "#78716C", fontWeight: "600" },
-
   errorBox: { borderRadius: 12, borderWidth: 1, borderColor: "#fecaca", backgroundColor: "#fef2f2", paddingHorizontal: 14, paddingVertical: 12 },
   errorText: { color: "#b91c1c", fontSize: 15, fontWeight: "700" },
 
   payBtn: { height: 56, borderRadius: 14, backgroundColor: BRAND, alignItems: "center", justifyContent: "center" },
   payBtnDisabled: { opacity: 0.6 },
   payBtnText: { color: "#fff", fontSize: 16.5, fontWeight: "800" },
+
+  webviewOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#fff", zIndex: 50, elevation: 50 },
+  webviewHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
+  webviewCloseBtn: { width: 32, height: 32, borderRadius: 8, borderWidth: 1, borderColor: "#e5e7eb", backgroundColor: "#f8f9fb", alignItems: "center", justifyContent: "center" },
+  webviewTitle: { fontSize: 13, fontWeight: "800", color: "#171717" },
+  webviewLoading: { flex: 1, alignItems: "center", justifyContent: "center" },
 });

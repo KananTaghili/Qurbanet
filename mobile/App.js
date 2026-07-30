@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
@@ -46,27 +46,20 @@ import CompletedCampaignsScreen from "./screens/CompletedCampaignsScreen";
 import MyDonationsScreen from "./screens/MyDonationsScreen";
 
 const Stack = createNativeStackNavigator();
-const MIN_SPLASH_MS = 2500;
 
 function AppShell() {
   const { isLoading } = useAuth();
-  const [showSplash, setShowSplash] = useState(true);
-  const mountedAt = useRef(Date.now());
 
   useEffect(() => {
     if (Platform.OS !== "android") return;
     NavigationBar.setButtonStyleAsync("dark").catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (isLoading) return;
-    const elapsed = Date.now() - mountedAt.current;
-    const wait = Math.max(300, MIN_SPLASH_MS - elapsed);
-    const t = setTimeout(() => setShowSplash(false), wait);
-    return () => clearTimeout(t);
-  }, [isLoading]);
-
-  if (showSplash) return <SplashScreen />;
+  // Veb-də tətbiqə "girərkən" heç bir brendli splash/gecikmə yoxdur — məzmun
+  // hazır olan kimi dərhal görünür. Əvvəllər burada süni MIN_SPLASH_MS (2.5san)
+  // gecikməsi ilə tam-ekran animasiyalı splash göstərilirdi; indi yalnız
+  // auth vəziyyəti HƏQİQƏTƏN yüklənərkən (adətən ani) minimal spinner görünür.
+  if (isLoading) return <SplashScreen />;
 
   return (
     <NavigationContainer>

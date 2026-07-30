@@ -94,7 +94,7 @@ export default function MeatCheckoutSummaryScreen() {
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
-      <MeatStepHeader currentStep={2} />
+      <MeatStepHeader currentStep={2} backTo="MeatProducts" />
 
       <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: insets.bottom + 24, gap: 12 }}>
         <Text style={styles.pageTitle}>Sifariş xülasəsi</Text>

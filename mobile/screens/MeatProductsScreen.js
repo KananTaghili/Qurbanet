@@ -348,13 +348,20 @@ function CutCard({ animal, part, cut }) {
             </View>
           </View>
         )}
+
+        {/* Veb-dəki kimi: kəsimin adı fotonun ÜSTÜNDƏ (aşağı-sol küncdə),
+            oxunaqlı olsun deyə altında qaranlıq qradient. */}
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.6)"]}
+          style={styles.cutNameGradient}
+          pointerEvents="none"
+        />
+        <Text style={styles.cutNameOverlay} numberOfLines={1}>
+          {cut.nameAz}
+        </Text>
       </View>
 
       <View style={styles.cutBody}>
-        <Text style={styles.cutName} numberOfLines={2}>
-          {cut.nameAz}
-        </Text>
-
         <View style={styles.cutRow}>
           {outOfStock ? (
             <Text style={styles.cutOutOfStock}>Stokda qalmayıb</Text>
@@ -916,6 +923,7 @@ export default function MeatProductsScreen() {
             </>
           )}
         </ScrollView>
+        </>
       )}
 
       {itemCount > 0 && (
@@ -964,7 +972,7 @@ export default function MeatProductsScreen() {
                         <Image
                           source={{ uri: it.imageUrl }}
                           style={styles.cartThumbImage}
-                          resizeMode="contain"
+                          resizeMode="cover"
                         />
                       ) : (
                         <Beef size={21} color="rgba(75,15,15,0.6)" />
@@ -1028,7 +1036,7 @@ export default function MeatProductsScreen() {
                             <Image
                               source={{ uri: it.imageUrl }}
                               style={styles.sheetItemImage}
-                              resizeMode="contain"
+                              resizeMode="cover"
                             />
                           ) : (
                             <Beef size={25} color="rgba(75,15,15,0.7)" />
@@ -1438,7 +1446,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   cutBody: { padding: 9, gap: 7 },
-  cutName: { fontSize: 14.5, fontWeight: "800", color: "#292524" },
+  cutNameGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 34,
+  },
+  cutNameOverlay: {
+    position: "absolute",
+    left: 8,
+    right: 8,
+    bottom: 6,
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#fff",
+    textShadowColor: "rgba(0,0,0,0.4)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
   cutRow: {
     flexDirection: "row",
     alignItems: "center",
