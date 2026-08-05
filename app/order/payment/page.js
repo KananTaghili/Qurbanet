@@ -8,6 +8,7 @@ import { useOrder } from '../../../context/OrderContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { t } from '../../../lib/i18n';
 import api from '../../../lib/api';
+import { openPayment } from '../../../lib/nativePay';
 
 function Spinner({ label }) {
   return (
@@ -112,7 +113,18 @@ export default function PaymentPage() {
         const res = await api.post(`/orders/${createdOrderId}/epoint/start`);
         if (res.data.success) {
           updateOrder({ paymentMethod: 'epoint' });
-          window.location.href = res.data.data.redirect_url;
+          await openPayment(res.data.data.redirect_url, (dest) => {
+            if (!dest) return; // əl ilə bağladı — ödəniş səhifəsində qal
+            if (dest.startsWith('/order/payment')) {
+              // Xəta → səhifə onsuz da açıqdır, mesajı URL-dən çıxarıb göstər (naviqasiya yox)
+              let msg = '';
+              try { msg = new URLSearchParams(dest.split('?')[1] || '').get('message') || ''; } catch (_) {}
+              setError(msg || t(lang, 'paymentFailed'));
+            } else {
+              router.push(dest); // Uğur → confirmation (context qorunsun)
+            }
+          });
+          setLoading(false);
           return;
         }
         setError(res.data.message || t(lang, 'paymentFailed'));

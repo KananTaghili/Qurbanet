@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Capacitor } from "@capacitor/core";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import {
   Plus, User, ChevronDown, ArrowLeft, X,
@@ -14,6 +13,7 @@ import {
 import { CharityLayoutContext } from "./_context";
 import { SIDEBAR_NAV, ANIMAL_IMG_FALLBACK } from "./_lib";
 import api from "../../lib/api";
+import { openPayment } from "../../lib/nativePay";
 import NotificationBell from "../../components/NotificationBell";
 
 const userFullName = (user) => [user?.name, user?.lastName].filter(Boolean).join(" ").trim() || "İstifadəçi";
@@ -313,7 +313,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
       const r1 = await api.post("/campaigns", body);
       const { campaignId, donationId } = r1.data.data;
       const r2 = await api.post(`/campaigns/${campaignId}/epoint/start`, { donationId });
-      window.location.href = r2.data.data.redirect_url;
+      await openPayment(r2.data.data.redirect_url, (dest) => { window.location.href = dest || `/charity/?campaign=${campaignId}`; });
     } catch (err) {
       alert(err.response?.data?.message || "Xəta baş verdi");
       setSubmitting(false);
@@ -335,7 +335,7 @@ function NewOpeningModal({ onClose, preselectedAnimalName }) {
       const r1 = await api.post("/campaigns", body);
       const { campaignId, donationId } = r1.data.data;
       const r2 = await api.post(`/campaigns/${campaignId}/epoint/start`, { donationId });
-      window.location.href = r2.data.data.redirect_url;
+      await openPayment(r2.data.data.redirect_url, (dest) => { window.location.href = dest || `/charity/?campaign=${campaignId}`; });
     } catch (err) {
       alert(err.response?.data?.message || "Xəta baş verdi");
       setSubmitting(false);
@@ -955,9 +955,16 @@ export default function CharityLayout({ children }) {
         <div className="flex-1 flex flex-col min-w-0">
 
           {/* TopBar */}
-          <div className="flex items-center justify-between gap-2 px-3 md:px-6 border-b border-purple-900/20 shrink-0"
+          <div className="charity-topbar flex items-center justify-between gap-2 px-3 md:px-6 border-b border-purple-900/20 shrink-0"
             style={{ backgroundColor: "#301586", height: 50, minHeight: 50, maxHeight: 50 }}>
-            <div className="flex items-center gap-2 min-w-0">
+            {/* APK detal: yalnız geri ox */}
+            <button
+              onClick={() => router.push("/charity")}
+              className="tb-back w-8 h-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+            >
+              <ArrowLeft size={20} className="text-white" />
+            </button>
+            <div className="tb-full flex items-center gap-2 min-w-0">
               {/* Hamburger — mobile only (web) */}
               <button className="nav-hamburger lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors shrink-0"
                 onClick={() => setMobileMenuOpen(true)}>
@@ -973,7 +980,7 @@ export default function CharityLayout({ children }) {
                 Kollektiv Qurban
               </span>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="tb-full flex items-center gap-2 shrink-0">
               <NotificationBell accentColor="#301586" ringColor="#301586" />
               {isGuest ? (
                 <Link href={`/auth/login?from=${encodeURIComponent(pathname)}`}

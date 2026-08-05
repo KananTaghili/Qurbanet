@@ -44,6 +44,13 @@ jobs:
             npm install --omit=dev
             cd /var/www/qurbanetfront-dev
 
+            # Səhv təxminlə yaradılmış "qurbanet-backend-dev" prosesini təmizləyirik
+            # (mövcud deyilsə no-op)
+            pm2 delete qurbanet-backend-dev > /dev/null 2>&1 || true
+
+            echo "--- Serverdəki bütün PM2 prosesləri (diaqnostika üçün) ---"
+            pm2 list
+
             # Backend PM2 prosesini restart edirik (process adını avtomatik tapırıq)
             BACKEND_PROC=$(pm2 list --no-color 2>/dev/null | grep -v "qurbanetfrontpm" | grep "online\|stopped\|errored" | awk '{print $4}' | grep -v "^$\|id\|name" | head -1)
             if [ -n "$BACKEND_PROC" ]; then

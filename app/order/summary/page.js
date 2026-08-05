@@ -471,7 +471,7 @@ export default function SummaryPage() {
         </div>
 
         {/* Mobile action bar */}
-        <div className="fixed-action-bar fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-surface px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden">
           <div className="mx-auto flex max-w-6xl justify-center">
             <button
               className="btn-primary w-full max-w-md rounded-xl px-8 py-3.5 text-sm font-bold"

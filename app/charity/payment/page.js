@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BackHeader from '../../../components/BackHeader';
 import api from '../../../lib/api';
+import { openPayment } from '../../../lib/nativePay';
 
 const C = ({ children, style }) => (
   <div style={{ background: 'var(--surface)', borderRadius: 20, border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden', ...style }}>{children}</div>
@@ -90,7 +91,16 @@ export default function CharityPaymentPage() {
       const startRes = await api.post(`/charity-orders/${orderId}/epoint/start`);
       if (!startRes.data.success) throw new Error(startRes.data.message);
 
-      window.location.href = startRes.data.data.redirect_url;
+      await openPayment(startRes.data.data.redirect_url, (dest) => {
+        if (!dest) return; // əl ilə bağladı — səhifədə qal
+        if (dest.startsWith('/charity/payment')) {
+          let msg = '';
+          try { msg = new URLSearchParams(dest.split('?')[1] || '').get('message') || ''; } catch (_) {}
+          setError(msg || 'Ödəniş uğursuz oldu. Yenidən cəhd edin.');
+        } else {
+          router.push(dest);
+        }
+      });
       return; // spinner yönləndirmə bitənə qədər qalsın
     } catch (err) {
       sessionStorage.removeItem('charity_confirmation');

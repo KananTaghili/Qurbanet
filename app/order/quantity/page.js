@@ -648,7 +648,7 @@ export default function QuantityPage() {
         <div className="w-[160px] sm:w-[190px] flex-shrink-0 overflow-hidden"
           style={{ background: "linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%)" }}>
           {animal.imageUrl ? (
-            <img src={animal.imageUrl} alt={animal.nameAz} className="w-full h-full object-contain" style={{ transform: "scale(1.06)" }} />
+            <img src={animal.imageUrl} alt={animal.nameAz} className="w-full h-full object-cover" style={{ objectPosition: "center calc(50% - 15px)" }} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Beef className="w-8 h-8" style={{ color: "#1B5E20", opacity: 0.3 }} />

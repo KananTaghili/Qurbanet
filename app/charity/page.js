@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
+import { openPayment } from "../../lib/nativePay";
 import {
   Plus,
   ChevronDown,
@@ -772,7 +773,7 @@ export function DonationModal({ animal, onClose }) {
       });
       const { donationId } = r1.data.data;
       const r2 = await api.post(`/campaigns/${animal.campaignId}/epoint/start`, { donationId });
-      window.location.href = r2.data.data.redirect_url;
+      await openPayment(r2.data.data.redirect_url, (dest) => { window.location.href = dest || `/charity/?campaign=${animal.campaignId}`; });
     } catch (err) {
       alert(err.response?.data?.message || "Xəta baş verdi");
       setSubmitting(false);
@@ -1465,7 +1466,7 @@ function CampaignDetailView({ campaignId, onBack, onDonate, minDon = 10 }) {
       <div className="flex items-center gap-3 border-b border-purple-100 bg-white/70 px-4 md:px-6 py-2 backdrop-blur-sm sticky top-0 z-10">
         <button
           onClick={onBack}
-          className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition"
+          className="apk-hide flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#4b14bd] px-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-[#3d0aa8] transition"
         >
           <ArrowLeft size={16} /> Geri qayıt
         </button>
@@ -1824,6 +1825,19 @@ function HomeContent() {
     }
   }, []);
 
+  // ?campaign= param yox olanda detal görünüşünü bağla (toolbar geri düyməsi üçün)
+  useEffect(() => {
+    if (!searchParams.get("campaign")) setSelectedCampaignId(null);
+  }, [searchParams]);
+
+  // Detal açıq olanda <html>-ə class qoy — layout toolbar-ı APK-da geri-ox rejiminə keçir
+  useEffect(() => {
+    const cls = "charity-detail";
+    if (selectedCampaignId) document.documentElement.classList.add(cls);
+    else document.documentElement.classList.remove(cls);
+    return () => document.documentElement.classList.remove(cls);
+  }, [selectedCampaignId]);
+
   useEffect(() => {
     Promise.all([
       api.get("/campaigns/settings").catch(() => ({ data: {} })),
@@ -2023,7 +2037,7 @@ function HomeContent() {
                     <Plus size={12} /> Yeni açılış et
                   </button>
                   <button
-                    onClick={() => router.push("/how-it-works")}
+                    onClick={() => router.push("/charity/how-it-works")}
                     className="flex items-center gap-1.5 rounded-lg border bg-white/75 px-3 py-2 text-xs font-semibold text-[#4b14bd] backdrop-blur-sm transition-all hover:bg-white"
                     style={{ borderColor: "rgba(75,20,189,0.3)" }}
                   >

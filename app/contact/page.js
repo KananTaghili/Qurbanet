@@ -4,19 +4,28 @@ import Link from "next/link";
 import SiteLayout from "../../components/SiteLayout";
 
 const contacts = [
-  { icon: Phone, title: "Telefon",      text: "+994 10 399 02 22" },
-  { icon: Mail,  title: "Email",        text: "info@meatbox.az" },
+  { icon: Phone, title: "Telefon",      text: "+994 10 399 02 22", href: "https://wa.me/994103990222", note: "WhatsApp ilə yazın" },
+  { icon: Mail,  title: "Email",        text: "info@meatbox.az", href: "mailto:info@meatbox.az" },
   { icon: MapPin, title: "Ünvan",       text: "Bakı, Azərbaycan" },
   { icon: Clock, title: "İş saatları",  text: "Hər gün 09:00–20:00" },
 ];
 
-function InfoCard({ icon: Icon, title, text }) {
-  return (
-    <div className="rounded-2xl border border-[#ead9cf] bg-[#fff8f1] p-4 sm:p-5">
+function InfoCard({ icon: Icon, title, text, href, note }) {
+  const inner = (
+    <>
       <Icon className="h-8 w-8 text-[#e10d0d] sm:h-9 sm:w-9" />
       <h3 className="mt-3 text-lg font-black sm:mt-4 sm:text-xl">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-neutral-700 sm:text-base sm:leading-7">{text}</p>
-    </div>
+      {note && <p className="mt-1 text-xs font-semibold text-[#16a34a]">{note}</p>}
+    </>
+  );
+  const cls = "block rounded-2xl border border-[#ead9cf] bg-[#fff8f1] p-4 sm:p-5";
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={`${cls} transition-all hover:border-[#e10d0d]/40 hover:shadow-md active:scale-[0.99]`}>
+      {inner}
+    </a>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 }
 
