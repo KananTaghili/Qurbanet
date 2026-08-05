@@ -38,6 +38,8 @@ app.use(
 const defaultOrigins = [
   "https://admin.qurbanet.az",
   "https://qurbanet.az",
+  "https://meatbox.az",
+  "https://www.meatbox.az",
   "https://admin-tars-dev.qurbanet.az",
   "https://admin-tars-uat.qurbanet.az",
   "https://tars-dev.qurbanet.az",
