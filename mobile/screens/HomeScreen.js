@@ -198,7 +198,7 @@ export default function HomeScreen() {
             source={require("../assets/images/meatbox-bg-icon.png")}
             color="#4B0F0F"
             size={40}
-            opacity={0.06}
+            opacity={0.13}
             rows={12}
             cols={7}
             spacingX={64}
