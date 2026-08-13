@@ -16,7 +16,7 @@ import {
   Beef,
   ArrowRight,
   User,
-  Menu,
+  MoreVertical,
 } from "lucide-react-native";
 import { KnifeIcon } from "phosphor-react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -156,7 +156,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
-              <Menu size={22} color="#fff" />
+              <MoreVertical size={22} color="#fff" />
             </Pressable>
             <Image
               source={require("../assets/images/logo-white.png")}

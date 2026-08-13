@@ -1,6 +1,5 @@
 import { View, Text, Pressable, StyleSheet, Animated, Modal, Image } from "react-native";
 import { ChevronLeft, Info, LayoutGrid, HelpCircle, Phone } from "lucide-react-native";
-import IconPattern from "./IconPattern";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../context/AuthContext";
@@ -38,13 +37,6 @@ export default function SideMenu({ visible, onClose }) {
       </Animated.View>
 
       <Animated.View style={[styles.panel, { transform: [{ translateX: slide }] }]}>
-        <IconPattern
-          source={require("../assets/images/meatbox-bg-icon.png")}
-          size={40}
-          opacity={0.28}
-          spacingX={58}
-          spacingY={58}
-        />
         <View style={[styles.panelHeader, { paddingTop: insets.top }]}>
           <Image
             source={require("../assets/images/qurban-logo.png")}
