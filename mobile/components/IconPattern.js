@@ -1,7 +1,8 @@
-import { View, StyleSheet } from "react-native";
+import { View, Image, StyleSheet } from "react-native";
 
 export default function IconPattern({
   Icon,
+  source,
   size = 16,
   color = "#fff",
   opacity = 0.16,
@@ -9,6 +10,7 @@ export default function IconPattern({
   spacingY = 44,
   rows = 3,
   cols = 10,
+  aspectRatio = 1.5,
 }) {
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
@@ -23,7 +25,15 @@ export default function IconPattern({
         >
           {Array.from({ length: cols }).map((_, col) => (
             <View key={col} style={{ width: spacingX, alignItems: "center", justifyContent: "center" }}>
-              <Icon size={size} color={color} strokeWidth={1.5} opacity={opacity} />
+              {source ? (
+                <Image
+                  source={source}
+                  style={{ width: size, height: size / aspectRatio, opacity }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Icon size={size} color={color} strokeWidth={1.5} opacity={opacity} />
+              )}
             </View>
           ))}
         </View>
