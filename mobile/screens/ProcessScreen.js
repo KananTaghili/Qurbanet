@@ -1,16 +1,23 @@
 import { View, Text, StyleSheet } from "react-native";
 import PageShell, { shellStyles } from "../components/PageShell";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
-const steps = [
-  { title: "Xidməti seçin", text: "Qurbanlıq sifarişi, Kollektiv Qurban və ya Ət Satışı xidmətlərindən birini seçin." },
-  { title: "Sifarişi təsdiqləyin", text: "MeatBox komandası sifarişinizi qəbul edib, prosesi addım-addım idarə edir." },
-  { title: "Video hesabat alın", text: "Kəsim prosesini real vaxt rejimində video ilə izləyin və arxayın olun." },
-  { title: "Çatdırılmanı qəbul edin", text: "Soyuq zəncir nəqliyyatla ətiniz və ya payınız ən qısa zamanda çatdırılır." },
-];
+function stepsList(lang) {
+  return [
+    { title: t(lang, "process_step1Title"), text: t(lang, "process_step1Text") },
+    { title: t(lang, "process_step2Title"), text: t(lang, "process_step2Text") },
+    { title: t(lang, "process_step3Title"), text: t(lang, "process_step3Text") },
+    { title: t(lang, "process_step4Title"), text: t(lang, "process_step4Text") },
+  ];
+}
 
 export default function ProcessScreen() {
+  const { lang } = useLanguage();
+  const steps = stepsList(lang);
   return (
-    <PageShell label="Necə işləyir?" title="Sifarişdən çatdırılmaya qədər proses sadə və şəffafdır.">
+    <PageShell label={t(lang, "process_label")} title={t(lang, "process_title")}>
       {steps.map((step, i) => (
         <View key={step.title} style={shellStyles.infoCard}>
           <View style={styles.stepNum}>
@@ -26,12 +33,12 @@ export default function ProcessScreen() {
 
 const styles = StyleSheet.create({
   stepNum: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
     backgroundColor: "#e10d0d",
     alignItems: "center",
     justifyContent: "center",
   },
-  stepNumText: { color: "#fff", fontWeight: "900", fontSize: 14 },
+  stepNumText: { color: "#fff", fontWeight: "900", fontSize: scaleFont(14) },
 });

@@ -5,6 +5,7 @@ import OrderAnimalMap from "./OrderAnimalMap";
 import { groupByAnimal } from "./OrderReceipt";
 import { PART_DISPLAY } from "./AnimalBodyMap";
 import { BRAND, TINT } from "./MeatOrderPipeline";
+import { scale, scaleFont } from "../../lib/scale";
 
 // Heyvanın PART_DISPLAY konfiqurasiyası yoxdursa (məs. keçi/dəvə), sadəcə hər
 // hissəyə sırayla nömrə verib item-lərdən adını götürür. Web-dəki
@@ -136,7 +137,7 @@ export default function OrderAnimalPicker({ items, onPartsCountChange, onAnimals
           <View
             {...partsSwipe}
             collapsable={false}
-            style={[styles.partsGrid, partsTotalPages > 1 && { marginHorizontal: 30 }]}
+            style={[styles.partsGrid, partsTotalPages > 1 && { marginHorizontal: scale(30) }]}
           >
             {pagedParts.map((p) => (
               <View key={p.key} style={styles.partChip}>
@@ -171,66 +172,66 @@ export default function OrderAnimalPicker({ items, onPartsCountChange, onAnimals
 const styles = StyleSheet.create({
   animalTabs: {
     flexDirection: "row",
-    gap: 4,
-    padding: 3,
-    borderRadius: 10,
+    gap: scale(4),
+    padding: scale(3),
+    borderRadius: scale(10),
     backgroundColor: "#F1EDE6",
-    marginBottom: 14,
+    marginBottom: scale(14),
   },
-  animalTab: { flex: 1, paddingVertical: 10, borderRadius: 8, alignItems: "center" },
-  animalTabText: { fontSize: 15.5, fontWeight: "700" },
+  animalTab: { flex: 1, paddingVertical: scale(10), borderRadius: scale(8), alignItems: "center" },
+  animalTabText: { fontSize: scaleFont(15.5), fontWeight: "700" },
 
-  mapWrap: { width: "100%", height: 220 },
+  mapWrap: { width: "100%", height: scale(220) },
 
-  partsRow: { marginTop: 20, flexDirection: "row", alignItems: "center" },
+  partsRow: { marginTop: scale(20), flexDirection: "row", alignItems: "center" },
   arrowBtn: {
     position: "absolute",
     top: "50%",
-    marginTop: -16,
+    marginTop: scale(-16),
     zIndex: 10,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
     borderWidth: 1,
     borderColor: "#f0ede8",
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
-  arrowLeft: { left: -6 },
-  arrowRight: { right: -6 },
+  arrowLeft: { left: scale(-6) },
+  arrowRight: { right: scale(-6) },
   partsGrid: {
     flex: 1,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: scale(10),
   },
   partChip: {
     width: "47%",
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingLeft: 13,
-    paddingRight: 10,
-    paddingVertical: 12,
-    borderRadius: 10,
+    gap: scale(8),
+    paddingLeft: scale(13),
+    paddingRight: scale(10),
+    paddingVertical: scale(12),
+    borderRadius: scale(10),
     borderWidth: 2,
     borderColor: BRAND,
     backgroundColor: TINT,
   },
   partBadge: {
     position: "absolute",
-    top: -9,
-    left: -9,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    top: scale(-9),
+    left: scale(-9),
+    width: scale(24),
+    height: scale(24),
+    borderRadius: scale(12),
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: BRAND,
     borderWidth: 2,
     borderColor: "#fff",
   },
-  partBadgeText: { fontSize: 12, fontWeight: "800", color: "#fff" },
-  partChipText: { flex: 1, fontSize: 14.5, fontWeight: "600", color: BRAND },
+  partBadgeText: { fontSize: scaleFont(12), fontWeight: "800", color: "#fff" },
+  partChipText: { flex: 1, fontSize: scaleFont(14.5), fontWeight: "600", color: BRAND },
 });

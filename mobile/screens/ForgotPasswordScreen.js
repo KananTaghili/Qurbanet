@@ -7,6 +7,9 @@ import s from "../components/authFormStyles";
 import { useAuth } from "../context/AuthContext";
 import api from "../lib/api";
 import { formatPhone, toE164 } from "../lib/format";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const StepHeader = ({ title, subtitle }) => (
   <View style={styles.headRow}>
@@ -22,6 +25,7 @@ const StepHeader = ({ title, subtitle }) => (
 export default function ForgotPasswordScreen() {
   const navigation = useNavigation();
   const { login } = useAuth();
+  const { lang } = useLanguage();
 
   const [step, setStep] = useState("identifier");
   const [mode, setMode] = useState("phone");
@@ -58,9 +62,9 @@ export default function ForgotPasswordScreen() {
 
   const validate = () => {
     if (mode === "phone") {
-      if (phone.replace(/\s/g, "").length < 9) { setError("Düzgün telefon nömrəsi daxil edin."); return false; }
+      if (phone.replace(/\s/g, "").length < 9) { setError(t(lang, "authForm_errorPhone")); return false; }
     } else if (!email.trim() || !email.includes("@")) {
-      setError("Düzgün email ünvanı daxil edin."); return false;
+      setError(t(lang, "authForm_errorEmail")); return false;
     }
     return true;
   };
@@ -79,9 +83,9 @@ export default function ForgotPasswordScreen() {
     } catch (err) {
       const status = err.response?.status;
       const msg = err.response?.data?.message;
-      if (status === 404) setError(mode === "phone" ? "Bu telefon nömrəsi ilə qeydiyyatdan keçmiş hesab tapılmadı." : "Bu email ilə qeydiyyatdan keçmiş hesab tapılmadı.");
-      else if ((status === 500 || status === 503) && mode === "phone") setError("Telefon nömrəsinə SMS göndərilə bilmədi. Zəhmət olmasa email ilə cəhd edin.");
-      else setError(msg || "Xəta baş verdi. Yenidən cəhd edin.");
+      if (status === 404) setError(mode === "phone" ? t(lang, "forgotPw_errorPhoneNotFound") : t(lang, "forgotPw_errorEmailNotFound"));
+      else if ((status === 500 || status === 503) && mode === "phone") setError(t(lang, "forgotPw_errorSmsFailed"));
+      else setError(msg || t(lang, "authForm_errorGeneric"));
     } finally {
       setSending(false);
     }
@@ -109,7 +113,7 @@ export default function ForgotPasswordScreen() {
       setCode(["", "", "", ""]);
       startTimer();
     } catch (err) {
-      setError(err.response?.data?.message || "Kod göndərilə bilmədi.");
+      setError(err.response?.data?.message || t(lang, "forgotPw_errorResendFailed"));
     } finally {
       setSending(false);
     }
@@ -120,7 +124,7 @@ export default function ForgotPasswordScreen() {
   const handleVerifyOtp = async () => {
     const filled = code.filter((d) => d !== "").length;
     if (filled < 4) {
-      setError("Doğrulama kodu boşdur. Zəhmət olmasa 4 rəqəmli kodu daxil edin.");
+      setError(t(lang, "forgotPw_errorOtpEmpty"));
       setCode(["", "", "", ""]);
       return;
     }
@@ -132,7 +136,7 @@ export default function ForgotPasswordScreen() {
       await api.post("/auth/verify-forgot-otp", payload);
       setStep("reset");
     } catch (err) {
-      setError(err.response?.data?.message || "OTP kodu yanlışdır. Yenidən cəhd edin.");
+      setError(err.response?.data?.message || t(lang, "forgotPw_errorOtpWrong"));
       setCode(["", "", "", ""]);
     } finally {
       setVerifying(false);
@@ -143,8 +147,8 @@ export default function ForgotPasswordScreen() {
 
   const handleReset = async () => {
     if (resetting) return;
-    if (!newPassword || newPassword.length < 6) return setError("Şifrə ən az 6 simvol olmalıdır.");
-    if (newPassword !== confirmPassword) return setError("Şifrələr uyğun gəlmir.");
+    if (!newPassword || newPassword.length < 6) return setError(t(lang, "authForm_errorPasswordShort"));
+    if (newPassword !== confirmPassword) return setError(t(lang, "forgotPw_errorPasswordsMismatch"));
     setResetting(true);
     setError("");
     try {
@@ -166,9 +170,9 @@ export default function ForgotPasswordScreen() {
         setNewPassword("");
         setConfirmPassword("");
         setStep("otp");
-        setError("OTP kodu yanlışdır və ya müddəti bitib. Yenidən daxil edin.");
+        setError(t(lang, "forgotPw_errorOtpExpiredReenter"));
       } else {
-        setError(msg || "Şifrə yenilənə bilmədi. Yenidən cəhd edin.");
+        setError(msg || t(lang, "forgotPw_errorResetFailed"));
       }
     } finally {
       setResetting(false);
@@ -179,13 +183,13 @@ export default function ForgotPasswordScreen() {
     <AuthShell onBack={() => navigation.goBack()}>
       {step === "identifier" && (
         <>
-          <StepHeader title="Şifrəni Sıfırla" />
-          <Text style={styles.subtitle}>Qeydiyyat zamanı istifadə etdiyiniz telefon və ya email ilə daxil olun.</Text>
+          <StepHeader title={t(lang, "forgotPw_title")} />
+          <Text style={styles.subtitle}>{t(lang, "forgotPw_subtitle")}</Text>
 
           <View style={s.tabRow}>
             {[
-              { key: "phone", Icon: Phone, label: "Telefon" },
-              { key: "email", Icon: Mail, label: "Email" },
+              { key: "phone", Icon: Phone, label: t(lang, "authForm_phoneTab") },
+              { key: "email", Icon: Mail, label: t(lang, "authForm_emailTab") },
             ].map(({ key, Icon, label }) => (
               <Pressable key={key} style={[s.tabBtn, mode === key && s.tabBtnActive]} onPress={() => { setMode(key); setError(""); }}>
                 <Icon size={15} color={mode === key ? "#111827" : "#9ca3af"} />
@@ -195,7 +199,7 @@ export default function ForgotPasswordScreen() {
           </View>
 
           <View style={s.field}>
-            <Text style={s.label}>{mode === "phone" ? "Telefon Nömrəsi *" : "Email *"}</Text>
+            <Text style={s.label}>{mode === "phone" ? t(lang, "forgotPw_phoneNumberRequiredLabel") : t(lang, "forgotPw_emailRequiredLabel")}</Text>
             {mode === "phone" ? (
               <View style={s.inputBox}>
                 <Text style={s.phonePrefix}>AZ +994</Text>
@@ -224,19 +228,19 @@ export default function ForgotPasswordScreen() {
           {error ? <View style={s.errorBox}><Text style={s.errorText}>{error}</Text></View> : null}
 
           <Pressable style={[s.primaryBtn, sending && s.primaryBtnDisabled]} onPress={handleSend} disabled={sending}>
-            {sending ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>Kod göndər</Text>}
+            {sending ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>{t(lang, "forgotPw_sendCode")}</Text>}
           </Pressable>
 
           <Pressable style={s.linkBtn} onPress={() => navigation.goBack()}>
-            <Text style={s.linkBtnText}>← Geri qayıt</Text>
+            <Text style={s.linkBtnText}>{t(lang, "forgotPw_backLink")}</Text>
           </Pressable>
         </>
       )}
 
       {step === "otp" && (
         <>
-          <StepHeader title="Kodu Daxil Et" />
-          <Text style={styles.subtitle}>{mode === "phone" ? "Nömrənizə" : "Email ünvanınıza"} göndərilən 4 rəqəmli kodu daxil edin.</Text>
+          <StepHeader title={t(lang, "forgotPw_otpTitle")} />
+          <Text style={styles.subtitle}>{mode === "phone" ? t(lang, "forgotPw_otpSubToPhone") : t(lang, "forgotPw_otpSubToEmail")} {t(lang, "forgotPw_otpSubSuffix")}</Text>
 
           <View style={styles.otpRow}>
             {code.map((d, i) => (
@@ -253,38 +257,38 @@ export default function ForgotPasswordScreen() {
               />
             ))}
           </View>
-          <Pressable onPress={handleResend} disabled={resendTimer > 0 || sending} style={{ marginBottom: 16 }}>
+          <Pressable onPress={handleResend} disabled={resendTimer > 0 || sending} style={{ marginBottom: scale(16) }}>
             <Text style={[styles.resendText, resendTimer > 0 && { color: "#9ca3af" }]}>
-              {resendTimer > 0 ? `Yenidən göndər (${resendTimer}s)` : "Kodu yenidən göndər"}
+              {resendTimer > 0 ? t(lang, "forgotPw_resendTemplate").replace("{s}", resendTimer) : t(lang, "forgotPw_resendNow")}
             </Text>
           </Pressable>
 
           {error ? <View style={s.errorBox}><Text style={s.errorText}>{error}</Text></View> : null}
 
           <Pressable style={[s.primaryBtn, verifying && s.primaryBtnDisabled]} onPress={handleVerifyOtp} disabled={verifying}>
-            {verifying ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>Davam et →</Text>}
+            {verifying ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>{t(lang, "forgotPw_continueBtn")}</Text>}
           </Pressable>
 
           <Pressable style={s.linkBtn} onPress={() => { setStep("identifier"); setError(""); }}>
-            <Text style={s.linkBtnText}>← Geri qayıt</Text>
+            <Text style={s.linkBtnText}>{t(lang, "forgotPw_backLink")}</Text>
           </Pressable>
         </>
       )}
 
       {step === "reset" && (
         <>
-          <StepHeader title="Yeni Şifrə" />
-          <Text style={styles.subtitle}>Hesabınız üçün yeni şifrə təyin edin.</Text>
+          <StepHeader title={t(lang, "forgotPw_resetTitle")} />
+          <Text style={styles.subtitle}>{t(lang, "forgotPw_resetSubtitle")}</Text>
 
           <View style={s.field}>
-            <Text style={s.label}>Yeni Şifrə *</Text>
+            <Text style={s.label}>{t(lang, "forgotPw_newPasswordLabel")}</Text>
             <View style={s.inputBox}>
               <TextInput
                 style={s.input}
                 value={newPassword}
                 secureTextEntry={!showNew}
                 maxLength={128}
-                placeholder="Ən az 6 simvol"
+                placeholder={t(lang, "authForm_passwordMinPlaceholder")}
                 placeholderTextColor="#9ca3af"
                 onChangeText={(v) => { setNewPassword(v); setError(""); }}
               />
@@ -295,14 +299,14 @@ export default function ForgotPasswordScreen() {
           </View>
 
           <View style={s.field}>
-            <Text style={s.label}>Şifrəni Təsdiqlə *</Text>
+            <Text style={s.label}>{t(lang, "forgotPw_confirmPasswordLabel")}</Text>
             <View style={s.inputBox}>
               <TextInput
                 style={s.input}
                 value={confirmPassword}
                 secureTextEntry={!showConfirm}
                 maxLength={128}
-                placeholder="Şifrənizi yenidən daxil edin"
+                placeholder={t(lang, "forgotPw_confirmPasswordPlaceholder")}
                 placeholderTextColor="#9ca3af"
                 onChangeText={(v) => { setConfirmPassword(v); setError(""); }}
               />
@@ -315,11 +319,11 @@ export default function ForgotPasswordScreen() {
           {error ? <View style={s.errorBox}><Text style={s.errorText}>{error}</Text></View> : null}
 
           <Pressable style={[s.primaryBtn, resetting && s.primaryBtnDisabled]} onPress={handleReset} disabled={resetting}>
-            {resetting ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>Şifrəni Yenilə</Text>}
+            {resetting ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>{t(lang, "forgotPw_updateBtn")}</Text>}
           </Pressable>
 
           <Pressable style={s.linkBtn} onPress={() => { setStep("otp"); setError(""); }}>
-            <Text style={s.linkBtnText}>← Geri qayıt</Text>
+            <Text style={s.linkBtnText}>{t(lang, "forgotPw_backLink")}</Text>
           </Pressable>
         </>
       )}
@@ -328,30 +332,30 @@ export default function ForgotPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  headRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
+  headRow: { flexDirection: "row", alignItems: "center", gap: scale(10), marginBottom: scale(6) },
   keyIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(12),
     backgroundColor: "#fff1f3",
     alignItems: "center",
     justifyContent: "center",
   },
-  title: { fontSize: 20, fontWeight: "900", color: "#111827" },
-  subtitle: { fontSize: 13, color: "#6b7280", marginBottom: 20, lineHeight: 19 },
-  otpRow: { flexDirection: "row", gap: 10, justifyContent: "center", marginBottom: 8 },
+  title: { fontSize: scaleFont(20), fontWeight: "900", color: "#111827" },
+  subtitle: { fontSize: scaleFont(13), color: "#6b7280", marginBottom: scale(20), lineHeight: moderateScale(19) },
+  otpRow: { flexDirection: "row", gap: scale(10), justifyContent: "center", marginBottom: scale(8) },
   otpBox: {
-    width: 56,
-    height: 56,
+    width: scale(56),
+    height: scale(56),
     textAlign: "center",
-    fontSize: 22,
+    fontSize: scaleFont(22),
     fontWeight: "700",
-    borderRadius: 16,
+    borderRadius: scale(16),
     borderWidth: 2,
     borderColor: "#e5e7eb",
     backgroundColor: "#f8f9fb",
     color: "#111827",
   },
   otpBoxFilled: { borderColor: "#c8102e", backgroundColor: "#fff1f3", color: "#c8102e" },
-  resendText: { fontSize: 12, fontWeight: "600", textAlign: "center", color: "#c8102e" },
+  resendText: { fontSize: scaleFont(12), fontWeight: "600", textAlign: "center", color: "#c8102e" },
 });

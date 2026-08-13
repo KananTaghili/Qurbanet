@@ -8,9 +8,11 @@ import OrderStepHeader from "../components/OrderStepHeader";
 import { useAuth } from "../context/AuthContext";
 import { toE164 } from "../lib/format";
 import api from "../lib/api";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#1c5e20";
-const AZ_MONTHS = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
 const CHARITY_KEYS = ["usaqlar_evi", "qocalar_evi", "ehtiyac_sahibleri"];
 
 function InfoRow({ label, value, sep = true }) {
@@ -24,15 +26,16 @@ function InfoRow({ label, value, sep = true }) {
 }
 
 function PriceItem({ label, sub, value, isFree, sep }) {
+  const { lang } = useLanguage();
   return (
     <View style={[styles.priceItem, sep && styles.priceItemSep]}>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.priceItemLabel} numberOfLines={1}>{label}</Text>
+        <Text style={styles.priceItemLabel} numberOfLines={2}>{label}</Text>
         {sub ? <Text style={styles.priceItemSub}>{sub}</Text> : null}
       </View>
       <View style={[styles.priceBadge, isFree && styles.priceBadgeFree]}>
         <Text style={[styles.priceBadgeText, isFree && styles.priceBadgeTextFree]}>
-          {isFree ? "Pulsuz" : value}
+          {isFree ? t(lang, "dist_freeLabel") : value}
         </Text>
       </View>
     </View>
@@ -43,7 +46,8 @@ export default function OrderSummaryScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
+  const { lang } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   useFocusEffect(
@@ -52,6 +56,14 @@ export default function OrderSummaryScreen() {
       NavigationBar.setButtonStyleAsync("dark").catch(() => {});
       NavigationBar.setBackgroundColorAsync("#ffffff").catch(() => {});
     }, [])
+  );
+
+  // Qonaq (qeydiyyatsız) istifadəçidə ad/soyad olmur — backend bunu tələb
+  // edir. Web-dəki /order/contact səhifəsinin analoqu olan bu axına yönləndiririk.
+  useFocusEffect(
+    useCallback(() => {
+      if (isGuest) navigation.replace("OrderContact", route.params);
+    }, [isGuest, route.params])
   );
 
   const {
@@ -73,10 +85,12 @@ export default function OrderSummaryScreen() {
     phones = [],
   } = route.params || {};
 
+  if (isGuest) return null;
+
   const dateStr = selectedDate
     ? (() => {
         const d = new Date(selectedDate);
-        return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+        return `${d.getDate()} ${t(lang, "summary_months_full")[d.getMonth()]} ${d.getFullYear()}`;
       })()
     : "-";
 
@@ -104,27 +118,27 @@ export default function OrderSummaryScreen() {
       const fCount = feetBuckets[key] || 0;
       if (hCount === 0 && fCount === 0) return null;
       const parts = [];
-      if (hCount > 0) parts.push(`${hCount} baş`);
-      if (fCount > 0) parts.push(`${fCount} ayaq`);
-      return { key, opt, sub: parts.join(" və "), totalFee: opt.fee * (hCount + fCount) };
+      if (hCount > 0) parts.push(`${hCount} ${t(lang, "summary_headSuffix")}`);
+      if (fCount > 0) parts.push(`${fCount} ${t(lang, "summary_feetSuffix")}`);
+      return { key, opt, sub: parts.join(` ${t(lang, "summary_andWord")} `), totalFee: opt.fee * (hCount + fCount) };
     })
     .filter(Boolean);
 
   const infoRows = [
-    { label: "Heyvan", value: animal?.nameAz },
-    { label: "Miqdar", value: `${qty} ədəd` },
-    { label: "Kəsim tarixi", value: dateStr },
-    { label: "Çatdırılma vaxtı", value: timeSlot },
-    { label: "Çatdırılma növü", value: distLabel },
-    ...(distKey === "catdirilsin" && addressLocation ? [{ label: "Ünvan", value: addressLocation.address }] : []),
+    { label: t(lang, "summary_animalLabel"), value: animal?.nameAz },
+    { label: t(lang, "summary_quantityLabel"), value: `${qty} ${t(lang, "summary_unitSuffix")}` },
+    { label: t(lang, "summary_slaughterDateLabel"), value: dateStr },
+    { label: t(lang, "summary_deliveryTimeLabel"), value: timeSlot },
+    { label: t(lang, "summary_deliveryTypeLabel"), value: distLabel },
+    ...(distKey === "catdirilsin" && addressLocation ? [{ label: t(lang, "summary_addressLabel"), value: addressLocation.address }] : []),
     ...(!isCharityDist
       ? [
-          { label: "Əlaqə", value: [user?.name, user?.lastName].filter(Boolean).join(" ") || "-" },
-          { label: "Telefon", value: phones.length ? phones.map((p) => toE164(p)).join("\n") : "Nömrə yoxdur" },
+          { label: t(lang, "summary_contactLabel"), value: [user?.name, user?.lastName].filter(Boolean).join(" ") || "-" },
+          { label: t(lang, "summary_phoneLabel"), value: phones.length ? phones.map((p) => toE164(p)).join("\n") : t(lang, "summary_noPhone") },
         ]
       : []),
-    ...(notes ? [{ label: "Qeyd", value: notes }] : []),
-    ...(addressNote ? [{ label: "Ünvan qeydi", value: addressNote }] : []),
+    ...(notes ? [{ label: t(lang, "summary_noteLabel"), value: notes }] : []),
+    ...(addressNote ? [{ label: t(lang, "summary_addressNoteLabel"), value: addressNote }] : []),
   ];
 
   const handleConfirm = async () => {
@@ -195,7 +209,7 @@ export default function OrderSummaryScreen() {
         });
       }
     } catch (err) {
-      Alert.alert("Xəta", err.response?.data?.message || "Sifariş yaradıla bilmədi.");
+      Alert.alert(t(lang, "summary_errorTitle"), err.response?.data?.message || t(lang, "summary_errorCreateFailed"));
     } finally {
       setLoading(false);
     }
@@ -206,12 +220,12 @@ export default function OrderSummaryScreen() {
       <StatusBar style="dark" />
       <OrderStepHeader currentStep={3} />
 
-      <ScrollView contentContainerStyle={{ padding: 12, paddingBottom: insets.bottom + 90, gap: 10 }}>
-        <Text style={styles.pageTitle}>Sifariş Xülasəsi</Text>
+      <ScrollView contentContainerStyle={{ padding: scale(12), paddingBottom: insets.bottom + 90, gap: scale(10) }}>
+        <Text style={styles.pageTitle}>{t(lang, "summary_pageTitle")}</Text>
 
         <View style={styles.card}>
           <View style={styles.cardHeadColored}>
-            <Text style={styles.cardHeadColoredLabel}>SİFARİŞ MƏLUMATLARI</Text>
+            <Text style={styles.cardHeadColoredLabel}>{t(lang, "summary_orderInfoLabel")}</Text>
           </View>
           <View>
             {infoRows.map((row, i) => (
@@ -222,14 +236,14 @@ export default function OrderSummaryScreen() {
 
         <View style={styles.card}>
           <View style={styles.cardHeadColored}>
-            <Text style={styles.cardHeadColoredLabel}>QİYMƏT HESABLAMASI</Text>
+            <Text style={styles.cardHeadColoredLabel}>{t(lang, "summary_priceCalcLabel")}</Text>
           </View>
 
           <View style={styles.topGrid}>
             <View style={styles.topGridCell}>
               <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.topGridTitle} numberOfLines={1}>{animal?.nameAz || "Heyvan"}</Text>
-                <Text style={styles.topGridSub}>{qty} ədəd × {qty ? Math.round(animalBasePrice / qty) : 0} AZN</Text>
+                <Text style={styles.topGridTitle} numberOfLines={2}>{animal?.nameAz || t(lang, "summary_animalFallback")}</Text>
+                <Text style={styles.topGridSub}>{qty} {t(lang, "summary_unitSuffix")} × {qty ? Math.round(animalBasePrice / qty) : 0} AZN</Text>
               </View>
               <View style={styles.priceBadge}>
                 <Text style={styles.priceBadgeText}>{animalBasePrice.toFixed(0)} AZN</Text>
@@ -237,12 +251,12 @@ export default function OrderSummaryScreen() {
             </View>
             <View style={[styles.topGridCell, styles.topGridCellRight]}>
               <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.topGridTitle} numberOfLines={1}>{distLabel || "-"}</Text>
-                <Text style={styles.topGridSub}>Çatdırılma növü</Text>
+                <Text style={styles.topGridTitle} numberOfLines={2}>{distLabel || "-"}</Text>
+                <Text style={styles.topGridSub}>{t(lang, "summary_deliveryTypeSub")}</Text>
               </View>
               <View style={[styles.priceBadge, distFee === 0 && styles.priceBadgeFree]}>
                 <Text style={[styles.priceBadgeText, distFee === 0 && styles.priceBadgeTextFree]}>
-                  {distFee === 0 ? "Pulsuz" : `+${distFee} AZN`}
+                  {distFee === 0 ? t(lang, "dist_freeLabel") : `+${distFee} AZN`}
                 </Text>
               </View>
             </View>
@@ -253,13 +267,13 @@ export default function OrderSummaryScreen() {
               {activeCutRows.length > 0 && (
                 <View style={styles.midGridCell}>
                   <View style={styles.sectionHead}>
-                    <Text style={styles.sectionHeadText}>DOĞRAMA ÜSULU</Text>
+                    <Text style={styles.sectionHeadText}>{t(lang, "qty_cutStyleLabel")}</Text>
                   </View>
                   {activeCutRows.map((cs, i) => (
                     <PriceItem
                       key={cs.key}
                       label={cs.labelAz}
-                      sub={`${cutStyles[cs.key]} heyvan`}
+                      sub={`${cutStyles[cs.key]} ${t(lang, "summary_animalCountSuffix")}`}
                       value={`+${cs.fee * cutStyles[cs.key]} AZN`}
                       isFree={cs.fee === 0}
                       sep={i < activeCutRows.length - 1}
@@ -270,7 +284,7 @@ export default function OrderSummaryScreen() {
               {activePartRows.length > 0 && (
                 <View style={[styles.midGridCell, styles.midGridCellRight]}>
                   <View style={styles.sectionHead}>
-                    <Text style={styles.sectionHeadText}>BAŞ VƏ AYAQLAR</Text>
+                    <Text style={styles.sectionHeadText}>{t(lang, "qty_headFeetLabel")}</Text>
                   </View>
                   {activePartRows.map((r, i) => (
                     <PriceItem
@@ -289,8 +303,8 @@ export default function OrderSummaryScreen() {
 
           <View style={styles.totalRow}>
             <View>
-              <Text style={styles.totalLabel}>YEKUN MƏBLƏĞ</Text>
-              <Text style={styles.totalSub}>Bütün xidmətlər daxil</Text>
+              <Text style={styles.totalLabel}>{t(lang, "summary_finalAmountLabel")}</Text>
+              <Text style={styles.totalSub}>{t(lang, "summary_allServicesIncluded")}</Text>
             </View>
             <Text style={styles.totalValue}>{grandTotal.toFixed(0)} AZN</Text>
           </View>
@@ -299,7 +313,7 @@ export default function OrderSummaryScreen() {
 
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 10 }]}>
         <Pressable style={[styles.confirmBtn, loading && { opacity: 0.7 }]} onPress={handleConfirm} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.confirmBtnText}>Sifarişi təsdiqlə</Text>}
+          {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.confirmBtnText}>{t(lang, "summary_confirmBtn")}</Text>}
         </Pressable>
       </View>
     </View>
@@ -308,45 +322,45 @@ export default function OrderSummaryScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#f2f5f2" },
-  pageTitle: { fontSize: 16, fontWeight: "800", color: "#171717" },
+  pageTitle: { fontSize: scaleFont(21), fontWeight: "900", color: "#171717" },
 
-  card: { backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 6, elevation: 1 },
-  cardHeadColored: { paddingHorizontal: 12, paddingVertical: 9, backgroundColor: "#eef7ee" },
-  cardHeadColoredLabel: { fontSize: 10.5, fontWeight: "800", letterSpacing: 0.6, color: BRAND },
+  card: { backgroundColor: "#fff", borderRadius: scale(12), overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 6, elevation: 1 },
+  cardHeadColored: { paddingHorizontal: scale(12), paddingVertical: scale(11), backgroundColor: "#eef7ee" },
+  cardHeadColoredLabel: { fontSize: scaleFont(13), fontWeight: "800", letterSpacing: 0.6, color: BRAND },
 
-  infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 12, paddingVertical: 8, gap: 10 },
+  infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: scale(12), paddingVertical: scale(10), gap: scale(10) },
   infoRowSep: { borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
-  infoLabel: { fontSize: 11.5, color: "#737373", fontWeight: "600", flexShrink: 0 },
-  infoValue: { fontSize: 11.5, fontWeight: "800", color: "#171717", textAlign: "right", flexShrink: 1 },
+  infoLabel: { fontSize: scaleFont(14.5), color: "#737373", fontWeight: "600", flexShrink: 0 },
+  infoValue: { fontSize: scaleFont(14.5), fontWeight: "800", color: "#171717", textAlign: "right", flexShrink: 1 },
 
   topGrid: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
-  topGridCell: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 12, gap: 8 },
+  topGridCell: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: scale(12), gap: scale(8) },
   topGridCellRight: { borderLeftWidth: 1, borderLeftColor: "#f0f0f0" },
-  topGridTitle: { fontSize: 12, fontWeight: "800", color: "#171717" },
-  topGridSub: { fontSize: 10, color: "#9ca3af", marginTop: 2 },
+  topGridTitle: { fontSize: scaleFont(15), fontWeight: "800", color: "#171717" },
+  topGridSub: { fontSize: scaleFont(12.5), color: "#9ca3af", marginTop: scale(2) },
 
-  priceBadge: { backgroundColor: "#f5f5f5", borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 5 },
+  priceBadge: { backgroundColor: "#f5f5f5", borderWidth: 1, borderColor: "#e5e7eb", borderRadius: scale(8), paddingHorizontal: scale(10), paddingVertical: scale(7) },
   priceBadgeFree: { backgroundColor: "#ecfdf5", borderColor: "#a7f3d0" },
-  priceBadgeText: { fontSize: 11, fontWeight: "800", color: "#171717" },
+  priceBadgeText: { fontSize: scaleFont(14), fontWeight: "800", color: "#171717" },
   priceBadgeTextFree: { color: "#059669" },
 
   midGrid: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
   midGridCell: { flex: 1 },
   midGridCellRight: { borderLeftWidth: 1, borderLeftColor: "#f0f0f0" },
-  sectionHead: { backgroundColor: "#fafbfa", paddingHorizontal: 10, paddingVertical: 7 },
-  sectionHeadText: { fontSize: 9, fontWeight: "800", letterSpacing: 0.5, color: "#9ca3af" },
+  sectionHead: { backgroundColor: "#fafbfa", paddingHorizontal: scale(10), paddingVertical: scale(8) },
+  sectionHeadText: { fontSize: scaleFont(11.5), fontWeight: "800", letterSpacing: 0.5, color: "#9ca3af" },
 
-  priceItem: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 10, paddingVertical: 8, gap: 6 },
+  priceItem: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(10), paddingVertical: scale(10), gap: scale(6) },
   priceItemSep: { borderBottomWidth: 1, borderBottomColor: "#f5f5f5" },
-  priceItemLabel: { fontSize: 11, fontWeight: "700", color: "#171717" },
-  priceItemSub: { fontSize: 9.5, color: "#9ca3af", marginTop: 1 },
+  priceItemLabel: { fontSize: scaleFont(14), fontWeight: "700", color: "#171717" },
+  priceItemSub: { fontSize: scaleFont(12), color: "#9ca3af", marginTop: scale(1) },
 
-  totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingVertical: 14, backgroundColor: "#f0f7f0" },
-  totalLabel: { fontSize: 10.5, fontWeight: "900", letterSpacing: 0.6, color: "#171717" },
-  totalSub: { fontSize: 9.5, color: "#9ca3af", marginTop: 2 },
-  totalValue: { fontSize: 20, fontWeight: "900", color: BRAND },
+  totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(14), paddingVertical: scale(16), backgroundColor: "#f0f7f0" },
+  totalLabel: { fontSize: scaleFont(13), fontWeight: "900", letterSpacing: 0.6, color: "#171717" },
+  totalSub: { fontSize: scaleFont(12), color: "#9ca3af", marginTop: scale(2) },
+  totalValue: { fontSize: scaleFont(26), fontWeight: "900", color: BRAND },
 
-  bottomBar: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#e5e7eb", paddingHorizontal: 16, paddingTop: 10, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, elevation: 8 },
-  confirmBtn: { backgroundColor: BRAND, borderRadius: 12, paddingVertical: 13, alignItems: "center", justifyContent: "center" },
-  confirmBtnText: { fontSize: 14, fontWeight: "800", color: "#fff" },
+  bottomBar: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#e5e7eb", paddingHorizontal: scale(16), paddingTop: scale(10), shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, elevation: 8 },
+  confirmBtn: { backgroundColor: BRAND, borderRadius: scale(12), paddingVertical: scale(16), alignItems: "center", justifyContent: "center" },
+  confirmBtnText: { fontSize: scaleFont(17), fontWeight: "800", color: "#fff" },
 });

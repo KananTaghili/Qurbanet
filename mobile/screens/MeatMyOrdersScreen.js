@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { View, Text, Pressable, ScrollView, ActivityIndicator, StyleSheet, Platform, StatusBar, Modal } from "react-native";
+import { View, Text, Image, Pressable, ScrollView, ActivityIndicator, StyleSheet, Platform, StatusBar, Modal } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
 import {
-  Menu,
+  ArrowLeft,
   User,
   ClipboardList,
   ShoppingBag,
@@ -19,20 +19,22 @@ import {
   ChevronDown,
 } from "lucide-react-native";
 import { useAuth } from "../context/AuthContext";
+import { getInitials } from "../lib/format";
 import NotificationBell from "../components/NotificationBell";
 import HeaderUserMenu from "../components/HeaderUserMenu";
-import MeatSideMenu from "../components/MeatSideMenu";
 import MeatBottomNav from "../components/MeatBottomNav";
 import OrderReceipt from "../components/meat/OrderReceipt";
 import Pipeline, { BRAND, TINT, PIPELINE_STEPS, STATUS_STEP, CancelledBadge } from "../components/meat/MeatOrderPipeline";
 import api from "../lib/api";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t as translate } from "../i18n/i18n";
 
-const AZ_MONTHS_SHORT = ["Yan", "Fev", "Mar", "Apr", "May", "İyn", "İyl", "Avq", "Sen", "Okt", "Noy", "Dek"];
-
-function fmtDate(ds) {
+function fmtDate(ds, lang) {
   if (!ds) return "—";
   const d = new Date(ds);
-  return `${d.getDate()} ${AZ_MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+  const monthsShort = translate(lang, "meatOrders_monthsShort");
+  return `${d.getDate()} ${monthsShort[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function StatCard({ Icon, label, value }) {
@@ -47,20 +49,23 @@ function StatCard({ Icon, label, value }) {
   );
 }
 
-const TAB_META = {
-  all: { label: "Hamısı", Icon: ClipboardList },
-  active: { label: "Aktiv", Icon: Activity },
-  completed: { label: "Tamamlanmış", Icon: CheckCircle2 },
-  cancelled: { label: "Ləğv edildi", Icon: XCircle },
-};
+function getTabMeta(lang) {
+  return {
+    all: { label: translate(lang, "allLabel"), Icon: ClipboardList },
+    active: { label: translate(lang, "orders_active"), Icon: Activity },
+    completed: { label: translate(lang, "navCompleted"), Icon: CheckCircle2 },
+    cancelled: { label: translate(lang, "orders_cancelled"), Icon: XCircle },
+  };
+}
 
 // Web-dəki StatusFilter dropdown-unun portu — açılan düymə cari filtri
 // göstərir, basılanda altında bütün seçimləri sadalayan üzən panel açılır.
-function StatusFilter({ tabs, value, onChange }) {
+function StatusFilter({ tabs, value, onChange, lang }) {
+  const TAB_META = getTabMeta(lang);
   const btnRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [layout, setLayout] = useState(null);
-  const current = tabs.find((t) => t.key === value) || tabs[0];
+  const current = tabs.find((tab) => tab.key === value) || tabs[0];
   const CurrentIcon = TAB_META[current.key].Icon;
 
   const openDropdown = () => {
@@ -162,7 +167,7 @@ function TapToOpen({ onPress, children }) {
   );
 }
 
-function OrderCard({ order, onPress }) {
+function OrderCard({ order, onPress, lang }) {
   const step = STATUS_STEP[order.status] ?? 0;
   const PipeIcon = step < 0 ? XCircle : PIPELINE_STEPS[Math.max(0, step)]?.Icon || ShoppingBag;
 
@@ -173,7 +178,7 @@ function OrderCard({ order, onPress }) {
   // alt sətir adi Pressable-lardır; bədən xəritəsi sahəsi isə yuxarıdakı
   // TapToOpen ilə (klikə görə) örtülüb — hər ikisi eyni onPress-i çağırır.
   return (
-    <View style={{ marginTop: 22 }}>
+    <View style={{ marginTop: scale(22) }}>
       <View style={styles.statusFloat}>
         <PipeIcon size={24} color="#fff" />
       </View>
@@ -182,12 +187,12 @@ function OrderCard({ order, onPress }) {
           <Text style={styles.orderNum}>#{order.orderNumber}</Text>
           <View style={styles.orderDateRow}>
             <Calendar size={15} color="#A8A29E" />
-            <Text style={styles.orderDate}>{fmtDate(order.createdAt)}</Text>
+            <Text style={styles.orderDate}>{fmtDate(order.createdAt, lang)}</Text>
           </View>
         </Pressable>
 
         <TapToOpen onPress={onPress}>
-          <View style={{ marginBottom: 12 }}>
+          <View style={{ marginBottom: scale(12) }}>
             <OrderReceipt items={order.items} />
           </View>
         </TapToOpen>
@@ -196,7 +201,7 @@ function OrderCard({ order, onPress }) {
           <View style={styles.chipsRow}>
             <View style={styles.chip}>
               <ShoppingBag size={14} color="#6B1717" />
-              <Text style={styles.chipText}>{order.items?.length || 0} məhsul</Text>
+              <Text style={styles.chipText}>{order.items?.length || 0} {translate(lang, "meatCheckout_productsUnit")}</Text>
             </View>
             <View style={[styles.chip, { backgroundColor: TINT }]}>
               <Wallet size={14} color={BRAND} />
@@ -223,12 +228,12 @@ export default function MeatMyOrdersScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isGuest, user } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { lang } = useLanguage();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
-  const initials = [user?.name, user?.lastName].filter(Boolean).map((n) => n[0]).join("").toUpperCase() || "?";
+  const initials = getInitials(user);
 
   useFocusEffect(
     useCallback(() => {
@@ -239,6 +244,12 @@ export default function MeatMyOrdersScreen() {
       NavigationBar.setButtonStyleAsync("dark").catch(() => {});
       NavigationBar.setBackgroundColorAsync("#ffffff").catch(() => {});
     }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isGuest) navigation.replace("Register");
+    }, [isGuest, navigation]),
   );
 
   const fetchOrders = useCallback(() => {
@@ -252,8 +263,12 @@ export default function MeatMyOrdersScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      if (isGuest) {
+        setLoading(false);
+        return;
+      }
       fetchOrders();
-    }, [fetchOrders]),
+    }, [fetchOrders, isGuest]),
   );
 
   const activeCount = useMemo(() => orders.filter((o) => !["completed", "cancelled"].includes(o.status)).length, [orders]);
@@ -282,17 +297,18 @@ export default function MeatMyOrdersScreen() {
 
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <View style={styles.headerLeft}>
-          <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
-            <Menu size={26} color="#fff" />
+          <Pressable style={styles.homeBtn} onPress={() => navigation.navigate("Home")}>
+            <ArrowLeft size={20} color="#fff" />
+            <Image source={require("../assets/images/app-icon.png")} style={styles.homeBtnLogo} />
           </Pressable>
-          <Text style={styles.headerTitle} numberOfLines={1}>Sifarişlərim</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>{translate(lang, "myOrders")}</Text>
         </View>
         <View style={styles.headerRight}>
           <NotificationBell accentColor={BRAND} iconColor="#fff" />
           {isGuest ? (
             <Pressable style={styles.loginBtn} onPress={() => navigation.navigate("Login")}>
               <User size={22} color="#fff" />
-              <Text style={styles.loginText}>Daxil ol</Text>
+              <Text style={styles.loginText}>{translate(lang, "login")}</Text>
             </Pressable>
           ) : (
             <HeaderUserMenu initials={initials} accentColor="rgba(255,255,255,0.2)" />
@@ -300,11 +316,9 @@ export default function MeatMyOrdersScreen() {
         </View>
       </View>
 
-      <MeatSideMenu visible={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      <ScrollView nestedScrollEnabled contentContainerStyle={{ padding: 14, paddingBottom: 20 }}>
+      <ScrollView nestedScrollEnabled contentContainerStyle={{ padding: scale(14), paddingBottom: scale(20) }}>
         {loading ? (
-          <View style={{ paddingVertical: 60, alignItems: "center" }}>
+          <View style={{ paddingVertical: scale(60), alignItems: "center" }}>
             <ActivityIndicator size="large" color={BRAND} />
           </View>
         ) : orders.length === 0 ? (
@@ -317,30 +331,30 @@ export default function MeatMyOrdersScreen() {
                 <Sparkles size={18} color="#fff" />
               </View>
             </View>
-            <Text style={styles.emptyTitle}>Hələ ki, heç bir sifarişiniz yoxdur</Text>
-            <Text style={styles.emptySub}>MeatBox-un təzə və halal ət məhsullarından sifariş verin, qapınıza qədər çatdıraq.</Text>
+            <Text style={styles.emptyTitle}>{translate(lang, "orders_emptyTitle")}</Text>
+            <Text style={styles.emptySub}>{translate(lang, "orders_emptyDesc")}</Text>
             <Pressable style={styles.emptyBtn} onPress={() => navigation.navigate("MeatHome")}>
-              <Text style={styles.emptyBtnText}>Təzə Məhsullara Bax</Text>
+              <Text style={styles.emptyBtnText}>{translate(lang, "orders_emptyBtn")}</Text>
               <ArrowRight size={18} color="#fff" />
             </Pressable>
           </View>
         ) : (
           <>
             <View style={styles.statsRow}>
-              <StatCard Icon={ClipboardList} label="Sifarişlər" value={orders.length} />
-              <StatCard Icon={Activity} label="Aktiv" value={activeCount} />
-              <StatCard Icon={Wallet} label="Məbləğ" value={`${totalPaid.toFixed(2)} AZN`} />
+              <StatCard Icon={ClipboardList} label={translate(lang, "orders_statOrders")} value={orders.length} />
+              <StatCard Icon={Activity} label={translate(lang, "orders_active")} value={activeCount} />
+              <StatCard Icon={Wallet} label={translate(lang, "orders_statAmount")} value={`${totalPaid.toFixed(2)} AZN`} />
             </View>
 
             <View style={{ alignItems: "flex-start" }}>
-              <StatusFilter tabs={TABS} value={filter} onChange={setFilter} />
+              <StatusFilter tabs={TABS} value={filter} onChange={setFilter} lang={lang} />
             </View>
 
             {filteredOrders.length === 0 ? (
-              <Text style={styles.noneInCategory}>Bu kateqoriyada sifariş yoxdur.</Text>
+              <Text style={styles.noneInCategory}>{translate(lang, "orders_noneInCategory")}</Text>
             ) : (
               filteredOrders.map((o) => (
-                <OrderCard key={o._id} order={o} onPress={() => navigation.navigate("MeatOrderDetail", { orderId: o._id })} />
+                <OrderCard key={o._id} order={o} lang={lang} onPress={() => navigation.navigate("MeatOrderDetail", { orderId: o._id })} />
               ))
             )}
           </>
@@ -360,62 +374,63 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 10,
-    paddingHorizontal: 12,
-    paddingBottom: 12,
+    gap: scale(10),
+    paddingHorizontal: scale(12),
+    paddingBottom: scale(12),
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1, minWidth: 0 },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 12, flexShrink: 0 },
-  menuBtn: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
-  headerTitle: { flex: 1, color: "#fff", fontSize: 22, fontWeight: "800" },
-  loginBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginRight: 5 },
-  loginText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: scale(10), flex: 1, minWidth: 0 },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: scale(12), flexShrink: 0 },
+  homeBtn: { flexDirection: "row", alignItems: "center", gap: scale(6) },
+  homeBtnLogo: { width: scale(28), height: scale(28), borderRadius: scale(7) },
+  headerTitle: { flex: 1, color: "#fff", fontSize: scaleFont(18.5), fontWeight: "800" },
+  loginBtn: { flexDirection: "row", alignItems: "center", gap: scale(6), marginRight: scale(5) },
+  loginText: { color: "#fff", fontSize: scaleFont(16), fontWeight: "700" },
 
-  emptyWrap: { alignItems: "center", paddingVertical: 60, paddingHorizontal: 10, gap: 10 },
-  emptyIconOuter: { marginBottom: 4 },
-  emptyIcon: { width: 104, height: 104, borderRadius: 26, alignItems: "center", justifyContent: "center", backgroundColor: TINT, borderWidth: 1, borderColor: "rgba(75,15,15,0.1)" },
-  emptyIconBadge: { position: "absolute", top: -4, right: -4, width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: BRAND },
-  emptyTitle: { fontSize: 21, fontWeight: "900", color: "#292524", textAlign: "center" },
-  emptySub: { fontSize: 17, color: "#78716C", textAlign: "center", maxWidth: 300, lineHeight: 24 },
-  emptyBtn: { marginTop: 6, flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: BRAND, borderRadius: 16, paddingHorizontal: 26, paddingVertical: 16 },
-  emptyBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
+  emptyWrap: { alignItems: "center", paddingVertical: scale(60), paddingHorizontal: scale(10), gap: scale(10) },
+  emptyIconOuter: { marginBottom: scale(4) },
+  emptyIcon: { width: scale(104), height: scale(104), borderRadius: scale(26), alignItems: "center", justifyContent: "center", backgroundColor: TINT, borderWidth: 1, borderColor: "rgba(75,15,15,0.1)" },
+  emptyIconBadge: { position: "absolute", top: scale(-4), right: scale(-4), width: scale(32), height: scale(32), borderRadius: scale(16), alignItems: "center", justifyContent: "center", backgroundColor: BRAND },
+  emptyTitle: { fontSize: scaleFont(21), fontWeight: "900", color: "#292524", textAlign: "center" },
+  emptySub: { fontSize: scaleFont(17), color: "#78716C", textAlign: "center", maxWidth: scale(300), lineHeight: moderateScale(24) },
+  emptyBtn: { marginTop: scale(6), flexDirection: "row", alignItems: "center", gap: scale(8), backgroundColor: BRAND, borderRadius: scale(16), paddingHorizontal: scale(26), paddingVertical: scale(16) },
+  emptyBtnText: { color: "#fff", fontSize: scaleFont(17), fontWeight: "800" },
 
-  statsRow: { flexDirection: "row", gap: 8, marginBottom: 16 },
+  statsRow: { flexDirection: "row", gap: scale(8), marginBottom: scale(16) },
   statCard: {
     flex: 1,
     alignItems: "center",
-    gap: 7,
+    gap: scale(7),
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: scale(16),
     borderWidth: 1.5,
     borderColor: "#f0ede8",
-    paddingVertical: 15,
-    paddingHorizontal: 6,
+    paddingVertical: scale(15),
+    paddingHorizontal: scale(6),
   },
-  statIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: TINT, alignItems: "center", justifyContent: "center" },
-  statLabel: { fontSize: 13, color: "#9ca3af", fontWeight: "700", textAlign: "center", lineHeight: 16.5 },
-  statValue: { fontSize: 18, fontWeight: "900", color: "#292524", textAlign: "center" },
+  statIcon: { width: scale(42), height: scale(42), borderRadius: scale(13), backgroundColor: TINT, alignItems: "center", justifyContent: "center" },
+  statLabel: { fontSize: scaleFont(13), color: "#9ca3af", fontWeight: "700", textAlign: "center", lineHeight: moderateScale(16.5) },
+  statValue: { fontSize: scaleFont(18), fontWeight: "900", color: "#292524", textAlign: "center" },
 
   filterBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 9,
+    gap: scale(9),
     backgroundColor: "#fff",
     borderWidth: 2,
     borderColor: "#ecdede",
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 13,
+    borderRadius: scale(16),
+    paddingHorizontal: scale(18),
+    paddingVertical: scale(13),
   },
   filterBtnOpen: { borderColor: BRAND },
-  filterBtnText: { fontSize: 16.5, fontWeight: "800", color: BRAND },
-  filterBtnCount: { backgroundColor: TINT, borderRadius: 9, paddingHorizontal: 10, paddingVertical: 3 },
-  filterBtnCountText: { fontSize: 14, fontWeight: "900", color: BRAND },
+  filterBtnText: { fontSize: scaleFont(16.5), fontWeight: "800", color: BRAND },
+  filterBtnCount: { backgroundColor: TINT, borderRadius: scale(9), paddingHorizontal: scale(10), paddingVertical: scale(3) },
+  filterBtnCountText: { fontSize: scaleFont(14), fontWeight: "900", color: BRAND },
 
   dropdown: {
     position: "absolute",
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: scale(16),
     borderWidth: 1.5,
     borderColor: "#f0ede8",
     overflow: "hidden",
@@ -425,24 +440,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  dropdownItem: { flexDirection: "row", alignItems: "center", gap: 11, paddingHorizontal: 15, paddingVertical: 14 },
+  dropdownItem: { flexDirection: "row", alignItems: "center", gap: scale(11), paddingHorizontal: scale(15), paddingVertical: scale(14) },
   dropdownItemActive: { backgroundColor: TINT },
   dropdownItemSep: { borderBottomWidth: 1, borderBottomColor: "#f3f0ea" },
-  dropdownIconWrap: { width: 32, height: 32, borderRadius: 10, backgroundColor: "#f3f4f6", alignItems: "center", justifyContent: "center" },
-  dropdownLabel: { flex: 1, fontSize: 16.5, fontWeight: "700", color: "#374151" },
-  dropdownCount: { backgroundColor: "#f3f4f6", borderRadius: 9, paddingHorizontal: 10, paddingVertical: 3 },
-  dropdownCountText: { fontSize: 14, fontWeight: "900", color: "#6b7280" },
+  dropdownIconWrap: { width: scale(32), height: scale(32), borderRadius: scale(10), backgroundColor: "#f3f4f6", alignItems: "center", justifyContent: "center" },
+  dropdownLabel: { flex: 1, fontSize: scaleFont(16.5), fontWeight: "700", color: "#374151" },
+  dropdownCount: { backgroundColor: "#f3f4f6", borderRadius: scale(9), paddingHorizontal: scale(10), paddingVertical: scale(3) },
+  dropdownCountText: { fontSize: scaleFont(14), fontWeight: "900", color: "#6b7280" },
 
-  noneInCategory: { textAlign: "center", color: "#78716C", fontSize: 17, fontWeight: "600", paddingVertical: 40 },
+  noneInCategory: { textAlign: "center", color: "#78716C", fontSize: scaleFont(17), fontWeight: "600", paddingVertical: scale(40) },
 
-  statusFloat: { position: "absolute", top: -17, right: 10, zIndex: 10, width: 48, height: 48, borderRadius: 24, backgroundColor: BRAND, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 },
-  orderCard: { backgroundColor: "#fff", borderRadius: 20, padding: 16, borderWidth: 1.5, borderColor: "#f0ede8", shadowColor: BRAND, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
-  orderTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
-  orderNum: { fontSize: 19.5, fontWeight: "900", color: "#292524" },
-  orderDateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  orderDate: { fontSize: 15.5, fontWeight: "600", color: "#78716C" },
-  chipsRow: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginBottom: 12 },
-  chip: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: TINT, borderRadius: 9, paddingHorizontal: 12, paddingVertical: 9 },
-  chipText: { fontSize: 15.5, fontWeight: "800", color: "#6B1717" },
-  pipeWrap: { paddingTop: 12, borderTopWidth: 1, borderTopColor: "#F5F2EC" },
+  statusFloat: { position: "absolute", top: scale(-17), right: scale(10), zIndex: 10, width: scale(48), height: scale(48), borderRadius: scale(24), backgroundColor: BRAND, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 },
+  orderCard: { backgroundColor: "#fff", borderRadius: scale(20), padding: scale(16), borderWidth: 1.5, borderColor: "#f0ede8", shadowColor: BRAND, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
+  orderTitleRow: { flexDirection: "row", alignItems: "center", gap: scale(8), marginBottom: scale(12) },
+  orderNum: { fontSize: scaleFont(19.5), fontWeight: "900", color: "#292524" },
+  orderDateRow: { flexDirection: "row", alignItems: "center", gap: scale(5) },
+  orderDate: { fontSize: scaleFont(15.5), fontWeight: "600", color: "#78716C" },
+  chipsRow: { flexDirection: "row", flexWrap: "wrap", gap: scale(7), marginBottom: scale(12) },
+  chip: { flexDirection: "row", alignItems: "center", gap: scale(6), backgroundColor: TINT, borderRadius: scale(9), paddingHorizontal: scale(12), paddingVertical: scale(9) },
+  chipText: { fontSize: scaleFont(15.5), fontWeight: "800", color: "#6B1717" },
+  pipeWrap: { paddingTop: scale(12), borderTopWidth: 1, borderTopColor: "#F5F2EC" },
 });

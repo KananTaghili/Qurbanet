@@ -7,23 +7,27 @@ import {
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#4B0F0F";
-
-const NAV = [
-  { label: "Məhsullar", Icon: Beef, screen: "MeatHome" },
-  { label: "Səbətim", Icon: ShoppingCart, screen: "MeatCart" },
-  { label: "Sifarişlərim", Icon: ClipboardList, screen: "MeatMyOrders" },
-  { label: "Necə işləyir", Icon: HelpCircle, screen: "MeatHowItWorks" },
-];
 
 export default function MeatBottomNav({ active }) {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { lang } = useLanguage();
+
+  const NAV = [
+    { label: t(lang, "navProducts"), Icon: Beef, screen: "MeatHome" },
+    { label: t(lang, "navCart"), Icon: ShoppingCart, screen: "MeatCart" },
+    { label: t(lang, "myOrders"), Icon: ClipboardList, screen: "MeatMyOrders" },
+    { label: t(lang, "navHowItWorksShort"), Icon: HelpCircle, screen: "MeatHowItWorks" },
+  ];
 
   const handlePress = (screen) => {
     if (!screen) {
-      Alert.alert("Tezliklə", "Bu bölmə hələ hazırlanır.");
+      Alert.alert(t(lang, "comingSoonTitle"), t(lang, "comingSoonBody"));
       return;
     }
     // "active" sadəcə vizual etiketdir (məs. MeatProducts ekranında da
@@ -76,15 +80,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
-    paddingTop: 8,
+    paddingTop: scale(8),
   },
-  bottomNavItem: { flex: 1, alignItems: "center", gap: 4, paddingVertical: 3, paddingHorizontal: 2 },
+  bottomNavItem: { flex: 1, alignItems: "center", gap: scale(4), paddingVertical: scale(3), paddingHorizontal: scale(2) },
   bottomNavIcon: {
-    width: 50,
-    height: 36,
-    borderRadius: 12,
+    width: scale(50),
+    height: scale(36),
+    borderRadius: scale(12),
     alignItems: "center",
     justifyContent: "center",
   },
-  bottomNavLabel: { fontSize: 12, fontWeight: "600", color: "#a1a1aa", textAlign: "center", lineHeight: 14.5 },
+  bottomNavLabel: { fontSize: scaleFont(12), fontWeight: "600", color: "#a1a1aa", textAlign: "center", lineHeight: moderateScale(14.5) },
 });

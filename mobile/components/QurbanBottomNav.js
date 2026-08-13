@@ -2,19 +2,23 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Beef, ClipboardList, HelpCircle, BookOpen } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#1c5e20";
-
-const NAV = [
-  { label: "Əsas", Icon: Beef, screen: "Qurban" },
-  { label: "Sifarişlərim", Icon: ClipboardList, screen: "MyOrders" },
-  { label: "Necə işləyir", Icon: HelpCircle, screen: "HowItWorksQurban" },
-  { label: "Əhkamlar", Icon: BookOpen, screen: "QurbanRules" },
-];
 
 export default function QurbanBottomNav({ active }) {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { lang } = useLanguage();
+
+  const NAV = [
+    { label: t(lang, "navMain"), Icon: Beef, screen: "Qurban" },
+    { label: t(lang, "myOrders"), Icon: ClipboardList, screen: "MyOrders" },
+    { label: t(lang, "navHowItWorksShort"), Icon: HelpCircle, screen: "HowItWorksQurban" },
+    { label: t(lang, "navRulesShort"), Icon: BookOpen, screen: "QurbanRules" },
+  ];
 
   return (
     <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 6 }]}>
@@ -45,9 +49,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
-    paddingTop: 6,
+    paddingTop: scale(6),
   },
-  bottomNavItem: { flex: 1, alignItems: "center", gap: 3, paddingVertical: 2 },
-  bottomNavIcon: { width: 42, height: 30, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  bottomNavLabel: { fontSize: 10, fontWeight: "500", color: "#a1a1aa" },
+  bottomNavItem: { flex: 1, alignItems: "center", gap: scale(3), paddingVertical: scale(2) },
+  bottomNavIcon: { width: scale(42), height: scale(30), borderRadius: scale(10), alignItems: "center", justifyContent: "center" },
+  bottomNavLabel: { fontSize: scaleFont(10), fontWeight: "500", color: "#a1a1aa" },
 });

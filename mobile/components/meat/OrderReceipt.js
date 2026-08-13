@@ -2,6 +2,9 @@ import { useState } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import OrderAnimalMap from "./OrderAnimalMap";
 import OrderCutAvatarStack from "./OrderCutAvatarStack";
+import { scale, scaleFont } from "../../lib/scale";
+import { useLanguage } from "../../context/LanguageContext";
+import { t } from "../../i18n/i18n";
 
 // items-i heyvana görə qruplaşdırır (ilk gördüyü sıra ilə) — bir sifarişdə
 // həm qoyun, həm dana ola bilər. Web-dəki components/meat/OrderReceipt.js-dəki
@@ -23,6 +26,7 @@ export function groupByAnimal(items) {
 // kimi, RN-in öz scrollbar-ı (sürüşdürmə anında yox olan) əvəzinə, sağda da
 // məzmun olduğunu bildirən HƏMİŞƏ görünən öz cızdığımız irəliləyiş zolağı var.
 export default function OrderReceipt({ items }) {
+  const { lang } = useLanguage();
   const animalGroups = groupByAnimal(items || []);
   const [track, setTrack] = useState({ canScroll: false, ratio: 1, progress: 0 });
   const [containerWidth, setContainerWidth] = useState(0);
@@ -69,7 +73,7 @@ export default function OrderReceipt({ items }) {
               <View style={styles.groupHeader}>
                 <Text style={styles.groupTitle}>{group.animalNameAz}</Text>
                 <Text style={styles.groupSub}>
-                  {group.items.length} kəsim · {totalKg} kq
+                  {group.items.length} {t(lang, "receipt_cutsUnit")} · {totalKg} {t(lang, "kgUnit")}
                 </Text>
               </View>
               <View style={styles.groupBody}>
@@ -101,25 +105,25 @@ export default function OrderReceipt({ items }) {
 
 const styles = StyleSheet.create({
   scroll: {
-    borderRadius: 14,
+    borderRadius: scale(14),
     borderWidth: 1,
     borderColor: "rgba(240,237,232,0.8)",
     backgroundColor: "#FBF8F4",
   },
   scrollContent: { flexDirection: "row" },
-  group: { paddingHorizontal: 15, paddingVertical: 13 },
+  group: { paddingHorizontal: scale(15), paddingVertical: scale(13) },
   groupSep: { borderLeftWidth: 1, borderLeftColor: "#EDE6DD" },
-  groupHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 9 },
-  groupTitle: { fontSize: 15.5, fontWeight: "700", color: "#292524" },
-  groupSub: { fontSize: 14, fontWeight: "600", color: "#A8A29E" },
-  groupBody: { flexDirection: "row", alignItems: "center", gap: 13 },
-  map: { width: 145, height: 98 },
+  groupHeader: { flexDirection: "row", alignItems: "center", gap: scale(8), marginBottom: scale(9) },
+  groupTitle: { fontSize: scaleFont(15.5), fontWeight: "700", color: "#292524" },
+  groupSub: { fontSize: scaleFont(14), fontWeight: "600", color: "#A8A29E" },
+  groupBody: { flexDirection: "row", alignItems: "center", gap: scale(13) },
+  map: { width: scale(145), height: scale(98) },
 
   scrollTrack: {
-    height: 4,
-    marginTop: 6,
-    marginHorizontal: 2,
-    borderRadius: 999,
+    height: scale(4),
+    marginTop: scale(6),
+    marginHorizontal: scale(2),
+    borderRadius: scale(999),
     backgroundColor: "#EDE6DD",
     overflow: "hidden",
   },
@@ -127,7 +131,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     bottom: 0,
-    borderRadius: 999,
+    borderRadius: scale(999),
     backgroundColor: "rgba(75,15,15,0.45)",
   },
 });

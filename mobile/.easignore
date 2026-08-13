@@ -1,0 +1,10 @@
+# EAS Build regenerates native projects itself for the managed workflow —
+# these local folders are leftovers from running `expo run:android`/`run:ios`
+# directly on this machine and can contain locked build-cache files (Gradle
+# daemon, CMake .cxx) that break the project archive upload.
+/android
+/ios
+node_modules/
+.expo/
+dist/
+web-build/

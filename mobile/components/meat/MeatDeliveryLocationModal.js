@@ -4,6 +4,9 @@ import MapView, { Marker } from "react-native-maps";
 import { X, Check, MapPin, Phone, Plus, ChevronDown, Navigation } from "lucide-react-native";
 import * as Location from "expo-location";
 import { MAX_PHONES, formatPhone, isValidAzPhone, toE164, fromE164 } from "../../lib/phone";
+import { scale, scaleFont } from "../../lib/scale";
+import { useLanguage } from "../../context/LanguageContext";
+import { t as translate } from "../../i18n/i18n";
 
 const BRAND = "#4B0F0F";
 const FALLBACK_DELIVERY_PRICE = 5;
@@ -55,7 +58,7 @@ async function reverseGeocode(lat, lng) {
 }
 
 /* ── Sadə açılan seçici (ölkə/şəhər) ── */
-function SimpleSelect({ label, options, selectedKey, getKey, getLabel, onSelect }) {
+function SimpleSelect({ label, options, selectedKey, getKey, getLabel, onSelect, lang }) {
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => getKey(o) === selectedKey);
 
@@ -81,7 +84,7 @@ function SimpleSelect({ label, options, selectedKey, getKey, getLabel, onSelect 
               >
                 <Text style={styles.selectOptionText}>{getLabel(o)}</Text>
                 {isSel && <Check size={14} color={BRAND} />}
-                {!o.enabled && <Text style={styles.selectOptionSoon}>Tezliklə</Text>}
+                {!o.enabled && <Text style={styles.selectOptionSoon}>{translate(lang, "deliveryLoc_comingSoon")}</Text>}
               </Pressable>
             );
           })}
@@ -92,6 +95,7 @@ function SimpleSelect({ label, options, selectedKey, getKey, getLabel, onSelect 
 }
 
 export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialLocation, defaultPhone }) {
+  const { lang } = useLanguage();
   const mapRef = useRef(null);
   const scrollRef = useRef(null);
   const firstPhoneRef = useRef(null);
@@ -196,7 +200,7 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined} keyboardVerticalOffset={0}>
       <View style={styles.header}>
         <MapPin size={17} color={BRAND} />
-        <Text style={styles.title}>Çatdırılma yerini seçin</Text>
+        <Text style={styles.title}>{translate(lang, "deliveryLoc_title")}</Text>
         <Pressable onPress={onClose} style={styles.closeBtn}>
           <X size={16} color="#78716c" />
         </Pressable>
@@ -208,12 +212,12 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
       <ScrollView
         ref={scrollRef}
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 14 }}
+        contentContainerStyle={{ paddingBottom: scale(14) }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ flexDirection: "row", gap: 8, padding: 14, paddingBottom: 8, zIndex: 10 }}>
-          <SimpleSelect label="Ölkə seçin" options={countries} selectedKey={country?.code} getKey={(c) => c.code} getLabel={(c) => c.nameAz} onSelect={handleSelectCountry} />
-          <SimpleSelect label="Şəhər seçin" options={cities} selectedKey={city?.key} getKey={(c) => c.key} getLabel={(c) => c.nameAz} onSelect={handleSelectCity} />
+        <View style={{ flexDirection: "row", gap: scale(8), padding: scale(14), paddingBottom: scale(8), zIndex: 10 }}>
+          <SimpleSelect label={translate(lang, "deliveryLoc_selectCountry")} options={countries} selectedKey={country?.code} getKey={(c) => c.code} getLabel={(c) => c.nameAz} onSelect={handleSelectCountry} lang={lang} />
+          <SimpleSelect label={translate(lang, "deliveryLoc_selectCity")} options={cities} selectedKey={city?.key} getKey={(c) => c.key} getLabel={(c) => c.nameAz} onSelect={handleSelectCity} lang={lang} />
         </View>
 
         <View style={styles.mapWrap}>
@@ -241,40 +245,40 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
 
           <Pressable style={styles.geoBtn} onPress={useCurrentLocation} disabled={geoLoading}>
             {geoLoading ? <ActivityIndicator size="small" color={BRAND} /> : <Navigation size={13} color={BRAND} />}
-            <Text style={styles.geoBtnText}>Hazırkı konum</Text>
+            <Text style={styles.geoBtnText}>{translate(lang, "deliveryLoc_currentLocation")}</Text>
           </Pressable>
 
           {!coords && (
             <View style={styles.hintBubble} pointerEvents="none">
-              <Text style={styles.hintText}>Xəritəyə toxunun</Text>
+              <Text style={styles.hintText}>{translate(lang, "deliveryLoc_tapMap")}</Text>
             </View>
           )}
 
           {outsideBaku && (
             <View style={styles.warnBanner}>
-              <Text style={styles.warnBannerText}>⚠️ Çatdırılma yalnız Bakı və Abşeron ərazisinə mümkündür.</Text>
+              <Text style={styles.warnBannerText}>{translate(lang, "deliveryLoc_zoneWarning")}</Text>
             </View>
           )}
         </View>
 
         <View style={styles.addressBar}>
           {geocoding ? (
-            <Text style={styles.addressPlaceholder}>Ünvan axtarılır...</Text>
+            <Text style={styles.addressPlaceholder}>{translate(lang, "deliveryLoc_addressSearching")}</Text>
           ) : coords ? (
             <>
               <Text style={styles.addressText} numberOfLines={1}>{address || `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`}</Text>
               <Text style={styles.addressCoords}>{coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</Text>
             </>
           ) : (
-            <Text style={styles.addressPlaceholder}>Məkanı seçmək üçün xəritəyə toxunun</Text>
+            <Text style={styles.addressPlaceholder}>{translate(lang, "deliveryLoc_addressPlaceholder")}</Text>
           )}
         </View>
 
         <View style={styles.phoneSection}>
           <View style={styles.phoneHeader}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: scale(6) }}>
               <Phone size={14} color={BRAND} />
-              <Text style={styles.phoneLabel}>Əlaqə nömrəsi</Text>
+              <Text style={styles.phoneLabel}>{translate(lang, "deliveryLoc_contactPhone")}</Text>
             </View>
             <Pressable
               disabled={phones.length >= MAX_PHONES}
@@ -282,7 +286,7 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
               style={[styles.addPhoneBtn, phones.length >= MAX_PHONES && { opacity: 0.4 }]}
             >
               <Plus size={12} color={BRAND} />
-              <Text style={styles.addPhoneText}>Nömrə əlavə et</Text>
+              <Text style={styles.addPhoneText}>{translate(lang, "deliveryLoc_addPhone")}</Text>
             </Pressable>
           </View>
 
@@ -291,7 +295,7 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
             const isInvalid = phonesTouched && phone.trim() && !isValidAzPhone(phone);
             const hasError = isEmpty || isInvalid;
             return (
-              <View key={idx} style={{ marginBottom: 6 }}>
+              <View key={idx} style={{ marginBottom: scale(6) }}>
                 <View style={styles.phoneRow}>
                   <View style={[styles.phoneInputWrap, hasError && { borderColor: "#f87171" }]}>
                     <Text style={styles.phonePrefix}>+994</Text>
@@ -306,13 +310,13 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
                     />
                   </View>
                   {phones.length > 1 && (
-                    <Pressable onPress={() => setPhones((p) => p.filter((_, i) => i !== idx))} style={{ padding: 4 }}>
+                    <Pressable onPress={() => setPhones((p) => p.filter((_, i) => i !== idx))} style={{ padding: scale(4) }}>
                       <X size={16} color="#a8a29e" />
                     </Pressable>
                   )}
                 </View>
-                {isEmpty && <Text style={styles.errorText}>Nömrə daxil edin</Text>}
-                {isInvalid && <Text style={styles.errorText}>Düzgün AZ nömrəsi daxil edin</Text>}
+                {isEmpty && <Text style={styles.errorText}>{translate(lang, "deliveryLoc_enterPhone")}</Text>}
+                {isInvalid && <Text style={styles.errorText}>{translate(lang, "deliveryLoc_invalidPhone")}</Text>}
               </View>
             );
           })}
@@ -322,7 +326,7 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
       <View style={styles.footer}>
         <Pressable style={[styles.confirmBtn, !canConfirm && styles.confirmBtnDisabled]} onPress={handleConfirm}>
           <Check size={16} color={canConfirm ? "#fff" : "#a8a29e"} />
-          <Text style={[styles.confirmBtnText, !canConfirm && { color: "#a8a29e" }]}>Təsdiqlə</Text>
+          <Text style={[styles.confirmBtnText, !canConfirm && { color: "#a8a29e" }]}>{translate(lang, "deliveryLoc_confirm")}</Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -330,54 +334,54 @@ export default function MeatDeliveryLocationModal({ onClose, onConfirm, initialL
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: "#f0ede8" },
-  title: { flex: 1, fontSize: 14.5, fontWeight: "800", color: "#292524" },
-  closeBtn: { width: 28, height: 28, borderRadius: 10, borderWidth: 1, borderColor: "#f0ede8", alignItems: "center", justifyContent: "center" },
+  header: { flexDirection: "row", alignItems: "center", gap: scale(8), paddingHorizontal: scale(16), paddingVertical: scale(13), borderBottomWidth: 1, borderBottomColor: "#f0ede8" },
+  title: { flex: 1, fontSize: scaleFont(14.5), fontWeight: "800", color: "#292524" },
+  closeBtn: { width: scale(28), height: scale(28), borderRadius: scale(10), borderWidth: 1, borderColor: "#f0ede8", alignItems: "center", justifyContent: "center" },
 
-  selectBtn: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", height: 38, borderRadius: 10, borderWidth: 1.5, borderColor: "#f0ede8", paddingHorizontal: 10, backgroundColor: "#fff" },
-  selectBtnText: { fontSize: 12, fontWeight: "700", color: "#292524" },
+  selectBtn: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", height: scale(38), borderRadius: scale(10), borderWidth: 1.5, borderColor: "#f0ede8", paddingHorizontal: scale(10), backgroundColor: "#fff" },
+  selectBtnText: { fontSize: scaleFont(12), fontWeight: "700", color: "#292524" },
   selectDropdown: {
-    position: "absolute", top: 42, left: 0, right: 0, zIndex: 20,
-    backgroundColor: "#fff", borderRadius: 12, borderWidth: 1, borderColor: "#f0ede8",
+    position: "absolute", top: scale(42), left: 0, right: 0, zIndex: 20,
+    backgroundColor: "#fff", borderRadius: scale(12), borderWidth: 1, borderColor: "#f0ede8",
     shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6,
-    padding: 4,
+    padding: scale(4),
   },
-  selectOption: { flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 8 },
+  selectOption: { flexDirection: "row", alignItems: "center", gap: scale(6), paddingVertical: scale(9), paddingHorizontal: scale(10), borderRadius: scale(8) },
   selectOptionActive: { backgroundColor: "#FFF7ED" },
-  selectOptionText: { flex: 1, fontSize: 12, fontWeight: "700", color: "#292524" },
-  selectOptionSoon: { fontSize: 9, fontWeight: "700", color: "#a8a29e" },
+  selectOptionText: { flex: 1, fontSize: scaleFont(12), fontWeight: "700", color: "#292524" },
+  selectOptionSoon: { fontSize: scaleFont(9), fontWeight: "700", color: "#a8a29e" },
 
-  mapWrap: { height: 230, marginHorizontal: 14, borderRadius: 16, overflow: "hidden", borderWidth: 1, borderColor: "#f0ede8" },
+  mapWrap: { height: scale(230), marginHorizontal: scale(14), borderRadius: scale(16), overflow: "hidden", borderWidth: 1, borderColor: "#f0ede8" },
   geoBtn: {
-    position: "absolute", top: 10, right: 10, flexDirection: "row", alignItems: "center", gap: 6,
-    backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0ede8", borderRadius: 10, paddingHorizontal: 10, paddingVertical: 8,
+    position: "absolute", top: scale(10), right: scale(10), flexDirection: "row", alignItems: "center", gap: scale(6),
+    backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0ede8", borderRadius: scale(10), paddingHorizontal: scale(10), paddingVertical: scale(8),
     shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 6, elevation: 3,
   },
-  geoBtnText: { fontSize: 11, fontWeight: "700", color: BRAND },
-  hintBubble: { position: "absolute", bottom: 10, alignSelf: "center", backgroundColor: "rgba(255,255,255,0.94)", borderWidth: 1, borderColor: "#f0ede8", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7 },
-  hintText: { fontSize: 11, fontWeight: "600", color: "#78716c" },
-  warnBanner: { position: "absolute", left: 8, right: 8, bottom: 8, backgroundColor: "#FEF2F2", borderWidth: 1, borderColor: "#FECACA", borderRadius: 10, padding: 8 },
-  warnBannerText: { fontSize: 10.5, fontWeight: "700", color: "#991B1B" },
+  geoBtnText: { fontSize: scaleFont(11), fontWeight: "700", color: BRAND },
+  hintBubble: { position: "absolute", bottom: scale(10), alignSelf: "center", backgroundColor: "rgba(255,255,255,0.94)", borderWidth: 1, borderColor: "#f0ede8", borderRadius: scale(10), paddingHorizontal: scale(12), paddingVertical: scale(7) },
+  hintText: { fontSize: scaleFont(11), fontWeight: "600", color: "#78716c" },
+  warnBanner: { position: "absolute", left: scale(8), right: scale(8), bottom: scale(8), backgroundColor: "#FEF2F2", borderWidth: 1, borderColor: "#FECACA", borderRadius: scale(10), padding: scale(8) },
+  warnBannerText: { fontSize: scaleFont(10.5), fontWeight: "700", color: "#991B1B" },
 
-  addressBar: { marginHorizontal: 14, marginTop: 8, padding: 10, borderRadius: 12, backgroundColor: "#FAF9F7", borderWidth: 1, borderColor: "#f0ede8" },
-  addressPlaceholder: { fontSize: 12, color: "#a8a29e", fontWeight: "500" },
-  addressText: { fontSize: 12.5, fontWeight: "800", color: "#292524" },
-  addressCoords: { fontSize: 10, color: "#a8a29e", marginTop: 2 },
+  addressBar: { marginHorizontal: scale(14), marginTop: scale(8), padding: scale(10), borderRadius: scale(12), backgroundColor: "#FAF9F7", borderWidth: 1, borderColor: "#f0ede8" },
+  addressPlaceholder: { fontSize: scaleFont(12), color: "#a8a29e", fontWeight: "500" },
+  addressText: { fontSize: scaleFont(12.5), fontWeight: "800", color: "#292524" },
+  addressCoords: { fontSize: scaleFont(10), color: "#a8a29e", marginTop: scale(2) },
 
-  phoneSection: { padding: 14, borderTopWidth: 1, borderTopColor: "#f0ede8", marginTop: 8 },
-  phoneHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
-  phoneLabel: { fontSize: 11, fontWeight: "800", color: "#a8a29e", textTransform: "uppercase", letterSpacing: 0.3 },
-  addPhoneBtn: { flexDirection: "row", alignItems: "center", gap: 4, borderWidth: 1, borderColor: "rgba(75,15,15,0.3)", backgroundColor: "#F1E5E5", borderRadius: 10, paddingVertical: 5, paddingHorizontal: 10 },
-  addPhoneText: { fontSize: 11, fontWeight: "700", color: BRAND },
+  phoneSection: { padding: scale(14), borderTopWidth: 1, borderTopColor: "#f0ede8", marginTop: scale(8) },
+  phoneHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: scale(8) },
+  phoneLabel: { fontSize: scaleFont(11), fontWeight: "800", color: "#a8a29e", textTransform: "uppercase", letterSpacing: 0.3 },
+  addPhoneBtn: { flexDirection: "row", alignItems: "center", gap: scale(4), borderWidth: 1, borderColor: "rgba(75,15,15,0.3)", backgroundColor: "#F1E5E5", borderRadius: scale(10), paddingVertical: scale(5), paddingHorizontal: scale(10) },
+  addPhoneText: { fontSize: scaleFont(11), fontWeight: "700", color: BRAND },
 
-  phoneRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  phoneInputWrap: { flex: 1, flexDirection: "row", alignItems: "center", borderRadius: 10, borderWidth: 1.5, borderColor: "#e7e5e4", overflow: "hidden" },
-  phonePrefix: { fontSize: 12.5, fontWeight: "700", color: "#a8a29e", paddingHorizontal: 8, paddingVertical: 9, borderRightWidth: 1, borderRightColor: "#e7e5e4" },
-  phoneInput: { flex: 1, fontSize: 12.5, paddingHorizontal: 8, paddingVertical: 9, color: "#292524" },
-  errorText: { fontSize: 10.5, color: "#ef4444", fontWeight: "600", marginTop: 2 },
+  phoneRow: { flexDirection: "row", alignItems: "center", gap: scale(6) },
+  phoneInputWrap: { flex: 1, flexDirection: "row", alignItems: "center", borderRadius: scale(10), borderWidth: 1.5, borderColor: "#e7e5e4", overflow: "hidden" },
+  phonePrefix: { fontSize: scaleFont(12.5), fontWeight: "700", color: "#a8a29e", paddingHorizontal: scale(8), paddingVertical: scale(9), borderRightWidth: 1, borderRightColor: "#e7e5e4" },
+  phoneInput: { flex: 1, fontSize: scaleFont(12.5), paddingHorizontal: scale(8), paddingVertical: scale(9), color: "#292524" },
+  errorText: { fontSize: scaleFont(10.5), color: "#ef4444", fontWeight: "600", marginTop: scale(2) },
 
-  footer: { padding: 14, borderTopWidth: 1, borderTopColor: "#f0ede8" },
-  confirmBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: BRAND, borderRadius: 14, paddingVertical: 13 },
+  footer: { padding: scale(14), borderTopWidth: 1, borderTopColor: "#f0ede8" },
+  confirmBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: scale(8), backgroundColor: BRAND, borderRadius: scale(14), paddingVertical: scale(13) },
   confirmBtnDisabled: { backgroundColor: "#e7e5e4" },
-  confirmBtnText: { color: "#fff", fontSize: 14, fontWeight: "800" },
+  confirmBtnText: { color: "#fff", fontSize: scaleFont(14), fontWeight: "800" },
 });

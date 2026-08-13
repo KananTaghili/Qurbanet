@@ -8,7 +8,12 @@ import { useMeatCart } from "../context/MeatCartContext";
 import { useMeatDeliveryLocation } from "../context/MeatDeliveryLocationContext";
 import { useAuth } from "../context/AuthContext";
 import MeatStepHeader from "../components/meat/MeatStepHeader";
+import MobileGrowModal from "../components/meat/MobileGrowModal";
+import MeatDeliveryLocationModal from "../components/meat/MeatDeliveryLocationModal";
 import api from "../lib/api";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#4B0F0F";
 const TINT = "#F1E5E5";
@@ -17,11 +22,13 @@ export default function MeatCheckoutSummaryScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { items, itemsTotal, markOrderPending, clearOrderPending, removeUnavailableItems } = useMeatCart();
-  const { location, deliveryPrice: deliveryFee } = useMeatDeliveryLocation();
+  const { location, setLocation, deliveryPrice: deliveryFee } = useMeatDeliveryLocation();
   const { user, isGuest } = useAuth();
+  const { lang } = useLanguage();
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [deliveryOpen, setDeliveryOpen] = useState(false);
 
   const hasValidPhones = Boolean(location?.phones?.length);
 
@@ -30,7 +37,7 @@ export default function MeatCheckoutSummaryScreen() {
   useFocusEffect(
     useCallback(() => {
       if (isGuest) {
-        navigation.replace("Login");
+        navigation.replace("MeatOrderContact");
         return;
       }
       if (items.length === 0 || !location) {
@@ -78,13 +85,15 @@ export default function MeatCheckoutSummaryScreen() {
         });
         return;
       }
-      setError(res.data.message || "Sifariş yaradıla bilmədi.");
+      setError(res.data.message || t(lang, "meatCheckout_orderFailed"));
     } catch (err) {
       const unavailableItems = err.response?.data?.errors;
       if (Array.isArray(unavailableItems) && unavailableItems.length > 0) {
         removeUnavailableItems(unavailableItems);
+        const names = unavailableItems.map((u) => `"${u.name}"`).join(", ");
+        setError(`${names} artıq stokda qalmayıb — səbətdən silindi.`);
       } else {
-        setError(err.response?.data?.message || "Sifariş yaradıla bilmədi.");
+        setError(err.response?.data?.message || t(lang, "meatCheckout_orderFailed"));
       }
     }
     clearOrderPending(lineIds);
@@ -96,17 +105,17 @@ export default function MeatCheckoutSummaryScreen() {
       <StatusBar style="dark" />
       <MeatStepHeader currentStep={2} backTo="MeatProducts" />
 
-      <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: insets.bottom + 24, gap: 12 }}>
-        <Text style={styles.pageTitle}>Sifariş xülasəsi</Text>
+      <ScrollView contentContainerStyle={{ padding: scale(14), paddingBottom: insets.bottom + 24, gap: scale(12) }}>
+        <Text style={styles.pageTitle}>{t(lang, "orderSummary")}</Text>
 
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.cardHeaderLeft}>
               <ShoppingBag size={19} color={BRAND} strokeWidth={2.2} />
-              <Text style={styles.cardHeaderText}>Səbətdəki məhsullar</Text>
+              <Text style={styles.cardHeaderText}>{t(lang, "meatCheckout_cartItemsTitle")}</Text>
             </View>
             <View style={styles.cardHeaderChip}>
-              <Text style={styles.cardHeaderChipText}>{items.length} məhsul</Text>
+              <Text style={styles.cardHeaderChipText}>{items.length} {t(lang, "meatCheckout_productsUnit")}</Text>
             </View>
           </View>
 
@@ -129,9 +138,9 @@ export default function MeatCheckoutSummaryScreen() {
                     </Text>
                   </View>
                   <View style={styles.itemQtyRow}>
-                    <Text style={styles.itemQtyLabel}>Miqdar:</Text>
+                    <Text style={styles.itemQtyLabel}>{t(lang, "meatCheckout_qtyLabel")}</Text>
                     <Text style={styles.itemQtyValue}>
-                      {it.quantityKg.toFixed(2)} kq × {it.pricePerKg} AZN
+                      {it.quantityKg.toFixed(2)} {t(lang, "kgUnit")} × {it.pricePerKg} AZN
                     </Text>
                   </View>
                 </View>
@@ -140,33 +149,34 @@ export default function MeatCheckoutSummaryScreen() {
           </View>
         </View>
 
-        <View style={styles.card}>
+        <Pressable style={styles.card} onPress={() => setDeliveryOpen(true)}>
           <View style={[styles.cardHeader, { backgroundColor: "#fff", borderBottomWidth: 0, paddingBottom: 0 }]}>
             <View style={styles.addrRow}>
               <View style={styles.addrIconWrap}>
                 <MapPin size={20} color={BRAND} strokeWidth={2.2} />
               </View>
               <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.addrLabel}>Çatdırılma ünvanı</Text>
+                <Text style={styles.addrLabel}>{t(lang, "deliveryAddress")}</Text>
                 <Text style={styles.addrValue} numberOfLines={2}>{location.address}</Text>
                 <Text style={styles.addrSub}>{location.cityNameAz}, {location.countryNameAz}</Text>
               </View>
+              <ChevronRight size={19} color="#A8A29E" strokeWidth={2.2} style={{ marginTop: scale(4) }} />
             </View>
           </View>
-        </View>
+        </Pressable>
 
         <View style={styles.card}>
-          <View style={[styles.cardBody, { paddingTop: 14 }]}>
+          <View style={[styles.cardBody, { paddingTop: scale(14) }]}>
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Məhsulların məbləği</Text>
+              <Text style={styles.priceLabel}>{t(lang, "meatCheckout_productsAmount")}</Text>
               <Text style={styles.priceValue}>{itemsTotal.toFixed(2)} AZN</Text>
             </View>
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Çatdırılma haqqı</Text>
+              <Text style={styles.priceLabel}>{t(lang, "deliveryFeeLabel")}</Text>
               <Text style={styles.priceValue}>{deliveryFee.toFixed(2)} AZN</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Yekun məbləğ</Text>
+              <Text style={styles.totalLabel}>{t(lang, "meatCheckout_finalAmount")}</Text>
               <Text style={styles.totalValue}>{total.toFixed(2)} AZN</Text>
             </View>
           </View>
@@ -184,17 +194,17 @@ export default function MeatCheckoutSummaryScreen() {
           disabled={submitting}
         >
           {submitting ? (
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: scale(8) }}>
               <ActivityIndicator size="small" color="#fff" />
-              <Text style={styles.confirmBtnText}>Sifariş təsdiqlənir...</Text>
+              <Text style={styles.confirmBtnText}>{t(lang, "meatCheckout_confirming")}</Text>
             </View>
           ) : (
             <>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: scale(9) }}>
                 <CreditCard size={20} color="#fff" strokeWidth={2.2} />
-                <Text style={styles.confirmBtnText}>Sifarişi təsdiqlə</Text>
+                <Text style={styles.confirmBtnText}>{t(lang, "meatCheckout_confirmBtn")}</Text>
               </View>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: scale(6) }}>
                 <View style={styles.confirmBtnAmountChip}>
                   <Text style={styles.confirmBtnAmountText}>{total.toFixed(2)} AZN</Text>
                 </View>
@@ -204,92 +214,109 @@ export default function MeatCheckoutSummaryScreen() {
           )}
         </Pressable>
       </ScrollView>
+
+      <MobileGrowModal
+        open={deliveryOpen}
+        anchor={{ x: 0, y: 0 }}
+        onClose={() => setDeliveryOpen(false)}
+        panelHeight="82%"
+      >
+        <MeatDeliveryLocationModal
+          initialLocation={location}
+          defaultPhone={user?.phone}
+          onClose={() => setDeliveryOpen(false)}
+          onConfirm={(loc) => {
+            setLocation(loc);
+            setDeliveryOpen(false);
+          }}
+        />
+      </MobileGrowModal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#FAF8F5" },
-  pageTitle: { fontSize: 21, fontWeight: "900", color: "#292524" },
+  pageTitle: { fontSize: scaleFont(21), fontWeight: "900", color: "#292524" },
 
-  card: { backgroundColor: "#fff", borderRadius: 18, borderWidth: 1, borderColor: "#E7E2DA", overflow: "hidden" },
+  card: { backgroundColor: "#fff", borderRadius: scale(18), borderWidth: 1, borderColor: "#E7E2DA", overflow: "hidden" },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 13,
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(13),
     backgroundColor: TINT,
   },
-  cardHeaderLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
-  cardHeaderText: { fontSize: 15.5, fontWeight: "800", color: BRAND, textTransform: "uppercase" },
-  cardHeaderChip: { backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 999, paddingHorizontal: 11, paddingVertical: 5 },
-  cardHeaderChipText: { color: "#6b1717", fontSize: 14, fontWeight: "700" },
-  cardBody: { paddingHorizontal: 16, paddingBottom: 16 },
+  cardHeaderLeft: { flexDirection: "row", alignItems: "center", gap: scale(10) },
+  cardHeaderText: { fontSize: scaleFont(15.5), fontWeight: "800", color: BRAND, textTransform: "uppercase" },
+  cardHeaderChip: { backgroundColor: "rgba(255,255,255,0.7)", borderRadius: scale(999), paddingHorizontal: scale(11), paddingVertical: scale(5) },
+  cardHeaderChipText: { color: "#6b1717", fontSize: scaleFont(14), fontWeight: "700" },
+  cardBody: { paddingHorizontal: scale(16), paddingBottom: scale(16) },
 
-  itemsList: { padding: 13, gap: 11, backgroundColor: "#FBF8F4" },
+  itemsList: { padding: scale(13), gap: scale(11), backgroundColor: "#FBF8F4" },
   itemRow: {
     flexDirection: "row",
-    gap: 13,
-    padding: 12,
-    borderRadius: 14,
+    gap: scale(13),
+    padding: scale(12),
+    borderRadius: scale(14),
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "rgba(231,226,218,0.7)",
   },
-  itemImgWrap: { width: 66, height: 66, borderRadius: 13, backgroundColor: TINT, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  itemImgWrap: { width: scale(66), height: scale(66), borderRadius: scale(13), backgroundColor: TINT, alignItems: "center", justifyContent: "center", overflow: "hidden" },
   itemImg: { width: "100%", height: "100%" },
-  itemName: { fontSize: 16, fontWeight: "800", color: "#292524" },
-  itemMetaRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 3 },
-  itemMeta: { flex: 1, fontSize: 13.5, color: "#78716C" },
-  itemLineTotal: { fontSize: 15, fontWeight: "900", color: BRAND },
+  itemName: { fontSize: scaleFont(16), fontWeight: "800", color: "#292524" },
+  itemMetaRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: scale(8), marginTop: scale(3) },
+  itemMeta: { flex: 1, fontSize: scaleFont(13.5), color: "#78716C" },
+  itemLineTotal: { fontSize: scaleFont(15), fontWeight: "900", color: BRAND },
   itemQtyRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 9,
-    paddingTop: 9,
+    marginTop: scale(9),
+    paddingTop: scale(9),
     borderTopWidth: 1,
     borderTopColor: "rgba(231,226,218,0.6)",
   },
-  itemQtyLabel: { fontSize: 13, color: "#A8A29E" },
-  itemQtyValue: { fontSize: 14, fontWeight: "700", color: "#292524" },
+  itemQtyLabel: { fontSize: scaleFont(13), color: "#A8A29E" },
+  itemQtyValue: { fontSize: scaleFont(14), fontWeight: "700", color: "#292524" },
 
-  addrRow: { flexDirection: "row", alignItems: "flex-start", gap: 13, flex: 1 },
-  addrIconWrap: { width: 44, height: 44, borderRadius: 13, backgroundColor: TINT, alignItems: "center", justifyContent: "center" },
-  addrLabel: { fontSize: 13, fontWeight: "800", color: "#78716C", textTransform: "uppercase" },
-  addrValue: { fontSize: 16.5, fontWeight: "800", color: "#292524", marginTop: 3 },
-  addrSub: { fontSize: 14, fontWeight: "600", color: "#A8A29E", marginTop: 3 },
+  addrRow: { flexDirection: "row", alignItems: "flex-start", gap: scale(13), flex: 1 },
+  addrIconWrap: { width: scale(44), height: scale(44), borderRadius: scale(13), backgroundColor: TINT, alignItems: "center", justifyContent: "center" },
+  addrLabel: { fontSize: scaleFont(13), fontWeight: "800", color: "#78716C", textTransform: "uppercase" },
+  addrValue: { fontSize: scaleFont(16.5), fontWeight: "800", color: "#292524", marginTop: scale(3) },
+  addrSub: { fontSize: scaleFont(14), fontWeight: "600", color: "#A8A29E", marginTop: scale(3) },
 
-  priceRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 9 },
-  priceLabel: { fontSize: 15, color: "#78716C" },
-  priceValue: { fontSize: 15, fontWeight: "700", color: "#292524" },
+  priceRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: scale(9) },
+  priceLabel: { fontSize: scaleFont(15), color: "#78716C" },
+  priceValue: { fontSize: scaleFont(15), fontWeight: "700", color: "#292524" },
   totalRow: {
     flexDirection: "row",
     alignItems: "baseline",
     justifyContent: "space-between",
-    paddingTop: 11,
-    marginTop: 3,
+    paddingTop: scale(11),
+    marginTop: scale(3),
     borderTopWidth: 1,
     borderTopColor: "#F3F0EA",
   },
-  totalLabel: { fontSize: 16, fontWeight: "800", color: "#292524" },
-  totalValue: { fontSize: 22, fontWeight: "900", color: BRAND },
+  totalLabel: { fontSize: scaleFont(16), fontWeight: "800", color: "#292524" },
+  totalValue: { fontSize: scaleFont(22), fontWeight: "900", color: BRAND },
 
-  errorBox: { borderRadius: 12, borderWidth: 1, borderColor: "#fecaca", backgroundColor: "#fef2f2", padding: 13 },
-  errorText: { color: "#b91c1c", fontSize: 15, fontWeight: "700" },
+  errorBox: { borderRadius: scale(12), borderWidth: 1, borderColor: "#fecaca", backgroundColor: "#fef2f2", padding: scale(13) },
+  errorText: { color: "#b91c1c", fontSize: scaleFont(15), fontWeight: "700" },
 
   confirmBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: BRAND,
-    borderRadius: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 19,
+    borderRadius: scale(14),
+    paddingVertical: scale(16),
+    paddingHorizontal: scale(19),
   },
   confirmBtnDisabled: { opacity: 0.7 },
-  confirmBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
-  confirmBtnAmountChip: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 8, paddingHorizontal: 11, paddingVertical: 6 },
-  confirmBtnAmountText: { color: "#fff", fontSize: 14, fontWeight: "900" },
+  confirmBtnText: { color: "#fff", fontSize: scaleFont(16), fontWeight: "800" },
+  confirmBtnAmountChip: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: scale(8), paddingHorizontal: scale(11), paddingVertical: scale(6) },
+  confirmBtnAmountText: { color: "#fff", fontSize: scaleFont(14), fontWeight: "900" },
 });

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { View, Text, Image, Animated, Easing, StyleSheet } from "react-native";
+import { scale, scaleFont } from "../lib/scale";
 
 function Dot({ delay }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -98,19 +99,19 @@ const styles = StyleSheet.create({
   },
   glow: {
     position: "absolute",
-    width: 320,
-    height: 320,
-    borderRadius: 160,
+    width: scale(320),
+    height: scale(320),
+    borderRadius: scale(160),
     backgroundColor: "rgba(220,38,38,0.18)",
   },
   center: { alignItems: "center" },
-  icon: { width: 130, height: 130, borderRadius: 28 },
-  wordmarkRow: { flexDirection: "row", marginTop: 20 },
-  wordmark: { fontSize: 44, fontWeight: "900", color: "#fff", letterSpacing: 0.5 },
-  divider: { marginTop: 12, width: 36, height: 2, borderRadius: 2, backgroundColor: "#dc2626" },
+  icon: { width: scale(130), height: scale(130), borderRadius: scale(28) },
+  wordmarkRow: { flexDirection: "row", marginTop: scale(20) },
+  wordmark: { fontSize: scaleFont(44), fontWeight: "900", color: "#fff", letterSpacing: 0.5 },
+  divider: { marginTop: scale(12), width: scale(36), height: scale(2), borderRadius: scale(2), backgroundColor: "#dc2626" },
   slogan: {
-    marginTop: 10,
-    fontSize: 12,
+    marginTop: scale(10),
+    fontSize: scaleFont(12),
     fontWeight: "600",
     fontStyle: "italic",
     letterSpacing: 2,
@@ -118,9 +119,9 @@ const styles = StyleSheet.create({
   },
   dotsRow: {
     position: "absolute",
-    bottom: 48,
+    bottom: scale(48),
     flexDirection: "row",
-    gap: 8,
+    gap: scale(8),
   },
-  dot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#dc2626" },
+  dot: { width: scale(7), height: scale(7), borderRadius: scale(3.5), backgroundColor: "#dc2626" },
 });

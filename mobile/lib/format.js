@@ -1,3 +1,13 @@
+export function getInitials(user) {
+  return (
+    [user?.name, user?.lastName]
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "?"
+  );
+}
+
 export function formatPhone(val) {
   const d = val.replace(/\D/g, "");
   if (d.length <= 2) return d;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal, View, Animated, Pressable, StyleSheet, Dimensions } from "react-native";
+import { scale } from "../../lib/scale";
 
 // Web-dəki MobileGrowModal.js-in RN portu: dairəvi düymədən "böyüyərək"
 // açılan, bağlananda eyni nöqtəyə "kiçilərək" yox olan panel.
@@ -65,7 +66,7 @@ export default function MobileGrowModal({ open, anchor, onClose, children, panel
 
 const styles = StyleSheet.create({
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.5)" },
-  center: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center", padding: 12 },
+  center: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center", padding: scale(12) },
   panel: {
     width: "100%",
     maxHeight: "92%",

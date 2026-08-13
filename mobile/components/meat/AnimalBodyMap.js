@@ -549,25 +549,277 @@ export const PART_DISPLAY = {
   },
 };
 
-export function getDisplayParts(animalKey, parts) {
+// Web-dəki components/meat/AnimalDiagram.js-dəki DEFAULT_ANIMAL_PART_SETTINGS-in
+// eyni datası — heyvan hissələrinin defolt ad/nömrələri (dil üzrə). Admin
+// panelindən (backend /app-config/settings → animalPartSettings) gələn
+// xüsusi ad/nömrə varsa, o bunun üzərinə üstün gəlir (bax: getDisplayParts).
+export const DEFAULT_ANIMAL_PART_SETTINGS = {
+  az: {
+    animals: {
+      qoyun: {
+        boyun: { name: "Boyun", badge: "1" },
+        kurek: { name: "Kürək", badge: "2" },
+        incik: { name: "İncik", badge: "3" },
+        qaburga: { name: "Qabırğa", badge: "4" },
+        bel: { name: "Bel", badge: "5" },
+        dos: { name: "Döş", badge: "6" },
+        boyur: { name: "Böyür", badge: "7" },
+        but: { name: "But", badge: "8" },
+        quyruq: { name: "Quyruq", badge: "9" },
+        bas: { name: "Baş", badge: "" },
+      },
+      qoc: {
+        boyun: { name: "Boyun", badge: "1" },
+        kurek: { name: "Kürək", badge: "2" },
+        incik: { name: "İncik", badge: "3" },
+        qaburga: { name: "Qabırğa", badge: "4" },
+        bel: { name: "Bel", badge: "5" },
+        dos: { name: "Döş", badge: "6" },
+        boyur: { name: "Böyür", badge: "7" },
+        but: { name: "But", badge: "8" },
+        quyruq: { name: "Quyruq", badge: "9" },
+        bas: { name: "Baş", badge: "" },
+      },
+      dana: {
+        bas: { name: "Baş", badge: "1" },
+        boyun: { name: "Boyun", badge: "2" },
+        dos: { name: "Döş", badge: "3" },
+        kurek: { name: "Qol", badge: "4" },
+        qarin_alti: { name: "Qol altı", badge: "5" },
+        qaburga: { name: "Döşün nazik hissəsi", badge: "6" },
+        bel: { name: "Antrikot (qabırğa)", badge: "7" },
+        sagri: { name: "Bel", badge: "8" },
+        boyur: { name: "Qarın boşluğu", badge: "9" },
+        but: { name: "Bud", badge: "10" },
+        arxa_incik: { name: "Maça", badge: "11" },
+        quyruq: { name: "Can əti", badge: "12" },
+        on_incik: { name: "Maça", badge: "13" },
+      },
+      keci: {
+        boyun: { name: "Boyun", badge: "1" },
+        kurek: { name: "Kürək", badge: "2" },
+        incik: { name: "İncik", badge: "3" },
+        qaburga: { name: "Qabırğa", badge: "4" },
+        bel: { name: "Bel", badge: "5" },
+        dos: { name: "Döş", badge: "6" },
+        boyur: { name: "Böyür", badge: "7" },
+        but: { name: "But", badge: "8" },
+        quyruq: { name: "Quyruq", badge: "9" },
+        bas: { name: "Baş", badge: "" },
+      },
+      deve: {
+        boyun: { name: "Boyun", badge: "1" },
+        kurek: { name: "Kürək", badge: "2" },
+        dos: { name: "Döş", badge: "3" },
+        on_incik: { name: "Ön incik", badge: "4" },
+        horguc: { name: "Hörgüc", badge: "5" },
+        qaburga: { name: "Qabırğa", badge: "6" },
+        bel: { name: "Bel", badge: "7" },
+        boyur: { name: "Böyür", badge: "8" },
+        arxa_incik: { name: "Arxa incik", badge: "9" },
+        but: { name: "But", badge: "10" },
+        quyruq: { name: "Quyruq", badge: "11" },
+        bas: { name: "Baş", badge: "" },
+      },
+    },
+  },
+  en: {
+    animals: {
+      qoyun: {
+        boyun: { name: "Neck", badge: "1" },
+        kurek: { name: "Shoulder", badge: "2" },
+        incik: { name: "Shank", badge: "3" },
+        qaburga: { name: "Ribs", badge: "4" },
+        bel: { name: "Loin", badge: "5" },
+        dos: { name: "Brisket", badge: "6" },
+        boyur: { name: "Flank", badge: "7" },
+        but: { name: "Leg", badge: "8" },
+        quyruq: { name: "Tail", badge: "9" },
+        bas: { name: "Head", badge: "" },
+      },
+      qoc: {
+        boyun: { name: "Neck", badge: "1" },
+        kurek: { name: "Shoulder", badge: "2" },
+        incik: { name: "Shank", badge: "3" },
+        qaburga: { name: "Ribs", badge: "4" },
+        bel: { name: "Loin", badge: "5" },
+        dos: { name: "Brisket", badge: "6" },
+        boyur: { name: "Flank", badge: "7" },
+        but: { name: "Leg", badge: "8" },
+        quyruq: { name: "Tail", badge: "9" },
+        bas: { name: "Head", badge: "" },
+      },
+      dana: {
+        bas: { name: "Head", badge: "1" },
+        boyun: { name: "Neck", badge: "2" },
+        dos: { name: "Brisket", badge: "3" },
+        kurek: { name: "Shoulder", badge: "4" },
+        qarin_alti: { name: "Underarm", badge: "5" },
+        qaburga: { name: "Thin Ribs", badge: "6" },
+        bel: { name: "Ribeye", badge: "7" },
+        sagri: { name: "Sirloin", badge: "8" },
+        boyur: { name: "Flank", badge: "9" },
+        but: { name: "Rump", badge: "10" },
+        arxa_incik: { name: "Hind Shank", badge: "11" },
+        quyruq: { name: "Tenderloin", badge: "12" },
+        on_incik: { name: "Fore Shank", badge: "13" },
+      },
+      keci: {
+        boyun: { name: "Neck", badge: "1" },
+        kurek: { name: "Shoulder", badge: "2" },
+        incik: { name: "Shank", badge: "3" },
+        qaburga: { name: "Ribs", badge: "4" },
+        bel: { name: "Loin", badge: "5" },
+        dos: { name: "Brisket", badge: "6" },
+        boyur: { name: "Flank", badge: "7" },
+        but: { name: "Leg", badge: "8" },
+        quyruq: { name: "Tail", badge: "9" },
+        bas: { name: "Head", badge: "" },
+      },
+      deve: {
+        boyun: { name: "Neck", badge: "1" },
+        kurek: { name: "Shoulder", badge: "2" },
+        dos: { name: "Brisket", badge: "3" },
+        on_incik: { name: "Fore Shank", badge: "4" },
+        horguc: { name: "Hump", badge: "5" },
+        qaburga: { name: "Ribs", badge: "6" },
+        bel: { name: "Loin", badge: "7" },
+        boyur: { name: "Flank", badge: "8" },
+        arxa_incik: { name: "Hind Shank", badge: "9" },
+        but: { name: "Leg", badge: "10" },
+        quyruq: { name: "Tail", badge: "11" },
+        bas: { name: "Head", badge: "" },
+      },
+    },
+  },
+  ru: {
+    animals: {
+      qoyun: {
+        boyun: { name: "Шея", badge: "1" },
+        kurek: { name: "Лопатка", badge: "2" },
+        incik: { name: "Голяшка", badge: "3" },
+        qaburga: { name: "Ребра", badge: "4" },
+        bel: { name: "Поясница", badge: "5" },
+        dos: { name: "Грудинка", badge: "6" },
+        boyur: { name: "Пашина", badge: "7" },
+        but: { name: "Окорок", badge: "8" },
+        quyruq: { name: "Курдюк", badge: "9" },
+        bas: { name: "Голова", badge: "" },
+      },
+      qoc: {
+        boyun: { name: "Шея", badge: "1" },
+        kurek: { name: "Лопатка", badge: "2" },
+        incik: { name: "Голяшка", badge: "3" },
+        qaburga: { name: "Ребра", badge: "4" },
+        bel: { name: "Поясница", badge: "5" },
+        dos: { name: "Грудинка", badge: "6" },
+        boyur: { name: "Пашина", badge: "7" },
+        but: { name: "Окорок", badge: "8" },
+        quyruq: { name: "Курдюк", badge: "9" },
+        bas: { name: "Голова", badge: "" },
+      },
+      dana: {
+        bas: { name: "Голова", badge: "1" },
+        boyun: { name: "Шея", badge: "2" },
+        dos: { name: "Грудинка", badge: "3" },
+        kurek: { name: "Лопатка", badge: "4" },
+        qarin_alti: { name: "Подплечье", badge: "5" },
+        qaburga: { name: "Тонкие ребра", badge: "6" },
+        bel: { name: "Антрекот", badge: "7" },
+        sagri: { name: "Поясница", badge: "8" },
+        boyur: { name: "Пашина", badge: "9" },
+        but: { name: "Окорок", badge: "10" },
+        arxa_incik: { name: "Задняя голяшка", badge: "11" },
+        quyruq: { name: "Вырезка", badge: "12" },
+        on_incik: { name: "Передняя голяшка", badge: "13" },
+      },
+      keci: {
+        boyun: { name: "Шея", badge: "1" },
+        kurek: { name: "Лопатка", badge: "2" },
+        incik: { name: "Голяшка", badge: "3" },
+        qaburga: { name: "Ребра", badge: "4" },
+        bel: { name: "Поясница", badge: "5" },
+        dos: { name: "Грудинка", badge: "6" },
+        boyur: { name: "Пашина", badge: "7" },
+        but: { name: "Окорок", badge: "8" },
+        quyruq: { name: "Курдюк", badge: "9" },
+        bas: { name: "Голова", badge: "" },
+      },
+      deve: {
+        boyun: { name: "Шея", badge: "1" },
+        kurek: { name: "Лопатка", badge: "2" },
+        dos: { name: "Грудинка", badge: "3" },
+        on_incik: { name: "Передняя голяшка", badge: "4" },
+        horguc: { name: "Горб", badge: "5" },
+        qaburga: { name: "Ребра", badge: "6" },
+        bel: { name: "Поясница", badge: "7" },
+        boyur: { name: "Пашина", badge: "8" },
+        arxa_incik: { name: "Задняя голяшка", badge: "9" },
+        but: { name: "Окорок", badge: "10" },
+        quyruq: { name: "Хвост", badge: "11" },
+        bas: { name: "Голова", badge: "" },
+      },
+    },
+  },
+};
+
+// animalPartSettings — backend /app-config/settings-dən gələn, admin
+// panelində düzəldilə bilən ad/nömrə override-ları (bax: web-dəki eyni adlı
+// funksiya, components/meat/AnimalDiagram.js). Üstünlük sırası: admin-in
+// xüsusi override-u → dil üzrə defolt (yuxarıdakı DEFAULT_ANIMAL_PART_SETTINGS)
+// → bu fayldakı sabit PART_DISPLAY → indeksə görə avtomatik nömrə.
+export function getDisplayParts(animalKey, parts, animalPartSettings, lang = "az") {
   const config = PART_DISPLAY[animalKey];
+  const currentLang = lang || "az";
+  const langConfig = animalPartSettings?.[currentLang] || animalPartSettings?.az;
+  const animalCustom = langConfig?.animals?.[animalKey];
+  const defaultAnimal =
+    DEFAULT_ANIMAL_PART_SETTINGS[currentLang]?.animals?.[animalKey] ||
+    DEFAULT_ANIMAL_PART_SETTINGS.az.animals?.[animalKey];
+
   if (!config) {
-    return (parts || []).map((part, index) => ({
-      ...part,
-      displayBadge: String(index + 1),
-      displayName: part.nameAz,
-    }));
+    return (parts || []).map((part, index) => {
+      const custom = animalCustom?.[part.key];
+      const def = defaultAnimal?.[part.key];
+      return {
+        ...part,
+        displayBadge:
+          custom?.badge !== undefined && custom?.badge !== ""
+            ? custom.badge
+            : def?.badge !== undefined
+              ? def.badge
+              : String(index + 1),
+        displayName:
+          custom?.name !== undefined && custom?.name !== ""
+            ? custom.name
+            : def?.name || part.nameAz || part.key,
+      };
+    });
   }
   const rank = new Map(config.order.map((key, index) => [key, index]));
   const hidden = new Set(config.hidden || []);
   return [...(parts || [])]
     .filter((part) => !hidden.has(part.key))
     .sort((l, r) => (rank.get(l.key) ?? 999) - (rank.get(r.key) ?? 999))
-    .map((part, index) => ({
-      ...part,
-      displayBadge: config.badges[part.key] ?? String(index + 1),
-      displayName: config.names?.[part.key] ?? part.nameAz,
-    }));
+    .map((part, index) => {
+      const custom = animalCustom?.[part.key];
+      const def = defaultAnimal?.[part.key];
+      const defaultBadge = config.badges[part.key] ?? String(index + 1);
+      const defaultName = config.names?.[part.key] ?? part.nameAz;
+      return {
+        ...part,
+        displayBadge:
+          custom?.badge !== undefined && custom?.badge !== ""
+            ? custom.badge
+            : def?.badge !== undefined
+              ? def.badge
+              : defaultBadge,
+        displayName:
+          custom?.name !== undefined && custom?.name !== ""
+            ? custom.name
+            : def?.name || defaultName,
+      };
+    });
 }
 
 export function getFirstDisplayPartKey(animalKey, parts) {
@@ -671,9 +923,11 @@ export default function AnimalBodyMap({
   foodFilterIds,
   onSwipe,
   onDragActive,
+  animalPartSettings,
+  lang,
 }) {
   const geometry = getRegionGeometry(animalKey);
-  const displayParts = getDisplayParts(animalKey, parts);
+  const displayParts = getDisplayParts(animalKey, parts, animalPartSettings, lang);
   const labelLayout = REGION_LABELS[animalKey];
   const dotsD = REGION_DOTS[animalKey];
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -799,60 +1053,81 @@ export default function AnimalBodyMap({
       >
         <BodyShape animalKey={animalKey} color={ANIMAL_COLOR} />
 
-        {displayParts.map((part) => {
-          const d = geometry[part.key];
-          if (!d) return null;
-          const hasStock = partHasAnyStock(part);
-          const matchesFood = partMatchesFoodFilter(part, foodFilterIds);
-          const isSel = selectedPartKey === part.key;
-
-          let fill;
-          let fillOpacity;
-          let stroke;
-          let strokeWidth;
-          if (!hasStock) {
-            fill = GRAY;
-            fillOpacity = 0.7;
-            // Bölgələrin heç birində sərhəd (border) olmasın — seçilsə belə
-            // — veb-dəki kimi.
-            stroke = "none";
-            strokeWidth = 0;
-          } else if (!matchesFood) {
-            fill = FOOD_EXCLUDED_FILL;
-            fillOpacity = 0.7;
-            stroke = "none";
-            strokeWidth = 0;
-          } else if (isSel) {
-            fill = SELECTED_FILL;
-            fillOpacity = 1;
-            // Seçilmiş hissə daha təmiz görünmək üçün əlavə sərhəd olmadan
-            // yalnız dolğun rənglə göstərilir.
-            stroke = "none";
-            strokeWidth = 0;
-          } else {
-            fill = ACCENT;
-            fillOpacity = 0.14;
-            // Qoyun/qoç/dana üçün bölgə sərhədləri yalnız ağ nöqtəli xəttlə
-            // (aşağıdakı dotsD Path-i) göstərilir — burada əlavə tam xətt
-            // çəkilmir, əks halda iki xətt bir-birinin üstünə düşüb qarışıq
-            // görünürdü. Nöqtəli məlumat olmayan heyvanlarda (keçi/dəvə)
-            // adi tam xətt qalır.
-            stroke = dotsD ? "none" : "#FBF7EE";
-            strokeWidth = 3;
-          }
+        {(() => {
+          // react-native-svg (native rasterizer) bitişik AYRI <Path>-lar
+          // arasında brauzerdə görünməyən incə "seam" buraxır — hətta
+          // stroke=fill ilə "bağlasaq" da, iki üst-üstə düşən yarımşəffaf
+          // stroke sərhəddə cüzi tündləşmə/border effekti yaradır. Əsl həll:
+          // eyni (normal) vəziyyətdəki bölgələri TƏK bir <Path>-da (bir neçə
+          // subpath) birləşdirmək — daxildə heç bir sərhəd qalmır, çünki
+          // hamısı BİR fill əməliyyatıdır. Fərqli vəziyyətdəki (seçilmiş,
+          // stoku bitmiş, yemək filtrinə uyğun olmayan) bölgələr veb-dəki
+          // kimi HƏLƏ DƏ ayrıca, öz görünən sərhədi ilə çəkilir.
+          const normalDs = [];
+          const specialParts = [];
+          displayParts.forEach((part) => {
+            const d = geometry[part.key];
+            if (!d) return;
+            const hasStock = partHasAnyStock(part);
+            const matchesFood = partMatchesFoodFilter(part, foodFilterIds);
+            const isSel = selectedPartKey === part.key;
+            if (hasStock && matchesFood && !isSel) {
+              normalDs.push(d);
+            } else {
+              specialParts.push({ part, d, hasStock, matchesFood, isSel });
+            }
+          });
 
           return (
-            <Path
-              key={part.key}
-              d={d}
-              fill={fill}
-              fillOpacity={fillOpacity}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
-              strokeLinejoin="round"
-            />
+            <>
+              {normalDs.length > 0 && (
+                <Path
+                  d={normalDs.join(" ")}
+                  fill={ACCENT}
+                  fillOpacity={0.14}
+                  stroke={ACCENT}
+                  strokeOpacity={0.14}
+                  strokeWidth={1}
+                  strokeLinejoin="round"
+                />
+              )}
+              {specialParts.map(({ part, d, hasStock, matchesFood, isSel }) => {
+                let fill;
+                let fillOpacity;
+                let stroke;
+                let strokeWidth;
+                if (!hasStock) {
+                  fill = GRAY;
+                  fillOpacity = 0.7;
+                  stroke = isSel ? ACCENT : GRAY_STROKE;
+                  strokeWidth = isSel ? 3 : 1.5;
+                } else if (!matchesFood) {
+                  fill = FOOD_EXCLUDED_FILL;
+                  fillOpacity = 0.7;
+                  stroke = isSel ? ACCENT : FOOD_EXCLUDED_STROKE;
+                  strokeWidth = isSel ? 3 : 1.5;
+                } else {
+                  fill = SELECTED_FILL;
+                  fillOpacity = 1;
+                  stroke = SELECTED_FILL;
+                  strokeWidth = 3.5;
+                }
+                return (
+                  <Path
+                    key={part.key}
+                    d={d}
+                    fill={fill}
+                    fillOpacity={fillOpacity}
+                    stroke={stroke}
+                    strokeOpacity={1}
+                    strokeWidth={strokeWidth}
+                    strokeLinejoin="round"
+                  />
+                );
+              })}
+            </>
           );
-        })}
+        })()}
 
         {dotsD && (
           <Path

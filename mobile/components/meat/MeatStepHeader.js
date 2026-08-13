@@ -2,20 +2,24 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { scale, scaleFont } from "../../lib/scale";
+import { useLanguage } from "../../context/LanguageContext";
+import { t } from "../../i18n/i18n";
 
 // Qurbanlıq axınındakı OrderStepHeader.js ilə 100% eyni struktur/ölçü —
 // yalnız rəng (bordo) və addım adları (Ət Satışı) fərqlidir.
-const STEPS = ["Məhsullar", "Ödəniş xülasəsi", "Ödəniş"];
 const BRAND = "#4B0F0F";
 
 export default function MeatStepHeader({ currentStep, backTo = "MeatHome" }) {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { lang } = useLanguage();
+  const STEPS = [t(lang, "navProducts"), t(lang, "meatStepHeader_step2"), t(lang, "step3")];
 
   return (
     <View style={styles.root}>
       <Pressable style={[styles.backBtn, { top: insets.top }]} onPress={() => navigation.navigate(backTo)}>
-        <ArrowLeft size={22} color="#fff" strokeWidth={2.5} />
+        <ArrowLeft size={20} color="#fff" strokeWidth={2.5} />
       </Pressable>
 
       <View style={[styles.stepsRow, { paddingTop: insets.top + 8 }]}>
@@ -53,24 +57,24 @@ export default function MeatStepHeader({ currentStep, backTo = "MeatHome" }) {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#e5e7eb", backgroundColor: "#fff" },
+  root: { paddingBottom: scale(10), borderBottomWidth: 1, borderBottomColor: "#e5e7eb", backgroundColor: "#fff" },
   backBtn: {
     position: "absolute",
     left: 0,
     zIndex: 10,
-    width: 60,
-    height: 60,
-    borderBottomRightRadius: 60,
+    width: scale(60),
+    height: scale(60),
+    borderBottomRightRadius: scale(60),
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
   },
-  stepsRow: { flexDirection: "row", alignItems: "flex-start", paddingLeft: 74, paddingRight: 4 },
+  stepsRow: { flexDirection: "row", alignItems: "flex-start", paddingLeft: scale(94), paddingRight: scale(6) },
   stepItemWrap: { flexDirection: "row", alignItems: "flex-start", flex: 1 },
-  stepCol: { alignItems: "center", gap: 5, width: 78 },
-  circle: { width: 31, height: 31, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#f0f0f0", borderWidth: 1.5, borderColor: "#e5e7eb" },
+  stepCol: { alignItems: "center", gap: scale(5), width: scale(68) },
+  circle: { width: scale(32), height: scale(32), borderRadius: scale(16), alignItems: "center", justifyContent: "center", backgroundColor: "#f0f0f0", borderWidth: 1.5, borderColor: "#e5e7eb" },
   circleActive: { shadowColor: BRAND, shadowOpacity: 0.3, shadowRadius: 4, elevation: 2 },
-  circleText: { fontSize: 14, fontWeight: "800", color: "#9ca3af" },
-  stepLabel: { fontSize: 12, fontWeight: "700", color: "#9ca3af", textAlign: "center" },
-  connector: { flex: 1, height: 6, marginTop: 13, marginHorizontal: 2, backgroundColor: "#e5e7eb", borderRadius: 3 },
+  circleText: { fontSize: scaleFont(14), fontWeight: "800", color: "#9ca3af" },
+  stepLabel: { fontSize: scaleFont(12.5), fontWeight: "700", color: "#9ca3af", textAlign: "center" },
+  connector: { flex: 1, height: scale(2), marginTop: scale(15), marginHorizontal: scale(4), backgroundColor: "#e5e7eb", borderRadius: scale(1) },
 });

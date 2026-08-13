@@ -2,6 +2,7 @@ import { View, Text, Image, Pressable, ScrollView, StyleSheet } from "react-nati
 import { ArrowLeft } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useNavBarStyle from "../hooks/useNavBarStyle";
+import { scale, scaleFont } from "../lib/scale";
 
 export default function AuthShell({ onBack, children }) {
   const insets = useSafeAreaInsets();
@@ -42,22 +43,22 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#ffffff" },
   backBtn: {
     position: "absolute",
-    left: 14,
+    left: scale(14),
     zIndex: 5,
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: scale(38),
+    height: scale(38),
+    borderRadius: scale(19),
     backgroundColor: "#f3f4f6",
     alignItems: "center",
     justifyContent: "center",
   },
-  scrollContent: { paddingHorizontal: 28, flexGrow: 1 },
-  brand: { alignItems: "center", marginBottom: 24 },
-  brandIcon: { width: 78, height: 78, borderRadius: 18 },
-  wordmark: { flexDirection: "row", marginTop: 12 },
-  wordmarkText: { fontSize: 26, fontWeight: "900", color: "#111827", letterSpacing: 0.5 },
-  sloganRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
-  sloganItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-  sloganText: { fontSize: 9, fontWeight: "700", letterSpacing: 1, color: "#9ca3af" },
-  sloganDot: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: "#d1d5db" },
+  scrollContent: { paddingHorizontal: scale(28), flexGrow: 1 },
+  brand: { alignItems: "center", marginBottom: scale(24) },
+  brandIcon: { width: scale(78), height: scale(78), borderRadius: scale(18) },
+  wordmark: { flexDirection: "row", marginTop: scale(12) },
+  wordmarkText: { fontSize: scaleFont(26), fontWeight: "900", color: "#111827", letterSpacing: 0.5 },
+  sloganRow: { flexDirection: "row", alignItems: "center", gap: scale(6), marginTop: scale(6) },
+  sloganItem: { flexDirection: "row", alignItems: "center", gap: scale(6) },
+  sloganText: { fontSize: scaleFont(9), fontWeight: "700", letterSpacing: 1, color: "#9ca3af" },
+  sloganDot: { width: scale(3), height: scale(3), borderRadius: scale(1.5), backgroundColor: "#d1d5db" },
 });

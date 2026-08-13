@@ -1,11 +1,12 @@
-import { useEffect } from "react";
-import { Platform } from "react-native";
-import { StatusBar } from "expo-status-bar";
+import { useEffect, useRef } from "react";
+import { Platform, AppState } from "react-native";
+import { setStatusBarStyle } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { MeatCartProvider } from "./context/MeatCartContext";
 import { MeatDeliveryLocationProvider } from "./context/MeatDeliveryLocationContext";
 import SplashScreen from "./components/SplashScreen";
@@ -27,9 +28,11 @@ import MeatMyOrdersScreen from "./screens/MeatMyOrdersScreen";
 import MeatOrderDetailScreen from "./screens/MeatOrderDetailScreen";
 import MeatCheckoutSummaryScreen from "./screens/MeatCheckoutSummaryScreen";
 import MeatCheckoutPaymentScreen from "./screens/MeatCheckoutPaymentScreen";
+import MeatOrderContactScreen from "./screens/MeatOrderContactScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import OrderQuantityScreen from "./screens/OrderQuantityScreen";
 import OrderDistributionScreen from "./screens/OrderDistributionScreen";
+import OrderContactScreen from "./screens/OrderContactScreen";
 import OrderSummaryScreen from "./screens/OrderSummaryScreen";
 import OrderPaymentScreen from "./screens/OrderPaymentScreen";
 import OrderConfirmationScreen from "./screens/OrderConfirmationScreen";
@@ -47,12 +50,53 @@ import MyDonationsScreen from "./screens/MyDonationsScreen";
 
 const Stack = createNativeStackNavigator();
 
+const LIGHT_STATUS_BAR_ROUTES = new Set([
+  "Home",
+  "Qurban",
+  "MeatHome",
+  "CollectiveQurban",
+  "CollectiveConfirmation",
+  "MyDonations",
+  "CompletedCampaigns",
+  "TermsCollective",
+  "MeatHowItWorks",
+  "QurbanRules",
+  "MyOrders",
+  "MeatMyOrders",
+  "MeatCart",
+  "HowItWorksQurban",
+  "HowItWorksCollective",
+]);
+
+function applyStatusBarForRoute(routeName) {
+  setStatusBarStyle(LIGHT_STATUS_BAR_ROUTES.has(routeName) ? "light" : "dark");
+}
+
 function AppShell() {
   const { isLoading } = useAuth();
+  const navigationRef = useRef(null);
+  const currentRouteName = useRef("Home");
 
   useEffect(() => {
     if (Platform.OS !== "android") return;
     NavigationBar.setButtonStyleAsync("dark").catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") applyStatusBarForRoute(currentRouteName.current);
+    });
+    return () => sub.remove();
+  }, []);
+
+  // Bəzi native modullar (video player səthləri və s.) fonda sistem status
+  // bar görünüşünü sıfırlaya bilir — buna görə cari marşrutun düzgün
+  // stilini müntəzəm təkrar tətbiq edirik ki, özbaşına qaralma özü düzəlsin.
+  useEffect(() => {
+    const id = setInterval(() => {
+      applyStatusBarForRoute(currentRouteName.current);
+    }, 3000);
+    return () => clearInterval(id);
   }, []);
 
   // Veb-də tətbiqə "girərkən" heç bir brendli splash/gecikmə yoxdur — məzmun
@@ -62,7 +106,23 @@ function AppShell() {
   if (isLoading) return <SplashScreen />;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        const name = navigationRef.current?.getCurrentRoute()?.name;
+        if (name) {
+          currentRouteName.current = name;
+          applyStatusBarForRoute(name);
+        }
+      }}
+      onStateChange={() => {
+        const name = navigationRef.current?.getCurrentRoute()?.name;
+        if (name) {
+          currentRouteName.current = name;
+          applyStatusBarForRoute(name);
+        }
+      }}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="About" component={AboutScreen} />
@@ -82,12 +142,14 @@ function AppShell() {
         <Stack.Screen name="MeatOrderDetail" component={MeatOrderDetailScreen} />
         <Stack.Screen name="MeatCheckoutSummary" component={MeatCheckoutSummaryScreen} />
         <Stack.Screen name="MeatCheckoutPayment" component={MeatCheckoutPaymentScreen} />
+        <Stack.Screen name="MeatOrderContact" component={MeatOrderContactScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="OrderQuantity" component={OrderQuantityScreen} />
         <Stack.Screen
           name="OrderDistribution"
           component={OrderDistributionScreen}
         />
+        <Stack.Screen name="OrderContact" component={OrderContactScreen} />
         <Stack.Screen name="OrderSummary" component={OrderSummaryScreen} />
         <Stack.Screen name="OrderPayment" component={OrderPaymentScreen} />
         <Stack.Screen
@@ -124,7 +186,6 @@ function AppShell() {
         />
         <Stack.Screen name="MyDonations" component={MyDonationsScreen} />
       </Stack.Navigator>
-      <StatusBar style="dark" />
     </NavigationContainer>
   );
 }
@@ -132,13 +193,15 @@ function AppShell() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <MeatCartProvider>
-          <MeatDeliveryLocationProvider>
-            <AppShell />
-          </MeatDeliveryLocationProvider>
-        </MeatCartProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <MeatCartProvider>
+            <MeatDeliveryLocationProvider>
+              <AppShell />
+            </MeatDeliveryLocationProvider>
+          </MeatCartProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }

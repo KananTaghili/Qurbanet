@@ -8,6 +8,9 @@ import * as NavigationBar from "expo-navigation-bar";
 import { CreditCard, Lock, X } from "lucide-react-native";
 import OrderStepHeader from "../components/OrderStepHeader";
 import api from "../lib/api";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#1c5e20";
 
@@ -31,7 +34,7 @@ function isSuccessUrl(u) {
 function PayMethodOption({ selected, onPress, Icon, label, sub }) {
   return (
     <Pressable style={[styles.methodOpt, selected && styles.methodOptSelected]} onPress={onPress}>
-      <Icon size={18} color={selected ? BRAND : "#737373"} />
+      <Icon size={20} color={selected ? BRAND : "#737373"} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={styles.methodLabel}>{label}</Text>
         {sub ? <Text style={styles.methodSub}>{sub}</Text> : null}
@@ -48,6 +51,7 @@ export default function OrderPaymentScreen() {
   const route = useRoute();
   const insets = useSafeAreaInsets();
   const { createdOrderId, createdOrder, grandTotal = 0 } = route.params || {};
+  const { lang } = useLanguage();
 
   useFocusEffect(
     useCallback(() => {
@@ -78,13 +82,13 @@ export default function OrderPaymentScreen() {
     const rows = [];
     const basePrice = Number(createdOrder.pricePerUnit || 0);
     const qty = createdOrder.orderMode === "serikli" ? Number(createdOrder.sharedPortion || 1) : Number(createdOrder.quantity || 1);
-    rows.push({ label: `${createdOrder.animalNameAz} (${qty} ədəd × ${basePrice} AZN)`, value: Number((basePrice * qty).toFixed(2)) });
+    rows.push({ label: `${createdOrder.animalNameAz} (${qty} ${t(lang, "summary_unitSuffix")} × ${basePrice} AZN)`, value: Number((basePrice * qty).toFixed(2)) });
     const cutExtra = Number(createdOrder.cutStyle?.extraFee || 0);
-    if (cutExtra > 0) rows.push({ label: "Doğrama əlavəsi", value: cutExtra });
+    if (cutExtra > 0) rows.push({ label: t(lang, "payment_cutExtraLabel"), value: cutExtra });
     const partsExtra = Number(((createdOrder.qurbanParts?.headFee || 0) + (createdOrder.qurbanParts?.feetFee || 0)).toFixed(2));
-    if (partsExtra > 0) rows.push({ label: "Baş və ayaq əlavəsi", value: partsExtra });
+    if (partsExtra > 0) rows.push({ label: t(lang, "payment_partsExtraLabel"), value: partsExtra });
     const delFee = Number(createdOrder.deliveryFee || 0);
-    rows.push(delFee > 0 ? { label: "Çatdırılma", value: delFee } : { label: "Çatdırılma", free: true });
+    rows.push(delFee > 0 ? { label: t(lang, "dist_deliveryLabel"), value: delFee } : { label: t(lang, "dist_deliveryLabel"), free: true });
     return rows;
   })();
 
@@ -96,7 +100,7 @@ export default function OrderPaymentScreen() {
       if (isSuccessUrl(navState.url)) {
         navigation.reset({ index: 0, routes: [{ name: "OrderConfirmation", params: { createdOrder } }] });
       } else {
-        setError("Ödəniş uğursuz oldu. Yenidən cəhd edin.");
+        setError(t(lang, "payment_paymentFailed"));
       }
     }
   };
@@ -110,10 +114,10 @@ export default function OrderPaymentScreen() {
         finishedRef.current = false;
         setPayUrl(res.data.data.redirect_url);
       } else {
-        setError(res.data.message || "Ödəniş uğursuz oldu.");
+        setError(res.data.message || t(lang, "payment_paymentFailedShort"));
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Ödəniş uğursuz oldu.");
+      setError(err.response?.data?.message || t(lang, "payment_paymentFailedShort"));
     }
     setLoading(false);
   };
@@ -123,27 +127,27 @@ export default function OrderPaymentScreen() {
       <StatusBar style="dark" />
       <OrderStepHeader currentStep={3} />
 
-      <ScrollView contentContainerStyle={{ padding: 12, paddingBottom: insets.bottom + 90, gap: 10 }}>
+      <ScrollView contentContainerStyle={{ padding: scale(12), paddingBottom: insets.bottom + 90, gap: scale(10) }}>
         <View style={styles.amountCard}>
-          <Text style={styles.amountLabel}>ÖDƏNİLMƏLİ MƏBLƏĞ</Text>
+          <Text style={styles.amountLabel}>{t(lang, "payment_amountDueLabel")}</Text>
           <Text style={styles.amountValue}>{amount.toFixed(2)} AZN</Text>
         </View>
 
         {breakdownRows.length > 0 && (
           <View style={styles.card}>
             <View style={styles.cardHead}>
-              <Text style={styles.cardHeadLabel}>QİYMƏT TƏRKİBİ</Text>
+              <Text style={styles.cardHeadLabel}>{t(lang, "payment_priceBreakdownLabel")}</Text>
             </View>
             {breakdownRows.map((row, i) => (
               <View key={i} style={[styles.breakdownRow, i < breakdownRows.length - 1 && styles.breakdownRowSep]}>
                 <Text style={styles.breakdownLabel} numberOfLines={2}>{row.label}</Text>
                 <Text style={[styles.breakdownValue, row.free && { color: "#059669" }]}>
-                  {row.free ? "Pulsuz" : `${row.value?.toFixed(2)} AZN`}
+                  {row.free ? t(lang, "dist_freeLabel") : `${row.value?.toFixed(2)} AZN`}
                 </Text>
               </View>
             ))}
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>CƏMİ</Text>
+              <Text style={styles.totalLabel}>{t(lang, "payment_totalLabel")}</Text>
               <Text style={styles.totalValue}>{amount.toFixed(2)} AZN</Text>
             </View>
           </View>
@@ -151,22 +155,22 @@ export default function OrderPaymentScreen() {
 
         <View style={styles.card}>
           <View style={styles.cardHead}>
-            <Text style={styles.cardHeadLabel}>ÖDƏNİŞ ÜSULU</Text>
+            <Text style={styles.cardHeadLabel}>{t(lang, "payment_methodLabel")}</Text>
           </View>
-          <View style={{ padding: 10 }}>
+          <View style={{ padding: scale(10) }}>
             <PayMethodOption
               selected
               onPress={() => {}}
               Icon={CreditCard}
-              label="Bank Kartı ilə ödə"
-              sub="Visa / Mastercard · EPoint · Təhlükəsiz"
+              label={t(lang, "payment_cardMethodLabel")}
+              sub={t(lang, "payment_cardMethodSub")}
             />
           </View>
         </View>
 
         <View style={styles.infoBoxBlue}>
-          <Lock size={13} color="#2563eb" />
-          <Text style={styles.infoTextBlue}>Ödəniş tətbiqin içərisindəki təhlükəsiz ödəniş səhifəsində tamamlanacaq.</Text>
+          <Lock size={15} color="#2563eb" />
+          <Text style={styles.infoTextBlue}>{t(lang, "payment_secureInfo")}</Text>
         </View>
 
         {!!error && (
@@ -181,7 +185,7 @@ export default function OrderPaymentScreen() {
           {loading ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={styles.confirmBtnText}>{amount.toFixed(2)} AZN · Bank Kartı ilə ödə</Text>
+            <Text style={styles.confirmBtnText}>{t(lang, "payment_payWithCardTemplate").replace("{amount}", amount.toFixed(2))}</Text>
           )}
         </Pressable>
       </View>
@@ -191,10 +195,10 @@ export default function OrderPaymentScreen() {
           <StatusBar style="dark" />
           <View style={[styles.webviewHeader, { paddingTop: insets.top + 8 }]}>
             <Pressable style={styles.webviewCloseBtn} onPress={() => setPayUrl(null)}>
-              <X size={18} color="#374151" />
+              <X size={20} color="#374151" />
             </Pressable>
-            <Text style={styles.webviewTitle}>MeatBox Ödəniş</Text>
-            <View style={{ width: 32 }} />
+            <Text style={styles.webviewTitle}>{t(lang, "payment_webviewTitle")}</Text>
+            <View style={{ width: scale(32) }} />
           </View>
           <WebView
             style={{ flex: 1 }}
@@ -216,44 +220,44 @@ export default function OrderPaymentScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#f2f5f2" },
 
-  amountCard: { backgroundColor: BRAND, borderRadius: 16, paddingVertical: 20, paddingHorizontal: 16, alignItems: "center" },
-  amountLabel: { fontSize: 10.5, fontWeight: "700", color: "rgba(255,255,255,0.75)", letterSpacing: 0.8, marginBottom: 6 },
-  amountValue: { fontSize: 32, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
+  amountCard: { backgroundColor: BRAND, borderRadius: scale(16), paddingVertical: scale(22), paddingHorizontal: scale(16), alignItems: "center" },
+  amountLabel: { fontSize: scaleFont(12), fontWeight: "700", color: "rgba(255,255,255,0.75)", letterSpacing: 0.8, marginBottom: scale(7) },
+  amountValue: { fontSize: scaleFont(36), fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
 
-  card: { backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 6, elevation: 1 },
-  cardHead: { paddingHorizontal: 12, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", backgroundColor: "#fafbfa" },
-  cardHeadLabel: { fontSize: 9.5, fontWeight: "800", letterSpacing: 0.6, color: "#9ca3af" },
+  card: { backgroundColor: "#fff", borderRadius: scale(12), overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 6, elevation: 1 },
+  cardHead: { paddingHorizontal: scale(12), paddingVertical: scale(11), borderBottomWidth: 1, borderBottomColor: "#f0f0f0", backgroundColor: "#fafbfa" },
+  cardHeadLabel: { fontSize: scaleFont(12), fontWeight: "800", letterSpacing: 0.6, color: "#9ca3af" },
 
-  breakdownRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 12, paddingVertical: 10, gap: 10 },
+  breakdownRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(12), paddingVertical: scale(11), gap: scale(10) },
   breakdownRowSep: { borderBottomWidth: 1, borderBottomColor: "#f5f5f5" },
-  breakdownLabel: { fontSize: 11, color: "#737373", flex: 1 },
-  breakdownValue: { fontSize: 11.5, fontWeight: "800", color: "#171717" },
+  breakdownLabel: { fontSize: scaleFont(13), color: "#737373", flex: 1 },
+  breakdownValue: { fontSize: scaleFont(13.5), fontWeight: "800", color: "#171717" },
 
-  totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingVertical: 13, backgroundColor: "#f0f7f0" },
-  totalLabel: { fontSize: 10.5, fontWeight: "900", letterSpacing: 0.6, color: "#171717" },
-  totalValue: { fontSize: 18, fontWeight: "900", color: BRAND },
+  totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(14), paddingVertical: scale(15), backgroundColor: "#f0f7f0" },
+  totalLabel: { fontSize: scaleFont(13), fontWeight: "900", letterSpacing: 0.6, color: "#171717" },
+  totalValue: { fontSize: scaleFont(22), fontWeight: "900", color: BRAND },
 
-  methodOpt: { flexDirection: "row", alignItems: "center", gap: 10, borderRadius: 10, borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 10 },
+  methodOpt: { flexDirection: "row", alignItems: "center", gap: scale(11), borderRadius: scale(10), borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#fff", paddingHorizontal: scale(13), paddingVertical: scale(12) },
   methodOptSelected: { borderColor: BRAND, backgroundColor: "#f0f7f0" },
-  methodLabel: { fontSize: 12.5, fontWeight: "700", color: "#171717" },
-  methodSub: { fontSize: 10.5, color: "#9ca3af", marginTop: 2 },
-  radio: { width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: "#d1d5db", alignItems: "center", justifyContent: "center" },
+  methodLabel: { fontSize: scaleFont(15), fontWeight: "700", color: "#171717" },
+  methodSub: { fontSize: scaleFont(12.5), color: "#9ca3af", marginTop: scale(2) },
+  radio: { width: scale(18), height: scale(18), borderRadius: scale(9), borderWidth: 2, borderColor: "#d1d5db", alignItems: "center", justifyContent: "center" },
   radioSelected: { borderColor: BRAND },
-  radioDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: BRAND },
+  radioDot: { width: scale(9), height: scale(9), borderRadius: scale(5), backgroundColor: BRAND },
 
-  infoBoxBlue: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: "#eff6ff", borderWidth: 1, borderColor: "#bfdbfe", borderRadius: 10, padding: 10 },
-  infoTextBlue: { flex: 1, fontSize: 11, color: "#1d4ed8", lineHeight: 15 },
+  infoBoxBlue: { flexDirection: "row", alignItems: "flex-start", gap: scale(8), backgroundColor: "#eff6ff", borderWidth: 1, borderColor: "#bfdbfe", borderRadius: scale(10), padding: scale(11) },
+  infoTextBlue: { flex: 1, fontSize: scaleFont(13), color: "#1d4ed8", lineHeight: moderateScale(18) },
 
-  errorBanner: { backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#fecaca", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  errorBannerText: { fontSize: 11.5, fontWeight: "700", color: "#dc2626" },
+  errorBanner: { backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#fecaca", borderRadius: scale(10), paddingHorizontal: scale(12), paddingVertical: scale(11) },
+  errorBannerText: { fontSize: scaleFont(13), fontWeight: "700", color: "#dc2626" },
 
-  bottomBar: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#e5e7eb", paddingHorizontal: 16, paddingTop: 10, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, elevation: 8 },
-  confirmBtn: { backgroundColor: BRAND, borderRadius: 12, paddingVertical: 13, alignItems: "center", justifyContent: "center" },
-  confirmBtnText: { fontSize: 13.5, fontWeight: "800", color: "#fff" },
+  bottomBar: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#e5e7eb", paddingHorizontal: scale(16), paddingTop: scale(10), shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, elevation: 8 },
+  confirmBtn: { backgroundColor: BRAND, borderRadius: scale(12), paddingVertical: scale(16), alignItems: "center", justifyContent: "center" },
+  confirmBtnText: { fontSize: scaleFont(16), fontWeight: "800", color: "#fff" },
 
   webviewOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#fff", zIndex: 50, elevation: 50 },
-  webviewHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
-  webviewCloseBtn: { width: 32, height: 32, borderRadius: 8, borderWidth: 1, borderColor: "#e5e7eb", backgroundColor: "#f8f9fb", alignItems: "center", justifyContent: "center" },
-  webviewTitle: { fontSize: 13, fontWeight: "800", color: "#171717" },
+  webviewHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(14), paddingBottom: scale(10), borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
+  webviewCloseBtn: { width: scale(34), height: scale(34), borderRadius: scale(9), borderWidth: 1, borderColor: "#e5e7eb", backgroundColor: "#f8f9fb", alignItems: "center", justifyContent: "center" },
+  webviewTitle: { fontSize: scaleFont(15), fontWeight: "800", color: "#171717" },
   webviewLoading: { flex: 1, alignItems: "center", justifyContent: "center" },
 });

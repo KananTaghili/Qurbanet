@@ -23,7 +23,7 @@ import {
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
-  Menu,
+  ArrowLeft,
   User,
 } from "lucide-react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -32,66 +32,73 @@ import { StatusBar } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../context/AuthContext";
+import { getInitials } from "../lib/format";
 import NotificationBell from "../components/NotificationBell";
 import HeaderUserMenu from "../components/HeaderUserMenu";
-import MeatSideMenu from "../components/MeatSideMenu";
 import MeatBottomNav from "../components/MeatBottomNav";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#4B0F0F";
 
-const STEPS = [
-  {
-    num: 1,
-    Icon: MousePointerClick,
-    title: "Seçiminizi edin",
-    text: "Qoyun, dana və ya yemək növünü seçin.",
-    img: require("../assets/images/meat-hiw-1.jpg"),
-  },
-  {
-    num: 2,
-    Icon: Beef,
-    title: "Hissəni seçin",
-    text: "Ət hissələrindən istədiyinizi seçin və səbətə əlavə edin.",
-    img: require("../assets/images/meat-hiw-2.jpg"),
-  },
-  {
-    num: 3,
-    Icon: ClipboardCheck,
-    title: "Sifarişinizi təsdiqləyin",
-    text: "Çatdırılma ünvanı və ödəniş üsulunu tamamlayın.",
-    img: require("../assets/images/meat-hiw-3.jpg"),
-  },
-  {
-    num: 4,
-    Icon: PackageCheck,
-    title: "Paketləmə və hazırlıq",
-    text: "Ətiniz gigiyenik şəkildə paketlənir və hazırlanır.",
-    img: require("../assets/images/meatbox-qutu.png"),
-  },
-  {
-    num: 5,
-    Icon: Truck,
-    title: "Çatdırılma",
-    text: "Ətiniz təzə və təhlükəsiz şəkildə qapınıza çatdırılır.",
-    img: require("../assets/images/meat-hiw-4.jpg"),
-  },
-];
+function stepsList(lang) {
+  return [
+    {
+      num: 1,
+      Icon: MousePointerClick,
+      title: t(lang, "meatHiw_step1Title"),
+      text: t(lang, "meatHiw_step1Text"),
+      img: require("../assets/images/meat-hiw-1.jpg"),
+    },
+    {
+      num: 2,
+      Icon: Beef,
+      title: t(lang, "meatHiw_step2Title"),
+      text: t(lang, "meatHiw_step2Text"),
+      img: require("../assets/images/meat-hiw-2.jpg"),
+    },
+    {
+      num: 3,
+      Icon: ClipboardCheck,
+      title: t(lang, "meatHiw_step3Title"),
+      text: t(lang, "meatHiw_step3Text"),
+      img: require("../assets/images/meat-hiw-3.jpg"),
+    },
+    {
+      num: 4,
+      Icon: PackageCheck,
+      title: t(lang, "meatHiw_step4Title"),
+      text: t(lang, "meatHiw_step4Text"),
+      img: require("../assets/images/meatbox-qutu.png"),
+    },
+    {
+      num: 5,
+      Icon: Truck,
+      title: t(lang, "meatHiw_step5Title"),
+      text: t(lang, "meatHiw_step5Text"),
+      img: require("../assets/images/meat-hiw-4.jpg"),
+    },
+  ];
+}
 
-const MINI_BADGES = [
-  { Icon: ShieldCheck, title: "Halal kəsim" },
-  { Icon: Zap, title: "Paketlənib çatdırılma" },
-  { Icon: Award, title: "Yüksək Gigiyena Zəmanəti" },
-];
+function miniBadges(lang) {
+  return [
+    { Icon: ShieldCheck, title: t(lang, "meatHiw_badgeHalal") },
+    { Icon: Zap, title: t(lang, "meatHiw_badgePackaged") },
+    { Icon: Award, title: t(lang, "meatHiw_badgeHygiene") },
+  ];
+}
 
 const AUTOPLAY_MS = 3200;
 const MANUAL_DELAY_MS = 10000;
 const SWIPE_THRESHOLD = 40;
 
-function comingSoon() {
-  Alert.alert("Tezliklə", "Bu bölmə hələ hazırlanır.");
+function comingSoon(lang) {
+  Alert.alert(t(lang, "comingSoonTitle"), t(lang, "comingSoonBody"));
 }
 
-function HeroBanner() {
+function HeroBanner({ lang }) {
   return (
     <View style={styles.hero}>
       <View style={styles.heroImageBox}>
@@ -121,9 +128,9 @@ function HeroBanner() {
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.heroText}>
-        <Text style={styles.heroTitle}>Biz Necə İşləyirik</Text>
+        <Text style={styles.heroTitle}>{t(lang, "meatHiw_heroTitle")}</Text>
         <Text style={styles.heroSub}>
-          Tapşırığınızdan süfrənizə qədər olan hər addımda keyfiyyət, halal və etibar prinsipindən ayrılmırıq.
+          {t(lang, "meatHiw_heroSub")}
         </Text>
       </View>
     </View>
@@ -155,7 +162,8 @@ function StepSlide({ step, isActive, pulse }) {
   );
 }
 
-function StepsCarousel() {
+function StepsCarousel({ lang }) {
+  const STEPS = stepsList(lang);
   const [stepIndex, setStepIndex] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const translateX = useRef(new Animated.Value(0)).current;
@@ -228,10 +236,10 @@ function StepsCarousel() {
           </Animated.View>
         </View>
 
-        <Pressable style={[styles.carouselArrow, { left: 6 }]} onPress={goPrev}>
+        <Pressable style={[styles.carouselArrow, { left: scale(6) }]} onPress={goPrev}>
           <ChevronLeft size={21} color={BRAND} strokeWidth={2.5} />
         </Pressable>
-        <Pressable style={[styles.carouselArrow, { right: 6 }]} onPress={goNext}>
+        <Pressable style={[styles.carouselArrow, { right: scale(6) }]} onPress={goNext}>
           <ChevronRight size={21} color={BRAND} strokeWidth={2.5} />
         </Pressable>
       </View>
@@ -253,7 +261,7 @@ export default function MeatHowItWorksScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isGuest, user } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { lang } = useLanguage();
 
   useFocusEffect(
     useCallback(() => {
@@ -263,24 +271,25 @@ export default function MeatHowItWorksScreen() {
     }, [])
   );
 
-  const initials = [user?.name, user?.lastName].filter(Boolean).map((n) => n[0]).join("").toUpperCase() || "?";
+  const initials = getInitials(user);
 
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <View style={styles.headerLeft}>
-          <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
-            <Menu size={26} color="#fff" />
+          <Pressable style={styles.homeBtn} onPress={() => navigation.navigate("Home")}>
+            <ArrowLeft size={20} color="#fff" />
+            <Image source={require("../assets/images/app-icon.png")} style={styles.homeBtnLogo} />
           </Pressable>
-          <Text style={styles.headerTitle} numberOfLines={1}>Ət Satışı</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>{t(lang, "meatHiw_headerTitle")}</Text>
         </View>
         <View style={styles.headerRight}>
           <NotificationBell accentColor={BRAND} iconColor="#fff" />
           {isGuest ? (
             <Pressable style={styles.loginBtn} onPress={() => navigation.navigate("Login")}>
               <User size={22} color="#fff" />
-              <Text style={styles.loginText}>Daxil ol</Text>
+              <Text style={styles.loginText}>{t(lang, "login")}</Text>
             </Pressable>
           ) : (
             <HeaderUserMenu initials={initials} accentColor="rgba(255,255,255,0.2)" />
@@ -288,15 +297,13 @@ export default function MeatHowItWorksScreen() {
         </View>
       </View>
 
-      <MeatSideMenu visible={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 14, paddingBottom: 16, gap: 14 }}>
-        <HeroBanner />
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: scale(14), paddingBottom: scale(16), gap: scale(14) }}>
+        <HeroBanner lang={lang} />
 
         <View>
-          <Text style={styles.sectionTitle}>5 sadə addımda sifarişiniz süfrənizdə</Text>
-          <View style={{ marginTop: 12 }}>
-            <StepsCarousel />
+          <Text style={styles.sectionTitle}>{t(lang, "meatHiw_sectionTitle")}</Text>
+          <View style={{ marginTop: scale(12) }}>
+            <StepsCarousel lang={lang} />
           </View>
         </View>
 
@@ -309,15 +316,15 @@ export default function MeatHowItWorksScreen() {
       <View style={styles.bottomBarWrap}>
         <View style={styles.bottomBar}>
           <View style={styles.badgesRow}>
-            {MINI_BADGES.map(({ Icon, title }) => (
+            {miniBadges(lang).map(({ Icon, title }) => (
               <View key={title} style={styles.badgeItem}>
                 <Icon size={16} color={BRAND} />
                 <Text style={styles.badgeText}>{title}</Text>
               </View>
             ))}
           </View>
-          <Pressable style={styles.ctaBtn} onPress={comingSoon}>
-            <Text style={styles.ctaText}>Sifarişə başla</Text>
+          <Pressable style={styles.ctaBtn} onPress={() => comingSoon(lang)}>
+            <Text style={styles.ctaText}>{t(lang, "meatHiw_startOrderBtn")}</Text>
             <ShoppingCart size={16} color="#fff" strokeWidth={2.5} />
           </Pressable>
         </View>
@@ -335,39 +342,40 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 10,
-    paddingHorizontal: 12,
-    paddingBottom: 12,
+    gap: scale(10),
+    paddingHorizontal: scale(12),
+    paddingBottom: scale(12),
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1, minWidth: 0 },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 0 },
-  menuBtn: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
-  headerTitle: { flex: 1, color: "#fff", fontSize: 22, fontWeight: "800" },
-  loginBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginRight: 5 },
-  loginText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: scale(10), flex: 1, minWidth: 0 },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: scale(10), flexShrink: 0 },
+  homeBtn: { flexDirection: "row", alignItems: "center", gap: scale(6) },
+  homeBtnLogo: { width: scale(28), height: scale(28), borderRadius: scale(7) },
+  headerTitle: { flex: 1, color: "#fff", fontSize: scaleFont(18.5), fontWeight: "800" },
+  loginBtn: { flexDirection: "row", alignItems: "center", gap: scale(6), marginRight: scale(5) },
+  loginText: { color: "#fff", fontSize: scaleFont(16), fontWeight: "700" },
 
   hero: {
-    borderRadius: 16,
+    borderRadius: scale(16),
     overflow: "hidden",
     backgroundColor: "#F8F5EF",
-    minHeight: 136,
+    minHeight: scale(136),
     justifyContent: "center",
   },
   heroImageBox: { position: "absolute", top: 0, bottom: 0, right: 0, width: "58%", overflow: "hidden" },
-  heroText: { padding: 16, maxWidth: "56%" },
-  heroTitle: { fontSize: 21, fontWeight: "900", color: "#0a0a0a", letterSpacing: -0.2, lineHeight: 25 },
-  heroSub: { fontSize: 13.5, color: "#525252", lineHeight: 18, fontWeight: "500", marginTop: 7 },
+  heroText: { padding: scale(16), maxWidth: "56%" },
+  heroTitle: { fontSize: scaleFont(21), fontWeight: "900", color: "#0a0a0a", letterSpacing: -0.2, lineHeight: moderateScale(25) },
+  heroSub: { fontSize: scaleFont(13.5), color: "#525252", lineHeight: moderateScale(18), fontWeight: "500", marginTop: scale(7) },
 
-  sectionTitle: { fontSize: 18, fontWeight: "900", color: "#171717" },
+  sectionTitle: { fontSize: scaleFont(18), fontWeight: "900", color: "#171717" },
 
   carouselWrap: { position: "relative" },
-  carouselViewport: { overflow: "hidden", borderRadius: 12 },
+  carouselViewport: { overflow: "hidden", borderRadius: scale(12) },
   carouselArrow: {
     position: "absolute",
-    top: 94,
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    top: scale(94),
+    width: scale(38),
+    height: scale(38),
+    borderRadius: scale(19),
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.92)",
@@ -380,26 +388,26 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
-  slide: { paddingHorizontal: 4 },
+  slide: { paddingHorizontal: scale(4) },
   // Kvadrat qutu (eni = hündürlüyü) — hər addımda eyni sabit ölçü, mənbə
   // fotonun öz nisbətindən asılı olmayaraq (məsələn kvadratabənzər qoyun
   // sxemi əvvəlki dar-hündürlükdə həddindən artıq üfüqi kəsilirdi).
   slidePhoto: {
-    height: 220,
-    width: 220,
+    height: scale(220),
+    width: scale(220),
     alignSelf: "center",
-    borderRadius: 14,
+    borderRadius: scale(14),
     overflow: "hidden",
     borderWidth: 2,
     borderColor: BRAND,
     backgroundColor: "#fff",
   },
   slidePhotoImg: { width: "100%", height: "100%" },
-  slideHeadRow: { flexDirection: "row", alignItems: "center", gap: 11, marginTop: 14 },
+  slideHeadRow: { flexDirection: "row", alignItems: "center", gap: scale(11), marginTop: scale(14) },
   slideIconWrap: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: scale(46),
+    height: scale(46),
+    borderRadius: scale(23),
     borderWidth: 2,
     borderColor: BRAND,
     backgroundColor: "#fff",
@@ -408,49 +416,49 @@ const styles = StyleSheet.create({
   },
   slideNumBadge: {
     position: "absolute",
-    top: -5,
-    right: -5,
-    width: 19,
-    height: 19,
-    borderRadius: 9.5,
+    top: scale(-5),
+    right: scale(-5),
+    width: scale(19),
+    height: scale(19),
+    borderRadius: scale(9.5),
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
   },
-  slideNumText: { color: "#fff", fontSize: 10.5, fontWeight: "900" },
-  slideTitle: { flex: 1, fontSize: 17.5, fontWeight: "900", color: "#171717" },
-  slideDesc: { fontSize: 15, color: "#737373", fontWeight: "500", marginTop: 8, lineHeight: 20 },
+  slideNumText: { color: "#fff", fontSize: scaleFont(10.5), fontWeight: "900" },
+  slideTitle: { flex: 1, fontSize: scaleFont(17.5), fontWeight: "900", color: "#171717" },
+  slideDesc: { fontSize: scaleFont(15), color: "#737373", fontWeight: "500", marginTop: scale(8), lineHeight: moderateScale(20) },
 
-  dotsRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6, marginTop: 10 },
-  dot: { height: 6, borderRadius: 3 },
-  dotActive: { width: 20, backgroundColor: BRAND },
-  dotInactive: { width: 6, backgroundColor: "#d4d4d4" },
+  dotsRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: scale(6), marginTop: scale(10) },
+  dot: { height: scale(6), borderRadius: scale(3) },
+  dotActive: { width: scale(20), backgroundColor: BRAND },
+  dotInactive: { width: scale(6), backgroundColor: "#d4d4d4" },
 
-  bottomBarWrap: { paddingHorizontal: 14, paddingBottom: 8, backgroundColor: "#FAF8F5" },
+  bottomBarWrap: { paddingHorizontal: scale(14), paddingBottom: scale(8), backgroundColor: "#FAF8F5" },
   bottomBar: {
-    borderRadius: 14,
+    borderRadius: scale(14),
     borderWidth: 1,
     borderColor: "rgba(75,15,15,0.1)",
     backgroundColor: "#FDFBF7",
-    padding: 13,
-    gap: 11,
+    padding: scale(13),
+    gap: scale(11),
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: -2 },
     elevation: 4,
   },
-  badgesRow: { flexDirection: "row", flexWrap: "wrap", gap: 13, justifyContent: "center" },
-  badgeItem: { flexDirection: "row", alignItems: "center", gap: 7 },
-  badgeText: { fontSize: 13.5, fontWeight: "700", color: "#404040" },
+  badgesRow: { flexDirection: "row", flexWrap: "wrap", gap: scale(13), justifyContent: "center" },
+  badgeItem: { flexDirection: "row", alignItems: "center", gap: scale(7) },
+  badgeText: { fontSize: scaleFont(13.5), fontWeight: "700", color: "#404040" },
   ctaBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 7,
+    gap: scale(7),
     backgroundColor: BRAND,
-    borderRadius: 11,
-    paddingVertical: 13,
+    borderRadius: scale(11),
+    paddingVertical: scale(13),
   },
-  ctaText: { color: "#fff", fontWeight: "800", fontSize: 15.5 },
+  ctaText: { color: "#fff", fontWeight: "800", fontSize: scaleFont(15.5) },
 });

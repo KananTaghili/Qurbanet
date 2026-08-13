@@ -3,6 +3,9 @@ import { View, Text, Pressable, Modal, ActivityIndicator, StyleSheet } from "rea
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import { X, Check, Navigation, MapPin } from "lucide-react-native";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const DEFAULT = { lat: 40.4093, lng: 49.8671 };
 const BOUNDS = { minLat: 39.9, maxLat: 40.8, minLng: 49.3, maxLng: 50.7 };
@@ -43,6 +46,7 @@ async function reverseGeocode(lat, lng) {
 }
 
 export default function MapLocationPicker({ visible, onClose, onConfirm, initialLocation }) {
+  const { lang } = useLanguage();
   const mapRef = useRef(null);
   const initLat = initialLocation?.coordinates?.lat ? Number(initialLocation.coordinates.lat) : null;
   const initLng = initialLocation?.coordinates?.lng ? Number(initialLocation.coordinates.lng) : null;
@@ -93,27 +97,27 @@ export default function MapLocationPicker({ visible, onClose, onConfirm, initial
       <View style={styles.root}>
         <View style={styles.header}>
           <Pressable style={styles.closeBtn} onPress={onClose}>
-            <X size={18} color="#6B7280" />
+            <X size={20} color="#6B7280" />
           </Pressable>
-          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <MapPin size={16} color={BRAND} />
-            <Text style={styles.headerTitle}>Çatdırılma ünvanı</Text>
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: scale(6) }}>
+            <MapPin size={18} color={BRAND} />
+            <Text style={styles.headerTitle}>{t(lang, "mapPicker_title")}</Text>
           </View>
           <Pressable
             style={[styles.confirmBtn, (!coords || outsideBaku || geocoding) && styles.confirmBtnDisabled]}
             onPress={handleConfirm}
             disabled={!coords || outsideBaku || geocoding}
           >
-            <Check size={14} color="#fff" strokeWidth={3} />
-            <Text style={styles.confirmBtnText}>Təsdiqlə</Text>
+            <Check size={16} color="#fff" strokeWidth={3} />
+            <Text style={styles.confirmBtnText}>{t(lang, "mapPicker_confirmButton")}</Text>
           </Pressable>
         </View>
 
         {outsideBaku && (
           <View style={styles.warnBanner}>
-            <Text style={{ fontSize: 15 }}>⚠️</Text>
+            <Text style={{ fontSize: scaleFont(17) }}>⚠️</Text>
             <Text style={styles.warnBannerText}>
-              Çatdırılma yalnız Bakı və Abşeron ərazisinə mümkündür. Zəhmət olmasa Bakı daxilindən ünvan seçin.
+              {t(lang, "mapPicker_outsideBakuWarning")}
             </Text>
           </View>
         )}
@@ -142,20 +146,20 @@ export default function MapLocationPicker({ visible, onClose, onConfirm, initial
           </MapView>
 
           <Pressable style={styles.geoBtn} onPress={handleUseCurrent} disabled={geoLoading}>
-            {geoLoading ? <ActivityIndicator size="small" color={BRAND} /> : <Navigation size={14} color={BRAND} />}
-            <Text style={styles.geoBtnText}>Hazırkı konum</Text>
+            {geoLoading ? <ActivityIndicator size="small" color={BRAND} /> : <Navigation size={16} color={BRAND} />}
+            <Text style={styles.geoBtnText}>{t(lang, "mapPicker_currentLocationButton")}</Text>
           </Pressable>
 
           {!coords && (
             <View style={styles.hintBubble} pointerEvents="none">
-              <Text style={styles.hintText}>Xəritəyə toxunun</Text>
+              <Text style={styles.hintText}>{t(lang, "mapPicker_tapMapHint")}</Text>
             </View>
           )}
         </View>
 
         <View style={styles.addressBar}>
           {geocoding ? (
-            <Text style={styles.addressPlaceholder}>Ünvan axtarılır...</Text>
+            <Text style={styles.addressPlaceholder}>{t(lang, "mapPicker_geocoding")}</Text>
           ) : coords ? (
             <View>
               <Text style={styles.addressText} numberOfLines={1}>
@@ -164,7 +168,7 @@ export default function MapLocationPicker({ visible, onClose, onConfirm, initial
               <Text style={styles.addressCoords}>{coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</Text>
             </View>
           ) : (
-            <Text style={styles.addressPlaceholder}>Məkanı seçmək üçün xəritəyə toxunun</Text>
+            <Text style={styles.addressPlaceholder}>{t(lang, "mapPicker_selectLocationHint")}</Text>
           )}
         </View>
       </View>
@@ -174,20 +178,20 @@ export default function MapLocationPicker({ visible, onClose, onConfirm, initial
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#fff" },
-  header: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#EAECF0" },
-  closeBtn: { width: 32, height: 32, borderRadius: 8, borderWidth: 1, borderColor: "#EAECF0", backgroundColor: "#F8F9FB", alignItems: "center", justifyContent: "center" },
-  headerTitle: { fontWeight: "700", fontSize: 14, color: "#111827" },
-  confirmBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, backgroundColor: BRAND },
+  header: { flexDirection: "row", alignItems: "center", gap: scale(10), paddingHorizontal: scale(16), paddingVertical: scale(13), borderBottomWidth: 1, borderBottomColor: "#EAECF0" },
+  closeBtn: { width: scale(36), height: scale(36), borderRadius: scale(9), borderWidth: 1, borderColor: "#EAECF0", backgroundColor: "#F8F9FB", alignItems: "center", justifyContent: "center" },
+  headerTitle: { fontWeight: "700", fontSize: scaleFont(16), color: "#111827" },
+  confirmBtn: { flexDirection: "row", alignItems: "center", gap: scale(6), paddingHorizontal: scale(16), paddingVertical: scale(10), borderRadius: scale(10), backgroundColor: BRAND },
   confirmBtnDisabled: { backgroundColor: "#CBD5E1" },
-  confirmBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
-  warnBanner: { backgroundColor: "#FEF2F2", borderBottomWidth: 1, borderBottomColor: "#FECACA", paddingHorizontal: 16, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 8 },
-  warnBannerText: { fontSize: 11.5, fontWeight: "600", color: "#991B1B", flex: 1 },
-  geoBtn: { position: "absolute", top: 12, right: 12, flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#fff", borderWidth: 1, borderColor: "#EAECF0", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 8, elevation: 3 },
-  geoBtnText: { fontSize: 11, fontWeight: "700", color: BRAND },
-  hintBubble: { position: "absolute", bottom: 12, alignSelf: "center", backgroundColor: "rgba(255,255,255,0.92)", borderWidth: 1, borderColor: "#EAECF0", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 },
-  hintText: { fontSize: 11, fontWeight: "600", color: "#6B7280" },
-  addressBar: { paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderTopColor: "#EAECF0", backgroundColor: "#F8FAFC", height: 56, justifyContent: "center" },
-  addressPlaceholder: { fontSize: 12.5, color: "#94A3B8" },
-  addressText: { fontSize: 12.5, fontWeight: "700", color: "#111827" },
-  addressCoords: { fontSize: 10.5, color: "#94A3B8", marginTop: 2 },
+  confirmBtnText: { color: "#fff", fontWeight: "700", fontSize: scaleFont(14.5) },
+  warnBanner: { backgroundColor: "#FEF2F2", borderBottomWidth: 1, borderBottomColor: "#FECACA", paddingHorizontal: scale(16), paddingVertical: scale(9), flexDirection: "row", alignItems: "center", gap: scale(8) },
+  warnBannerText: { fontSize: scaleFont(13), fontWeight: "600", color: "#991B1B", flex: 1 },
+  geoBtn: { position: "absolute", top: scale(12), right: scale(12), flexDirection: "row", alignItems: "center", gap: scale(6), backgroundColor: "#fff", borderWidth: 1, borderColor: "#EAECF0", borderRadius: scale(10), paddingHorizontal: scale(13), paddingVertical: scale(9), shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 8, elevation: 3 },
+  geoBtnText: { fontSize: scaleFont(12.5), fontWeight: "700", color: BRAND },
+  hintBubble: { position: "absolute", bottom: scale(12), alignSelf: "center", backgroundColor: "rgba(255,255,255,0.92)", borderWidth: 1, borderColor: "#EAECF0", borderRadius: scale(10), paddingHorizontal: scale(15), paddingVertical: scale(9) },
+  hintText: { fontSize: scaleFont(12.5), fontWeight: "600", color: "#6B7280" },
+  addressBar: { paddingHorizontal: scale(16), paddingVertical: scale(10), borderTopWidth: 1, borderTopColor: "#EAECF0", backgroundColor: "#F8FAFC", height: scale(60), justifyContent: "center" },
+  addressPlaceholder: { fontSize: scaleFont(14), color: "#94A3B8" },
+  addressText: { fontSize: scaleFont(14), fontWeight: "700", color: "#111827" },
+  addressCoords: { fontSize: scaleFont(11.5), color: "#94A3B8", marginTop: scale(2) },
 });

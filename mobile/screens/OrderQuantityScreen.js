@@ -16,10 +16,12 @@ import { StatusBar } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
 import OrderStepHeader from "../components/OrderStepHeader";
 import api from "../lib/api";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#1c5e20";
 const TIME_SLOTS = ["12:00-15:00", "15:00-18:00", "18:00-21:00"];
-const AZ_MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "İyn", "İyl", "Avq", "Sen", "Okt", "Noy", "Dek"];
 
 function getTomorrow() {
   const d = new Date();
@@ -32,12 +34,12 @@ function Section({ label, Icon, error, children }) {
   return (
     <View style={[styles.section, error && styles.sectionError]}>
       <View style={[styles.sectionHead, error && styles.sectionHeadError]}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: scale(6) }}>
           {Icon ? <Icon size={12} color={error ? "#ef4444" : "#9ca3af"} /> : null}
           <Text style={[styles.sectionLabel, error && { color: "#ef4444" }]}>{label}</Text>
         </View>
         {error ? (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: scale(4) }}>
             <AlertTriangle size={11} color="#ef4444" />
             <Text style={styles.sectionErrorText}>{error}</Text>
           </View>
@@ -76,6 +78,7 @@ export default function OrderQuantityScreen() {
   const route = useRoute();
   const insets = useSafeAreaInsets();
   const { animal, deliveryWindows: dwFromParams } = route.params || {};
+  const { lang } = useLanguage();
 
   const [qty, setQty] = useState(1);
   const [selectedWeight, setSelectedWeight] = useState(null);
@@ -129,7 +132,7 @@ export default function OrderQuantityScreen() {
   if (!animal) {
     return (
       <View style={styles.root}>
-        <Text style={{ padding: 20 }}>Heyvan tapılmadı.</Text>
+        <Text style={{ padding: scale(20) }}>{t(lang, "qty_animalNotFound")}</Text>
       </View>
     );
   }
@@ -154,8 +157,8 @@ export default function OrderQuantityScreen() {
   const feetTotal = (animal.hasFeetOption !== false && (animal.feetOptions || []).length > 0) ? qty * 4 : 0;
   const headAssigned = Object.values(headBuckets).reduce((s, v) => s + v, 0);
 
-  const cutStyleError = submitAttempted && effectiveCutStyles.length > 0 && totalCutCount === 0 ? "Seçim edin" : null;
-  const partsError = submitAttempted && needsHead && headAssigned === 0 ? "Seçim edin" : null;
+  const cutStyleError = submitAttempted && effectiveCutStyles.length > 0 && totalCutCount === 0 ? t(lang, "qty_selectErr") : null;
+  const partsError = submitAttempted && needsHead && headAssigned === 0 ? t(lang, "qty_selectErr") : null;
 
   const dateOptions = useMemo(() => {
     const opts = [];
@@ -168,7 +171,7 @@ export default function OrderQuantityScreen() {
     return opts;
   }, [maxSlaughterDays]);
 
-  const dateLabel = (d) => `${d.getDate()} ${AZ_MONTHS[d.getMonth()]}`;
+  const dateLabel = (d) => `${d.getDate()} ${t(lang, "months_short")[d.getMonth()]}`;
   const isTomorrow = (d) => d.toDateString() === getTomorrow().toDateString();
 
   const handleContinue = () => {
@@ -195,8 +198,8 @@ export default function OrderQuantityScreen() {
       <StatusBar style="dark" />
       <OrderStepHeader currentStep={1} />
 
-      <ScrollView contentContainerStyle={{ padding: 12, paddingBottom: 16, gap: 10 }}>
-        <Text style={styles.pageTitle}>Miqdar seçin</Text>
+      <ScrollView contentContainerStyle={{ padding: scale(12), paddingBottom: scale(16), gap: scale(10) }}>
+        <Text style={styles.pageTitle}>{t(lang, "qty_pageTitle")}</Text>
 
         {/* Animal card */}
         <View style={styles.animalCard}>
@@ -207,19 +210,19 @@ export default function OrderQuantityScreen() {
               resizeMode="cover"
             />
           </View>
-          <View style={{ flex: 1, padding: 10, justifyContent: "space-between" }}>
+          <View style={{ flex: 1, padding: scale(10), justifyContent: "space-between" }}>
             <View>
-              <Text style={styles.animalMuted}>SEÇİLMİŞ HEYVAN</Text>
+              <Text style={styles.animalMuted}>{t(lang, "qty_selectedAnimalLabel")}</Text>
               <Text style={styles.animalName}>{animal.nameAz}</Text>
-              <View style={{ flexDirection: "row", alignItems: "baseline", gap: 4, marginTop: 3 }}>
+              <View style={{ flexDirection: "row", alignItems: "baseline", gap: scale(4), marginTop: scale(3) }}>
                 <Text style={styles.animalPrice}>{effectivePrice}</Text>
-                <Text style={styles.animalPriceUnit}>AZN{!isSingle ? " / əd." : ""}</Text>
+                <Text style={styles.animalPriceUnit}>AZN{!isSingle ? t(lang, "qty_perUnitSuffix") : ""}</Text>
               </View>
             </View>
             {!isSingle && (
-              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
-                <Text style={styles.qtyLabel}>MİQDAR</Text>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: scale(6) }}>
+                <Text style={styles.qtyLabel}>{t(lang, "qty_quantityLabel")}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: scale(8) }}>
                   <Pressable style={[styles.qtyBtn, qty <= 1 && styles.qtyBtnDisabled]} onPress={() => setQty((q) => Math.max(1, q - 1))} disabled={qty <= 1}>
                     <Text style={styles.qtyBtnText}>−</Text>
                   </Pressable>
@@ -234,7 +237,7 @@ export default function OrderQuantityScreen() {
         </View>
 
         {weights.length > 0 && (
-          <Section label="DİRİ ÇƏKİ KATEQORİYASI">
+          <Section label={t(lang, "qty_weightCategoryLabel")}>
             <View style={styles.pillGrid}>
               {weights.map((w) => (
                 <WeightPill
@@ -249,7 +252,7 @@ export default function OrderQuantityScreen() {
         )}
 
         {effectiveCutStyles.length > 0 && (
-          <Section label="DOĞRAMA ÜSULU" error={cutStyleError}>
+          <Section label={t(lang, "qty_cutStyleLabel")} error={cutStyleError}>
             <View style={styles.optGrid}>
               {effectiveCutStyles.map((cs) => (
                 <OptionRow
@@ -260,7 +263,7 @@ export default function OrderQuantityScreen() {
                     setCutStyles({ ...z, [cs.key]: qty });
                   }}
                   label={cs.labelAz}
-                  sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : "Pulsuz"}
+                  sub={cs.fee > 0 ? `+${cs.fee * qty} AZN` : t(lang, "dist_freeLabel")}
                   subGreen={cs.fee === 0}
                 />
               ))}
@@ -269,7 +272,7 @@ export default function OrderQuantityScreen() {
         )}
 
         {needsHead && (
-          <Section label="BAŞ VƏ AYAQLAR" error={partsError}>
+          <Section label={t(lang, "qty_headFeetLabel")} error={partsError}>
             <View style={styles.optGrid}>
               {activeHeadOptions.map((opt) => {
                 const on = (headBuckets[opt.key] || 0) > 0;
@@ -285,7 +288,7 @@ export default function OrderQuantityScreen() {
                       setFeetBuckets({ ...fZ, [opt.key]: feetTotal });
                     }}
                     label={opt.labelAz}
-                    sub={fee > 0 ? `+${fee * qty} AZN` : "Pulsuz"}
+                    sub={fee > 0 ? `+${fee * qty} AZN` : t(lang, "dist_freeLabel")}
                     subGreen={fee === 0}
                   />
                 );
@@ -294,36 +297,36 @@ export default function OrderQuantityScreen() {
           </Section>
         )}
 
-        <Section label="QEYDLƏR">
+        <Section label={t(lang, "qty_notesLabel")}>
           <TextInput
             style={styles.notesInput}
             value={notes}
             onChangeText={setNotes}
-            placeholder="Xüsusi istəklərinizi qeyd edin..."
+            placeholder={t(lang, "qty_notesPlaceholder")}
             placeholderTextColor="#9ca3af"
             multiline
             numberOfLines={3}
           />
         </Section>
 
-        <Section label="KƏSİM TARİXİ" Icon={CalendarDays}>
-          <View style={{ padding: 8, gap: 8 }}>
+        <Section label={t(lang, "qty_slaughterDateLabel")} Icon={CalendarDays}>
+          <View style={{ padding: scale(8), gap: scale(8) }}>
             <Pressable
               style={[styles.dateQuickBtn, isTomorrow(selectedDate) && !showDatePicker && styles.dateQuickBtnActive]}
               onPress={() => { setSelectedDate(getTomorrow()); setShowDatePicker(false); }}
             >
-              <Text style={[styles.dateQuickLabel, isTomorrow(selectedDate) && !showDatePicker && { color: BRAND }]}>Sabah</Text>
+              <Text style={[styles.dateQuickLabel, isTomorrow(selectedDate) && !showDatePicker && { color: BRAND }]}>{t(lang, "qty_tomorrow")}</Text>
               <Text style={styles.dateQuickSub}>{dateLabel(getTomorrow())}</Text>
             </Pressable>
             <Pressable style={styles.dateOtherBtn} onPress={() => setShowDatePicker((v) => !v)}>
               <CalendarDays size={14} color={BRAND} />
               <Text style={styles.dateOtherLabel}>
-                {!isTomorrow(selectedDate) ? dateLabel(selectedDate) : "Başqa tarix seç"}
+                {!isTomorrow(selectedDate) ? dateLabel(selectedDate) : t(lang, "qty_otherDatePick")}
               </Text>
-              <Text style={{ color: "#9ca3af", fontSize: 11 }}>{showDatePicker ? "▲" : "▼"}</Text>
+              <Text style={{ color: "#9ca3af", fontSize: scaleFont(11) }}>{showDatePicker ? "▲" : "▼"}</Text>
             </Pressable>
             {showDatePicker && (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: scale(6) }}>
                 {dateOptions.map((d) => {
                   const sel = d.toDateString() === selectedDate.toDateString();
                   return (
@@ -341,7 +344,7 @@ export default function OrderQuantityScreen() {
           </View>
         </Section>
 
-        <Section label="ÇATDIRILMA VAXTI" Icon={Clock}>
+        <Section label={t(lang, "qty_deliveryTimeLabel")} Icon={Clock}>
           <View style={styles.timeGrid}>
             {deliveryWindows.map((slot) => (
               <Pressable
@@ -358,14 +361,14 @@ export default function OrderQuantityScreen() {
 
       <View style={[styles.priceBar, { paddingBottom: insets.bottom + 10 }]}>
         <View>
-          <Text style={styles.priceBarLabel}>ÜMUMİ MƏBLƏĞ</Text>
-          <View style={{ flexDirection: "row", alignItems: "baseline", gap: 4 }}>
+          <Text style={styles.priceBarLabel}>{t(lang, "qty_totalAmountLabel")}</Text>
+          <View style={{ flexDirection: "row", alignItems: "baseline", gap: scale(4) }}>
             <Text style={styles.priceBarValue}>{totalPrice}</Text>
             <Text style={styles.priceBarUnit}>AZN</Text>
           </View>
         </View>
         <Pressable style={styles.continueBtn} onPress={handleContinue}>
-          <Text style={styles.continueBtnText}>Davam et</Text>
+          <Text style={styles.continueBtnText}>{t(lang, "continue")}</Text>
           <ArrowRight size={16} color={BRAND} strokeWidth={2.5} />
         </Pressable>
       </View>
@@ -375,76 +378,76 @@ export default function OrderQuantityScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#f2f5f2" },
-  pageTitle: { fontSize: 16, fontWeight: "800", color: "#171717" },
+  pageTitle: { fontSize: scaleFont(19), fontWeight: "900", color: "#171717" },
 
-  animalCard: { flexDirection: "row", backgroundColor: "#fff", borderRadius: 14, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
-  animalImgWrap: { width: 200, aspectRatio: 1.5, alignItems: "center", justifyContent: "center", backgroundColor: "#e8f5e9" },
+  animalCard: { flexDirection: "row", backgroundColor: "#fff", borderRadius: scale(14), overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
+  animalImgWrap: { width: scale(220), aspectRatio: 1.5, alignItems: "center", justifyContent: "center", backgroundColor: "#e8f5e9" },
   animalImg: { width: "100%", height: "100%" },
-  animalMuted: { fontSize: 9, fontWeight: "700", letterSpacing: 0.5, color: "#a3a3a3" },
-  animalName: { fontSize: 15, fontWeight: "800", color: "#171717", marginTop: 2 },
-  animalPrice: { fontSize: 20, fontWeight: "900", color: BRAND },
-  animalPriceUnit: { fontSize: 11, fontWeight: "600", color: "#a3a3a3" },
-  qtyLabel: { fontSize: 9, fontWeight: "700", color: "#a3a3a3", letterSpacing: 0.5 },
-  qtyBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: BRAND, alignItems: "center", justifyContent: "center" },
+  animalMuted: { fontSize: scaleFont(10), fontWeight: "700", letterSpacing: 0.5, color: "#a3a3a3" },
+  animalName: { fontSize: scaleFont(17), fontWeight: "900", color: "#171717", marginTop: scale(2) },
+  animalPrice: { fontSize: scaleFont(22), fontWeight: "900", color: BRAND },
+  animalPriceUnit: { fontSize: scaleFont(12), fontWeight: "600", color: "#a3a3a3" },
+  qtyLabel: { fontSize: scaleFont(10), fontWeight: "700", color: "#a3a3a3", letterSpacing: 0.5 },
+  qtyBtn: { width: scale(42), height: scale(42), borderRadius: scale(12), backgroundColor: BRAND, alignItems: "center", justifyContent: "center" },
   qtyBtnDisabled: { backgroundColor: "#e5e7eb" },
-  qtyBtnText: { color: "#fff", fontSize: 20, fontWeight: "800" },
-  qtyValue: { width: 28, textAlign: "center", fontSize: 18, fontWeight: "900", color: BRAND },
+  qtyBtnText: { color: "#fff", fontSize: scaleFont(21), fontWeight: "800" },
+  qtyValue: { width: scale(30), textAlign: "center", fontSize: scaleFont(19), fontWeight: "900", color: BRAND },
 
-  section: { backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 6, elevation: 1 },
+  section: { backgroundColor: "#fff", borderRadius: scale(12), overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 6, elevation: 1 },
   sectionError: { borderWidth: 1.5, borderColor: "#f87171" },
-  sectionHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 10, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
+  sectionHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(10), paddingVertical: scale(7), borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
   sectionHeadError: { backgroundColor: "#fef2f2", borderBottomColor: "#fecaca" },
-  sectionLabel: { fontSize: 9.5, fontWeight: "800", letterSpacing: 0.8, color: "#9ca3af" },
-  sectionErrorText: { fontSize: 9.5, fontWeight: "800", color: "#ef4444" },
+  sectionLabel: { fontSize: scaleFont(11), fontWeight: "800", letterSpacing: 0.8, color: "#9ca3af" },
+  sectionErrorText: { fontSize: scaleFont(11), fontWeight: "800", color: "#ef4444" },
 
-  optGrid: { padding: 10, flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  opt: { width: "47%", flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 10, borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: 10, paddingVertical: 9 },
+  optGrid: { padding: scale(10), flexDirection: "row", flexWrap: "wrap", gap: scale(8) },
+  opt: { width: "47%", flexDirection: "row", alignItems: "center", gap: scale(8), borderRadius: scale(10), borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: scale(10), paddingVertical: scale(10) },
   optSelected: { borderColor: BRAND, backgroundColor: "#e7f3ea" },
-  radio: { width: 15, height: 15, borderRadius: 8, borderWidth: 2, borderColor: "#d1d5db", alignItems: "center", justifyContent: "center" },
+  radio: { width: scale(16), height: scale(16), borderRadius: scale(8), borderWidth: 2, borderColor: "#d1d5db", alignItems: "center", justifyContent: "center" },
   radioSelected: { borderColor: BRAND, backgroundColor: BRAND },
-  radioDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#fff" },
-  optLabel: { fontSize: 12, fontWeight: "600", color: "#171717" },
-  optSub: { fontSize: 10, fontWeight: "800", marginTop: 1 },
+  radioDot: { width: scale(6), height: scale(6), borderRadius: scale(3), backgroundColor: "#fff" },
+  optLabel: { fontSize: scaleFont(13.5), fontWeight: "700", color: "#171717" },
+  optSub: { fontSize: scaleFont(11.5), fontWeight: "800", marginTop: scale(1) },
 
-  pillGrid: { padding: 10, flexDirection: "row", flexWrap: "wrap", gap: 6 },
-  weightPill: { width: "48%", borderRadius: 10, borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: 10, paddingVertical: 9 },
+  pillGrid: { padding: scale(10), flexDirection: "row", flexWrap: "wrap", gap: scale(6) },
+  weightPill: { width: "48%", borderRadius: scale(10), borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: scale(10), paddingVertical: scale(10) },
   weightPillSelected: { borderColor: BRAND, backgroundColor: "#e7f3ea" },
-  weightPillLabel: { fontSize: 11, fontWeight: "700", color: "#171717" },
+  weightPillLabel: { fontSize: scaleFont(12.5), fontWeight: "700", color: "#171717" },
 
-  notesInput: { margin: 10, minHeight: 70, borderRadius: 10, borderWidth: 1.5, borderColor: "#e5e7eb", backgroundColor: "#f9fafb", padding: 10, fontSize: 13, color: "#171717", textAlignVertical: "top" },
+  notesInput: { margin: scale(10), minHeight: scale(70), borderRadius: scale(10), borderWidth: 1.5, borderColor: "#e5e7eb", backgroundColor: "#f9fafb", padding: scale(10), fontSize: scaleFont(13), color: "#171717", textAlignVertical: "top" },
 
-  dateQuickBtn: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: 10, borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: 14, paddingVertical: 11 },
+  dateQuickBtn: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: scale(10), borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: scale(14), paddingVertical: scale(11) },
   dateQuickBtnActive: { borderColor: BRAND, backgroundColor: "#e7f3ea" },
-  dateQuickLabel: { fontSize: 13, fontWeight: "800", color: "#171717" },
-  dateQuickSub: { fontSize: 11, fontWeight: "600", color: "#9ca3af" },
-  dateOtherBtn: { flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 10, borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: 14, paddingVertical: 9 },
-  dateOtherLabel: { flex: 1, fontSize: 12, fontWeight: "600", color: "#171717" },
-  dateCell: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: "#f7f8f7", borderWidth: 1, borderColor: "#e5e7eb" },
+  dateQuickLabel: { fontSize: scaleFont(14.5), fontWeight: "800", color: "#171717" },
+  dateQuickSub: { fontSize: scaleFont(12), fontWeight: "600", color: "#9ca3af" },
+  dateOtherBtn: { flexDirection: "row", alignItems: "center", gap: scale(8), borderRadius: scale(10), borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingHorizontal: scale(14), paddingVertical: scale(10) },
+  dateOtherLabel: { flex: 1, fontSize: scaleFont(13), fontWeight: "600", color: "#171717" },
+  dateCell: { paddingHorizontal: scale(13), paddingVertical: scale(9), borderRadius: scale(8), backgroundColor: "#f7f8f7", borderWidth: 1, borderColor: "#e5e7eb" },
   dateCellSelected: { backgroundColor: BRAND, borderColor: BRAND },
-  dateCellText: { fontSize: 11, fontWeight: "700", color: "#171717" },
+  dateCellText: { fontSize: scaleFont(12.5), fontWeight: "700", color: "#171717" },
 
-  timeGrid: { padding: 10, flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  timeSlot: { width: "47%", alignItems: "center", borderRadius: 10, borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingVertical: 10 },
+  timeGrid: { padding: scale(10), flexDirection: "row", flexWrap: "wrap", gap: scale(8) },
+  timeSlot: { width: "47%", alignItems: "center", borderRadius: scale(10), borderWidth: 2, borderColor: "#e5e7eb", backgroundColor: "#f7f8f7", paddingVertical: scale(11) },
   timeSlotSelected: { borderColor: BRAND, backgroundColor: "#e7f3ea" },
-  timeSlotText: { fontSize: 11, fontWeight: "700", color: "#171717" },
+  timeSlotText: { fontSize: scaleFont(12.5), fontWeight: "700", color: "#171717" },
 
   priceBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
+    paddingHorizontal: scale(16),
+    paddingTop: scale(12),
+    borderTopLeftRadius: scale(18),
+    borderTopRightRadius: scale(18),
     backgroundColor: BRAND,
     shadowColor: BRAND,
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 6,
   },
-  priceBarLabel: { fontSize: 9, fontWeight: "800", color: "rgba(255,255,255,0.55)", letterSpacing: 1 },
-  priceBarValue: { fontSize: 26, fontWeight: "900", color: "#fff" },
-  priceBarUnit: { fontSize: 13, fontWeight: "700", color: "rgba(255,255,255,0.6)" },
-  continueBtn: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#fff", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10 },
-  continueBtnText: { fontSize: 13, fontWeight: "800", color: BRAND },
+  priceBarLabel: { fontSize: scaleFont(10), fontWeight: "800", color: "rgba(255,255,255,0.55)", letterSpacing: 1 },
+  priceBarValue: { fontSize: scaleFont(28), fontWeight: "900", color: "#fff" },
+  priceBarUnit: { fontSize: scaleFont(14), fontWeight: "700", color: "rgba(255,255,255,0.6)" },
+  continueBtn: { flexDirection: "row", alignItems: "center", gap: scale(6), backgroundColor: "#fff", borderRadius: scale(12), paddingHorizontal: scale(18), paddingVertical: scale(12) },
+  continueBtnText: { fontSize: scaleFont(14.5), fontWeight: "800", color: BRAND },
 });

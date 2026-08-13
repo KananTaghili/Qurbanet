@@ -1,10 +1,29 @@
 import { useState } from "react";
 import { View, Text, TextInput, Image, Pressable, StyleSheet, FlatList } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import Svg from "react-native-svg";
 import { X, Search, Check, UtensilsCrossed } from "lucide-react-native";
+import { scale, scaleFont } from "../../lib/scale";
+import { useLanguage } from "../../context/LanguageContext";
+import { t } from "../../i18n/i18n";
+import { BodyShape, VIEWBOX, ANIMAL_COLOR } from "./AnimalBodyMap";
 
 const BRAND = "#4B0F0F";
 
-export default function MeatFoodFilterModal({ foods, initialSelectedIds, onApply, onClose }) {
+// Yemək kartının künc nişanı üçün — heyvan bədən xəritəsindəki (AnimalBodyMap)
+// eyni vektor siluetlərdən istifadə olunur, foto deyil.
+const FOOD_ANIMAL_BADGE_KEYS = ["qoyun", "dana"];
+
+function AnimalBadgeIcon({ animalKey, size }) {
+  return (
+    <Svg viewBox={VIEWBOX} width={size} height={size}>
+      <BodyShape animalKey={animalKey} color={ANIMAL_COLOR} />
+    </Svg>
+  );
+}
+
+export default function MeatFoodFilterModal({ foods, foodAnimalMap, initialSelectedIds, onApply, onClose }) {
+  const { lang } = useLanguage();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(initialSelectedIds || []);
 
@@ -16,18 +35,18 @@ export default function MeatFoodFilterModal({ foods, initialSelectedIds, onApply
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.header}>
-        <Text style={styles.title}>Yeməklərə görə filtrlə</Text>
+        <Text style={styles.title}>{t(lang, "foodFilter_title")}</Text>
         <Pressable onPress={onClose} style={styles.closeBtn}>
-          <X size={16} color="#a8a29e" />
+          <X size={18} color="#a8a29e" />
         </Pressable>
       </View>
 
       <View style={styles.searchWrap}>
-        <Search size={13} color="#a8a29e" style={{ marginRight: 6 }} />
+        <Search size={15} color="#a8a29e" style={{ marginRight: scale(7) }} />
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Yemək adına görə axtar..."
+          placeholder={t(lang, "foodFilter_searchPlaceholder")}
           placeholderTextColor="#a8a29e"
           style={styles.searchInput}
         />
@@ -35,31 +54,47 @@ export default function MeatFoodFilterModal({ foods, initialSelectedIds, onApply
 
       {filtered.length === 0 ? (
         <View style={styles.emptyBox}>
-          <Text style={styles.emptyText}>Yemək tapılmadı.</Text>
+          <Text style={styles.emptyText}>{t(lang, "foodFilter_empty")}</Text>
         </View>
       ) : (
         <FlatList
           data={filtered}
           keyExtractor={(f) => f._id}
-          numColumns={3}
-          contentContainerStyle={{ padding: 14, gap: 8 }}
-          columnWrapperStyle={{ gap: 8 }}
+          numColumns={2}
+          contentContainerStyle={{ padding: scale(14), gap: scale(10) }}
+          columnWrapperStyle={{ gap: scale(10), justifyContent: "flex-start" }}
           renderItem={({ item: f }) => {
             const isSel = selected.includes(f._id);
+            const animalKeys = [...(foodAnimalMap?.[f._id] || [])].filter(
+              (k) => FOOD_ANIMAL_BADGE_KEYS.includes(k),
+            );
             return (
               <Pressable style={[styles.foodTile, isSel && styles.foodTileSelected]} onPress={() => toggle(f._id)}>
                 {f.imageUrl ? (
                   <Image source={{ uri: f.imageUrl }} style={StyleSheet.absoluteFill} resizeMode="cover" />
                 ) : (
                   <View style={styles.foodTileFallback}>
-                    <UtensilsCrossed size={20} color="rgba(75,15,15,0.4)" />
+                    <UtensilsCrossed size={28} color="rgba(75,15,15,0.4)" />
                   </View>
                 )}
-                <View style={styles.foodTileShade} />
+                <LinearGradient
+                  colors={["transparent", "rgba(0,0,0,0.7)"]}
+                  style={styles.foodTileGradient}
+                />
+                {/* Bu yeməyin hansı heyvan(lar)a aid olduğunu göstərən künc
+                    nişanları — istifadəçi qoyun səhifəsindəykən dana yeməyi
+                    seçəndə "niyə heç nə çıxmır" çaşqınlığının qarşısını alır. */}
+                {animalKeys.length > 0 && (
+                  <View style={styles.foodTileBadgeRow}>
+                    {animalKeys.map((k) => (
+                      <AnimalBadgeIcon key={k} animalKey={k} size={scale(38)} />
+                    ))}
+                  </View>
+                )}
                 {isSel && (
                   <View style={styles.foodTileCheckWrap}>
                     <View style={styles.foodTileCheck}>
-                      <Check size={14} strokeWidth={3} color={BRAND} />
+                      <Check size={18} strokeWidth={3} color={BRAND} />
                     </View>
                   </View>
                 )}
@@ -76,10 +111,10 @@ export default function MeatFoodFilterModal({ foods, initialSelectedIds, onApply
           onPress={() => { setSelected([]); onApply([]); }}
           style={styles.clearBtn}
         >
-          <Text style={[styles.clearBtnText, selected.length === 0 && { opacity: 0.4 }]}>Təmizlə</Text>
+          <Text style={[styles.clearBtnText, selected.length === 0 && { opacity: 0.4 }]}>{t(lang, "foodFilter_clear")}</Text>
         </Pressable>
         <Pressable style={styles.applyBtn} onPress={() => onApply(selected)}>
-          <Text style={styles.applyBtnText}>Filtrlə{selected.length > 0 ? ` (${selected.length})` : ""}</Text>
+          <Text style={styles.applyBtnText}>{t(lang, "foodFilter_apply")}{selected.length > 0 ? ` (${selected.length})` : ""}</Text>
         </Pressable>
       </View>
     </View>
@@ -89,40 +124,41 @@ export default function MeatFoodFilterModal({ foods, initialSelectedIds, onApply
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 16, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: "#f0ede8",
+    paddingHorizontal: scale(18), paddingVertical: scale(15), borderBottomWidth: 1, borderBottomColor: "#f0ede8",
   },
-  title: { fontSize: 13.5, fontWeight: "800", color: "#292524" },
-  closeBtn: { width: 28, height: 28, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f4" },
+  title: { fontSize: scaleFont(16), fontWeight: "800", color: "#292524" },
+  closeBtn: { width: scale(32), height: scale(32), borderRadius: scale(9), alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f4" },
 
   searchWrap: {
-    flexDirection: "row", alignItems: "center", margin: 14, marginBottom: 0,
-    height: 34, borderRadius: 10, borderWidth: 1, borderColor: "#eee", paddingHorizontal: 10, backgroundColor: "#fff",
+    flexDirection: "row", alignItems: "center", margin: scale(16), marginBottom: 0,
+    height: scale(42), borderRadius: scale(12), borderWidth: 1, borderColor: "#eee", paddingHorizontal: scale(12), backgroundColor: "#fff",
   },
-  searchInput: { flex: 1, fontSize: 12.5, fontWeight: "500", color: "#292524", padding: 0 },
+  searchInput: { flex: 1, fontSize: scaleFont(14.5), fontWeight: "500", color: "#292524", padding: 0 },
 
   emptyBox: { flex: 1, alignItems: "center", justifyContent: "center" },
-  emptyText: { fontSize: 12.5, color: "#a8a29e", fontWeight: "600" },
+  emptyText: { fontSize: scaleFont(14), color: "#a8a29e", fontWeight: "600" },
 
   foodTile: {
-    flex: 1, aspectRatio: 1, borderRadius: 12, overflow: "hidden",
+    width: "48%", aspectRatio: 1, borderRadius: scale(14), overflow: "hidden",
     borderWidth: 2, borderColor: "#eee", backgroundColor: "#F1E5E5",
   },
   foodTileSelected: { borderColor: BRAND },
   foodTileFallback: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
-  foodTileShade: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.28)" },
+  foodTileGradient: { position: "absolute", left: 0, right: 0, bottom: 0, height: "42%" },
+  foodTileBadgeRow: { position: "absolute", top: scale(6), right: scale(6), flexDirection: "row", gap: scale(4) },
   foodTileCheckWrap: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(75,15,15,0.25)", alignItems: "center", justifyContent: "center" },
-  foodTileCheck: { width: 24, height: 24, borderRadius: 12, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" },
+  foodTileCheck: { width: scale(30), height: scale(30), borderRadius: scale(15), backgroundColor: "#fff", alignItems: "center", justifyContent: "center" },
   foodTileName: {
-    position: "absolute", left: 6, right: 6, bottom: 5,
-    fontSize: 10, fontWeight: "800", color: "#fff",
+    position: "absolute", left: scale(9), right: scale(9), bottom: scale(8),
+    fontSize: scaleFont(14), fontWeight: "800", color: "#fff",
   },
 
   footer: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: 1, borderTopColor: "#f0ede8",
+    flexDirection: "row", alignItems: "center", gap: scale(10),
+    paddingHorizontal: scale(16), paddingVertical: scale(14), borderTopWidth: 1, borderTopColor: "#f0ede8",
   },
-  clearBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10 },
-  clearBtnText: { fontSize: 12, fontWeight: "700", color: "#57534e" },
-  applyBtn: { marginLeft: "auto", backgroundColor: BRAND, paddingVertical: 10, paddingHorizontal: 18, borderRadius: 12 },
-  applyBtnText: { fontSize: 12.5, fontWeight: "800", color: "#fff" },
+  clearBtn: { paddingVertical: scale(11), paddingHorizontal: scale(16), borderRadius: scale(12) },
+  clearBtnText: { fontSize: scaleFont(14), fontWeight: "700", color: "#57534e" },
+  applyBtn: { marginLeft: "auto", backgroundColor: BRAND, paddingVertical: scale(12), paddingHorizontal: scale(22), borderRadius: scale(14) },
+  applyBtnText: { fontSize: scaleFont(14.5), fontWeight: "800", color: "#fff" },
 });

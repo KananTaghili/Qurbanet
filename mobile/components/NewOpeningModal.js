@@ -15,15 +15,18 @@ import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { X, Shield } from "lucide-react-native";
 import { useAuth } from "../context/AuthContext";
-import { toE164 } from "../lib/format";
+import { formatPhone, toE164, isValidAzPhone, AZ_OPERATORS } from "../lib/phone";
 import api from "../lib/api";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
+import InlineAuth from "./InlineAuth";
 
 const PURPLE_MID = "#5b21b6";
 const DARK = "#241a4d";
-const STEPS = ["Heyvan növü", "Ödəniş", "Təsdiq"];
 
-function userFullName(user) {
-  return [user?.name, user?.lastName].filter(Boolean).join(" ").trim() || "İstifadəçi";
+function userFullName(user, lang) {
+  return [user?.name, user?.lastName].filter(Boolean).join(" ").trim() || t(lang, "donateModal_defaultUser");
 }
 function initials2(name) {
   return (name || "?").split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
@@ -43,6 +46,8 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isGuest, user } = useAuth();
+  const { lang } = useLanguage();
+  const STEPS = [t(lang, "newOpening_stepAnimalType"), t(lang, "newOpening_stepAmount"), t(lang, "newOpening_stepPaymentConfirm")];
 
   const [step, setStep] = useState(0);
   const [loadingSettings, setLoadingSettings] = useState(true);
@@ -59,6 +64,7 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [payUrl, setPayUrl] = useState(null);
+  const [authPhase, setAuthPhase] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -73,6 +79,7 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
     setError("");
     setPayUrl(null);
     setLoadingSettings(true);
+    setAuthPhase(false);
 
     api.get("/campaigns/settings")
       .then((res) => {
@@ -87,7 +94,7 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
         const first = preselected || list.find((a) => (a.activeCount || 0) < maxPer) || list[0];
         if (first) setSelAnimalId(first._id);
       })
-      .catch(() => setError("Heyvan siyahısı yüklənmədi."))
+      .catch(() => setError(t(lang, "newOpening_animalListError")))
       .finally(() => setLoadingSettings(false));
   }, [visible]);
 
@@ -100,7 +107,10 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
   const numAmount = Number(amount || 0);
   const validAmt = animal ? numAmount >= minAmount && numAmount <= animal.price : false;
   const remaining = animal ? Math.max(animal.price - numAmount, 0) : 0;
-  const finalValid = !isGuest || contMode === "registered" || (contMode === "guest" && guestName.trim() && guestLastName.trim());
+  const guestPhoneDigits = guestPhone.replace(/\D/g, "");
+  const guestPhonePrefix = guestPhoneDigits.startsWith("0") ? guestPhoneDigits.slice(1, 3) : guestPhoneDigits.slice(0, 2);
+  const guestPhoneOperatorInvalid = guestPhoneDigits.length >= 2 && !AZ_OPERATORS.includes(guestPhonePrefix);
+  const finalValid = !isGuest || contMode === "registered" || (contMode === "guest" && guestName.trim() && guestLastName.trim() && isValidAzPhone(guestPhone));
 
   const goNext = () => {
     setError("");
@@ -118,11 +128,6 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
     setStep((s) => Math.max(0, s - 1));
   };
 
-  const handleGoLogin = () => {
-    onClose();
-    navigation.navigate("Login");
-  };
-
   const handleWebViewNav = (navState) => {
     if (!isResultUrl(navState.url)) return;
     setPayUrl(null);
@@ -138,20 +143,23 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
       onClose();
       onSuccess?.({ campaignId, role, amount });
     } else {
-      setError("Ödəniş uğursuz oldu. Yenidən cəhd edin.");
+      setError(t(lang, "donateModal_paymentFailed"));
     }
   };
 
-  const handleConfirm = async () => {
-    if (!finalValid || !animal) return;
-    if (isGuest && contMode === "registered") {
-      handleGoLogin();
-      return;
+  const handleConfirm = async (overrideUser) => {
+    if (!animal) return;
+    if (!overrideUser) {
+      if (!finalValid) return;
+      if (isGuest && contMode === "registered") {
+        setAuthPhase(true);
+        return;
+      }
     }
     setSubmitting(true);
     setError("");
     try {
-      const isGuestMode = isGuest && contMode === "guest";
+      const isGuestMode = isGuest && contMode === "guest" && !overrideUser;
       const body = {
         animalId: animal._id,
         amount: numAmount,
@@ -159,7 +167,7 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
         note: note || undefined,
         ...(!isAnon
           ? {
-              openerName: isGuestMode ? `${guestName.trim()} ${guestLastName.trim()}` : userFullName(user),
+              openerName: isGuestMode ? `${guestName.trim()} ${guestLastName.trim()}` : userFullName(overrideUser || user, lang),
               ...(isGuestMode ? { openerPhone: toE164(guestPhone) } : {}),
             }
           : {}),
@@ -169,10 +177,15 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
       const r2 = await api.post(`/campaigns/${campaignId}/epoint/start`, { donationId });
       setPayUrl(r2.data.data.redirect_url);
     } catch (err) {
-      setError(err.response?.data?.message || "Xəta baş verdi.");
+      setError(err.response?.data?.message || t(lang, "donateModal_genericError"));
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleAuthed = async (u) => {
+    setAuthPhase(false);
+    await handleConfirm(u);
   };
 
   if (!visible) return null;
@@ -182,10 +195,10 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
       <View style={styles.fullOverlay}>
         <View style={[styles.payHeader, { paddingTop: insets.top + 8 }]}>
           <Pressable style={styles.payCloseBtn} onPress={() => setPayUrl(null)}>
-            <X size={18} color="#374151" />
+            <X size={22} color="#374151" />
           </Pressable>
-          <Text style={styles.payTitle}>MeatBox Ödəniş</Text>
-          <View style={{ width: 32 }} />
+          <Text style={styles.payTitle}>{t(lang, "collModal_payTitle")}</Text>
+          <View style={{ width: scale(32) }} />
         </View>
         <WebView style={{ flex: 1 }} source={{ uri: payUrl }} onNavigationStateChange={handleWebViewNav} startInLoadingState />
       </View>
@@ -196,11 +209,11 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
     <View style={styles.fullOverlay}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.headerTitle}>Yeni Açılış Et</Text>
-          <Text style={styles.headerSub}>Heyvan seçin və minimum {minPct}% ilkin ödəniş edin</Text>
+          <Text style={styles.headerTitle}>{t(lang, "collModal_newOpeningTitle")}</Text>
+          <Text style={styles.headerSub}>{t(lang, "newOpening_headerSubTemplate").replace("{pct}", minPct)}</Text>
         </View>
         <Pressable style={styles.closeBtn} onPress={onClose}>
-          <X size={18} color="#7c6fa0" />
+          <X size={22} color="#7c6fa0" />
         </Pressable>
       </View>
 
@@ -215,14 +228,14 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
         ))}
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 16 }}>
+      <ScrollView contentContainerStyle={{ padding: scale(16), paddingBottom: insets.bottom + 16 }}>
         {loadingSettings ? (
-          <ActivityIndicator size="large" color={PURPLE_MID} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={PURPLE_MID} style={{ marginTop: scale(40) }} />
         ) : (
           <>
             {step === 0 && (
               <View>
-                <Text style={styles.label}>Heyvan növünü seçin</Text>
+                <Text style={styles.label}>{t(lang, "collModal_selectAnimalType")}</Text>
                 <View style={styles.animalGrid}>
                   {animals.map((item) => {
                     const limited = isAtLimit(item);
@@ -237,7 +250,7 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
                         {limited && (
                           <View style={styles.limitOverlay}>
                             <Text style={styles.limitOverlayText}>
-                              Bu heyvan üçün artıq açılış var{"\n"}və limitindədir.
+                              {t(lang, "newOpening_limitOverlayText")}
                             </Text>
                             <Pressable
                               style={styles.limitDonateBtn}
@@ -246,28 +259,35 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
                                 navigation.navigate("CollectiveQurban");
                               }}
                             >
-                              <Text style={styles.limitDonateBtnText}>İanə et</Text>
+                              <Text style={styles.limitDonateBtnText}>{t(lang, "collModal_limitDonateBtn")}</Text>
                             </Pressable>
                           </View>
                         )}
-                        <View style={styles.animalCardTop}>
-                          {item.image ? (
-                            <Image source={{ uri: item.image }} style={styles.animalImg} resizeMode="cover" />
-                          ) : (
-                            <View style={[styles.animalImg, { backgroundColor: "#f3e8ff" }]} />
-                          )}
-                          <View style={{ flex: 1, minWidth: 0 }}>
+                        {item.image ? (
+                          <Image source={{ uri: item.image }} style={styles.animalImg} resizeMode="cover" />
+                        ) : (
+                          <View style={[styles.animalImg, { backgroundColor: "#f3e8ff" }]} />
+                        )}
+                        <View style={styles.animalCardBody}>
+                          <View style={styles.animalCardTop}>
                             <Text style={styles.animalName} numberOfLines={1}>{item.nameAz}</Text>
-                            <Text style={styles.animalSub}>Qurbanlıq seçimi</Text>
+                            {selected && (
+                              <View style={styles.selectedBadge}>
+                                <Text style={styles.selectedBadgeText}>{t(lang, "collModal_selected")}</Text>
+                              </View>
+                            )}
                           </View>
-                        </View>
-                        <View style={styles.animalStatRow}>
-                          <Text style={styles.animalStatLabel}>Diri çəki</Text>
-                          <Text style={styles.animalStatValue}>{item.weightRange || "—"}</Text>
-                        </View>
-                        <View style={styles.animalStatRow}>
-                          <Text style={styles.animalStatLabel}>Qiymət</Text>
-                          <Text style={styles.animalStatValue}>{item.price?.toLocaleString()} AZN</Text>
+                          <Text style={styles.animalSub}>{t(lang, "collModal_animalSub")}</Text>
+                          <View style={styles.animalStatsRow}>
+                            <View style={styles.animalStatBox}>
+                              <Text style={styles.animalStatLabel}>{t(lang, "collModal_liveWeight")}</Text>
+                              <Text style={styles.animalStatValue} numberOfLines={1}>{item.weightRange || "—"}</Text>
+                            </View>
+                            <View style={styles.animalStatBox}>
+                              <Text style={styles.animalStatLabel}>{t(lang, "collModal_price")}</Text>
+                              <Text style={styles.animalStatValue} numberOfLines={1}>{item.price?.toLocaleString()} AZN</Text>
+                            </View>
+                          </View>
                         </View>
                       </Pressable>
                     );
@@ -276,8 +296,8 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
 
                 <View style={styles.anonRow}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.anonTitle}>Anonim açılış</Text>
-                    <Text style={styles.anonSub}>Adınız iştirakçılara göstərilməyəcək</Text>
+                    <Text style={styles.anonTitle}>{t(lang, "collModal_anonOpenTitle")}</Text>
+                    <Text style={styles.anonSub}>{t(lang, "collModal_anonSub")}</Text>
                   </View>
                   <Switch value={isAnon} onValueChange={setIsAnon} trackColor={{ true: PURPLE_MID }} />
                 </View>
@@ -285,27 +305,27 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
             )}
 
             {step === 1 && animal && (
-              <View style={{ gap: 12 }}>
+              <View style={{ gap: scale(12) }}>
                 <View style={styles.summaryBox}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10, flex: 1 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: scale(10), flex: 1 }}>
                     {animal.image ? (
                       <Image source={{ uri: animal.image }} style={styles.summaryImg} resizeMode="cover" />
                     ) : (
                       <View style={[styles.summaryImg, { backgroundColor: "#f3e8ff" }]} />
                     )}
                     <View style={{ flex: 1, minWidth: 0 }}>
-                      <Text style={styles.summaryName}>{animal.nameAz} Qurbanı</Text>
-                      <Text style={styles.summarySub}>Diri çəki: {animal.weightRange} • {animal.price?.toLocaleString()} AZN</Text>
+                      <Text style={styles.summaryName}>{animal.nameAz} {t(lang, "collectiveConfirm_campaignSuffix")}</Text>
+                      <Text style={styles.summarySub}>{t(lang, "newOpening_summarySubTemplate").replace("{weight}", animal.weightRange).replace("{price}", animal.price?.toLocaleString())}</Text>
                     </View>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={styles.summaryMinLabel}>Minimum ilkin ödəniş</Text>
+                    <Text style={styles.summaryMinLabel} numberOfLines={1}>{t(lang, "collModal_minInitialPayment")} ({minPct}%)</Text>
                     <Text style={styles.summaryMinValue}>{minAmount.toLocaleString()} AZN</Text>
                   </View>
                 </View>
 
                 <View>
-                  <Text style={styles.label}>Ödəmək istədiyiniz məbləğ</Text>
+                  <Text style={styles.label}>{t(lang, "collModal_amountLabel")}</Text>
                   <TextInput
                     style={styles.amountInput}
                     value={amount}
@@ -314,17 +334,17 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
                     placeholder={String(minAmount)}
                   />
                   <Text style={[styles.hint, !validAmt && amount !== "" && { color: "#e11d48" }]}>
-                    Minimum {minAmount.toLocaleString()} AZN — heyvanın tam məbləği yığılana qədər minimum {minDon} AZN-lik ianələr qəbul olunacaq.
+                    {t(lang, "newOpening_amountHintTemplate").replace("{min}", minAmount.toLocaleString()).replace("{minDon}", minDon)}
                   </Text>
                 </View>
 
                 <View>
-                  <Text style={styles.label}>Qeyd (istəyə bağlı)</Text>
+                  <Text style={styles.label}>{t(lang, "collModal_noteLabel")}</Text>
                   <TextInput
                     style={styles.noteInput}
                     value={note}
                     onChangeText={setNote}
-                    placeholder="Açılışla bağlı qeyd..."
+                    placeholder={t(lang, "newOpening_notePlaceholder")}
                     placeholderTextColor="#9ca3af"
                     multiline
                   />
@@ -333,107 +353,116 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
             )}
 
             {step === 2 && animal && (
-              <View style={{ gap: 12 }}>
-                {!isGuest ? (
-                  <View style={styles.accountBox}>
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                      <Shield size={12} color={PURPLE_MID} />
-                      <Text style={styles.accountBoxLabel}>Aktiv hesab</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                      <View style={styles.accountAvatar}>
-                        <Text style={styles.accountAvatarText}>{initials2(userFullName(user))}</Text>
-                      </View>
-                      <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={styles.accountName} numberOfLines={1}>{userFullName(user)}</Text>
-                      </View>
-                      <View style={styles.registeredBadge}>
-                        <Text style={styles.registeredBadgeText}>Qeydiyyatlı</Text>
-                      </View>
-                    </View>
-                  </View>
+              <View style={{ gap: scale(12) }}>
+                {authPhase ? (
+                  <InlineAuth onBack={() => setAuthPhase(false)} onAuthed={handleAuthed} />
                 ) : (
                   <>
-                    <View style={{ flexDirection: "row", gap: 8 }}>
-                      <Pressable
-                        style={[styles.contModeBtn, contMode === "registered" && styles.contModeBtnActive]}
-                        onPress={() => setContMode("registered")}
-                      >
-                        <Text style={styles.contModeTitle}>Qeydiyyat ilə</Text>
-                        <Text style={styles.contModeSub}>Hesabınıza daxil olaraq davam edin</Text>
-                      </Pressable>
-                      {settings.allowGuest !== false && (
-                        <Pressable
-                          style={[styles.contModeBtn, contMode === "guest" && styles.contModeBtnActive]}
-                          onPress={() => setContMode("guest")}
-                        >
-                          <Text style={styles.contModeTitle}>Qeydiyyatsız</Text>
-                          <Text style={styles.contModeSub}>Ad soyad ilə davam edin</Text>
-                        </Pressable>
-                      )}
-                    </View>
-                    {contMode === "guest" && (
-                      <View style={{ gap: 8 }}>
-                        <View style={{ flexDirection: "row", gap: 8 }}>
-                          <TextInput style={[styles.textInput, { flex: 1 }]} value={guestName} onChangeText={setGuestName} placeholder="Adınız" placeholderTextColor="#9ca3af" />
-                          <TextInput style={[styles.textInput, { flex: 1 }]} value={guestLastName} onChangeText={setGuestLastName} placeholder="Soyadınız" placeholderTextColor="#9ca3af" />
+                    {!isGuest ? (
+                      <View style={styles.accountBox}>
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: scale(6), marginBottom: scale(8) }}>
+                          <Shield size={16} color={PURPLE_MID} />
+                          <Text style={styles.accountBoxLabel}>{t(lang, "donateModal_activeAccount")}</Text>
                         </View>
-                        <TextInput
-                          style={styles.textInput}
-                          value={guestPhone}
-                          onChangeText={setGuestPhone}
-                          placeholder="+994 50 000 00 00"
-                          placeholderTextColor="#9ca3af"
-                          keyboardType="phone-pad"
-                        />
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: scale(10) }}>
+                          <View style={styles.accountAvatar}>
+                            <Text style={styles.accountAvatarText}>{initials2(userFullName(user, lang))}</Text>
+                          </View>
+                          <View style={{ flex: 1, minWidth: 0 }}>
+                            <Text style={styles.accountName} numberOfLines={1}>{userFullName(user, lang)}</Text>
+                          </View>
+                          <View style={styles.registeredBadge}>
+                            <Text style={styles.registeredBadgeText}>{t(lang, "collModal_registeredBadge")}</Text>
+                          </View>
+                        </View>
+                      </View>
+                    ) : (
+                      <>
+                        <View style={{ flexDirection: "row", gap: scale(8) }}>
+                          <Pressable
+                            style={[styles.contModeBtn, contMode === "registered" && styles.contModeBtnActive]}
+                            onPress={() => setContMode("registered")}
+                          >
+                            <Text style={styles.contModeTitle}>{t(lang, "collModal_contModeRegisteredTitle")}</Text>
+                            <Text style={styles.contModeSub}>{t(lang, "collModal_contModeRegisteredSubAlt")}</Text>
+                          </Pressable>
+                          {settings.allowGuest !== false && (
+                            <Pressable
+                              style={[styles.contModeBtn, contMode === "guest" && styles.contModeBtnActive]}
+                              onPress={() => setContMode("guest")}
+                            >
+                              <Text style={styles.contModeTitle}>{t(lang, "collModal_contModeGuestTitle")}</Text>
+                              <Text style={styles.contModeSub}>{t(lang, "collModal_contModeGuestSubAlt")}</Text>
+                            </Pressable>
+                          )}
+                        </View>
+                        {contMode === "guest" && (
+                          <View style={{ gap: scale(8) }}>
+                            <View style={{ flexDirection: "row", gap: scale(8) }}>
+                              <TextInput style={[styles.textInput, { flex: 1 }]} value={guestName} onChangeText={setGuestName} placeholder={t(lang, "newOpening_firstNamePlaceholder")} placeholderTextColor="#9ca3af" />
+                              <TextInput style={[styles.textInput, { flex: 1 }]} value={guestLastName} onChangeText={setGuestLastName} placeholder={t(lang, "newOpening_lastNamePlaceholder")} placeholderTextColor="#9ca3af" />
+                            </View>
+                            <TextInput
+                              style={styles.textInput}
+                              value={guestPhone}
+                              onChangeText={(v) => setGuestPhone(formatPhone(v))}
+                              placeholder="50 000 00 00"
+                              placeholderTextColor="#9ca3af"
+                              keyboardType="phone-pad"
+                            />
+                            {guestPhoneOperatorInvalid && (
+                              <Text style={styles.phoneErrorText}>{t(lang, "donateModal_invalidOperator")}</Text>
+                            )}
+                          </View>
+                        )}
+                      </>
+                    )}
+
+                    {isAnon && (
+                      <View style={styles.anonNoteBox}>
+                        <Text style={styles.anonNoteText}>
+                          {t(lang, "newOpening_anonNote")}
+                        </Text>
+                      </View>
+                    )}
+
+                    <View style={styles.finalSummary}>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: scale(6), marginBottom: scale(8) }}>
+                        <Shield size={16} color={PURPLE_MID} />
+                        <Text style={styles.accountBoxLabel}>{t(lang, "collModal_openingSummary")}</Text>
+                      </View>
+                      <View style={styles.finalRow}>
+                        <Text style={styles.finalLabel}>{t(lang, "donateModal_animalLabel")}</Text>
+                        <Text style={styles.finalValue}>{animal.nameAz}</Text>
+                      </View>
+                      <View style={styles.finalRow}>
+                        <Text style={styles.finalLabel}>{t(lang, "collModal_finalFullAmount")}</Text>
+                        <Text style={styles.finalValue}>{animal.price?.toLocaleString()} AZN</Text>
+                      </View>
+                      <View style={styles.finalRow}>
+                        <Text style={styles.finalLabel}>{t(lang, "collModal_finalInitialPayment")}</Text>
+                        <Text style={styles.finalValue}>{numAmount.toLocaleString()} AZN</Text>
+                      </View>
+                      <View style={styles.finalRow}>
+                        <Text style={styles.finalLabel}>{t(lang, "collective_anonymous")}</Text>
+                        <Text style={styles.finalValue}>{isAnon ? t(lang, "yesLabel") : t(lang, "noLabel")}</Text>
+                      </View>
+                      <View style={[styles.finalRow, styles.finalRowTotal]}>
+                        <Text style={styles.finalTotalLabel}>{t(lang, "newOpening_remainingLabel")}</Text>
+                        <Text style={styles.finalTotalValue}>{remaining.toLocaleString()} AZN</Text>
+                      </View>
+                    </View>
+
+                    <Text style={styles.finalNote}>
+                      {t(lang, "newOpening_finalNoteTemplate").replace("{minDon}", minDon)}
+                    </Text>
+
+                    {!!error && (
+                      <View style={styles.errorBanner}>
+                        <Text style={styles.errorBannerText}>{error}</Text>
                       </View>
                     )}
                   </>
-                )}
-
-                {isAnon && (
-                  <View style={styles.anonNoteBox}>
-                    <Text style={styles.anonNoteText}>
-                      Qeyd: Anonim ianə seçimini etdiyiniz üçün şəxsi məlumatlarınızın məxfiliyi tam qorunur. İstifadəçilərə açıq olan bölmələrdə adınız "Anonim" olaraq qeyd ediləcəkdir. Aşağıdakı xanalara daxil edilən məlumatlar yalnız sistem təhlükəsizliyi və əməliyyatın tamamlanması üçün tələb olunur, üçüncü şəxslərlə və ya ictimaiyyətlə qətiyyən paylaşılmır.
-                    </Text>
-                  </View>
-                )}
-
-                <View style={styles.finalSummary}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                    <Shield size={12} color={PURPLE_MID} />
-                    <Text style={styles.accountBoxLabel}>Açılış xülasəsi</Text>
-                  </View>
-                  <View style={styles.finalRow}>
-                    <Text style={styles.finalLabel}>Heyvan</Text>
-                    <Text style={styles.finalValue}>{animal.nameAz}</Text>
-                  </View>
-                  <View style={styles.finalRow}>
-                    <Text style={styles.finalLabel}>Tam məbləğ</Text>
-                    <Text style={styles.finalValue}>{animal.price?.toLocaleString()} AZN</Text>
-                  </View>
-                  <View style={styles.finalRow}>
-                    <Text style={styles.finalLabel}>İlkin ödəniş</Text>
-                    <Text style={styles.finalValue}>{numAmount.toLocaleString()} AZN</Text>
-                  </View>
-                  <View style={styles.finalRow}>
-                    <Text style={styles.finalLabel}>Anonim</Text>
-                    <Text style={styles.finalValue}>{isAnon ? "Bəli" : "Xeyr"}</Text>
-                  </View>
-                  <View style={[styles.finalRow, styles.finalRowTotal]}>
-                    <Text style={styles.finalTotalLabel}>Qalan toplanacaq</Text>
-                    <Text style={styles.finalTotalValue}>{remaining.toLocaleString()} AZN</Text>
-                  </View>
-                </View>
-
-                <Text style={styles.finalNote}>
-                  Pay sistemi yoxdur. Tam məbləğ tamamlanana qədər digər istifadəçilər minimum {minDon} AZN ianə edə biləcəklər.
-                </Text>
-
-                {!!error && (
-                  <View style={styles.errorBanner}>
-                    <Text style={styles.errorBannerText}>{error}</Text>
-                  </View>
                 )}
               </View>
             )}
@@ -441,11 +470,11 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
         )}
       </ScrollView>
 
-      {!loadingSettings && (
+      {!loadingSettings && !authPhase && (
         <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
           {step > 0 && (
             <Pressable style={styles.backFooterBtn} onPress={goBack}>
-              <Text style={styles.backFooterBtnText}>Geri</Text>
+              <Text style={styles.backFooterBtnText}>{t(lang, "backBtn")}</Text>
             </Pressable>
           )}
           {step < STEPS.length - 1 ? (
@@ -454,11 +483,11 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
               onPress={goNext}
               disabled={(step === 0 && (!animal || isAtLimit(animal))) || (step === 1 && !validAmt)}
             >
-              <Text style={styles.nextBtnText}>Davam et</Text>
+              <Text style={styles.nextBtnText}>{t(lang, "continue")}</Text>
             </Pressable>
           ) : (
-            <Pressable style={[styles.nextBtn, (!finalValid || submitting) && { opacity: 0.5 }]} onPress={handleConfirm} disabled={!finalValid || submitting}>
-              {submitting ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.nextBtnText}>Açılışı təsdiqlə ✓</Text>}
+            <Pressable style={[styles.nextBtn, (!finalValid || submitting) && { opacity: 0.5 }]} onPress={() => handleConfirm()} disabled={!finalValid || submitting}>
+              {submitting ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.nextBtnText}>{t(lang, "collModal_confirmOpenBtn")}</Text>}
             </Pressable>
           )}
         </View>
@@ -470,89 +499,94 @@ export default function NewOpeningModal({ visible, onClose, onSuccess, preselect
 const styles = StyleSheet.create({
   fullOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#fff", zIndex: 100 },
 
-  header: { flexDirection: "row", alignItems: "flex-start", gap: 10, paddingHorizontal: 16, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#f0ecff", backgroundColor: "#f5f3ff" },
-  headerTitle: { fontSize: 15, fontWeight: "800", color: DARK },
-  headerSub: { fontSize: 11, color: "#7c6fa0", marginTop: 2 },
-  closeBtn: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(124,111,160,0.12)" },
+  header: { flexDirection: "row", alignItems: "flex-start", gap: scale(11), paddingHorizontal: scale(16), paddingBottom: scale(12), borderBottomWidth: 1, borderBottomColor: "#f0ecff", backgroundColor: "#f5f3ff" },
+  headerTitle: { fontSize: scaleFont(18.5), fontWeight: "800", color: DARK },
+  headerSub: { fontSize: scaleFont(13.5), color: "#7c6fa0", marginTop: scale(2) },
+  closeBtn: { width: scale(36), height: scale(36), borderRadius: scale(18), alignItems: "center", justifyContent: "center", backgroundColor: "rgba(124,111,160,0.12)" },
 
-  stepsRow: { flexDirection: "row", justifyContent: "center", gap: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "#f0ecff" },
-  stepItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-  stepDot: { width: 20, height: 20, borderRadius: 10, backgroundColor: "#e8e4f4", alignItems: "center", justifyContent: "center" },
+  stepsRow: { flexDirection: "row", justifyContent: "center", gap: scale(18), paddingVertical: scale(12), borderBottomWidth: 1, borderBottomColor: "#f0ecff" },
+  stepItem: { flexDirection: "row", alignItems: "center", gap: scale(7) },
+  stepDot: { width: scale(24), height: scale(24), borderRadius: scale(12), backgroundColor: "#e8e4f4", alignItems: "center", justifyContent: "center" },
   stepDotActive: { backgroundColor: PURPLE_MID },
   stepDotDone: { backgroundColor: "#10b981" },
-  stepDotText: { fontSize: 10, fontWeight: "800", color: "#7c6fa0" },
-  stepLabel: { fontSize: 11, fontWeight: "600", color: "#7c6fa0" },
+  stepDotText: { fontSize: scaleFont(12.5), fontWeight: "800", color: "#7c6fa0" },
+  stepLabel: { fontSize: scaleFont(13.5), fontWeight: "600", color: "#7c6fa0" },
 
-  label: { fontSize: 12, fontWeight: "700", color: DARK, marginBottom: 8 },
-  hint: { fontSize: 10.5, color: "#7c6fa0", marginTop: 5, lineHeight: 15 },
+  label: { fontSize: scaleFont(15.5), fontWeight: "700", color: DARK, marginBottom: scale(8) },
+  hint: { fontSize: scaleFont(13), color: "#7c6fa0", marginTop: scale(6), lineHeight: moderateScale(17) },
 
-  animalGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  animalCard: { width: "48%", borderRadius: 16, borderWidth: 2, borderColor: "#f3e8ff", padding: 8, position: "relative", overflow: "hidden" },
+  animalGrid: { flexDirection: "row", flexWrap: "wrap", gap: scale(9) },
+  animalCard: { width: "48%", borderRadius: scale(16), borderWidth: 2, borderColor: "#f3e8ff", position: "relative", overflow: "hidden", backgroundColor: "#fff" },
   animalCardSelected: { borderColor: PURPLE_MID, backgroundColor: "#f5f3ff" },
   animalCardLimited: { borderColor: "#e5e7eb", backgroundColor: "#f9fafb" },
-  limitOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 8, backgroundColor: "rgba(241,245,249,0.92)" },
-  limitOverlayText: { backgroundColor: "#334155", color: "#fff", fontSize: 9, fontWeight: "800", textAlign: "center", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, lineHeight: 12 },
-  limitDonateBtn: { backgroundColor: PURPLE_MID, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
-  limitDonateBtnText: { color: "#fff", fontSize: 10, fontWeight: "800" },
-  animalCardTop: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
-  animalImg: { width: 52, height: 32, borderRadius: 8 },
-  animalName: { fontSize: 13, fontWeight: "800", color: DARK },
-  animalSub: { fontSize: 9, fontWeight: "700", color: PURPLE_MID },
-  animalStatRow: { flexDirection: "row", justifyContent: "space-between", backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, marginTop: 3 },
-  animalStatLabel: { fontSize: 9.5, color: "#7c6fa0" },
-  animalStatValue: { fontSize: 9.5, fontWeight: "800", color: DARK },
+  limitOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, alignItems: "center", justifyContent: "center", gap: scale(6), paddingHorizontal: scale(8), backgroundColor: "rgba(241,245,249,0.94)" },
+  limitOverlayText: { backgroundColor: "#334155", color: "#fff", fontSize: scaleFont(11.5), fontWeight: "800", textAlign: "center", borderRadius: scale(10), paddingHorizontal: scale(8), paddingVertical: scale(6), lineHeight: moderateScale(15) },
+  limitDonateBtn: { backgroundColor: PURPLE_MID, borderRadius: scale(999), paddingHorizontal: scale(14), paddingVertical: scale(7) },
+  limitDonateBtnText: { color: "#fff", fontSize: scaleFont(12.5), fontWeight: "800" },
+  animalImg: { width: "100%", height: scale(88) },
+  animalCardBody: { padding: scale(11), gap: scale(6) },
+  animalCardTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: scale(6) },
+  animalName: { flex: 1, fontSize: scaleFont(15.5), fontWeight: "800", color: DARK },
+  selectedBadge: { backgroundColor: PURPLE_MID, borderRadius: scale(999), paddingHorizontal: scale(8), paddingVertical: scale(3) },
+  selectedBadgeText: { color: "#fff", fontSize: scaleFont(11), fontWeight: "800" },
+  animalSub: { fontSize: scaleFont(12), fontWeight: "700", color: PURPLE_MID, marginTop: scale(-3) },
+  animalStatsRow: { flexDirection: "column", gap: scale(5) },
+  animalStatBox: { backgroundColor: "rgba(243,232,255,0.5)", borderRadius: scale(9), paddingHorizontal: scale(10), paddingVertical: scale(6), gap: scale(2) },
+  animalStatLabel: { fontSize: scaleFont(11.5), fontWeight: "600", color: "#7c6fa0" },
+  animalStatValue: { fontSize: scaleFont(14.5), fontWeight: "800", color: DARK },
 
-  anonRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 14, borderRadius: 12, borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.3)", padding: 12 },
-  anonTitle: { fontSize: 13, fontWeight: "700", color: DARK },
-  anonSub: { fontSize: 11, color: "#7c6fa0", marginTop: 1 },
+  anonRow: { flexDirection: "row", alignItems: "center", gap: scale(10), marginTop: scale(11), borderRadius: scale(12), borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.3)", padding: scale(12) },
+  anonTitle: { fontSize: scaleFont(15), fontWeight: "700", color: DARK },
+  anonSub: { fontSize: scaleFont(13), color: "#7c6fa0", marginTop: scale(1) },
 
-  summaryBox: { flexDirection: "row", justifyContent: "space-between", gap: 10, borderRadius: 14, borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.35)", padding: 10 },
-  summaryImg: { width: 44, height: 44, borderRadius: 10 },
-  summaryName: { fontSize: 13, fontWeight: "800", color: DARK },
-  summarySub: { fontSize: 10.5, color: "#7c6fa0", marginTop: 2 },
-  summaryMinLabel: { fontSize: 9.5, color: "#7c6fa0" },
-  summaryMinValue: { fontSize: 13, fontWeight: "800", color: PURPLE_MID },
+  summaryBox: { flexDirection: "row", justifyContent: "space-between", gap: scale(10), borderRadius: scale(14), borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.35)", padding: scale(12) },
+  summaryImg: { width: scale(50), height: scale(50), borderRadius: scale(12) },
+  summaryName: { fontSize: scaleFont(15.5), fontWeight: "800", color: DARK },
+  summarySub: { fontSize: scaleFont(13), color: "#7c6fa0", marginTop: scale(2) },
+  summaryMinLabel: { fontSize: scaleFont(12), color: "#7c6fa0" },
+  summaryMinValue: { fontSize: scaleFont(15.5), fontWeight: "800", color: PURPLE_MID },
 
-  amountInput: { borderRadius: 12, borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.3)", paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: DARK },
-  noteInput: { minHeight: 80, borderRadius: 12, borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.3)", paddingHorizontal: 14, paddingVertical: 10, fontSize: 13, color: DARK, textAlignVertical: "top" },
+  amountInput: { borderRadius: scale(12), borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.3)", paddingHorizontal: scale(15), paddingVertical: scale(12), fontSize: scaleFont(17), color: DARK },
+  noteInput: { minHeight: scale(82), borderRadius: scale(12), borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.3)", paddingHorizontal: scale(15), paddingVertical: scale(12), fontSize: scaleFont(15.5), color: DARK, textAlignVertical: "top" },
 
-  accountBox: { borderRadius: 14, borderWidth: 1, borderColor: "#e9d9ff", backgroundColor: "rgba(243,232,255,0.4)", padding: 10 },
-  accountBoxLabel: { fontSize: 11, fontWeight: "700", color: PURPLE_MID },
-  accountAvatar: { width: 38, height: 38, borderRadius: 19, backgroundColor: PURPLE_MID, alignItems: "center", justifyContent: "center" },
-  accountAvatarText: { fontSize: 13, fontWeight: "900", color: "#fff" },
-  accountName: { fontSize: 13, fontWeight: "800", color: DARK },
-  registeredBadge: { backgroundColor: "#d1fae5", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3 },
-  registeredBadgeText: { fontSize: 9, fontWeight: "800", color: "#047857" },
+  accountBox: { borderRadius: scale(14), borderWidth: 1, borderColor: "#e9d9ff", backgroundColor: "rgba(243,232,255,0.4)", padding: scale(12) },
+  accountBoxLabel: { fontSize: scaleFont(13.5), fontWeight: "700", color: PURPLE_MID },
+  accountAvatar: { width: scale(42), height: scale(42), borderRadius: scale(21), backgroundColor: PURPLE_MID, alignItems: "center", justifyContent: "center" },
+  accountAvatarText: { fontSize: scaleFont(15.5), fontWeight: "900", color: "#fff" },
+  accountName: { fontSize: scaleFont(15.5), fontWeight: "800", color: DARK },
+  registeredBadge: { backgroundColor: "#d1fae5", borderRadius: scale(999), paddingHorizontal: scale(10), paddingVertical: scale(5) },
+  registeredBadgeText: { fontSize: scaleFont(11.5), fontWeight: "800", color: "#047857" },
 
-  contModeBtn: { flex: 1, borderRadius: 14, borderWidth: 2, borderColor: "#f3e8ff", padding: 10 },
+  contModeBtn: { flex: 1, borderRadius: scale(14), borderWidth: 2, borderColor: "#f3e8ff", padding: scale(12) },
   contModeBtnActive: { borderColor: PURPLE_MID, backgroundColor: "#f5f3ff" },
-  contModeTitle: { fontSize: 12.5, fontWeight: "800", color: DARK },
-  contModeSub: { fontSize: 10, color: "#7c6fa0", marginTop: 2 },
+  contModeTitle: { fontSize: scaleFont(15), fontWeight: "800", color: DARK },
+  contModeSub: { fontSize: scaleFont(12.5), color: "#7c6fa0", marginTop: scale(2) },
 
-  textInput: { borderRadius: 10, borderWidth: 1, borderColor: "#e8e4f4", backgroundColor: "#f8f6ff", paddingHorizontal: 12, paddingVertical: 10, fontSize: 12.5, color: DARK },
+  textInput: { borderRadius: scale(10), borderWidth: 1, borderColor: "#e8e4f4", backgroundColor: "#f8f6ff", paddingHorizontal: scale(14), paddingVertical: scale(12), fontSize: scaleFont(15), color: DARK },
+  phoneErrorText: { fontSize: scaleFont(12.5), color: "#e11d48", marginTop: -scale(2) },
 
-  anonNoteBox: { borderRadius: 12, borderWidth: 1, borderColor: "#fde68a", backgroundColor: "rgba(254,243,199,0.5)", padding: 10 },
-  anonNoteText: { fontSize: 10.5, color: "#92400e", lineHeight: 15 },
+  anonNoteBox: { borderRadius: scale(12), borderWidth: 1, borderColor: "#fde68a", backgroundColor: "rgba(254,243,199,0.5)", padding: scale(12) },
+  anonNoteText: { fontSize: scaleFont(13), color: "#92400e", lineHeight: moderateScale(18) },
 
-  finalSummary: { borderRadius: 14, borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.35)", padding: 10 },
-  finalRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
-  finalLabel: { fontSize: 11.5, color: "#7c6fa0" },
-  finalValue: { fontSize: 12, fontWeight: "700", color: DARK },
-  finalRowTotal: { borderTopWidth: 1, borderTopColor: "#e9d9ff", marginTop: 4, paddingTop: 8 },
-  finalTotalLabel: { fontSize: 12.5, fontWeight: "900", color: DARK },
-  finalTotalValue: { fontSize: 13, fontWeight: "900", color: PURPLE_MID },
-  finalNote: { fontSize: 10.5, color: "#9ca3af", lineHeight: 15 },
+  finalSummary: { borderRadius: scale(14), borderWidth: 1, borderColor: "#f3e8ff", backgroundColor: "rgba(243,232,255,0.35)", padding: scale(12) },
+  finalRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: scale(6) },
+  finalLabel: { fontSize: scaleFont(14), color: "#7c6fa0" },
+  finalValue: { fontSize: scaleFont(14.5), fontWeight: "700", color: DARK },
+  finalRowTotal: { borderTopWidth: 1, borderTopColor: "#e9d9ff", marginTop: scale(4), paddingTop: scale(9) },
+  finalTotalLabel: { fontSize: scaleFont(15), fontWeight: "900", color: DARK },
+  finalTotalValue: { fontSize: scaleFont(15.5), fontWeight: "900", color: PURPLE_MID },
+  finalNote: { fontSize: scaleFont(13), color: "#9ca3af", lineHeight: moderateScale(18) },
 
-  errorBanner: { backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#fecaca", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  errorBannerText: { fontSize: 11.5, fontWeight: "700", color: "#dc2626" },
+  errorBanner: { backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#fecaca", borderRadius: scale(10), paddingHorizontal: scale(14), paddingVertical: scale(12) },
+  errorBannerText: { fontSize: scaleFont(14), fontWeight: "700", color: "#dc2626" },
 
-  footer: { flexDirection: "row", gap: 10, paddingHorizontal: 16, paddingTop: 10, borderTopWidth: 1, borderTopColor: "#f0ecff" },
-  backFooterBtn: { flex: 1, borderRadius: 12, borderWidth: 1, borderColor: "#e9d9ff", alignItems: "center", justifyContent: "center", paddingVertical: 12 },
-  backFooterBtnText: { fontSize: 13, fontWeight: "700", color: DARK },
-  nextBtn: { flex: 2, borderRadius: 12, alignItems: "center", justifyContent: "center", paddingVertical: 12, backgroundColor: PURPLE_MID },
-  nextBtnText: { fontSize: 13, fontWeight: "800", color: "#fff" },
+  footer: { flexDirection: "row", gap: scale(10), paddingHorizontal: scale(16), paddingTop: scale(11), borderTopWidth: 1, borderTopColor: "#f0ecff" },
+  backFooterBtn: { flex: 1, borderRadius: scale(12), borderWidth: 1, borderColor: "#e9d9ff", alignItems: "center", justifyContent: "center", paddingVertical: scale(14) },
+  backFooterBtnText: { fontSize: scaleFont(15.5), fontWeight: "700", color: DARK },
+  nextBtn: { flex: 2, borderRadius: scale(12), alignItems: "center", justifyContent: "center", paddingVertical: scale(14), backgroundColor: PURPLE_MID },
+  nextBtnText: { fontSize: scaleFont(15.5), fontWeight: "800", color: "#fff" },
 
-  payHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
-  payCloseBtn: { width: 32, height: 32, borderRadius: 8, borderWidth: 1, borderColor: "#e5e7eb", backgroundColor: "#f8f9fb", alignItems: "center", justifyContent: "center" },
-  payTitle: { fontSize: 13, fontWeight: "800", color: "#171717" },
+  payHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(14), paddingBottom: scale(11), borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
+  payCloseBtn: { width: scale(36), height: scale(36), borderRadius: scale(10), borderWidth: 1, borderColor: "#e5e7eb", backgroundColor: "#f8f9fb", alignItems: "center", justifyContent: "center" },
+  payTitle: { fontSize: scaleFont(16), fontWeight: "800", color: "#171717" },
 });

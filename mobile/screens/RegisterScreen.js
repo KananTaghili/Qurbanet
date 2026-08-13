@@ -6,11 +6,15 @@ import AuthShell from "../components/AuthShell";
 import s from "../components/authFormStyles";
 import api from "../lib/api";
 import { formatPhone, toE164 } from "../lib/format";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 export default function RegisterScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const from = route.params?.from;
+  const { lang } = useLanguage();
   const [mode, setMode] = useState("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -28,9 +32,9 @@ export default function RegisterScreen() {
     if (loading) return;
     setError("");
     if (mode === "phone") {
-      if (phone.replace(/\s/g, "").length < 9) return setError("Düzgün telefon nömrəsi daxil edin.");
+      if (phone.replace(/\s/g, "").length < 9) return setError(t(lang, "authForm_errorPhone"));
     } else if (!email.trim() || !email.includes("@")) {
-      return setError("Düzgün email ünvanı daxil edin.");
+      return setError(t(lang, "authForm_errorEmail"));
     }
 
     setLoading(true);
@@ -55,9 +59,9 @@ export default function RegisterScreen() {
       const status = err.response?.status;
       const msg = err.response?.data?.message;
       if (status === 409) {
-        setError(msg || (mode === "phone" ? "Bu telefon nömrəsi artıq qeydiyyatdan keçib." : "Bu email artıq qeydiyyatdan keçib."));
+        setError(msg || (mode === "phone" ? t(lang, "register_errorPhoneExists") : t(lang, "register_errorEmailExists")));
       } else {
-        setError(msg || "Xəta baş verdi. Yenidən cəhd edin.");
+        setError(msg || t(lang, "authForm_errorGeneric"));
       }
     } finally {
       setLoading(false);
@@ -67,16 +71,16 @@ export default function RegisterScreen() {
   return (
     <AuthShell onBack={() => navigation.goBack()}>
       <View>
-        <Text style={{ fontSize: 20, fontWeight: "800", color: "#111827" }}>Qeydiyyatdan keç</Text>
-        <Text style={{ marginTop: 4, fontSize: 13, color: "#6b7280", marginBottom: 20 }}>
-          Telefon və ya email ilə hesab yaradın.
+        <Text style={{ fontSize: scaleFont(20), fontWeight: "800", color: "#111827" }}>{t(lang, "register_title")}</Text>
+        <Text style={{ marginTop: scale(4), fontSize: scaleFont(13), color: "#6b7280", marginBottom: scale(20) }}>
+          {t(lang, "register_subtitle")}
         </Text>
       </View>
 
       <View style={s.tabRow}>
         {[
-          { key: "phone", Icon: Phone, label: "Telefon" },
-          { key: "email", Icon: Mail, label: "Email" },
+          { key: "phone", Icon: Phone, label: t(lang, "authForm_phoneTab") },
+          { key: "email", Icon: Mail, label: t(lang, "authForm_emailTab") },
         ].map(({ key, Icon, label }) => (
           <Pressable
             key={key}
@@ -90,7 +94,7 @@ export default function RegisterScreen() {
       </View>
 
       <View style={s.field}>
-        <Text style={s.label}>{mode === "phone" ? "Telefon Nömrəsi" : "Email"}</Text>
+        <Text style={s.label}>{mode === "phone" ? t(lang, "login_phoneNumberLabel") : t(lang, "authForm_emailLabel")}</Text>
         {mode === "phone" ? (
           <View style={s.inputBox}>
             <Text style={s.phonePrefix}>AZ +994</Text>
@@ -123,19 +127,19 @@ export default function RegisterScreen() {
       ) : null}
 
       <Pressable
-        style={[s.primaryBtn, loading && s.primaryBtnDisabled, { marginTop: 8 }]}
+        style={[s.primaryBtn, loading && s.primaryBtnDisabled, { marginTop: scale(8) }]}
         onPress={handleSubmit}
         disabled={loading}
       >
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>Kod göndər →</Text>}
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>{t(lang, "register_sendCode")}</Text>}
       </Pressable>
 
       <View style={s.helperRow}>
-        <Text style={s.helperText}>Artıq hesabınız var?</Text>
+        <Text style={s.helperText}>{t(lang, "register_haveAccount")}</Text>
       </View>
 
       <Pressable style={s.outlineBtn} onPress={() => navigation.replace("Login")}>
-        <Text style={s.outlineBtnText}>Daxil ol</Text>
+        <Text style={s.outlineBtnText}>{t(lang, "authForm_loginButton")}</Text>
       </Pressable>
     </AuthShell>
   );

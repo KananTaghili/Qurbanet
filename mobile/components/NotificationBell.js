@@ -9,38 +9,36 @@ import {
   StyleSheet,
   Animated,
 } from "react-native";
-import { Bell, CheckCheck, Package, HeartHandshake, Newspaper, X } from "lucide-react-native";
+import { Bell, CheckCheck, Beef, HeartHandshake, Newspaper, X } from "lucide-react-native";
 import { Knife } from "phosphor-react-native/src/icons/Knife";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 import api from "../lib/api";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
 
-const TABS = [
-  { key: "all", label: "Hamısı" },
-  { key: "qurban", label: "Qurban" },
-  { key: "charity", label: "Xeyriyyə" },
-];
-
-const MODULE_ICON = { qurban: Knife, charity: HeartHandshake, meat: Package, news: Newspaper };
+const MODULE_ICON = { qurban: Knife, charity: HeartHandshake, meat: Beef, news: Newspaper };
 const MODULE_COLOR = { qurban: "#1c5e20", charity: "#5b21b6", meat: "#f97316", news: "#2563eb" };
+const DATE_LOCALE = { az: "az-AZ", ru: "ru-RU", en: "en-US" };
 
-function timeAgo(d) {
+function timeAgo(d, lang) {
   const m = Math.floor((Date.now() - new Date(d)) / 60000);
-  if (m < 1) return "İndicə";
-  if (m < 60) return `${m} dəq.`;
+  if (m < 1) return t(lang, "notif_justNow");
+  if (m < 60) return `${m} ${t(lang, "notif_minShort")}`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} saat`;
+  if (h < 24) return `${h} ${t(lang, "notif_hourShort")}`;
   const dy = Math.floor(h / 24);
-  if (dy < 7) return `${dy} gün`;
-  return new Date(d).toLocaleDateString("az-AZ", { day: "numeric", month: "short" });
+  if (dy < 7) return `${dy} ${t(lang, "notif_dayShort")}`;
+  return new Date(d).toLocaleDateString(DATE_LOCALE[lang] || "az-AZ", { day: "numeric", month: "short" });
 }
 
-function NotificationItem({ n, accentColor }) {
+function NotificationItem({ n, accentColor, lang }) {
   const Icon = MODULE_ICON[n.module] || Bell;
   const moduleColor = MODULE_COLOR[n.module] || accentColor;
   return (
     <View style={styles.item}>
       <View style={[styles.itemIcon, { backgroundColor: moduleColor + "18" }]}>
-        <Icon size={13} color={moduleColor} weight="bold" />
+        <Icon size={18} color={moduleColor} weight="bold" />
       </View>
       <View style={{ flex: 1 }}>
         <Text
@@ -52,7 +50,7 @@ function NotificationItem({ n, accentColor }) {
         {n.body ? (
           <Text style={styles.itemBody} numberOfLines={2}>{n.body}</Text>
         ) : null}
-        <Text style={[styles.itemTime, { color: moduleColor + "99" }]}>{timeAgo(n.createdAt)}</Text>
+        <Text style={[styles.itemTime, { color: moduleColor + "99" }]}>{timeAgo(n.createdAt, lang)}</Text>
       </View>
       {!n.read && <View style={[styles.unreadDot, { backgroundColor: moduleColor }]} />}
     </View>
@@ -60,6 +58,13 @@ function NotificationItem({ n, accentColor }) {
 }
 
 function NotificationPanel({ visible, onClose, accentColor }) {
+  const { lang } = useLanguage();
+  const TABS = [
+    { key: "all", label: t(lang, "allLabel") },
+    { key: "qurban", label: t(lang, "notif_tabQurban") },
+    { key: "charity", label: t(lang, "charity") },
+    { key: "meat", label: t(lang, "notif_tabMeat") },
+  ];
   const [tab, setTab] = useState("all");
   const [nots, setNots] = useState([]);
   const [initialLoad, setInitialLoad] = useState(true);
@@ -113,22 +118,22 @@ function NotificationPanel({ visible, onClose, accentColor }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} />
-      <Animated.View style={[styles.panel, { top: 60, opacity: fade }]}>
+      <Animated.View style={[styles.panel, { top: scale(60), opacity: fade }]}>
         <View style={styles.panelHeader}>
-          <Text style={styles.panelTitle}>Bildirişlər</Text>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <Text style={styles.panelTitle}>{t(lang, "notif_title")}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: scale(8) }}>
             {hasUnread && (
               <Pressable
                 onPress={handleMarkAll}
                 disabled={marking}
                 style={[styles.markAllBtn, { backgroundColor: accentColor + "14" }]}
               >
-                <CheckCheck size={12} color={accentColor} />
-                <Text style={[styles.markAllText, { color: accentColor }]}>Hamısını oxu</Text>
+                <CheckCheck size={16} color={accentColor} />
+                <Text style={[styles.markAllText, { color: accentColor }]}>{t(lang, "notif_markAll")}</Text>
               </Pressable>
             )}
             <Pressable onPress={onClose} style={styles.closeBtn}>
-              <X size={13} color="#94a3b8" />
+              <X size={17} color="#94a3b8" />
             </Pressable>
           </View>
         </View>
@@ -142,7 +147,7 @@ function NotificationPanel({ visible, onClose, accentColor }) {
           ))}
         </View>
 
-        <View style={{ maxHeight: 360 }}>
+        <View style={{ maxHeight: scale(360) }}>
           {initialLoad ? (
             <View style={styles.centerBox}>
               <ActivityIndicator color={accentColor} />
@@ -151,14 +156,14 @@ function NotificationPanel({ visible, onClose, accentColor }) {
             <Animated.View style={{ opacity: contentFade }}>
               {nots.length === 0 ? (
                 <View style={styles.centerBox}>
-                  <Bell size={28} color="#e2e8f0" />
-                  <Text style={styles.emptyText}>Bildiriş yoxdur</Text>
+                  <Bell size={36} color="#e2e8f0" />
+                  <Text style={styles.emptyText}>{t(lang, "notif_empty")}</Text>
                 </View>
               ) : (
                 <FlatList
                   data={nots}
                   keyExtractor={(n) => n._id}
-                  renderItem={({ item }) => <NotificationItem n={item} accentColor={accentColor} />}
+                  renderItem={({ item }) => <NotificationItem n={item} accentColor={accentColor} lang={lang} />}
                   ItemSeparatorComponent={() => <View style={styles.separator} />}
                 />
               )}
@@ -188,7 +193,7 @@ export default function NotificationBell({ accentColor = "#1c5e20", iconColor = 
   return (
     <>
       <Pressable style={styles.bellBtn} onPress={() => setOpen(true)}>
-        <Bell size={18} color={iconColor} />
+        <Bell size={23} color={iconColor} />
         {unreadCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{unreadCount > 99 ? "99+" : unreadCount}</Text>
@@ -202,28 +207,28 @@ export default function NotificationBell({ accentColor = "#1c5e20", iconColor = 
 }
 
 const styles = StyleSheet.create({
-  bellBtn: { width: 34, height: 34, alignItems: "center", justifyContent: "center" },
+  bellBtn: { width: scale(41), height: scale(41), alignItems: "center", justifyContent: "center" },
   badge: {
     position: "absolute",
-    top: -1,
-    right: -1,
-    minWidth: 15,
-    height: 15,
-    borderRadius: 8,
+    top: scale(-1),
+    right: scale(-1),
+    minWidth: scale(17),
+    height: scale(17),
+    borderRadius: scale(9),
     backgroundColor: "#ef4444",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 3,
+    paddingHorizontal: scale(3),
   },
-  badgeText: { color: "#fff", fontSize: 9, fontWeight: "900" },
+  badgeText: { color: "#fff", fontSize: scaleFont(10), fontWeight: "900" },
 
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: "transparent" },
   panel: {
     position: "absolute",
-    right: 12,
-    width: 300,
-    maxWidth: "88%",
-    borderRadius: 16,
+    right: scale(12),
+    width: scale(352),
+    maxWidth: "92%",
+    borderRadius: scale(16),
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
@@ -238,29 +243,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingVertical: 11,
+    paddingHorizontal: scale(15),
+    paddingVertical: scale(13),
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
   },
-  panelTitle: { fontSize: 13, fontWeight: "700", color: "#1e293b" },
-  markAllBtn: { flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 5 },
-  markAllText: { fontSize: 11, fontWeight: "700" },
-  closeBtn: { width: 22, height: 22, borderRadius: 11, alignItems: "center", justifyContent: "center", backgroundColor: "#f1f5f9" },
+  panelTitle: { fontSize: scaleFont(17), fontWeight: "700", color: "#1e293b" },
+  markAllBtn: { flexDirection: "row", alignItems: "center", gap: scale(5), borderRadius: scale(8), paddingHorizontal: scale(10), paddingVertical: scale(7) },
+  markAllText: { fontSize: scaleFont(14), fontWeight: "700" },
+  closeBtn: { width: scale(28), height: scale(28), borderRadius: scale(14), alignItems: "center", justifyContent: "center", backgroundColor: "#f1f5f9" },
 
   tabRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#f1f5f9" },
-  tabBtn: { flex: 1, alignItems: "center", paddingVertical: 10 },
-  tabLabel: { fontSize: 11, fontWeight: "700" },
-  tabIndicator: { marginTop: 6, height: 2.5, width: "60%", borderRadius: 2 },
+  tabBtn: { flex: 1, alignItems: "center", paddingVertical: scale(13) },
+  tabLabel: { fontSize: scaleFont(14), fontWeight: "700" },
+  tabIndicator: { marginTop: scale(6), height: scale(3), width: "60%", borderRadius: scale(2) },
 
-  centerBox: { alignItems: "center", justifyContent: "center", paddingVertical: 40, gap: 8 },
-  emptyText: { fontSize: 12, color: "#94a3b8", fontWeight: "500" },
+  centerBox: { alignItems: "center", justifyContent: "center", paddingVertical: scale(40), gap: scale(8) },
+  emptyText: { fontSize: scaleFont(15), color: "#94a3b8", fontWeight: "500" },
 
-  item: { flexDirection: "row", alignItems: "flex-start", gap: 10, paddingHorizontal: 14, paddingVertical: 11 },
-  itemIcon: { width: 26, height: 26, borderRadius: 13, alignItems: "center", justifyContent: "center", marginTop: 1 },
-  itemTitle: { fontSize: 12 },
-  itemBody: { fontSize: 11, color: "#94a3b8", marginTop: 2, lineHeight: 15 },
-  itemTime: { fontSize: 10, marginTop: 3 },
-  unreadDot: { width: 7, height: 7, borderRadius: 3.5, marginTop: 5 },
-  separator: { height: 1, backgroundColor: "#f8fafc" },
+  item: { flexDirection: "row", alignItems: "flex-start", gap: scale(12), paddingHorizontal: scale(16), paddingVertical: scale(13) },
+  itemIcon: { width: scale(33), height: scale(33), borderRadius: scale(16.5), alignItems: "center", justifyContent: "center", marginTop: scale(1) },
+  itemTitle: { fontSize: scaleFont(15) },
+  itemBody: { fontSize: scaleFont(14), color: "#94a3b8", marginTop: scale(2), lineHeight: moderateScale(18.5) },
+  itemTime: { fontSize: scaleFont(13), marginTop: scale(3) },
+  unreadDot: { width: scale(9), height: scale(9), borderRadius: scale(4.5), marginTop: scale(5) },
+  separator: { height: scale(1), backgroundColor: "#f8fafc" },
 });

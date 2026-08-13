@@ -15,7 +15,14 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "tars_meatbox.az"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,6 +35,18 @@
         }
       ],
       "expo-video"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "431b81c1-7f4a-42df-8412-59408ef1cdc1"
+      }
+    },
+    "owner": "muhammad_01",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/431b81c1-7f4a-42df-8412-59408ef1cdc1"
+    }
   }
 }

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
 import {
-  Menu,
+  ArrowLeft,
   User,
   ClipboardList,
   Video,
@@ -25,65 +25,72 @@ import {
 } from "lucide-react-native";
 import { Knife } from "phosphor-react-native/src/icons/Knife";
 import { useAuth } from "../context/AuthContext";
-import QurbanSideMenu from "../components/QurbanSideMenu";
+import { getInitials } from "../lib/format";
 import NotificationBell from "../components/NotificationBell";
 import HeaderUserMenu from "../components/HeaderUserMenu";
 import QurbanBottomNav from "../components/QurbanBottomNav";
 import api from "../lib/api";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#1c5e20";
-const AZ_MONTHS_SHORT = ["Yan", "Fev", "Mar", "Apr", "May", "İyn", "İyl", "Avq", "Sen", "Okt", "Noy", "Dek"];
 
-function fmtDate(ds) {
+function fmtDate(ds, lang) {
   if (!ds) return "—";
   const d = new Date(ds);
-  return `${d.getDate()} ${AZ_MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${t(lang, "months_short")[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-const STATUS_CFG = {
-  awaiting_payment: { label: "Ödəniş gözlənilir", step: 0 },
-  placed: { label: "Sifariş yoxlanılır", step: 0 },
-  pending_payment: { label: "Ödəniş gözlənilir", step: 0 },
-  confirmed: { label: "Təsdiqləndi", step: 1 },
-  paid: { label: "Ödənilib", step: 1 },
-  slaughtering: { label: "Kəsilir", step: 2 },
-  preparing: { label: "Hazırlanır", step: 3 },
-  delivering: { label: "Çatdırılır", step: 4 },
-  completed: { label: "Tamamlandı", step: 5 },
-  cancelled: { label: "Ləğv edildi", step: -1 },
-};
+function statusCfg(lang) {
+  return {
+    awaiting_payment: { label: t(lang, "orderStatus_awaitingPayment"), step: 0 },
+    placed: { label: t(lang, "orderStatus_placed"), step: 0 },
+    pending_payment: { label: t(lang, "orderStatus_awaitingPayment"), step: 0 },
+    confirmed: { label: t(lang, "orderStatus_confirmed"), step: 1 },
+    paid: { label: t(lang, "orderStatus_paid"), step: 1 },
+    slaughtering: { label: t(lang, "orderStatus_slaughtering"), step: 2 },
+    preparing: { label: t(lang, "orderStatus_preparing"), step: 3 },
+    delivering: { label: t(lang, "orderStatus_delivering"), step: 4 },
+    completed: { label: t(lang, "orderStatus_completed"), step: 5 },
+    cancelled: { label: t(lang, "orderStatus_cancelled"), step: -1 },
+  };
+}
 
-const PIPELINE_STEPS = [
-  { label: "Yoxlanılır", Icon: Clock },
-  { label: "Təsdiq", Icon: CheckCircle2 },
-  { label: "Kəsilir", Icon: Knife },
-  { label: "Hazırlanır", Icon: Package },
-  { label: "Çatdırılır", Icon: Truck },
-  { label: "Tamam", Icon: Star },
-];
+function pipelineSteps(lang) {
+  return [
+    { label: t(lang, "pipeline_checking"), Icon: Clock },
+    { label: t(lang, "pipeline_confirm"), Icon: CheckCircle2 },
+    { label: t(lang, "pipeline_slaughtering"), Icon: Knife },
+    { label: t(lang, "pipeline_preparing"), Icon: Package },
+    { label: t(lang, "pipeline_delivering"), Icon: Truck },
+    { label: t(lang, "pipeline_done"), Icon: Star },
+  ];
+}
 
-function CancelledBadge() {
+function CancelledBadge({ lang }) {
   return (
     <View style={styles.cancelledBadge}>
       <XCircle size={14} color="#DC2626" />
-      <Text style={styles.cancelledText}>Ləğv edildi</Text>
+      <Text style={styles.cancelledText}>{t(lang, "orderStatus_cancelled")}</Text>
     </View>
   );
 }
 
-function Pipeline({ step }) {
+function Pipeline({ step, lang }) {
   if (step < 0) return null;
+  const steps = pipelineSteps(lang);
   return (
     <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-      {PIPELINE_STEPS.map(({ label, Icon }, i) => {
+      {steps.map(({ label, Icon }, i) => {
         const done = i <= step;
-        const isLast = i === PIPELINE_STEPS.length - 1;
+        const isLast = i === steps.length - 1;
         return (
           <View key={i} style={{ flex: 1, alignItems: "center" }}>
             <View style={{ flexDirection: "row", alignItems: "center", width: "100%" }}>
               <View style={[styles.pipeLine, { backgroundColor: i === 0 ? "transparent" : done ? BRAND : "#e5e7eb" }]} />
               <View style={[styles.pipeCircle, { backgroundColor: done ? BRAND : "#e9eee9", borderColor: done ? BRAND : "#d1d5db" }]}>
-                <Icon size={10} color={done ? "#fff" : "#9ca3af"} />
+                <Icon size={13} color={done ? "#fff" : "#9ca3af"} />
               </View>
               <View style={[styles.pipeLine, { backgroundColor: isLast ? "transparent" : done && i < step ? BRAND : "#e5e7eb" }]} />
             </View>
@@ -99,7 +106,7 @@ function StatCard({ Icon, label, value }) {
   return (
     <View style={styles.statCard}>
       <View style={styles.statIcon}>
-        <Icon size={15} color={BRAND} strokeWidth={1.8} />
+        <Icon size={19} color={BRAND} strokeWidth={1.8} />
       </View>
       <Text style={styles.statLabel} numberOfLines={1}>{label}</Text>
       <Text style={styles.statValue} numberOfLines={1}>{value}</Text>
@@ -107,10 +114,11 @@ function StatCard({ Icon, label, value }) {
   );
 }
 
-function OrderCard({ item, onPress }) {
-  const cfg = STATUS_CFG[item.status] || STATUS_CFG.placed;
-  const PipeIcon = PIPELINE_STEPS[Math.max(0, cfg.step)]?.Icon || Clock;
-  const title = item.animalNameAz || "Heyvan";
+function OrderCard({ item, onPress, lang }) {
+  const cfg = statusCfg(lang)[item.status] || statusCfg(lang).placed;
+  const steps = pipelineSteps(lang);
+  const PipeIcon = steps[Math.max(0, cfg.step)]?.Icon || Clock;
+  const title = item.animalNameAz || t(lang, "myOrders_animalFallback");
   const orderNum = item.orderNumber || `QRB-${new Date(item.createdAt || Date.now()).getFullYear()}-${String(item.id || item._id).slice(-5).toUpperCase()}`;
   const qty = item.quantity || item.sharedPortion || 1;
   const amount = item.totalPrice ?? null;
@@ -118,7 +126,7 @@ function OrderCard({ item, onPress }) {
   const imgSrc = item.animalImageUrl;
 
   return (
-    <Pressable style={{ marginTop: 24 }} onPress={onPress}>
+    <Pressable style={{ marginTop: scale(24) }} onPress={onPress}>
       <View style={styles.statusFloat}>
         <PipeIcon size={18} color="#fff" />
       </View>
@@ -136,59 +144,62 @@ function OrderCard({ item, onPress }) {
         <View style={styles.orderBody}>
           <View style={styles.orderTitleRow}>
             <Text style={styles.orderTitle} numberOfLines={1}>{title}</Text>
-            <Text style={styles.orderDate}>{fmtDate(item.createdAt)}</Text>
+            <Text style={styles.orderDate}>{fmtDate(item.createdAt, lang)}</Text>
           </View>
           <View style={styles.chipsRow}>
             <View style={styles.chip}>
-              <ShoppingBag size={9} color="#2d5a2d" />
-              <Text style={styles.chipText}>{qty} ədəd</Text>
+              <ShoppingBag size={12} color="#2d5a2d" />
+              <Text style={styles.chipText}>{qty} {t(lang, "myOrders_unitLabel")}</Text>
             </View>
             {amount != null && (
               <View style={styles.chip}>
-                <Wallet size={9} color={BRAND} />
+                <Wallet size={12} color={BRAND} />
                 <Text style={[styles.chipText, { color: BRAND }]}>{amount} AZN</Text>
               </View>
             )}
             {weight && (
               <View style={styles.chip}>
-                <Scale size={9} color="#2d5a2d" />
+                <Scale size={12} color="#2d5a2d" />
                 <Text style={styles.chipText}>{weight}</Text>
               </View>
             )}
             {item.media?.length > 0 && (
               <View style={[styles.chip, { backgroundColor: "#eff6ff" }]}>
-                <Video size={9} color="#2563eb" />
-                <Text style={[styles.chipText, { color: "#2563eb" }]}>Video</Text>
+                <Video size={12} color="#2563eb" />
+                <Text style={[styles.chipText, { color: "#2563eb" }]}>{t(lang, "myOrders_videoLabel")}</Text>
               </View>
             )}
           </View>
         </View>
         <View style={styles.pipeWrap}>
-          {cfg.step < 0 ? <CancelledBadge /> : <Pipeline step={cfg.step} />}
+          {cfg.step < 0 ? <CancelledBadge lang={lang} /> : <Pipeline step={cfg.step} lang={lang} />}
         </View>
       </View>
     </Pressable>
   );
 }
 
-const TAB_META = {
-  all: { label: "Hamısı", Icon: ClipboardList },
-  active: { label: "Aktiv", Icon: Activity },
-  completed: { label: "Tamamlanmış", Icon: CheckCircle2 },
-  cancelled: { label: "Ləğv edildi", Icon: XCircle },
-};
+function tabMeta(lang) {
+  return {
+    all: { label: t(lang, "myOrders_tabAll"), Icon: ClipboardList },
+    active: { label: t(lang, "myOrders_tabActive"), Icon: Activity },
+    completed: { label: t(lang, "myOrders_tabCompleted"), Icon: CheckCircle2 },
+    cancelled: { label: t(lang, "myOrders_tabCancelled"), Icon: XCircle },
+  };
+}
 
 export default function MyOrdersScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isGuest, user } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { lang } = useLanguage();
+  const TAB_META = tabMeta(lang);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [filter, setFilter] = useState("all");
 
-  const initials = [user?.name, user?.lastName].filter(Boolean).map((n) => n[0]).join("").toUpperCase() || "?";
+  const initials = getInitials(user);
 
   useFocusEffect(
     useCallback(() => {
@@ -196,6 +207,12 @@ export default function MyOrdersScreen() {
       NavigationBar.setButtonStyleAsync("dark").catch(() => {});
       NavigationBar.setBackgroundColorAsync("#ffffff").catch(() => {});
     }, [])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isGuest) navigation.replace("Register");
+    }, [isGuest, navigation])
   );
 
   const fetchOrders = useCallback(() => {
@@ -209,8 +226,12 @@ export default function MyOrdersScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      if (isGuest) {
+        setLoading(false);
+        return;
+      }
       fetchOrders();
-    }, [fetchOrders])
+    }, [fetchOrders, isGuest])
   );
 
   const activeCount = orders.filter((o) => !["completed", "cancelled"].includes(o.status)).length;
@@ -232,17 +253,18 @@ export default function MyOrdersScreen() {
 
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <View style={styles.headerLeft}>
-          <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
-            <Menu size={20} color="#fff" />
+          <Pressable style={styles.homeBtn} onPress={() => navigation.navigate("Home")}>
+            <ArrowLeft size={20} color="#fff" />
+            <Image source={require("../assets/images/app-icon.png")} style={styles.homeBtnLogo} />
           </Pressable>
-          <Text style={styles.headerTitle} numberOfLines={1}>Sifarişlərim</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>{t(lang, "myOrders")}</Text>
         </View>
         <View style={styles.headerRight}>
           <NotificationBell accentColor={BRAND} iconColor="#fff" />
           {isGuest ? (
             <Pressable style={styles.loginBtn} onPress={() => navigation.navigate("Login")}>
-              <User size={18} color="#fff" />
-              <Text style={styles.loginText}>Daxil ol</Text>
+              <User size={22} color="#fff" />
+              <Text style={styles.loginText}>{t(lang, "login")}</Text>
             </Pressable>
           ) : (
             <HeaderUserMenu initials={initials} accentColor="rgba(255,255,255,0.2)" />
@@ -250,11 +272,9 @@ export default function MyOrdersScreen() {
         </View>
       </View>
 
-      <QurbanSideMenu visible={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: 20 }}>
+<ScrollView contentContainerStyle={{ padding: scale(14), paddingBottom: scale(20) }}>
         {loading ? (
-          <View style={{ paddingVertical: 60, alignItems: "center" }}>
+          <View style={{ paddingVertical: scale(60), alignItems: "center" }}>
             <ActivityIndicator size="large" color={BRAND} />
           </View>
         ) : fetchError ? (
@@ -262,11 +282,11 @@ export default function MyOrdersScreen() {
             <View style={[styles.emptyIcon, { backgroundColor: "#fef2f2" }]}>
               <ClipboardList size={32} color="#f87171" />
             </View>
-            <Text style={styles.emptyTitle}>Sifarişlər yüklənmədi</Text>
-            <Text style={styles.emptySub}>İnternet bağlantınızı yoxlayın</Text>
+            <Text style={styles.emptyTitle}>{t(lang, "myOrders_loadErrorTitle")}</Text>
+            <Text style={styles.emptySub}>{t(lang, "myOrders_loadErrorSub")}</Text>
             <Pressable style={styles.retryBtn} onPress={fetchOrders}>
               <RefreshCw size={14} color="#fff" />
-              <Text style={styles.retryBtnText}>Yenidən cəhd et</Text>
+              <Text style={styles.retryBtnText}>{t(lang, "myOrders_retryBtn")}</Text>
             </Pressable>
           </View>
         ) : orders.length === 0 ? (
@@ -274,21 +294,21 @@ export default function MyOrdersScreen() {
             <View style={styles.emptyIcon}>
               <ClipboardList size={32} color={BRAND} />
             </View>
-            <Text style={styles.emptyTitle}>Hələ sifarişiniz yoxdur</Text>
-            <Text style={styles.emptySub}>İlk qurbanlıq sifarişinizi verin</Text>
+            <Text style={styles.emptyTitle}>{t(lang, "myOrders_emptyTitle")}</Text>
+            <Text style={styles.emptySub}>{t(lang, "myOrders_emptySub")}</Text>
             <Pressable style={styles.retryBtn} onPress={() => navigation.navigate("Qurban")}>
-              <Text style={styles.retryBtnText}>Sifariş ver</Text>
+              <Text style={styles.retryBtnText}>{t(lang, "myOrders_placeOrderBtn")}</Text>
             </Pressable>
           </View>
         ) : (
           <>
             <View style={styles.statsRow}>
-              <StatCard Icon={ClipboardList} label="Ümumi" value={orders.length} />
-              <StatCard Icon={Activity} label="Aktiv" value={activeCount} />
-              <StatCard Icon={Wallet} label="Məbləğ" value={`${totalAmount.toFixed(0)} AZN`} />
+              <StatCard Icon={ClipboardList} label={t(lang, "myOrders_statTotal")} value={orders.length} />
+              <StatCard Icon={Activity} label={t(lang, "myOrders_statActive")} value={activeCount} />
+              <StatCard Icon={Wallet} label={t(lang, "myOrders_statAmount")} value={`${totalAmount.toFixed(0)} AZN`} />
             </View>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: scale(8), paddingVertical: scale(4) }}>
               {TABS.map((tab) => {
                 const meta = TAB_META[tab.key];
                 const active = tab.key === filter;
@@ -298,7 +318,7 @@ export default function MyOrdersScreen() {
                     style={[styles.filterPill, active && styles.filterPillActive]}
                     onPress={() => setFilter(tab.key)}
                   >
-                    <meta.Icon size={13} color={active ? "#fff" : BRAND} />
+                    <meta.Icon size={14} color={active ? "#fff" : BRAND} />
                     <Text style={[styles.filterPillText, active && { color: "#fff" }]}>{meta.label}</Text>
                     <View style={[styles.filterCount, active && { backgroundColor: "rgba(255,255,255,0.25)" }]}>
                       <Text style={[styles.filterCountText, active && { color: "#fff" }]}>{tab.count}</Text>
@@ -309,10 +329,10 @@ export default function MyOrdersScreen() {
             </ScrollView>
 
             {filtered.length === 0 ? (
-              <Text style={styles.noneInCategory}>Bu kateqoriyada sifariş yoxdur</Text>
+              <Text style={styles.noneInCategory}>{t(lang, "myOrders_noneInCategory")}</Text>
             ) : (
               filtered.map((item) => (
-                <OrderCard key={item.id || item._id} item={item} onPress={() => navigation.navigate("OrderDetail", { orderId: item.id || item._id })} />
+                <OrderCard key={item.id || item._id} item={item} lang={lang} onPress={() => navigation.navigate("OrderDetail", { orderId: item.id || item._id })} />
               ))
             )}
           </>
@@ -332,57 +352,58 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 10,
-    paddingHorizontal: 12,
-    paddingBottom: 12,
+    gap: scale(10),
+    paddingHorizontal: scale(12),
+    paddingBottom: scale(12),
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1, minWidth: 0 },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 0 },
-  menuBtn: { width: 30, height: 30, alignItems: "center", justifyContent: "center" },
-  headerTitle: { flex: 1, color: "#fff", fontSize: 15, fontWeight: "800" },
-  loginBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginRight: 5 },
-  loginText: { color: "#fff", fontSize: 13, fontWeight: "700" },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: scale(10), flex: 1, minWidth: 0 },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: scale(10), flexShrink: 0 },
+  homeBtn: { flexDirection: "row", alignItems: "center", gap: scale(6) },
+  homeBtnLogo: { width: scale(28), height: scale(28), borderRadius: scale(7) },
+  headerTitle: { flex: 1, color: "#fff", fontSize: scaleFont(18.5), fontWeight: "800" },
+  loginBtn: { flexDirection: "row", alignItems: "center", gap: scale(6), marginRight: scale(5) },
+  loginText: { color: "#fff", fontSize: scaleFont(16), fontWeight: "700" },
 
-  emptyWrap: { alignItems: "center", paddingVertical: 60, gap: 6 },
-  emptyIcon: { width: 64, height: 64, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: "#e8f5e9", marginBottom: 6 },
-  emptyTitle: { fontSize: 15, fontWeight: "800", color: "#071b0d" },
-  emptySub: { fontSize: 12, color: "#9ca3af", marginBottom: 6 },
-  retryBtn: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: BRAND, borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
-  retryBtnText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+  emptyWrap: { alignItems: "center", paddingVertical: scale(60), gap: scale(6) },
+  emptyIcon: { width: scale(64), height: scale(64), borderRadius: scale(18), alignItems: "center", justifyContent: "center", backgroundColor: "#e8f5e9", marginBottom: scale(6) },
+  emptyTitle: { fontSize: scaleFont(15), fontWeight: "800", color: "#071b0d" },
+  emptySub: { fontSize: scaleFont(12), color: "#9ca3af", marginBottom: scale(6) },
+  retryBtn: { flexDirection: "row", alignItems: "center", gap: scale(6), backgroundColor: BRAND, borderRadius: scale(12), paddingHorizontal: scale(20), paddingVertical: scale(10) },
+  retryBtnText: { color: "#fff", fontSize: scaleFont(13), fontWeight: "800" },
 
-  statsRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
-  statCard: { flex: 1, backgroundColor: "#fff", borderRadius: 14, borderWidth: 1.5, borderColor: "#e8f0e8", paddingVertical: 10, paddingHorizontal: 6, alignItems: "center", gap: 4 },
-  statIcon: { width: 30, height: 30, borderRadius: 10, backgroundColor: "#e8f5e9", alignItems: "center", justifyContent: "center" },
-  statLabel: { fontSize: 9, color: "#9ca3af", fontWeight: "600" },
-  statValue: { fontSize: 13, fontWeight: "900", color: "#071b0d" },
+  statsRow: { flexDirection: "row", gap: scale(8), marginBottom: scale(12) },
+  statCard: { flex: 1, backgroundColor: "#fff", borderRadius: scale(14), borderWidth: 1.5, borderColor: "#e8f0e8", paddingVertical: scale(13), paddingHorizontal: scale(6), alignItems: "center", gap: scale(6) },
+  statIcon: { width: scale(38), height: scale(38), borderRadius: scale(13), backgroundColor: "#e8f5e9", alignItems: "center", justifyContent: "center" },
+  statLabel: { fontSize: scaleFont(12), color: "#9ca3af", fontWeight: "600" },
+  statValue: { fontSize: scaleFont(17), fontWeight: "900", color: "#071b0d" },
 
-  filterPill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#fff", borderWidth: 2, borderColor: "#d4edda", borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
+  filterPill: { flexDirection: "row", alignItems: "center", gap: scale(6), backgroundColor: "#fff", borderWidth: 2, borderColor: "#d4edda", borderRadius: scale(999), paddingHorizontal: scale(13), paddingVertical: scale(8) },
   filterPillActive: { backgroundColor: BRAND, borderColor: BRAND },
-  filterPillText: { fontSize: 12, fontWeight: "800", color: BRAND },
-  filterCount: { backgroundColor: "#e8f5e9", borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1 },
-  filterCountText: { fontSize: 10, fontWeight: "900", color: BRAND },
+  filterPillText: { fontSize: scaleFont(13), fontWeight: "800", color: BRAND },
+  filterCount: { backgroundColor: "#e8f5e9", borderRadius: scale(8), paddingHorizontal: scale(7), paddingVertical: scale(2) },
+  filterCountText: { fontSize: scaleFont(11.5), fontWeight: "900", color: BRAND },
 
-  noneInCategory: { textAlign: "center", color: "#9ca3af", fontSize: 13, paddingVertical: 40 },
+  noneInCategory: { textAlign: "center", color: "#9ca3af", fontSize: scaleFont(13), paddingVertical: scale(40) },
 
-  statusFloat: { position: "absolute", top: -14, right: 10, zIndex: 10, width: 40, height: 40, borderRadius: 20, backgroundColor: BRAND, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 },
-  orderCard: { backgroundColor: "#fff", borderRadius: 18, overflow: "hidden", borderWidth: 1.5, borderColor: "#e8f0e8", shadowColor: BRAND, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
-  orderImgWrap: { width: "100%", height: 140, backgroundColor: "#f0f7f0" },
-  orderImg: { width: "100%", height: "100%" },
-  orderImgOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: 8, paddingVertical: 5, backgroundColor: "rgba(0,0,0,0.4)" },
-  orderNumText: { fontSize: 9, fontWeight: "800", color: "rgba(255,255,255,0.9)" },
-  orderBody: { paddingHorizontal: 12, paddingVertical: 12, gap: 7 },
-  orderTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  orderTitle: { flex: 1, fontSize: 16, fontWeight: "900", color: "#071b0d" },
-  chipsRow: { flexDirection: "row", flexWrap: "wrap", gap: 5 },
-  chip: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f0f7f0", borderRadius: 7, paddingHorizontal: 7, paddingVertical: 3 },
-  chipText: { fontSize: 10, fontWeight: "800", color: "#2d5a2d" },
-  orderDate: { fontSize: 10, color: "#9ca3af", flexShrink: 0 },
-  pipeWrap: { paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: "#f3f4f6" },
+  statusFloat: { position: "absolute", top: scale(-14), right: scale(10), zIndex: 10, width: scale(40), height: scale(40), borderRadius: scale(20), backgroundColor: BRAND, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 },
+  orderCard: { backgroundColor: "#fff", borderRadius: scale(18), overflow: "hidden", borderWidth: 1.5, borderColor: "#e8f0e8", shadowColor: BRAND, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
+  orderImgWrap: { width: "100%", height: scale(175), backgroundColor: "#fff" },
+  orderImg: { position: "absolute", top: 0, bottom: 0, left: scale(50), right: scale(50) },
+  orderImgOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: scale(8), paddingVertical: scale(5), backgroundColor: "rgba(0,0,0,0.4)" },
+  orderNumText: { fontSize: scaleFont(9), fontWeight: "800", color: "rgba(255,255,255,0.9)" },
+  orderBody: { paddingHorizontal: scale(12), paddingVertical: scale(12), gap: scale(7) },
+  orderTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: scale(8) },
+  orderTitle: { flex: 1, fontSize: scaleFont(19), fontWeight: "900", color: "#071b0d" },
+  chipsRow: { flexDirection: "row", flexWrap: "wrap", gap: scale(7) },
+  chip: { flexDirection: "row", alignItems: "center", gap: scale(5), backgroundColor: "#f0f7f0", borderRadius: scale(9), paddingHorizontal: scale(9), paddingVertical: scale(5) },
+  chipText: { fontSize: scaleFont(13), fontWeight: "800", color: "#2d5a2d" },
+  orderDate: { fontSize: scaleFont(12.5), color: "#9ca3af", flexShrink: 0 },
+  pipeWrap: { paddingHorizontal: scale(12), paddingVertical: scale(10), borderTopWidth: 1, borderTopColor: "#f3f4f6" },
 
-  pipeLine: { flex: 1, height: 1.5 },
-  pipeCircle: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, alignItems: "center", justifyContent: "center" },
-  pipeLabel: { fontSize: 7.5, fontWeight: "800", marginTop: 3, textAlign: "center" },
+  pipeLine: { flex: 1, height: scale(1.5) },
+  pipeCircle: { width: scale(30), height: scale(30), borderRadius: scale(15), borderWidth: 2, alignItems: "center", justifyContent: "center" },
+  pipeLabel: { fontSize: scaleFont(9.5), fontWeight: "800", marginTop: scale(4), textAlign: "center" },
 
-  cancelledBadge: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#FEE2E2", borderWidth: 1.5, borderColor: "#FECACA", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, alignSelf: "flex-start" },
-  cancelledText: { fontSize: 12, fontWeight: "800", color: "#991B1B" },
+  cancelledBadge: { flexDirection: "row", alignItems: "center", gap: scale(8), backgroundColor: "#FEE2E2", borderWidth: 1.5, borderColor: "#FECACA", borderRadius: scale(12), paddingHorizontal: scale(12), paddingVertical: scale(8), alignSelf: "flex-start" },
+  cancelledText: { fontSize: scaleFont(12), fontWeight: "800", color: "#991B1B" },
 });

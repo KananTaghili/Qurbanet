@@ -50,6 +50,9 @@ import AnimalBodyMap, {
   getDisplayParts,
 } from "../components/meat/AnimalBodyMap";
 import MeatSpinner from "../components/meat/MeatSpinner";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#4B0F0F";
 const PARTS_PAGE_SIZE = 6;
@@ -72,6 +75,35 @@ function cutMatchesFoods(item, foodFilterIds) {
   return (item.suitableFoods || []).some((id) =>
     foodFilterIds.includes(String(id?._id || id)),
   );
+}
+
+// Hər yeməyin hansı heyvan(lar)a aid olduğunu tapır — Food modelində birbaşa
+// heyvan sahəsi yoxdur, bu, hər kəsim/orqan/çəkilmiş ət məhsulunun
+// suitableFoods siyahısından geriyə doğru çıxarılır (bir yemək bir neçə
+// heyvana aid ola bilər, ona görə Set istifadə olunur). Veb-dəki
+// computeFoodAnimalKeys-in eynisi.
+function computeFoodAnimalKeys(animals, organs, groundProducts) {
+  const map = {};
+  const add = (foodId, animalKey) => {
+    if (!animalKey) return;
+    const id = String(foodId?._id || foodId);
+    if (!map[id]) map[id] = new Set();
+    map[id].add(animalKey);
+  };
+  (animals || []).forEach((animal) => {
+    (animal.bodyParts || []).forEach((part) => {
+      (part.cuts || []).forEach((cut) => {
+        (cut.suitableFoods || []).forEach((foodId) => add(foodId, animal.key));
+      });
+    });
+  });
+  (organs || []).forEach((organ) => {
+    (organ.suitableFoods || []).forEach((foodId) => add(foodId, organ.animalKey));
+  });
+  (groundProducts || []).forEach((product) => {
+    (product.suitableFoods || []).forEach((foodId) => add(foodId, product.animalKey));
+  });
+  return map;
 }
 
 /* ── Heyvan seçici tablar ── */
@@ -234,7 +266,7 @@ function PartsPager({ parts, selectedPartKey, onSelectPart, onDragActive }) {
       <Animated.View
         style={[
           styles.partsGrid,
-          hasPager && { marginHorizontal: 28 },
+          hasPager && { marginHorizontal: scale(28) },
           {
             opacity: partsOpacity,
             transform: [{ translateX: partsTranslateX }],
@@ -268,6 +300,7 @@ function PartsPager({ parts, selectedPartKey, onSelectPart, onDragActive }) {
 
 /* ── Kəsim kartı (məhsul) ── */
 function CutCard({ animal, part, cut }) {
+  const { lang } = useLanguage();
   const { items, addToCart, removeItem } = useMeatCart();
   const lineId = `${animal.key}__${part.key}__${cut._id}`;
   const inCartQty = items.find((i) => i.lineId === lineId)?.quantityKg || 0;
@@ -283,6 +316,13 @@ function CutCard({ animal, part, cut }) {
   const outOfStock = isWholePiece ? false : remaining <= 0;
   const displayQty = isWholePiece ? pieceWeight : qty;
   const totalPrice = Math.round(cut.pricePerKg * displayQty * 100) / 100;
+  const hasDiscount = cut.discountPercent > 0;
+  const discountedPricePerKg = hasDiscount
+    ? Math.round(cut.pricePerKg * (1 - cut.discountPercent / 100) * 100) / 100
+    : cut.pricePerKg;
+  const discountedTotalPrice = hasDiscount
+    ? Math.round(displayQty * discountedPricePerKg * 100) / 100
+    : totalPrice;
 
   const clamp = (v) => Math.max(min, Math.min(v, remaining));
   const dec = () => setQty((q) => Math.max(min, q - step));
@@ -299,7 +339,7 @@ function CutCard({ animal, part, cut }) {
         cutId: cut._id,
         cutNameAz: cut.nameAz,
         imageUrl: cut.imageUrl,
-        pricePerKg: cut.pricePerKg,
+        pricePerKg: discountedPricePerKg,
         stockKg: isWholePiece ? pieceWeight : cut.stockKg,
         stepKg: step,
         minKg: cut.minKg,
@@ -315,47 +355,78 @@ function CutCard({ animal, part, cut }) {
   return (
     <View style={styles.cutCard}>
       <View style={styles.cutImgWrap}>
-        {cut.imageUrl ? (
-          <Image
-            source={{ uri: cut.imageUrl }}
-            style={styles.cutImg}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.cutImgFallback}>
-            <ShoppingCart size={23} color="rgba(75,15,15,0.3)" />
-          </View>
-        )}
+        {/* Veb-dəki kimi: foto kartın tam kənarına yox, nazik ağ "çərçivə"
+            içində (yuxarı/sol/sağ 10px, alt 0) göstərilir — künc nişanları
+            bu boşluqda fotonun üstünə çıxır. */}
+        <View style={styles.cutImgFrame}>
+          {cut.imageUrl ? (
+            <Image
+              source={{ uri: cut.imageUrl }}
+              style={styles.cutImg}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.cutImgFallback}>
+              <ShoppingCart size={23} color="rgba(75,15,15,0.3)" />
+            </View>
+          )}
+
+          {inCartQty > 0 && (
+            <View style={styles.cutInCartOverlay}>
+              <View style={styles.cutInCartCircle}>
+                <ShoppingCart size={17} color={BRAND} strokeWidth={2.4} />
+              </View>
+            </View>
+          )}
+        </View>
 
         {!outOfStock && (
           <View style={styles.cutQtyBadge}>
             <Text style={styles.cutQtyBadgeText}>
-              {isWholePiece ? `${pieceWeight} kq` : `Stok: ${remaining} kq`}
+              {isWholePiece
+                ? `${pieceWeight} ${t(lang, "kgUnit")}`
+                : `${t(lang, "meatProducts_stockPrefix")} ${remaining} ${t(lang, "kgUnit")}`}
             </Text>
           </View>
         )}
-        <View style={styles.cutPriceBadge}>
-          <Text style={styles.cutBadgeText}>
-            {isWholePiece ? totalPrice.toFixed(2) : cut.pricePerKg} AZN
-            {soldByWeight ? "/kq" : ""}
+        <View
+          style={[
+            styles.cutPriceBadge,
+            hasDiscount && styles.cutPriceBadgeDiscount,
+          ]}
+        >
+          {hasDiscount && (
+            <Text style={styles.cutBadgeStrikeText}>
+              {isWholePiece ? totalPrice.toFixed(2) : cut.pricePerKg}
+            </Text>
+          )}
+          <Text
+            style={[
+              styles.cutBadgeText,
+              hasDiscount && styles.cutBadgeTextDiscount,
+            ]}
+          >
+            {isWholePiece
+              ? discountedTotalPrice.toFixed(2)
+              : discountedPricePerKg}{" "}
+            AZN
+            {soldByWeight ? `/${t(lang, "kgUnit")}` : ""}
           </Text>
         </View>
 
-        {inCartQty > 0 && (
-          <View style={styles.cutInCartOverlay}>
-            <View style={styles.cutInCartCircle}>
-              <ShoppingCart size={17} color={BRAND} strokeWidth={2.4} />
+        {hasDiscount && (
+          <View style={styles.discountRibbonClip} pointerEvents="none">
+            <View style={styles.discountRibbon}>
+              <Text style={styles.discountRibbonText}>
+                -{cut.discountPercent}%
+              </Text>
             </View>
           </View>
         )}
 
-        {/* Veb-dəki kimi: kəsimin adı fotonun ÜSTÜNDƏ (aşağı-sol küncdə),
-            oxunaqlı olsun deyə altında qaranlıq qradient. */}
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.6)"]}
-          style={styles.cutNameGradient}
-          pointerEvents="none"
-        />
+        {/* Veb-dəki kimi: kəsimin adı fotonun aşağı-sol küncündə, tünd
+            (qaradımtıl) fonlu, yalnız sağ-üst küncü yumru nişan — sol və
+            alt kənarlara bitişik, tam eni əhatə edən qradient yox. */}
         <Text style={styles.cutNameOverlay} numberOfLines={1}>
           {cut.nameAz}
         </Text>
@@ -364,7 +435,7 @@ function CutCard({ animal, part, cut }) {
       <View style={styles.cutBody}>
         <View style={styles.cutRow}>
           {outOfStock ? (
-            <Text style={styles.cutOutOfStock}>Stokda qalmayıb</Text>
+            <Text style={styles.cutOutOfStock}>{t(lang, "meatProducts_outOfStock")}</Text>
           ) : soldByWeight ? (
             <View style={styles.stepper}>
               <Pressable
@@ -374,7 +445,7 @@ function CutCard({ animal, part, cut }) {
               >
                 <Minus size={16} color="#57534e" />
               </Pressable>
-              <Text style={styles.stepperText}>{qty} kq</Text>
+              <Text style={styles.stepperText}>{qty} {t(lang, "kgUnit")}</Text>
               <Pressable
                 style={styles.stepperBtn}
                 onPress={inc}
@@ -385,7 +456,14 @@ function CutCard({ animal, part, cut }) {
               </Pressable>
             </View>
           ) : (
-            <Text style={styles.cutPriceLabel}>{cut.pricePerKg} AZN/kq</Text>
+            <Text style={styles.cutPriceLabel}>
+              {hasDiscount && (
+                <Text style={styles.cutPriceLabelStrike}>
+                  {cut.pricePerKg}{" "}
+                </Text>
+              )}
+              {discountedPricePerKg} AZN/{t(lang, "kgUnit")}
+            </Text>
           )}
 
           {/* Veb-dəki kimi: dairəvi düymə həmişə səbət ikonu göstərir, yalnız
@@ -399,7 +477,7 @@ function CutCard({ animal, part, cut }) {
             onPress={isRemove ? () => removeItem(lineId) : handleAdd}
             hitSlop={6}
           >
-            <ShoppingCart size={15} color="#fff" strokeWidth={2.2} />
+            <ShoppingCart size={19} color="#fff" strokeWidth={2.2} />
             <View style={styles.cutAddBtnBadge}>
               <Text
                 style={[
@@ -424,6 +502,7 @@ export default function MeatProductsScreen() {
   const { width: viewportWidth, height: viewportHeight } =
     useWindowDimensions();
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const { items, itemsTotal, itemCount, updateQuantity, removeItem } =
     useMeatCart();
   const { location, setLocation, deliveryPrice, isLoaded: locationLoaded } =
@@ -433,7 +512,14 @@ export default function MeatProductsScreen() {
   const [foods, setFoods] = useState([]);
   const [foodFilterIds, setFoodFilterIds] = useState([]);
   const [organs, setOrgans] = useState([]);
+  // Admin panelindən (backend /app-config/settings) gələn heyvan hissəsi
+  // ad/nömrə override-ları — veb-dəki eyni məntiq (bax: getDisplayParts).
+  const [animalPartSettings, setAnimalPartSettings] = useState({});
   const [groundProducts, setGroundProducts] = useState([]);
+  const foodAnimalMap = useMemo(
+    () => computeFoodAnimalKeys(animals, organs, groundProducts),
+    [animals, organs, groundProducts],
+  );
   const [loading, setLoading] = useState(true);
   // Diaqram/hissə seçicisində üfüqi sürüşdürmə gedərkən əsas səhifənin
   // şaquli scroll-u müvəqqəti söndürülür — barmaq bir az əyri getsə belə
@@ -569,6 +655,11 @@ export default function MeatProductsScreen() {
       .get("/meat/ground-products")
       .then((res) => setGroundProducts(res.data?.data?.products || []))
       .catch(() => {});
+
+    api
+      .get("/app-config/settings")
+      .then((res) => setAnimalPartSettings(res.data?.data?.animalPartSettings || {}))
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -630,22 +721,50 @@ export default function MeatProductsScreen() {
 
   const selectedAnimal = animals.find((a) => a.key === selectedAnimalKey);
   const displayParts = useMemo(
-    () => getDisplayParts(selectedAnimalKey, selectedAnimal?.bodyParts || []),
-    [selectedAnimalKey, selectedAnimal],
+    () =>
+      getDisplayParts(
+        selectedAnimalKey,
+        selectedAnimal?.bodyParts || [],
+        animalPartSettings,
+        lang,
+      ),
+    [selectedAnimalKey, selectedAnimal, animalPartSettings, lang],
   );
   const selectedPart = selectedAnimal?.bodyParts?.find(
     (p) => p.key === selectedPartKey,
   );
+  // Stoku bitmiş (və səbətdə də olmayan) kəsim heç göstərilmir — veb-dəki
+  // eyni qayda (bax: web/app/meat/products/page.js isAvailable). Səbətdə
+  // olan (remaining=0 amma inCartQty>0) kəsim isə çıxarıla bilsin deyə qalır.
+  const visiblePartCuts = useMemo(() => {
+    if (!selectedAnimal || !selectedPart) return [];
+    return (selectedPart.cuts || []).filter((cut) => {
+      const lineId = `${selectedAnimal.key}__${selectedPart.key}__${cut._id}`;
+      const stockKg = cut.soldByWeight === false ? cut.weightKg : cut.stockKg;
+      const inCartQty = items.find((i) => i.lineId === lineId)?.quantityKg || 0;
+      const remaining = Math.max(0, (stockKg || 0) - inCartQty);
+      return remaining > 0 || inCartQty > 0;
+    });
+  }, [selectedAnimal, selectedPart, items]);
   const organsAvailable = organs.some(
     (o) =>
       o.animalKey === selectedAnimalKey && cutMatchesFoods(o, foodFilterIds),
   );
-  const groundAvailable = groundProducts.some(
-    (p) =>
-      p.animalKey === selectedAnimalKey &&
-      p.stockKg > 0 &&
-      cutMatchesFoods(p, foodFilterIds),
-  );
+  const groundAvailable =
+    groundProducts.some(
+      (p) =>
+        p.animalKey === selectedAnimalKey &&
+        p.stockKg > 0 &&
+        cutMatchesFoods(p, foodFilterIds),
+    ) ||
+    (selectedAnimal?.bodyParts || []).some((part) =>
+      (part.cuts || []).some(
+        (cut) =>
+          cut.isGroundMeat &&
+          (cut.soldByWeight === false ? cut.weightKg : cut.stockKg) > 0 &&
+          cutMatchesFoods(cut, foodFilterIds),
+      ),
+    );
 
   const handleSelectAnimal = (key) => {
     setSelectedAnimalKey(key);
@@ -753,10 +872,10 @@ export default function MeatProductsScreen() {
           style={{ flex: 1 }}
           scrollEnabled={scrollEnabled}
           contentContainerStyle={{
-            padding: 14,
+            padding: scale(14),
             paddingTop: contentTopPadding,
-            paddingBottom: 110,
-            gap: 12,
+            paddingBottom: scale(110),
+            gap: scale(12),
           }}
         >
           {selectedAnimal && (
@@ -785,6 +904,8 @@ export default function MeatProductsScreen() {
                     foodFilterIds={foodFilterIds}
                     onSwipe={handleDiagramSwipe}
                     onDragActive={(active) => setScrollEnabled(!active)}
+                    animalPartSettings={animalPartSettings}
+                    lang={lang}
                   />
                 </Animated.View>
 
@@ -812,7 +933,7 @@ export default function MeatProductsScreen() {
                         !organsAvailable && styles.extraBtnTextDisabled,
                       ]}
                     >
-                      Daxili orqanlar
+                      {t(lang, "meatProducts_organsBtn")}
                     </Text>
                   </Pressable>
                   <Pressable
@@ -831,7 +952,7 @@ export default function MeatProductsScreen() {
                         !groundAvailable && styles.extraBtnTextDisabled,
                       ]}
                     >
-                      Çəkilmiş ət
+                      {t(lang, "meatProducts_groundBtn")}
                     </Text>
                   </Pressable>
                 </View>
@@ -847,7 +968,7 @@ export default function MeatProductsScreen() {
                     );
                     return matches.length === 0 ? (
                       <Text style={styles.emptyText}>
-                        Bu heyvan üçün hələ daxili orqan əlavə olunmayıb.
+                        {t(lang, "meatProducts_noOrgans")}
                       </Text>
                     ) : (
                       matches.map((organ) => (
@@ -856,7 +977,7 @@ export default function MeatProductsScreen() {
                           animal={selectedAnimal}
                           part={{
                             key: "daxili-orqan",
-                            nameAz: "Daxili orqan",
+                            nameAz: t(lang, "meatProducts_organPartLabel"),
                           }}
                           cut={{
                             _id: organ._id,
@@ -873,44 +994,65 @@ export default function MeatProductsScreen() {
                   })()
                 ) : extraMode === "ground" ? (
                   (() => {
-                    const matches = groundProducts.filter(
-                      (p) =>
-                        p.animalKey === selectedAnimalKey &&
-                        cutMatchesFoods(p, foodFilterIds),
+                    const syntheticPart = {
+                      key: "cekilmis-et",
+                      nameAz: t(lang, "meatProducts_groundBtn"),
+                    };
+                    const productEntries = groundProducts
+                      .filter(
+                        (p) =>
+                          p.animalKey === selectedAnimalKey &&
+                          cutMatchesFoods(p, foodFilterIds),
+                      )
+                      .map((product) => ({
+                        part: syntheticPart,
+                        cut: {
+                          _id: product._id,
+                          nameAz: product.nameAz,
+                          pricePerKg: product.pricePerKg,
+                          stockKg: product.stockKg,
+                          stepKg: 0.5,
+                          minKg: 0.5,
+                          imageUrl: product.imageUrl,
+                        },
+                      }));
+                    // Admin bir kəsimi "Bu qiymədir" işarələyəndə, ayrıca
+                    // "Çəkilmiş ət" qeydi əlavə etməyə ehtiyac qalmır — həmin
+                    // kəsim öz HƏQİQİ bölməsi (partKey) ilə burada da göstərilir,
+                    // ona görə səbət sətri (lineId) hər iki yerdə eynidir və
+                    // stok tək yerdə (bu kəsimdə) saxlanılır — veb-dəki eyni fix.
+                    const cutEntries = (selectedAnimal?.bodyParts || []).flatMap(
+                      (part) =>
+                        (part.cuts || [])
+                          .filter(
+                            (cut) =>
+                              cut.isGroundMeat &&
+                              cutMatchesFoods(cut, foodFilterIds),
+                          )
+                          .map((cut) => ({ part, cut })),
                     );
+                    const matches = [...cutEntries, ...productEntries];
                     return matches.length === 0 ? (
                       <Text style={styles.emptyText}>
-                        Bu heyvan üçün hələ çəkilmiş ət məhsulu əlavə
-                        olunmayıb.
+                        {t(lang, "meatProducts_noGround")}
                       </Text>
                     ) : (
-                      matches.map((product) => (
+                      matches.map(({ part, cut }) => (
                         <CutCard
-                          key={product._id}
+                          key={`${part.key}__${cut._id}`}
                           animal={selectedAnimal}
-                          part={{
-                            key: "cekilmis-et",
-                            nameAz: "Çəkilmiş ət",
-                          }}
-                          cut={{
-                            _id: product._id,
-                            nameAz: product.nameAz,
-                            pricePerKg: product.pricePerKg,
-                            stockKg: product.stockKg,
-                            stepKg: 0.5,
-                            minKg: 0.5,
-                            imageUrl: product.imageUrl,
-                          }}
+                          part={part}
+                          cut={cut}
                         />
                       ))
                     );
                   })()
-                ) : (selectedPart?.cuts || []).length === 0 ? (
+                ) : visiblePartCuts.length === 0 ? (
                   <Text style={styles.emptyText}>
-                    Bu hissə üçün hələ məhsul əlavə olunmayıb.
+                    {t(lang, "meatProducts_noPartProducts")}
                   </Text>
                 ) : (
-                  selectedPart.cuts.map((cut) => (
+                  visiblePartCuts.map((cut) => (
                     <CutCard
                       key={cut._id}
                       animal={selectedAnimal}
@@ -995,7 +1137,7 @@ export default function MeatProductsScreen() {
                   onPress={handleCheckout}
                   disabled={!canCheckout}
                 >
-                  <Text style={styles.cartPayBtnText}>Ödə</Text>
+                  <Text style={styles.cartPayBtnText}>{t(lang, "meatProducts_payBtn")}</Text>
                   <View style={styles.cartPayDivider} />
                   <View style={styles.cartPayAmountWrap}>
                     <Text style={styles.cartPayAmountText}>
@@ -1026,7 +1168,7 @@ export default function MeatProductsScreen() {
                   {items.length === 0 ? (
                     <View style={styles.cartEmptyState}>
                       <ShoppingBag size={30} color="#e7e5e4" />
-                      <Text style={styles.cartEmptyText}>Səbətiniz boşdur</Text>
+                      <Text style={styles.cartEmptyText}>{t(lang, "meatProducts_cartEmpty")}</Text>
                     </View>
                   ) : (
                     items.map((it) => (
@@ -1070,7 +1212,7 @@ export default function MeatProductsScreen() {
                           <View style={styles.sheetItemBottom}>
                             {it.soldByWeight === false ? (
                               <Text style={styles.sheetQtyText}>
-                                {it.quantityKg.toFixed(2)} kq
+                                {it.quantityKg.toFixed(2)} {t(lang, "kgUnit")}
                               </Text>
                             ) : (
                               <View style={styles.sheetStepper}>
@@ -1086,7 +1228,7 @@ export default function MeatProductsScreen() {
                                   <Minus size={15} color="#57534e" />
                                 </Pressable>
                                 <Text style={styles.sheetStepperText}>
-                                  {it.quantityKg.toFixed(2)} kq
+                                  {it.quantityKg.toFixed(2)} {t(lang, "kgUnit")}
                                 </Text>
                                 <Pressable
                                   style={styles.sheetStepperBtn}
@@ -1114,13 +1256,13 @@ export default function MeatProductsScreen() {
 
                   <View style={styles.sheetSummaryCard}>
                     <View style={styles.sheetSummaryRow}>
-                      <Text style={styles.sheetSummaryLabel}>Məhsullar</Text>
+                      <Text style={styles.sheetSummaryLabel}>{t(lang, "meatProducts_productsLabel")}</Text>
                       <Text style={styles.sheetSummaryLabel}>
                         {itemsTotal.toFixed(2)} AZN
                       </Text>
                     </View>
                     <View style={styles.sheetSummaryRow}>
-                      <Text style={styles.sheetSummaryLabel}>Çatdırılma</Text>
+                      <Text style={styles.sheetSummaryLabel}>{t(lang, "step2")}</Text>
                       <Text style={styles.sheetSummaryLabel}>
                         {items.length
                           ? `${deliveryPrice.toFixed(2)} AZN`
@@ -1128,7 +1270,7 @@ export default function MeatProductsScreen() {
                       </Text>
                     </View>
                     <View style={styles.sheetSummaryTotalRow}>
-                      <Text style={styles.sheetSummaryTotalText}>Cəmi</Text>
+                      <Text style={styles.sheetSummaryTotalText}>{t(lang, "totalRow")}</Text>
                       <Text style={styles.sheetSummaryTotalText}>
                         {total.toFixed(2)} AZN
                       </Text>
@@ -1143,7 +1285,7 @@ export default function MeatProductsScreen() {
                     onPress={handleCheckout}
                     disabled={!canCheckout}
                   >
-                    <Text style={styles.sheetCheckoutBtnText}>Ödə</Text>
+                    <Text style={styles.sheetCheckoutBtnText}>{t(lang, "meatProducts_payBtn")}</Text>
                   </Pressable>
                 </ScrollView>
             </View>
@@ -1178,6 +1320,7 @@ export default function MeatProductsScreen() {
       >
         <MeatFoodFilterModal
           foods={foods}
+          foodAnimalMap={foodAnimalMap}
           initialSelectedIds={foodFilterIds}
           onClose={() => setFoodOpen(false)}
           onApply={(ids) => {
@@ -1197,11 +1340,11 @@ const styles = StyleSheet.create({
   iconAnchor: { height: 0, zIndex: 20 },
   iconBtnLeft: {
     position: "absolute",
-    left: 14,
+    left: scale(14),
     zIndex: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: BRAND,
@@ -1213,11 +1356,11 @@ const styles = StyleSheet.create({
   },
   iconBtnRight: {
     position: "absolute",
-    right: 14,
+    right: scale(14),
     zIndex: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
@@ -1231,36 +1374,36 @@ const styles = StyleSheet.create({
   },
   iconDot: {
     position: "absolute",
-    top: -1,
-    right: -1,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    top: scale(-1),
+    right: scale(-1),
+    width: scale(10),
+    height: scale(10),
+    borderRadius: scale(5),
     backgroundColor: "#22c55e",
     borderWidth: 2,
     borderColor: "#fff",
   },
   iconBadge: {
     position: "absolute",
-    top: -4,
-    right: -4,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
+    top: scale(-4),
+    right: scale(-4),
+    minWidth: scale(16),
+    height: scale(16),
+    borderRadius: scale(8),
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 3,
+    paddingHorizontal: scale(3),
   },
-  iconBadgeText: { color: "#fff", fontSize: 10.5, fontWeight: "900" },
+  iconBadgeText: { color: "#fff", fontSize: scaleFont(10.5), fontWeight: "900" },
 
   card: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: scale(16),
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.06)",
-    padding: 10,
-    gap: 10,
+    padding: scale(10),
+    gap: scale(10),
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -1269,40 +1412,41 @@ const styles = StyleSheet.create({
   },
   switcher: {
     flexDirection: "row",
-    gap: 4,
+    gap: scale(4),
     backgroundColor: "#f5f5f4",
-    borderRadius: 10,
-    padding: 3,
+    borderRadius: scale(10),
+    padding: scale(3),
   },
   switcherTab: {
     flex: 1,
-    paddingVertical: 9,
-    borderRadius: 8,
+    paddingVertical: scale(6),
+    borderRadius: scale(8),
     alignItems: "center",
+    justifyContent: "center",
   },
   switcherTabActive: { backgroundColor: BRAND },
-  switcherText: { fontSize: 14, fontWeight: "700", color: "#57534e" },
+  switcherText: { fontSize: scaleFont(17), fontWeight: "700", color: "#57534e" },
   switcherTextActive: { color: "#fff" },
 
   // overflow:"hidden" — sürüşdürmə animasiyası (translateX) zamanı məzmun
   // kartın dəyirmi kənarlarından bayıra çıxıb "kart genəlirmiş" kimi
   // görünməsin deyə.
-  diagramWrap: { height: 210, width: "100%", overflow: "hidden" },
+  diagramWrap: { height: scale(210), width: "100%", overflow: "hidden" },
 
   partsPagerWrap: {
     position: "relative",
     justifyContent: "center",
-    paddingHorizontal: 5,
+    paddingHorizontal: scale(5),
     overflow: "hidden",
   },
   partsArrow: {
     position: "absolute",
     top: "50%",
-    marginTop: -16,
+    marginTop: scale(-16),
     zIndex: 10,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
@@ -1321,28 +1465,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    rowGap: 6,
+    rowGap: scale(6),
   },
   partBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: scale(4),
     width: "32%",
     borderWidth: 1,
     borderColor: "#efe9e2",
     backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    borderRadius: scale(8),
+    paddingVertical: scale(8),
+    paddingHorizontal: scale(8),
   },
   partBtnPlaceholder: {
     width: "32%",
-    height: 32,
+    height: scale(32),
   },
   partBtnDisabled: { backgroundColor: "#f5f5f4", borderColor: "#eee" },
   partBtnSelected: { backgroundColor: "#B01818", borderWidth: 0 },
   partBtnText: {
-    fontSize: 13,
+    fontSize: scaleFont(13),
     fontWeight: "700",
     color: "#57534e",
     flexShrink: 1,
@@ -1350,48 +1494,48 @@ const styles = StyleSheet.create({
   partBtnTextDisabled: { color: "#a8a29e" },
   partBtnTextSelected: { color: "#fff" },
   partBadge: {
-    height: 17,
-    minWidth: 17,
-    borderRadius: 9,
+    height: scale(17),
+    minWidth: scale(17),
+    borderRadius: scale(9),
     backgroundColor: "#F1E5E5",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 2,
+    paddingHorizontal: scale(2),
   },
   partBadgeSelected: { backgroundColor: "#fff" },
-  partBadgeText: { fontSize: 10.5, fontWeight: "900", color: BRAND },
+  partBadgeText: { fontSize: scaleFont(10.5), fontWeight: "900", color: BRAND },
   partBadgeTextSelected: { color: "#B01818" },
 
-  extraRow: { flexDirection: "row", gap: 6 },
+  extraRow: { flexDirection: "row", gap: scale(6) },
   extraBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingVertical: scale(8),
+    borderRadius: scale(8),
     borderWidth: 1,
     borderColor: "#eee",
     backgroundColor: "#fff",
   },
   extraBtnActive: { backgroundColor: "#B01818", borderColor: "#B01818" },
   extraBtnDisabled: { backgroundColor: "#f5f5f4", borderColor: "#eee" },
-  extraBtnText: { fontSize: 13, fontWeight: "800", color: "#57534e" },
+  extraBtnText: { fontSize: scaleFont(13), fontWeight: "800", color: "#57534e" },
   extraBtnTextActive: { color: "#fff" },
   extraBtnTextDisabled: { color: "#a8a29e" },
 
-  productsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  productsGrid: { flexDirection: "row", flexWrap: "wrap", gap: scale(8) },
   emptyText: {
     width: "100%",
     textAlign: "center",
-    paddingVertical: 30,
+    paddingVertical: scale(30),
     color: "#a8a29e",
-    fontSize: 14,
+    fontSize: scaleFont(14),
     fontWeight: "600",
   },
 
   cutCard: {
     width: "48%",
     backgroundColor: "#fff",
-    borderRadius: 14,
+    borderRadius: scale(14),
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.06)",
     overflow: "hidden",
@@ -1401,36 +1545,101 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 1,
   },
-  cutImgWrap: { width: "100%", aspectRatio: 1.4, backgroundColor: "#F1E5E5" },
+  cutImgWrap: { width: "100%", aspectRatio: 1.4, backgroundColor: "#fff" },
+  // Veb-dəki "çərçivə" effekti: foto tam kənara yox, yuxarı/sol/sağ 10px
+  // ağ boşluqla göstərilir (alt kənar isə 0 — fotonun altı sarğının altına
+  // bitişir), öz künclərində yumru. Bu boşluq sayəsində aşağıdakı künc
+  // nişanları sarğının HƏQİQİ küncündə (0,0) qalıb fotonun üstünə çıxır.
+  cutImgFrame: {
+    position: "absolute",
+    left: scale(10),
+    right: scale(10),
+    top: scale(10),
+    bottom: 0,
+    borderRadius: scale(8),
+    overflow: "hidden",
+    backgroundColor: "#F1E5E5",
+  },
   cutImg: { width: "100%", height: "100%" },
   cutImgFallback: { flex: 1, alignItems: "center", justifyContent: "center" },
-  // Veb-dəki kimi: sol (stok/çəki) nişanı AĞ fon + QARA yazı, sağ (qiymət)
-  // nişanı isə tünd fon + AĞ yazı.
+  // Veb-dəki kimi: nişanlar sarğının HƏQİQİ küncünə yapışır (offset yoxdur),
+  // yalnız kartın öz künc dairəviliyinə baxan tərəf yumrudur (məs. sol-üst
+  // nişanda yuxarı-sol və qarşı diaqonaldakı aşağı-sağ), qalan iki künc
+  // kəskindir — "tab" görünüşü. Sol (stok/çəki) nişanı AĞ fon + QARA yazı,
+  // sağ (qiymət) nişanı isə tünd fon + AĞ yazı.
   cutQtyBadge: {
     position: "absolute",
-    top: 6,
-    left: 6,
+    top: 0,
+    left: 0,
     backgroundColor: "rgba(255,255,255,0.95)",
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    borderTopLeftRadius: scale(13),
+    borderBottomRightRadius: scale(13),
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(3),
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
     elevation: 2,
   },
-  cutQtyBadgeText: { color: "#292524", fontSize: 11.5, fontWeight: "800" },
+  cutQtyBadgeText: { color: "#292524", fontSize: scaleFont(11.5), fontWeight: "800" },
   cutPriceBadge: {
     position: "absolute",
-    top: 6,
-    right: 6,
+    top: 0,
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(4),
     backgroundColor: BRAND,
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    borderTopRightRadius: scale(13),
+    borderBottomLeftRadius: scale(13),
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(3),
   },
-  cutBadgeText: { color: "#fff", fontSize: 11.5, fontWeight: "800" },
+  cutPriceBadgeDiscount: { backgroundColor: "#facc15" },
+  cutBadgeText: { color: "#fff", fontSize: scaleFont(11.5), fontWeight: "800" },
+  cutBadgeTextDiscount: { color: "#292524" },
+  cutBadgeStrikeText: {
+    color: "#78716c",
+    fontSize: scaleFont(9),
+    fontWeight: "600",
+    textDecorationLine: "line-through",
+  },
+  discountRibbonClip: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: scale(78),
+    height: scale(78),
+    overflow: "hidden",
+  },
+  discountRibbon: {
+    position: "absolute",
+    width: scale(102),
+    bottom: scale(10),
+    right: scale(-29),
+    backgroundColor: "#facc15",
+    paddingVertical: scale(3),
+    alignItems: "center",
+    transform: [{ rotate: "-45deg" }],
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 3,
+  },
+  discountRibbonText: {
+    fontSize: scaleFont(12),
+    fontWeight: "800",
+    color: "#292524",
+    letterSpacing: 0.3,
+  },
   cutInCartOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.22)",
@@ -1438,45 +1647,46 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   cutInCartCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
-  cutBody: { padding: 9, gap: 7 },
-  cutNameGradient: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 34,
-  },
+  cutBody: { padding: scale(9), gap: scale(7) },
   cutNameOverlay: {
     position: "absolute",
-    left: 8,
-    right: 8,
-    bottom: 6,
-    fontSize: 13,
+    left: 0,
+    bottom: 0,
+    maxWidth: "70%",
+    backgroundColor: "rgba(0,0,0,0.65)",
+    borderTopRightRadius: scale(12),
+    borderTopWidth: 1,
+    borderRightWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(4),
+    fontSize: scaleFont(12),
     fontWeight: "800",
     color: "#fff",
-    textShadowColor: "rgba(0,0,0,0.4)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   cutRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 4,
+    gap: scale(4),
   },
-  cutOutOfStock: { fontSize: 11.5, fontWeight: "700", color: "#dc2626" },
-  cutPriceLabel: { fontSize: 12, fontWeight: "600", color: "#a8a29e" },
+  cutOutOfStock: { fontSize: scaleFont(11.5), fontWeight: "700", color: "#dc2626" },
+  cutPriceLabel: { fontSize: scaleFont(12), fontWeight: "600", color: "#a8a29e" },
+  cutPriceLabelStrike: {
+    color: "#c4c0ba",
+    textDecorationLine: "line-through",
+  },
   cutAddBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(22),
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
@@ -1492,33 +1702,33 @@ const styles = StyleSheet.create({
   // Veb-dəki kimi düymənin küncündə kiçik "+" / "−" nişanı.
   cutAddBtnBadge: {
     position: "absolute",
-    bottom: -2,
-    right: -2,
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
+    bottom: scale(-2),
+    right: scale(-2),
+    width: scale(19),
+    height: scale(19),
+    borderRadius: scale(9.5),
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
-  cutAddBtnBadgeText: { fontSize: 11, fontWeight: "900", lineHeight: 13 },
+  cutAddBtnBadgeText: { fontSize: scaleFont(13), fontWeight: "900", lineHeight: moderateScale(15) },
 
   stepper: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: scale(4),
     backgroundColor: "#f5f5f4",
-    borderRadius: 9,
-    paddingHorizontal: 2,
+    borderRadius: scale(9),
+    paddingHorizontal: scale(2),
   },
   // İstifadəçi rahat basa bilsin deyə toxunma sahəsi böyüdüldü (25 → 34).
   stepperBtn: {
-    width: 34,
-    height: 34,
+    width: scale(34),
+    height: scale(34),
     alignItems: "center",
     justifyContent: "center",
   },
-  stepperText: { fontSize: 13.5, fontWeight: "800", color: "#292524" },
+  stepperText: { fontSize: scaleFont(13.5), fontWeight: "800", color: "#292524" },
 
   cartSheetBackdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -1535,17 +1745,17 @@ const styles = StyleSheet.create({
     zIndex: 40,
   },
   cartTopRail: {
-    height: 44,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    height: scale(44),
+    borderTopLeftRadius: scale(20),
+    borderTopRightRadius: scale(20),
     backgroundColor: "#F1E5E5",
     borderWidth: 2,
     borderColor: BRAND,
     borderBottomWidth: 0,
-    paddingHorizontal: 10,
+    paddingHorizontal: scale(10),
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: scale(8),
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -1557,16 +1767,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     minWidth: 0,
-    gap: 8,
+    gap: scale(8),
   },
   cartBubble: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: -40,
+    marginTop: scale(-40),
     zIndex: 5,
     shadowColor: "#000",
     shadowOpacity: 0.2,
@@ -1576,39 +1786,39 @@ const styles = StyleSheet.create({
   },
   cartBubbleBadge: {
     position: "absolute",
-    top: -4,
-    right: -4,
-    minWidth: 23,
-    height: 23,
-    borderRadius: 11.5,
+    top: scale(-4),
+    right: scale(-4),
+    minWidth: scale(23),
+    height: scale(23),
+    borderRadius: scale(11.5),
     backgroundColor: "#B01818",
     borderWidth: 2,
     borderColor: "#F1E5E5",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 3,
+    paddingHorizontal: scale(3),
   },
   cartBubbleBadgeText: {
     color: "#fff",
-    fontSize: 12.5,
+    fontSize: scaleFont(12.5),
     fontWeight: "900",
-    lineHeight: 14.5,
+    lineHeight: moderateScale(14.5),
   },
   cartThumbsRow: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     minWidth: 0,
-    paddingLeft: 2,
+    paddingLeft: scale(2),
   },
   cartThumb: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: scale(42),
+    height: scale(42),
+    borderRadius: scale(21),
     overflow: "hidden",
     borderWidth: 2,
     borderColor: BRAND,
-    marginTop: -36,
+    marginTop: scale(-36),
     zIndex: 4,
     alignItems: "center",
     justifyContent: "center",
@@ -1618,24 +1828,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  cartThumbStack: { marginLeft: -14 },
+  cartThumbStack: { marginLeft: scale(-14) },
   cartThumbImage: { width: "100%", height: "100%", resizeMode: "contain" },
   cartExpandedTotal: {
-    fontSize: 16.5,
+    fontSize: scaleFont(16.5),
     color: "#292524",
     fontWeight: "900",
-    paddingHorizontal: 4,
+    paddingHorizontal: scale(4),
   },
   cartPayBtn: {
-    height: 40,
-    borderRadius: 20,
+    height: scale(40),
+    borderRadius: scale(20),
     backgroundColor: BRAND,
-    paddingLeft: 14,
-    paddingRight: 12,
+    paddingLeft: scale(14),
+    paddingRight: scale(12),
     flexDirection: "row",
     alignItems: "center",
-    gap: 9,
-    marginTop: -37,
+    gap: scale(9),
+    marginTop: scale(-37),
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 6,
@@ -1643,21 +1853,21 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cartPayBtnDisabled: { opacity: 0.45 },
-  cartPayBtnText: { color: "#fff", fontSize: 16, fontWeight: "900" },
+  cartPayBtnText: { color: "#fff", fontSize: scaleFont(16), fontWeight: "900" },
   cartPayDivider: {
-    width: 1,
+    width: scale(1),
     alignSelf: "stretch",
     backgroundColor: "rgba(255,255,255,0.24)",
   },
   cartPayAmountWrap: {
     flexDirection: "row",
     alignItems: "baseline",
-    gap: 4,
+    gap: scale(4),
   },
-  cartPayAmountText: { color: "#fff", fontSize: 14.5, fontWeight: "900" },
+  cartPayAmountText: { color: "#fff", fontSize: scaleFont(14.5), fontWeight: "900" },
   cartPayAznText: {
     color: "rgba(255,255,255,0.84)",
-    fontSize: 11.5,
+    fontSize: scaleFont(11.5),
     fontWeight: "700",
   },
 
@@ -1688,31 +1898,31 @@ const styles = StyleSheet.create({
   },
   cartSheetList: { flexGrow: 0 },
   cartSheetListContent: {
-    gap: 8,
-    paddingHorizontal: 10,
-    paddingTop: 8,
-    paddingBottom: 10,
+    gap: scale(8),
+    paddingHorizontal: scale(10),
+    paddingTop: scale(8),
+    paddingBottom: scale(10),
   },
   cartEmptyState: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 30,
-    gap: 6,
+    paddingVertical: scale(30),
+    gap: scale(6),
   },
-  cartEmptyText: { fontSize: 14.5, color: "#a8a29e", fontWeight: "600" },
+  cartEmptyText: { fontSize: scaleFont(14.5), color: "#a8a29e", fontWeight: "600" },
   sheetItemRow: {
     flexDirection: "row",
-    gap: 11,
+    gap: scale(11),
     backgroundColor: "#fff",
-    borderRadius: 14,
+    borderRadius: scale(14),
     borderWidth: 1,
     borderColor: "#f0ede8",
-    padding: 9,
+    padding: scale(9),
   },
   sheetItemImageWrap: {
-    width: 62,
-    height: 62,
-    borderRadius: 11,
+    width: scale(62),
+    height: scale(62),
+    borderRadius: scale(11),
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
@@ -1724,72 +1934,72 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 6,
+    gap: scale(6),
   },
-  sheetItemTitle: { fontSize: 15.5, fontWeight: "800", color: "#292524" },
+  sheetItemTitle: { fontSize: scaleFont(15.5), fontWeight: "800", color: "#292524" },
   sheetItemMeta: {
-    marginTop: 2,
-    fontSize: 13.5,
+    marginTop: scale(2),
+    fontSize: scaleFont(13.5),
     color: "#a8a29e",
     fontWeight: "600",
   },
-  sheetTrashBtn: { padding: 3 },
+  sheetTrashBtn: { padding: scale(3) },
   sheetItemBottom: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 8,
-    marginTop: 7,
+    gap: scale(8),
+    marginTop: scale(7),
   },
-  sheetQtyText: { fontSize: 14.5, fontWeight: "800", color: "#292524" },
+  sheetQtyText: { fontSize: scaleFont(14.5), fontWeight: "800", color: "#292524" },
   sheetStepper: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: scale(5),
     backgroundColor: "#f5f5f4",
-    borderRadius: 8,
-    paddingHorizontal: 4,
-    paddingVertical: 3,
+    borderRadius: scale(8),
+    paddingHorizontal: scale(4),
+    paddingVertical: scale(3),
   },
   sheetStepperBtn: {
-    width: 29,
-    height: 29,
+    width: scale(29),
+    height: scale(29),
     alignItems: "center",
     justifyContent: "center",
   },
-  sheetStepperText: { fontSize: 14, fontWeight: "800", color: "#292524" },
-  sheetItemPrice: { fontSize: 15.5, fontWeight: "900", color: BRAND },
+  sheetStepperText: { fontSize: scaleFont(14), fontWeight: "800", color: "#292524" },
+  sheetItemPrice: { fontSize: scaleFont(15.5), fontWeight: "900", color: BRAND },
   sheetSummaryCard: {
-    borderRadius: 12,
+    borderRadius: scale(12),
     backgroundColor: "#FBF8F4",
-    paddingHorizontal: 11,
-    paddingVertical: 9,
-    gap: 6,
+    paddingHorizontal: scale(11),
+    paddingVertical: scale(9),
+    gap: scale(6),
   },
   sheetSummaryRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  sheetSummaryLabel: { fontSize: 13.5, color: "#78716c", fontWeight: "600" },
+  sheetSummaryLabel: { fontSize: scaleFont(13.5), color: "#78716c", fontWeight: "600" },
   sheetSummaryTotalRow: {
-    marginTop: 3,
-    paddingTop: 7,
+    marginTop: scale(3),
+    paddingTop: scale(7),
     borderTopWidth: 1,
     borderTopColor: "#f0ede8",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  sheetSummaryTotalText: { fontSize: 17, fontWeight: "900", color: "#292524" },
+  sheetSummaryTotalText: { fontSize: scaleFont(17), fontWeight: "900", color: "#292524" },
   sheetCheckoutBtn: {
-    marginTop: 8,
-    height: 48,
-    borderRadius: 12,
+    marginTop: scale(8),
+    height: scale(48),
+    borderRadius: scale(12),
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
   },
   sheetCheckoutBtnDisabled: { opacity: 0.45 },
-  sheetCheckoutBtnText: { color: "#fff", fontSize: 17, fontWeight: "900" },
+  sheetCheckoutBtnText: { color: "#fff", fontSize: scaleFont(17), fontWeight: "900" },
 });

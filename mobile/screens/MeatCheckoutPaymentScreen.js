@@ -8,6 +8,9 @@ import { CreditCard, Lock, X } from "lucide-react-native";
 import MeatStepHeader from "../components/meat/MeatStepHeader";
 import { useMeatCart } from "../context/MeatCartContext";
 import api from "../lib/api";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#4B0F0F";
 
@@ -33,6 +36,7 @@ export default function MeatCheckoutPaymentScreen() {
   const insets = useSafeAreaInsets();
   const { orderId, totalPrice, autoPay } = route.params || {};
   const { clearCart } = useMeatCart();
+  const { lang } = useLanguage();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -63,10 +67,10 @@ export default function MeatCheckoutPaymentScreen() {
         finishedRef.current = false;
         setPayUrl(res.data.data.redirect_url);
       } else {
-        setError(res.data.message || "Ödəniş başladıla bilmədi.");
+        setError(res.data.message || t(lang, "meatPay_startFailed"));
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Ödəniş başladıla bilmədi.");
+      setError(err.response?.data?.message || t(lang, "meatPay_startFailed"));
     }
     setLoading(false);
   }, [orderId]);
@@ -92,7 +96,7 @@ export default function MeatCheckoutPaymentScreen() {
         clearCart();
         navigation.replace("MeatOrderDetail", { orderId });
       } else {
-        setError("Ödəniş uğursuz oldu. Yenidən cəhd edin.");
+        setError(t(lang, "donateModal_paymentFailed"));
       }
     }
   };
@@ -104,24 +108,24 @@ export default function MeatCheckoutPaymentScreen() {
       <StatusBar style="dark" />
       <MeatStepHeader currentStep={3} backTo="MeatCheckoutSummary" />
 
-      <View style={{ padding: 14, gap: 12 }}>
+      <View style={{ padding: scale(14), gap: scale(12) }}>
         <View style={styles.amountCard}>
-          <Text style={styles.amountLabel}>Ödəniləcək məbləğ</Text>
+          <Text style={styles.amountLabel}>{t(lang, "meatPay_amountLabel")}</Text>
           <Text style={styles.amountValue}>{totalPrice} AZN</Text>
         </View>
 
         <View style={styles.infoRow}>
           <CreditCard size={23} color={BRAND} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.infoTitle}>Bank kartı ilə ödəniş</Text>
-            <Text style={styles.infoSub}>Visa, MasterCard — Epoint təhlükəsiz ödəniş sistemi</Text>
+            <Text style={styles.infoTitle}>{t(lang, "meatPay_cardTitle")}</Text>
+            <Text style={styles.infoSub}>{t(lang, "meatPay_cardSub")}</Text>
           </View>
         </View>
 
         <View style={styles.lockNotice}>
-          <Lock size={17} color="#2563eb" style={{ marginTop: 1 }} />
+          <Lock size={17} color="#2563eb" style={{ marginTop: scale(1) }} />
           <Text style={styles.lockNoticeText}>
-            Kart məlumatlarınız Epoint tərəfindən şifrələnərək qorunur.
+            {t(lang, "meatPay_lockNotice")}
           </Text>
         </View>
 
@@ -132,7 +136,7 @@ export default function MeatCheckoutPaymentScreen() {
         ) : null}
 
         <Pressable style={[styles.payBtn, loading && styles.payBtnDisabled]} onPress={handlePay} disabled={loading}>
-          <Text style={styles.payBtnText}>{loading ? "Yönləndirilir..." : `${totalPrice} AZN ödə`}</Text>
+          <Text style={styles.payBtnText}>{loading ? t(lang, "meatPay_redirecting") : t(lang, "meatPay_payAmountTemplate").replace("{amount}", totalPrice)}</Text>
         </Pressable>
       </View>
 
@@ -143,8 +147,8 @@ export default function MeatCheckoutPaymentScreen() {
             <Pressable style={styles.webviewCloseBtn} onPress={() => setPayUrl(null)}>
               <X size={18} color="#374151" />
             </Pressable>
-            <Text style={styles.webviewTitle}>MeatBox Ödəniş</Text>
-            <View style={{ width: 32 }} />
+            <Text style={styles.webviewTitle}>{t(lang, "meatPay_webviewTitle")}</Text>
+            <View style={{ width: scale(32) }} />
           </View>
           <WebView
             style={{ flex: 1 }}
@@ -165,27 +169,27 @@ export default function MeatCheckoutPaymentScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#FAF8F5" },
-  amountCard: { borderRadius: 18, backgroundColor: BRAND, paddingHorizontal: 24, paddingVertical: 24, alignItems: "center" },
-  amountLabel: { fontSize: 13, fontWeight: "700", color: "rgba(255,255,255,0.8)", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 5 },
-  amountValue: { fontSize: 38, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
+  amountCard: { borderRadius: scale(18), backgroundColor: BRAND, paddingHorizontal: scale(24), paddingVertical: scale(24), alignItems: "center" },
+  amountLabel: { fontSize: scaleFont(13), fontWeight: "700", color: "rgba(255,255,255,0.8)", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: scale(5) },
+  amountValue: { fontSize: scaleFont(38), fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
 
-  infoRow: { flexDirection: "row", alignItems: "center", gap: 13, borderRadius: 16, borderWidth: 1, borderColor: "#f0ede8", backgroundColor: "#fff", padding: 16 },
-  infoTitle: { fontSize: 16, fontWeight: "800", color: "#292524" },
-  infoSub: { fontSize: 14, color: "#a8a29e", marginTop: 3 },
+  infoRow: { flexDirection: "row", alignItems: "center", gap: scale(13), borderRadius: scale(16), borderWidth: 1, borderColor: "#f0ede8", backgroundColor: "#fff", padding: scale(16) },
+  infoTitle: { fontSize: scaleFont(16), fontWeight: "800", color: "#292524" },
+  infoSub: { fontSize: scaleFont(14), color: "#a8a29e", marginTop: scale(3) },
 
-  lockNotice: { flexDirection: "row", alignItems: "flex-start", gap: 10, borderRadius: 12, borderWidth: 1, borderColor: "#bfdbfe", backgroundColor: "#eff6ff", paddingHorizontal: 14, paddingVertical: 12 },
-  lockNoticeText: { flex: 1, fontSize: 14, color: "#1d4ed8" },
+  lockNotice: { flexDirection: "row", alignItems: "flex-start", gap: scale(10), borderRadius: scale(12), borderWidth: 1, borderColor: "#bfdbfe", backgroundColor: "#eff6ff", paddingHorizontal: scale(14), paddingVertical: scale(12) },
+  lockNoticeText: { flex: 1, fontSize: scaleFont(14), color: "#1d4ed8" },
 
-  errorBox: { borderRadius: 12, borderWidth: 1, borderColor: "#fecaca", backgroundColor: "#fef2f2", paddingHorizontal: 14, paddingVertical: 12 },
-  errorText: { color: "#b91c1c", fontSize: 15, fontWeight: "700" },
+  errorBox: { borderRadius: scale(12), borderWidth: 1, borderColor: "#fecaca", backgroundColor: "#fef2f2", paddingHorizontal: scale(14), paddingVertical: scale(12) },
+  errorText: { color: "#b91c1c", fontSize: scaleFont(15), fontWeight: "700" },
 
-  payBtn: { height: 56, borderRadius: 14, backgroundColor: BRAND, alignItems: "center", justifyContent: "center" },
+  payBtn: { height: scale(56), borderRadius: scale(14), backgroundColor: BRAND, alignItems: "center", justifyContent: "center" },
   payBtnDisabled: { opacity: 0.6 },
-  payBtnText: { color: "#fff", fontSize: 16.5, fontWeight: "800" },
+  payBtnText: { color: "#fff", fontSize: scaleFont(16.5), fontWeight: "800" },
 
   webviewOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#fff", zIndex: 50, elevation: 50 },
-  webviewHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
-  webviewCloseBtn: { width: 32, height: 32, borderRadius: 8, borderWidth: 1, borderColor: "#e5e7eb", backgroundColor: "#f8f9fb", alignItems: "center", justifyContent: "center" },
-  webviewTitle: { fontSize: 13, fontWeight: "800", color: "#171717" },
+  webviewHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(14), paddingBottom: scale(10), borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
+  webviewCloseBtn: { width: scale(32), height: scale(32), borderRadius: scale(8), borderWidth: 1, borderColor: "#e5e7eb", backgroundColor: "#f8f9fb", alignItems: "center", justifyContent: "center" },
+  webviewTitle: { fontSize: scaleFont(13), fontWeight: "800", color: "#171717" },
   webviewLoading: { flex: 1, alignItems: "center", justifyContent: "center" },
 });

@@ -5,7 +5,6 @@ import {
   ANIMAL_COLOR,
   SELECTED_FILL,
   FOOD_EXCLUDED_FILL,
-  FOOD_EXCLUDED_STROKE,
   getRegionGeometry,
   REGION_DOTS,
   REGION_DOT_W,
@@ -34,14 +33,20 @@ export default function OrderAnimalMap({
 
         {Object.entries(geometry).map(([partKey, d]) => {
           const purchased = purchasedPartKeys.has(partKey);
+          const fill = purchased ? SELECTED_FILL : FOOD_EXCLUDED_FILL;
+          const fillOpacity = purchased ? 1 : 0.7;
           return (
             <Path
               key={partKey}
               d={d}
-              fill={purchased ? SELECTED_FILL : FOOD_EXCLUDED_FILL}
-              fillOpacity={purchased ? 1 : 0.7}
-              stroke={purchased ? SELECTED_FILL : dotsD ? "none" : FOOD_EXCLUDED_STROKE}
-              strokeWidth={purchased ? 4 : dotsD ? 0 : 1.5}
+              fill={fill}
+              fillOpacity={fillOpacity}
+              // react-native-svg bitişik bölgə path-ları arasında nazik
+              // anti-aliasing seam buraxır (bax: AnimalBodyMap.js-dəki eyni
+              // qeyd) — dolğunluqla eyni rəng/opaklıqda stroke bunu bağlayır.
+              stroke={fill}
+              strokeOpacity={fillOpacity}
+              strokeWidth={purchased ? 4 : 1}
               strokeLinejoin="round"
             />
           );

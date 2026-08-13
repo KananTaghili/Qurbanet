@@ -1,5 +1,6 @@
 import { View, Text, Image, StyleSheet } from "react-native";
 import { Beef } from "lucide-react-native";
+import { scale } from "../../lib/scale";
 
 const PER_ROW = 5;
 
@@ -14,7 +15,7 @@ export default function OrderCutAvatarStack({ items, size = 32 }) {
   }
 
   return (
-    <View style={{ gap: 6 }}>
+    <View style={{ gap: scale(6) }}>
       {rows.map((row, rowIdx) => (
         <View key={rowIdx} style={{ flexDirection: "row", alignItems: "center" }}>
           {row.map((it, idx) => (

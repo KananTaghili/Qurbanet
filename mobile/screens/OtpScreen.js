@@ -6,11 +6,15 @@ import AuthShell from "../components/AuthShell";
 import s from "../components/authFormStyles";
 import { useAuth } from "../context/AuthContext";
 import api from "../lib/api";
+import { scale, moderateScale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 export default function OtpScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { login } = useAuth();
+  const { lang } = useLanguage();
   const { identifier, identifierType, flow, from } = route.params || {};
   const isLogin = flow === "login";
 
@@ -38,11 +42,11 @@ export default function OtpScreen() {
 
   const handleSubmit = async () => {
     const otp = code.join("");
-    if (otp.length < 4) return setError("4 rəqəmli kodu daxil edin.");
+    if (otp.length < 4) return setError(t(lang, "otp_errorCodeIncomplete"));
     if (!isLogin) {
-      if (name.trim().length < 2) return setError("Ad ən az 2 hərf olmalıdır.");
-      if (lastName.trim().length < 2) return setError("Soyad ən az 2 hərf olmalıdır.");
-      if (!password || password.length < 6) return setError("Şifrə ən az 6 simvol olmalıdır.");
+      if (name.trim().length < 2) return setError(t(lang, "authForm_errorFirstNameShort"));
+      if (lastName.trim().length < 2) return setError(t(lang, "authForm_errorLastNameShort"));
+      if (!password || password.length < 6) return setError(t(lang, "authForm_errorPasswordShort"));
     }
 
     setLoading(true);
@@ -62,7 +66,7 @@ export default function OtpScreen() {
             user = profileRes.data.data?.user || { ...user, name: name.trim() };
             await login(token, user);
           } catch (profileErr) {
-            setError(profileErr.response?.data?.message || "Ad yenilənə bilmədi.");
+            setError(profileErr.response?.data?.message || t(lang, "otp_errorNameUpdateFailed"));
             setLoading(false);
             return;
           }
@@ -73,9 +77,9 @@ export default function OtpScreen() {
     } catch (err) {
       const status = err.response?.status;
       const msg = err.response?.data?.message;
-      if (!status || status >= 500) setError("Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən cəhd edin.");
-      else if (status === 404) setError("Kod müddəti bitib və ya tapılmadı. Yenidən kod göndərin.");
-      else setError(msg || "Daxil etdiyiniz kod yanlışdır. Yenidən cəhd edin.");
+      if (!status || status >= 500) setError(t(lang, "authForm_errorServiceUnavailable"));
+      else if (status === 404) setError(t(lang, "otp_errorCodeExpired"));
+      else setError(msg || t(lang, "authForm_errorWrongCode"));
       setCode(["", "", "", ""]);
       inputs.current[0]?.focus();
     } finally {
@@ -83,7 +87,7 @@ export default function OtpScreen() {
     }
   };
 
-  const subtitle = identifierType === "email" ? "ünvanına göndərilən 4 rəqəmli kodu daxil edin." : "nömrəsinə göndərilən 4 rəqəmli kodu daxil edin.";
+  const subtitle = identifierType === "email" ? t(lang, "otp_subtitleToEmail") : t(lang, "otp_subtitleToPhone");
 
   return (
     <AuthShell onBack={() => navigation.goBack()}>
@@ -91,7 +95,7 @@ export default function OtpScreen() {
         <Pressable style={styles.smallBack} onPress={() => navigation.goBack()}>
           <ArrowLeft size={17} color="#241331" />
         </Pressable>
-        <Text style={{ fontSize: 20, fontWeight: "800", color: "#111827" }}>Kodu daxil edin</Text>
+        <Text style={{ fontSize: scaleFont(20), fontWeight: "800", color: "#111827" }}>{t(lang, "otp_title")}</Text>
       </View>
       <Text style={styles.subtitle}>
         <Text style={{ fontWeight: "800", color: "#241331" }}>{identifier}</Text> {subtitle}
@@ -116,36 +120,36 @@ export default function OtpScreen() {
       {!isLogin && (
         <>
           <View style={s.field}>
-            <Text style={s.label}>Ad *</Text>
+            <Text style={s.label}>{t(lang, "otp_firstNameLabel")}</Text>
             <TextInput
               style={s.plainInput}
               value={name}
               autoCapitalize="words"
-              placeholder="Məsələn: Əli"
+              placeholder={t(lang, "otp_firstNamePlaceholder")}
               placeholderTextColor="#9ca3af"
               onChangeText={(v) => { setName(v); setError(""); }}
             />
           </View>
           <View style={s.field}>
-            <Text style={s.label}>Soyad *</Text>
+            <Text style={s.label}>{t(lang, "otp_lastNameLabel")}</Text>
             <TextInput
               style={s.plainInput}
               value={lastName}
               autoCapitalize="words"
-              placeholder="Məsələn: Hüseynov"
+              placeholder={t(lang, "otp_lastNamePlaceholder")}
               placeholderTextColor="#9ca3af"
               onChangeText={(v) => { setLastName(v); setError(""); }}
             />
           </View>
           <View style={s.field}>
-            <Text style={s.label}>Şifrə *</Text>
+            <Text style={s.label}>{t(lang, "authForm_passwordRequiredLabel")}</Text>
             <View style={s.inputBox}>
               <TextInput
                 style={s.input}
                 value={password}
                 secureTextEntry={!showPassword}
                 maxLength={128}
-                placeholder="Ən az 6 simvol"
+                placeholder={t(lang, "authForm_passwordMinPlaceholder")}
                 placeholderTextColor="#9ca3af"
                 onChangeText={(v) => { setPassword(v); setError(""); }}
               />
@@ -164,12 +168,12 @@ export default function OtpScreen() {
       ) : null}
 
       <Pressable style={[s.primaryBtn, loading && s.primaryBtnDisabled]} onPress={handleSubmit} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>Təsdiq et</Text>}
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryBtnText}>{t(lang, "authForm_verifyButton")}</Text>}
       </Pressable>
 
       <Pressable style={s.linkBtn} onPress={() => navigation.goBack()}>
         <Text style={s.linkBtnText}>
-          {identifierType === "email" ? "← Email ünvanını dəyiş" : "← Telefon nömrəsini dəyiş"}
+          {identifierType === "email" ? t(lang, "otp_changeEmailLink") : t(lang, "otp_changePhoneLink")}
         </Text>
       </Pressable>
     </AuthShell>
@@ -177,24 +181,24 @@ export default function OtpScreen() {
 }
 
 const styles = StyleSheet.create({
-  headRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
+  headRow: { flexDirection: "row", alignItems: "center", gap: scale(10), marginBottom: scale(6) },
   smallBack: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
+    width: scale(34),
+    height: scale(34),
+    borderRadius: scale(10),
     backgroundColor: "#f5f5f7",
     alignItems: "center",
     justifyContent: "center",
   },
-  subtitle: { fontSize: 13, color: "#6b7280", marginBottom: 20, lineHeight: 19 },
-  otpRow: { flexDirection: "row", gap: 10, justifyContent: "center", marginBottom: 20 },
+  subtitle: { fontSize: scaleFont(13), color: "#6b7280", marginBottom: scale(20), lineHeight: moderateScale(19) },
+  otpRow: { flexDirection: "row", gap: scale(10), justifyContent: "center", marginBottom: scale(20) },
   otpBox: {
-    width: 52,
-    height: 56,
+    width: scale(52),
+    height: scale(56),
     textAlign: "center",
-    fontSize: 20,
+    fontSize: scaleFont(20),
     fontWeight: "700",
-    borderRadius: 14,
+    borderRadius: scale(14),
     borderWidth: 2,
     borderColor: "#e5e7eb",
     backgroundColor: "#f9fafb",

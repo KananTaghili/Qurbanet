@@ -40,72 +40,83 @@ import {
 import { Knife } from "phosphor-react-native/src/icons/Knife";
 import { useAuth } from "../context/AuthContext";
 import api from "../lib/api";
+import { scale, scaleFont } from "../lib/scale";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
 
 const BRAND = "#1c5e20";
-const AZ_MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "İyun", "İyul", "Avq", "Sen", "Okt", "Noy", "Dek"];
 
-function fmtDate(ds) {
+function fmtDate(ds, lang) {
   if (!ds) return "—";
   const d = new Date(ds);
-  return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${t(lang, "months_short")[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-const STATUS_CFG = {
-  awaiting_payment: { label: "Ödəniş gözlənilir", Icon: CreditCard, step: 0 },
-  placed: { label: "Sifariş yoxlanılır", Icon: Clock, step: 0 },
-  pending_payment: { label: "Ödəniş gözlənilir", Icon: CreditCard, step: 0 },
-  confirmed: { label: "Təsdiqləndi", Icon: CheckCircle2, step: 1 },
-  paid: { label: "Ödənilib", Icon: CreditCard, step: 1 },
-  slaughtering: { label: "Kəsilir", Icon: Knife, step: 2 },
-  preparing: { label: "Hazırlanır", Icon: Package, step: 3 },
-  delivering: { label: "Çatdırılır", Icon: Truck, step: 4 },
-  completed: { label: "Tamamlandı", Icon: CheckCircle2, step: 5 },
-  cancelled: { label: "Ləğv edildi", Icon: XCircle, step: -1 },
-};
+function statusCfg(lang) {
+  return {
+    awaiting_payment: { label: t(lang, "orderStatus_awaitingPayment"), Icon: CreditCard, step: 0 },
+    placed: { label: t(lang, "orderStatus_placed"), Icon: Clock, step: 0 },
+    pending_payment: { label: t(lang, "orderStatus_awaitingPayment"), Icon: CreditCard, step: 0 },
+    confirmed: { label: t(lang, "orderStatus_confirmed"), Icon: CheckCircle2, step: 1 },
+    paid: { label: t(lang, "orderStatus_paid"), Icon: CreditCard, step: 1 },
+    slaughtering: { label: t(lang, "orderStatus_slaughtering"), Icon: Knife, step: 2 },
+    preparing: { label: t(lang, "orderStatus_preparing"), Icon: Package, step: 3 },
+    delivering: { label: t(lang, "orderStatus_delivering"), Icon: Truck, step: 4 },
+    completed: { label: t(lang, "orderStatus_completed"), Icon: CheckCircle2, step: 5 },
+    cancelled: { label: t(lang, "orderStatus_cancelled"), Icon: XCircle, step: -1 },
+  };
+}
 
-const PIPELINE_STEPS = [
-  { label: "Sifariş yoxlanılır", Icon: Clock },
-  { label: "Təsdiqləndi", Icon: CheckCircle2 },
-  { label: "Kəsilir", Icon: Knife },
-  { label: "Hazırlanır", Icon: Package },
-  { label: "Çatdırılır", Icon: Truck },
-  { label: "Tamamlandı", Icon: Star },
-];
+function pipelineSteps(lang) {
+  return [
+    { label: t(lang, "orderStatus_placed"), Icon: Clock },
+    { label: t(lang, "orderStatus_confirmed"), Icon: CheckCircle2 },
+    { label: t(lang, "orderStatus_slaughtering"), Icon: Knife },
+    { label: t(lang, "orderStatus_preparing"), Icon: Package },
+    { label: t(lang, "orderStatus_delivering"), Icon: Truck },
+    { label: t(lang, "orderStatus_completed"), Icon: Star },
+  ];
+}
 
-const DIST_LABELS = {
-  catdirilsin: "Sizə çatdırılsın",
-  ozun_gotur: "Özüm götürəcəm",
-  ozum: "Özüm götürəcəm",
-  usaqlar_evi: "Uşaqlar evi",
-  qocalar_evi: "Qocalar evi",
-  ehtiyac_sahibleri: "Ehtiyac sahibləri",
-};
-const CUT_LABELS = {
-  tam_cemdek: "Tam cəmdək",
-  kababliq: "Kabablıq",
-  qazan_yemekleri: "Qazan yeməkləri",
-  qiyma: "Qiyma",
-};
+function distLabels(lang) {
+  return {
+    catdirilsin: t(lang, "detailOrder_distDeliver"),
+    ozun_gotur: t(lang, "detailOrder_distPickup"),
+    ozum: t(lang, "detailOrder_distPickup"),
+    usaqlar_evi: t(lang, "detailOrder_distChildren"),
+    qocalar_evi: t(lang, "detailOrder_distElderly"),
+    ehtiyac_sahibleri: t(lang, "detailOrder_distNeedy"),
+  };
+}
+function cutLabels(lang) {
+  return {
+    tam_cemdek: t(lang, "detailOrder_cutFullCarcass"),
+    kababliq: t(lang, "detailOrder_cutKababliq"),
+    qazan_yemekleri: t(lang, "detailOrder_cutPotDishes"),
+    qiyma: t(lang, "detailOrder_cutMince"),
+  };
+}
 
-function VerticalTimeline({ step }) {
+function VerticalTimeline({ step, lang }) {
   if (step < 0) return null;
+  const steps = pipelineSteps(lang);
   return (
     <View>
-      {PIPELINE_STEPS.map(({ label, Icon }, i) => {
+      {steps.map(({ label, Icon }, i) => {
         const done = i <= step;
         const active = i === step;
-        const isLast = i === PIPELINE_STEPS.length - 1;
+        const isLast = i === steps.length - 1;
         return (
-          <View key={i} style={{ flexDirection: "row", gap: 10 }}>
+          <View key={i} style={{ flexDirection: "row", gap: scale(10) }}>
             <View style={{ alignItems: "center" }}>
               <View style={[styles.tlCircle, { backgroundColor: done ? BRAND : "#f0f7f0", borderColor: done ? BRAND : "#d1d5db" }, active && styles.tlCircleActive]}>
                 <Icon size={13} color={done ? "#fff" : "#9ca3af"} />
               </View>
               {!isLast && <View style={[styles.tlConnector, { backgroundColor: done && i < step ? BRAND : "#e5e7eb" }]} />}
             </View>
-            <View style={{ paddingTop: 3, paddingBottom: isLast ? 0 : 16 }}>
+            <View style={{ paddingTop: scale(3), paddingBottom: isLast ? 0 : 16 }}>
               <Text style={[styles.tlLabel, { color: done ? "#071b0d" : "#9ca3af" }]}>{label}</Text>
-              {active && <Text style={styles.tlActiveText}>Hal-hazırda</Text>}
+              {active && <Text style={styles.tlActiveText}>{t(lang, "detailOrder_currentlyLabel")}</Text>}
             </View>
           </View>
         );
@@ -134,15 +145,15 @@ function SectionHead({ Icon, label, iconBg = "#e8f5e9", iconColor = BRAND }) {
   );
 }
 
-function MediaThumb({ item, index, onOpen, token }) {
+function MediaThumb({ item, index, onOpen, token, lang }) {
   const isVideo = item.type === "video";
-  const label = isVideo ? "Video" : "Foto";
+  const label = isVideo ? t(lang, "detailOrder_videoLabel") : t(lang, "detailOrder_photoLabel");
   return (
     <Pressable style={styles.mediaThumb} onPress={() => onOpen(index)}>
       {isVideo ? (
         <View style={styles.mediaVideoThumb}>
           <View style={styles.mediaPlayBtn}>
-            <Play size={18} color={BRAND} style={{ marginLeft: 2 }} />
+            <Play size={18} color={BRAND} style={{ marginLeft: scale(2) }} />
           </View>
           <Text style={styles.mediaThumbLabel}>{label}</Text>
         </View>
@@ -204,6 +215,7 @@ export default function OrderDetailScreen() {
   const insets = useSafeAreaInsets();
   const { token } = useAuth();
   const { orderId } = route.params || {};
+  const { lang } = useLanguage();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -261,7 +273,7 @@ export default function OrderDetailScreen() {
       await api.post(`/orders/${orderId}/review`, { rating, comment });
       setReviewed(true);
     } catch (err) {
-      Alert.alert("Xəta", err.response?.data?.message || "Xəta baş verdi.");
+      Alert.alert(t(lang, "detailOrder_errorTitle"), err.response?.data?.message || t(lang, "donateModal_genericError"));
     } finally {
       setReviewing(false);
     }
@@ -278,13 +290,13 @@ export default function OrderDetailScreen() {
   if (!order) return null;
 
   const status = order.status || "placed";
-  const cfg = STATUS_CFG[status] || STATUS_CFG.placed;
+  const cfg = statusCfg(lang)[status] || statusCfg(lang).placed;
   const StatusIcon = cfg.Icon;
   const step = cfg.step;
-  const PipeIcon = PIPELINE_STEPS[Math.max(0, step)]?.Icon || StatusIcon;
+  const PipeIcon = pipelineSteps(lang)[Math.max(0, step)]?.Icon || StatusIcon;
 
   const animalImg = order.animalImageUrl;
-  const animalName = order.animalNameAz || "Heyvan";
+  const animalName = order.animalNameAz || t(lang, "myOrders_animalFallback");
   const totalAmt = order.totalPrice ?? 0;
   const orderNum = order.orderNumber || String(orderId).slice(-6).toUpperCase();
   const allMedia = order.media || [];
@@ -292,20 +304,20 @@ export default function OrderDetailScreen() {
   const isSelfPickup = ["ozun_gotur", "ozum"].includes(order.distribution?.type) || order.selfPickup;
 
   const detailRows = [
-    { label: "Sifariş növü", value: order.orderMode === "serikli" ? "Şərikli" : "Tam heyvan" },
-    { label: "Miqdar", value: `${order.quantity || 1} ədəd` },
-    ...(weight ? [{ label: "Diri Çəki", value: weight }] : []),
-    { label: "Çatdırılma", value: DIST_LABELS[order.distribution?.type] || "—" },
-    { label: "Kəsim tarixi", value: fmtDate(order.slaughterDate) },
-    { label: "Çatdırılma vaxtı", value: order.deliveryWindow || "—" },
-    ...(order.distribution?.location ? [{ label: "Ünvan", value: order.distribution.location }] : []),
-    ...(order.distribution?.phones?.length > 0 ? [{ label: "Nömrə", value: order.distribution.phones.join(", ") }] : []),
-    ...(order.distribution?.note ? [{ label: "Qeyd", value: order.distribution.note }] : []),
+    { label: t(lang, "detailOrder_orderTypeLabel"), value: order.orderMode === "serikli" ? t(lang, "detailOrder_sharedType") : t(lang, "detailOrder_fullAnimalType") },
+    { label: t(lang, "detailOrder_quantityLabel"), value: `${order.quantity || 1} ${t(lang, "detailOrder_unitSuffix")}` },
+    ...(weight ? [{ label: t(lang, "detailOrder_liveWeightLabel"), value: weight }] : []),
+    { label: t(lang, "detailOrder_deliveryLabel"), value: distLabels(lang)[order.distribution?.type] || "—" },
+    { label: t(lang, "detailOrder_slaughterDateLabel"), value: fmtDate(order.slaughterDate, lang) },
+    { label: t(lang, "detailOrder_deliveryTimeLabel"), value: order.deliveryWindow || "—" },
+    ...(order.distribution?.location ? [{ label: t(lang, "detailOrder_addressLabel"), value: order.distribution.location }] : []),
+    ...(order.distribution?.phones?.length > 0 ? [{ label: t(lang, "detailOrder_numberLabel"), value: order.distribution.phones.join(", ") }] : []),
+    ...(order.distribution?.note ? [{ label: t(lang, "detailOrder_noteLabel"), value: order.distribution.note }] : []),
     ...(order.contactInfo ? [
-      { label: "Əlaqə", value: `${order.contactInfo.firstName || ""} ${order.contactInfo.lastName || ""}`.trim() },
-      { label: "Telefon", value: order.contactInfo.mobile || "—" },
+      { label: t(lang, "detailOrder_contactLabel"), value: `${order.contactInfo.firstName || ""} ${order.contactInfo.lastName || ""}`.trim() },
+      { label: t(lang, "detailOrder_phoneLabel"), value: order.contactInfo.mobile || "—" },
     ] : []),
-    ...(order.userNote ? [{ label: "Müştəri qeydi", value: order.userNote }] : []),
+    ...(order.userNote ? [{ label: t(lang, "detailOrder_customerNoteLabel"), value: order.userNote }] : []),
   ];
 
   const cutEntries = (() => {
@@ -330,11 +342,11 @@ export default function OrderDetailScreen() {
         <Pressable style={[styles.backBtn, { top: insets.top }]} onPress={() => navigation.goBack()}>
           <ArrowLeft size={18} color="#fff" strokeWidth={2.5} />
         </Pressable>
-        <Text style={[styles.headerTitle, { paddingTop: insets.top + 18 }]}>Sifariş detalı</Text>
+        <Text style={[styles.headerTitle, { paddingTop: insets.top + 18 }]}>{t(lang, "detailOrder_headerTitle")}</Text>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: insets.bottom + 24, gap: 12 }}>
-        <View style={{ marginTop: 14 }}>
+      <ScrollView contentContainerStyle={{ padding: scale(14), paddingBottom: insets.bottom + 24, gap: scale(12) }}>
+        <View style={{ marginTop: scale(14) }}>
           <View style={styles.statusFloat}>
             <PipeIcon size={22} color="#fff" />
           </View>
@@ -354,7 +366,7 @@ export default function OrderDetailScreen() {
               <View style={styles.heroChipsRow}>
                 <View style={styles.heroChip}>
                   <ShoppingBag size={11} color="#2d5a2d" />
-                  <Text style={styles.heroChipText}>{order.quantity || order.sharedPortion || 1} ədəd</Text>
+                  <Text style={styles.heroChipText}>{order.quantity || order.sharedPortion || 1} {t(lang, "detailOrder_unitSuffix")}</Text>
                 </View>
                 <View style={styles.heroChip}>
                   <Wallet size={11} color={BRAND} />
@@ -367,30 +379,30 @@ export default function OrderDetailScreen() {
                   </View>
                 )}
               </View>
-              <Text style={styles.heroDate}>{fmtDate(order.createdAt)}</Text>
+              <Text style={styles.heroDate}>{fmtDate(order.createdAt, lang)}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.card}>
-          <SectionHead Icon={CheckCircle2} label="Sifariş gedişatı" />
-          <View style={{ padding: 14 }}>
-            <VerticalTimeline step={step} />
+          <SectionHead Icon={CheckCircle2} label={t(lang, "detailOrder_pipelineTitle")} />
+          <View style={{ padding: scale(14) }}>
+            <VerticalTimeline step={step} lang={lang} />
           </View>
         </View>
 
         <View style={styles.card}>
-          <SectionHead Icon={FileText} label="Sifariş məlumatları" />
+          <SectionHead Icon={FileText} label={t(lang, "detailOrder_orderInfoTitle")} />
           {detailRows.map((row, i) => (
             <InfoRow key={row.label} label={row.label} value={row.value} last={i === detailRows.length - 1 && cutEntries.length === 0} />
           ))}
           {cutEntries.length > 0 && (
             <>
               <View style={styles.cutHeadWrap}>
-                <Text style={styles.cutHeadText}>DOĞRANMA NÖVÜ</Text>
+                <Text style={styles.cutHeadText}>{t(lang, "detailOrder_cutTypeSectionLabel")}</Text>
               </View>
               {cutEntries.map(([k, v], i) => (
-                <InfoRow key={k} label={CUT_LABELS[k] || k} value={`${v} ədəd`} last={i === cutEntries.length - 1} />
+                <InfoRow key={k} label={cutLabels(lang)[k] || k} value={`${v} ${t(lang, "detailOrder_unitSuffix")}`} last={i === cutEntries.length - 1} />
               ))}
             </>
           )}
@@ -398,10 +410,10 @@ export default function OrderDetailScreen() {
 
         {allMedia.length > 0 && (
           <View style={styles.card}>
-            <SectionHead Icon={ImageIcon} label="Foto / Video" />
-            <View style={{ padding: 14, flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            <SectionHead Icon={ImageIcon} label={t(lang, "detailOrder_photoVideoTitle")} />
+            <View style={{ padding: scale(14), flexDirection: "row", flexWrap: "wrap", gap: scale(8) }}>
               {allMedia.map((m, i) => (
-                <MediaThumb key={i} item={m} index={i} token={token} onOpen={(idx) => setGallery({ items: allMedia, idx })} />
+                <MediaThumb key={i} item={m} index={i} token={token} lang={lang} onOpen={(idx) => setGallery({ items: allMedia, idx })} />
               ))}
             </View>
           </View>
@@ -409,21 +421,21 @@ export default function OrderDetailScreen() {
 
         {order.cashPickupCode && (
           <View style={styles.card}>
-            <SectionHead Icon={Banknote} label="Yerində ödəniş kodu" iconBg="#fef9ec" iconColor="#d97706" />
-            <View style={{ padding: 16, alignItems: "center", gap: 10 }}>
-              <Text style={styles.pickupHint}>MAĞAZADA GÖSTƏRİN</Text>
+            <SectionHead Icon={Banknote} label={t(lang, "detailOrder_cashCodeTitle")} iconBg="#fef9ec" iconColor="#d97706" />
+            <View style={{ padding: scale(16), alignItems: "center", gap: scale(10) }}>
+              <Text style={styles.pickupHint}>{t(lang, "detailOrder_showInStoreHint")}</Text>
               <View style={styles.codeBoxAmber}>
                 <Text style={styles.codeTextAmber}>{order.cashPickupCode}</Text>
               </View>
               {cashPickupLocation && (
-                <View style={{ alignItems: "center", gap: 6 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <View style={{ alignItems: "center", gap: scale(6) }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: scale(6) }}>
                     <MapPin size={13} color={BRAND} />
                     <Text style={styles.pickupAddr}>{cashPickupLocation.address}</Text>
                   </View>
                   <Pressable style={styles.mapLink} onPress={() => openMaps(cashPickupLocation)}>
                     <ExternalLink size={13} color={BRAND} />
-                    <Text style={styles.mapLinkText}>Xəritədə aç</Text>
+                    <Text style={styles.mapLinkText}>{t(lang, "detailOrder_openInMap")}</Text>
                   </Pressable>
                 </View>
               )}
@@ -433,15 +445,15 @@ export default function OrderDetailScreen() {
 
         {isSelfPickup && meatPickupLocation && (
           <View style={styles.card}>
-            <SectionHead Icon={ShoppingBag} label="Əti götürmə" />
-            <View style={{ padding: 14, gap: 10 }}>
+            <SectionHead Icon={ShoppingBag} label={t(lang, "detailOrder_pickupLocationTitle")} />
+            <View style={{ padding: scale(14), gap: scale(10) }}>
               <View style={styles.pickupBox}>
                 <MapPin size={14} color={BRAND} />
                 <Text style={styles.pickupBoxText}>{meatPickupLocation.address}</Text>
               </View>
               <Pressable style={styles.mapBtn} onPress={() => openMaps(meatPickupLocation)}>
                 <ExternalLink size={14} color={BRAND} />
-                <Text style={styles.mapBtnText}>Google Maps-də aç</Text>
+                <Text style={styles.mapBtnText}>{t(lang, "detailOrder_openInGoogleMaps")}</Text>
               </Pressable>
             </View>
           </View>
@@ -449,21 +461,21 @@ export default function OrderDetailScreen() {
 
         {order.deliveryConfirmCode && (
           <View style={styles.card}>
-            <SectionHead Icon={Truck} label="Çatdırılma kodu" iconBg="#eff6ff" iconColor="#3b82f6" />
-            <View style={{ padding: 16, alignItems: "center", gap: 8 }}>
+            <SectionHead Icon={Truck} label={t(lang, "detailOrder_deliveryCodeTitle")} iconBg="#eff6ff" iconColor="#3b82f6" />
+            <View style={{ padding: scale(16), alignItems: "center", gap: scale(8) }}>
               <View style={styles.codeBoxBlue}>
                 <Text style={styles.codeTextBlue}>{order.deliveryConfirmCode}</Text>
               </View>
-              <Text style={styles.pickupHintSmall}>Ət çatanda bu kodu kuryerə deyin</Text>
+              <Text style={styles.pickupHintSmall}>{t(lang, "detailOrder_deliveryCodeHint")}</Text>
             </View>
           </View>
         )}
 
         {order.status === "completed" && (
           <View style={styles.card}>
-            <SectionHead Icon={Star} label="Rəy bildirin" iconBg="#fef9ec" iconColor="#f59e0b" />
-            <View style={{ padding: 14 }}>
-              <View style={{ flexDirection: "row", justifyContent: "center", gap: 10, marginBottom: 14 }}>
+            <SectionHead Icon={Star} label={t(lang, "detailOrder_reviewTitle")} iconBg="#fef9ec" iconColor="#f59e0b" />
+            <View style={{ padding: scale(14) }}>
+              <View style={{ flexDirection: "row", justifyContent: "center", gap: scale(10), marginBottom: scale(14) }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Pressable key={star} onPress={() => !reviewed && setRating(star)} disabled={reviewed}>
                     <Star size={28} color={star <= rating ? "#fbbf24" : "#e5e7eb"} fill={star <= rating ? "#fbbf24" : "none"} />
@@ -476,7 +488,7 @@ export default function OrderDetailScreen() {
                     style={styles.reviewInput}
                     value={comment}
                     onChangeText={setComment}
-                    placeholder="Rəyinizi paylaşın (istəyə bağlı)"
+                    placeholder={t(lang, "detailOrder_reviewPlaceholder")}
                     placeholderTextColor="#9ca3af"
                     multiline
                   />
@@ -485,13 +497,13 @@ export default function OrderDetailScreen() {
                     onPress={handleReview}
                     disabled={!rating || reviewing}
                   >
-                    <Text style={styles.reviewBtnText}>{reviewing ? "Göndərilir..." : "Rəyi göndər"}</Text>
+                    <Text style={styles.reviewBtnText}>{reviewing ? t(lang, "detailOrder_sending") : t(lang, "detailOrder_sendReview")}</Text>
                   </Pressable>
                 </>
               ) : (
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 6 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: scale(6), paddingVertical: scale(6) }}>
                   <CheckCircle2 size={16} color={BRAND} />
-                  <Text style={{ color: BRAND, fontWeight: "700", fontSize: 13 }}>Rəyiniz qeyd edildi</Text>
+                  <Text style={{ color: BRAND, fontWeight: "700", fontSize: scaleFont(13) }}>{t(lang, "detailOrder_reviewSubmitted")}</Text>
                 </View>
               )}
             </View>
@@ -509,84 +521,84 @@ export default function OrderDetailScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#f4f7f4" },
 
-  header: { backgroundColor: "#f4f7f4", borderBottomWidth: 1, borderBottomColor: "#eee", paddingBottom: 10 },
+  header: { backgroundColor: "#f4f7f4", borderBottomWidth: 1, borderBottomColor: "#eee", paddingBottom: scale(10) },
   backBtn: {
     position: "absolute",
     left: 0,
     zIndex: 10,
-    width: 56,
-    height: 56,
-    borderBottomRightRadius: 56,
+    width: scale(56),
+    height: scale(56),
+    borderBottomRightRadius: scale(56),
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontSize: 15, fontWeight: "800", color: "#171717", paddingLeft: 90 },
+  headerTitle: { fontSize: scaleFont(15), fontWeight: "800", color: "#171717", paddingLeft: scale(90) },
 
-  statusFloat: { position: "absolute", top: -12, right: 8, zIndex: 10, width: 44, height: 44, borderRadius: 22, backgroundColor: BRAND, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 },
-  heroCard: { backgroundColor: "#fff", borderRadius: 18, overflow: "hidden", borderWidth: 1.5, borderColor: "#e8f0e8" },
-  heroImgWrap: { width: "100%", height: 200, backgroundColor: "#f0f7f0" },
+  statusFloat: { position: "absolute", top: scale(-12), right: scale(8), zIndex: 10, width: scale(44), height: scale(44), borderRadius: scale(22), backgroundColor: BRAND, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 },
+  heroCard: { backgroundColor: "#fff", borderRadius: scale(18), overflow: "hidden", borderWidth: 1.5, borderColor: "#e8f0e8" },
+  heroImgWrap: { width: "100%", height: scale(200), backgroundColor: "#f0f7f0" },
   heroImg: { width: "100%", height: "100%" },
-  heroImgOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: 8, paddingVertical: 6, backgroundColor: "rgba(0,0,0,0.4)" },
-  heroOrderNum: { fontSize: 10, fontWeight: "800", color: "rgba(255,255,255,0.9)" },
-  heroInfo: { paddingHorizontal: 14, paddingVertical: 14, gap: 8 },
-  heroAnimalName: { fontSize: 17, fontWeight: "900", color: "#071b0d" },
-  heroChipsRow: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-  heroChip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#f0f7f0", borderRadius: 8, paddingHorizontal: 9, paddingVertical: 5 },
-  heroChipText: { fontSize: 11, fontWeight: "800", color: "#2d5a2d" },
-  heroDate: { fontSize: 11, color: "#9ca3af" },
+  heroImgOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: scale(8), paddingVertical: scale(6), backgroundColor: "rgba(0,0,0,0.4)" },
+  heroOrderNum: { fontSize: scaleFont(10), fontWeight: "800", color: "rgba(255,255,255,0.9)" },
+  heroInfo: { paddingHorizontal: scale(14), paddingVertical: scale(14), gap: scale(8) },
+  heroAnimalName: { fontSize: scaleFont(17), fontWeight: "900", color: "#071b0d" },
+  heroChipsRow: { flexDirection: "row", flexWrap: "wrap", gap: scale(6) },
+  heroChip: { flexDirection: "row", alignItems: "center", gap: scale(5), backgroundColor: "#f0f7f0", borderRadius: scale(8), paddingHorizontal: scale(9), paddingVertical: scale(5) },
+  heroChipText: { fontSize: scaleFont(11), fontWeight: "800", color: "#2d5a2d" },
+  heroDate: { fontSize: scaleFont(11), color: "#9ca3af" },
 
-  card: { backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", borderWidth: 1.5, borderColor: "#e8f0e8" },
-  sectionHead: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, paddingTop: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: "#f3f4f6" },
-  sectionHeadIcon: { width: 30, height: 30, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  sectionHeadText: { fontSize: 13.5, fontWeight: "800", color: "#071b0d" },
+  card: { backgroundColor: "#fff", borderRadius: scale(16), overflow: "hidden", borderWidth: 1.5, borderColor: "#e8f0e8" },
+  sectionHead: { flexDirection: "row", alignItems: "center", gap: scale(10), paddingHorizontal: scale(14), paddingTop: scale(14), paddingBottom: scale(12), borderBottomWidth: 1, borderBottomColor: "#f3f4f6" },
+  sectionHeadIcon: { width: scale(30), height: scale(30), borderRadius: scale(10), alignItems: "center", justifyContent: "center" },
+  sectionHeadText: { fontSize: scaleFont(13.5), fontWeight: "800", color: "#071b0d" },
 
-  infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 14, paddingVertical: 10, gap: 10 },
+  infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: scale(14), paddingVertical: scale(10), gap: scale(10) },
   infoRowSep: { borderBottomWidth: 1, borderBottomColor: "#f3f4f6" },
-  infoLabel: { fontSize: 11, color: "#9ca3af", fontWeight: "600" },
-  infoValue: { fontSize: 11.5, fontWeight: "800", color: "#374151", textAlign: "right", maxWidth: "60%" },
-  cutHeadWrap: { paddingHorizontal: 14, paddingTop: 10, paddingBottom: 5, borderTopWidth: 1, borderTopColor: "#f3f4f6" },
-  cutHeadText: { fontSize: 9.5, fontWeight: "900", color: "#9ca3af", letterSpacing: 0.6 },
+  infoLabel: { fontSize: scaleFont(11), color: "#9ca3af", fontWeight: "600" },
+  infoValue: { fontSize: scaleFont(11.5), fontWeight: "800", color: "#374151", textAlign: "right", maxWidth: "60%" },
+  cutHeadWrap: { paddingHorizontal: scale(14), paddingTop: scale(10), paddingBottom: scale(5), borderTopWidth: 1, borderTopColor: "#f3f4f6" },
+  cutHeadText: { fontSize: scaleFont(9.5), fontWeight: "900", color: "#9ca3af", letterSpacing: 0.6 },
 
-  tlCircle: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, alignItems: "center", justifyContent: "center" },
+  tlCircle: { width: scale(30), height: scale(30), borderRadius: scale(15), borderWidth: 2, alignItems: "center", justifyContent: "center" },
   tlCircleActive: { shadowColor: BRAND, shadowOpacity: 0.3, shadowRadius: 5, elevation: 3 },
-  tlConnector: { width: 2, flex: 1, marginVertical: 3, minHeight: 18 },
-  tlLabel: { fontSize: 13, fontWeight: "700" },
-  tlActiveText: { fontSize: 10, fontWeight: "700", color: BRAND, marginTop: 1 },
+  tlConnector: { width: scale(2), flex: 1, marginVertical: scale(3), minHeight: scale(18) },
+  tlLabel: { fontSize: scaleFont(13), fontWeight: "700" },
+  tlActiveText: { fontSize: scaleFont(10), fontWeight: "700", color: BRAND, marginTop: scale(1) },
 
-  mediaThumb: { width: "31%", aspectRatio: 4 / 3, borderRadius: 12, overflow: "hidden", backgroundColor: "#f3f4f6", borderWidth: 1, borderColor: "#e5e7eb" },
+  mediaThumb: { width: "31%", aspectRatio: 4 / 3, borderRadius: scale(12), overflow: "hidden", backgroundColor: "#f3f4f6", borderWidth: 1, borderColor: "#e5e7eb" },
   mediaImg: { width: "100%", height: "100%" },
-  mediaImgOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 6, paddingVertical: 4, backgroundColor: "rgba(0,0,0,0.4)" },
-  mediaOverlayText: { fontSize: 9, fontWeight: "800", color: "#fff" },
-  mediaVideoThumb: { flex: 1, alignItems: "center", justifyContent: "center", gap: 6, backgroundColor: BRAND },
-  mediaPlayBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center" },
-  mediaThumbLabel: { fontSize: 10, fontWeight: "800", color: "rgba(255,255,255,0.9)" },
+  mediaImgOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", alignItems: "center", gap: scale(4), paddingHorizontal: scale(6), paddingVertical: scale(4), backgroundColor: "rgba(0,0,0,0.4)" },
+  mediaOverlayText: { fontSize: scaleFont(9), fontWeight: "800", color: "#fff" },
+  mediaVideoThumb: { flex: 1, alignItems: "center", justifyContent: "center", gap: scale(6), backgroundColor: BRAND },
+  mediaPlayBtn: { width: scale(34), height: scale(34), borderRadius: scale(17), backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center" },
+  mediaThumbLabel: { fontSize: scaleFont(10), fontWeight: "800", color: "rgba(255,255,255,0.9)" },
 
-  pickupHint: { fontSize: 10, fontWeight: "800", color: "#9ca3af", letterSpacing: 0.6 },
-  codeBoxAmber: { borderRadius: 16, paddingHorizontal: 32, paddingVertical: 12, backgroundColor: "#fde68a", borderWidth: 1.5, borderColor: "rgba(245,158,11,0.3)" },
-  codeTextAmber: { fontSize: 24, fontWeight: "900", letterSpacing: 4, color: "#92400e" },
-  pickupAddr: { fontSize: 13, fontWeight: "600", color: "#6b7280" },
-  mapLink: { flexDirection: "row", alignItems: "center", gap: 6 },
-  mapLinkText: { fontSize: 13, fontWeight: "800", color: BRAND },
+  pickupHint: { fontSize: scaleFont(10), fontWeight: "800", color: "#9ca3af", letterSpacing: 0.6 },
+  codeBoxAmber: { borderRadius: scale(16), paddingHorizontal: scale(32), paddingVertical: scale(12), backgroundColor: "#fde68a", borderWidth: 1.5, borderColor: "rgba(245,158,11,0.3)" },
+  codeTextAmber: { fontSize: scaleFont(24), fontWeight: "900", letterSpacing: 4, color: "#92400e" },
+  pickupAddr: { fontSize: scaleFont(13), fontWeight: "600", color: "#6b7280" },
+  mapLink: { flexDirection: "row", alignItems: "center", gap: scale(6) },
+  mapLinkText: { fontSize: scaleFont(13), fontWeight: "800", color: BRAND },
 
-  pickupBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: "#f0f9f0", borderWidth: 1, borderColor: BRAND + "30", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 },
-  pickupBoxText: { flex: 1, fontSize: 13, fontWeight: "600", color: BRAND },
-  mapBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderWidth: 2, borderColor: BRAND, borderRadius: 12, paddingVertical: 11 },
-  mapBtnText: { fontSize: 13, fontWeight: "800", color: BRAND },
+  pickupBox: { flexDirection: "row", alignItems: "flex-start", gap: scale(8), backgroundColor: "#f0f9f0", borderWidth: 1, borderColor: BRAND + "30", borderRadius: scale(12), paddingHorizontal: scale(12), paddingVertical: scale(10) },
+  pickupBoxText: { flex: 1, fontSize: scaleFont(13), fontWeight: "600", color: BRAND },
+  mapBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: scale(8), borderWidth: 2, borderColor: BRAND, borderRadius: scale(12), paddingVertical: scale(11) },
+  mapBtnText: { fontSize: scaleFont(13), fontWeight: "800", color: BRAND },
 
-  codeBoxBlue: { borderRadius: 16, paddingHorizontal: 32, paddingVertical: 12, backgroundColor: "#dbeafe", borderWidth: 1.5, borderColor: "rgba(59,130,246,0.25)" },
-  codeTextBlue: { fontSize: 24, fontWeight: "900", letterSpacing: 4, color: "#1e40af" },
-  pickupHintSmall: { fontSize: 11, color: "#9ca3af" },
+  codeBoxBlue: { borderRadius: scale(16), paddingHorizontal: scale(32), paddingVertical: scale(12), backgroundColor: "#dbeafe", borderWidth: 1.5, borderColor: "rgba(59,130,246,0.25)" },
+  codeTextBlue: { fontSize: scaleFont(24), fontWeight: "900", letterSpacing: 4, color: "#1e40af" },
+  pickupHintSmall: { fontSize: scaleFont(11), color: "#9ca3af" },
 
-  reviewInput: { minHeight: 70, borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 13, color: "#171717", textAlignVertical: "top", marginBottom: 12 },
-  reviewBtn: { backgroundColor: BRAND, borderRadius: 12, paddingVertical: 12, alignItems: "center" },
-  reviewBtnText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+  reviewInput: { minHeight: scale(70), borderWidth: 1, borderColor: "#e5e7eb", borderRadius: scale(12), paddingHorizontal: scale(12), paddingVertical: scale(10), fontSize: scaleFont(13), color: "#171717", textAlignVertical: "top", marginBottom: scale(12) },
+  reviewBtn: { backgroundColor: BRAND, borderRadius: scale(12), paddingVertical: scale(12), alignItems: "center" },
+  reviewBtnText: { color: "#fff", fontSize: scaleFont(13), fontWeight: "800" },
 
   galleryRoot: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.92)", zIndex: 999 },
-  galleryHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18, paddingTop: 50, paddingBottom: 14 },
-  galleryCount: { color: "#fff", fontWeight: "800", fontSize: 14 },
-  galleryCloseBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center" },
-  galleryDots: { flexDirection: "row", justifyContent: "center", gap: 8, paddingVertical: 16 },
-  galleryDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "rgba(255,255,255,0.35)" },
-  galleryDotActive: { width: 20, backgroundColor: "#fff" },
+  galleryHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: scale(18), paddingTop: scale(50), paddingBottom: scale(14) },
+  galleryCount: { color: "#fff", fontWeight: "800", fontSize: scaleFont(14) },
+  galleryCloseBtn: { width: scale(36), height: scale(36), borderRadius: scale(18), backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center" },
+  galleryDots: { flexDirection: "row", justifyContent: "center", gap: scale(8), paddingVertical: scale(16) },
+  galleryDot: { width: scale(8), height: scale(8), borderRadius: scale(4), backgroundColor: "rgba(255,255,255,0.35)" },
+  galleryDotActive: { width: scale(20), backgroundColor: "#fff" },
 });
