@@ -200,7 +200,7 @@ export default function HomeScreen() {
             size={40}
             opacity={0.13}
             spacingX={64}
-            spacingY={58}
+            spacingY={40}
           />
           {cards.map((item) => (
             <ServiceCard
