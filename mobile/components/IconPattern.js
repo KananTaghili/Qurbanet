@@ -28,6 +28,7 @@ export default function IconPattern({
               {source ? (
                 <Image
                   source={source}
+                  tintColor={color}
                   style={{ width: size, height: size / aspectRatio, opacity }}
                   resizeMode="contain"
                 />

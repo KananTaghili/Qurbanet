@@ -153,15 +153,6 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={styles.headerSafeArea}>
-        <IconPattern
-          source={require("../assets/images/meatbox-bg-icon.png")}
-          size={38}
-          opacity={0.3}
-          rows={3}
-          cols={7}
-          spacingX={64}
-          spacingY={38}
-        />
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
@@ -203,6 +194,16 @@ export default function HomeScreen() {
             { paddingBottom: insets.bottom + 24 },
           ]}
         >
+          <IconPattern
+            source={require("../assets/images/meatbox-bg-icon.png")}
+            color="#4B0F0F"
+            size={40}
+            opacity={0.06}
+            rows={12}
+            cols={7}
+            spacingX={64}
+            spacingY={58}
+          />
           {cards.map((item) => (
             <ServiceCard
               key={item.title}
