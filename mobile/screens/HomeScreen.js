@@ -199,8 +199,6 @@ export default function HomeScreen() {
             color="#4B0F0F"
             size={40}
             opacity={0.13}
-            rows={26}
-            cols={7}
             spacingX={64}
             spacingY={58}
           />

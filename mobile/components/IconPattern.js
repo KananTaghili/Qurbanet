@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { View, Image, StyleSheet } from "react-native";
 
 export default function IconPattern({
@@ -8,12 +9,18 @@ export default function IconPattern({
   opacity = 0.16,
   spacingX = 52,
   spacingY = 44,
-  rows = 3,
-  cols = 10,
   aspectRatio = 1.5,
 }) {
+  const [box, setBox] = useState(null);
+  const rows = box ? Math.ceil(box.height / spacingY) + 1 : 0;
+  const cols = box ? Math.ceil(box.width / spacingX) + 2 : 0;
+
   return (
-    <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+    <View
+      pointerEvents="none"
+      style={StyleSheet.absoluteFillObject}
+      onLayout={(e) => setBox(e.nativeEvent.layout)}
+    >
       {Array.from({ length: rows }).map((_, row) => (
         <View
           key={row}

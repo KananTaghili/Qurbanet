@@ -42,8 +42,6 @@ export default function SideMenu({ visible, onClose }) {
           source={require("../assets/images/meatbox-bg-icon.png")}
           size={40}
           opacity={0.28}
-          rows={18}
-          cols={5}
           spacingX={58}
           spacingY={58}
         />
