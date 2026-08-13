@@ -218,7 +218,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#f0ddd3" },
+  root: { flex: 1, backgroundColor: "#ddc7ba" },
   headerSafeArea: {
     backgroundColor: "#2e1914",
     paddingTop: StatusBar.currentHeight || 0,
@@ -262,12 +262,12 @@ const styles = StyleSheet.create({
   avatarText: { color: "#fff", fontWeight: "800", fontSize: scaleFont(12) },
 
   scroll: { flex: 1 },
-  scrollContent: { flexGrow: 1, backgroundColor: "#f0ddd3" },
+  scrollContent: { flexGrow: 1, backgroundColor: "#ddc7ba" },
 
   servicesSection: {
     flexGrow: 1,
     justifyContent: "center",
-    backgroundColor: "#f0ddd3",
+    backgroundColor: "#ddc7ba",
     paddingTop: scale(18),
     paddingHorizontal: scale(16),
     paddingBottom: scale(8),
