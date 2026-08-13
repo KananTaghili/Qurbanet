@@ -38,7 +38,7 @@ export default function SideMenu({ visible, onClose }) {
       </Animated.View>
 
       <Animated.View style={[styles.panel, { transform: [{ translateX: slide }] }]}>
-        <IconPattern Icon={Beef} size={17} rows={22} cols={7} spacingX={54} spacingY={48} />
+        <IconPattern Icon={Beef} size={22} opacity={0.16} rows={22} cols={6} spacingX={54} spacingY={48} />
         <View style={[styles.panelHeader, { paddingTop: insets.top }]}>
           <Image
             source={require("../assets/images/qurban-logo.png")}

@@ -153,7 +153,7 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={styles.headerSafeArea}>
-        <IconPattern Icon={Beef} size={15} rows={3} cols={11} spacingX={50} spacingY={38} />
+        <IconPattern Icon={Beef} size={22} opacity={0.18} rows={3} cols={9} spacingX={60} spacingY={40} />
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>

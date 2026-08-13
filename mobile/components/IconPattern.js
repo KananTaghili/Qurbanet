@@ -4,7 +4,7 @@ export default function IconPattern({
   Icon,
   size = 16,
   color = "#fff",
-  opacity = 0.07,
+  opacity = 0.16,
   spacingX = 52,
   spacingY = 44,
   rows = 3,
