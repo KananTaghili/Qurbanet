@@ -26,6 +26,7 @@ import CardVideo from "../components/CardVideo";
 import NotificationBell from "../components/NotificationBell";
 import HeaderUserMenu from "../components/HeaderUserMenu";
 import SideMenu from "../components/SideMenu";
+import IconPattern from "../components/IconPattern";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../i18n/i18n";
@@ -152,6 +153,7 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={styles.headerSafeArea}>
+        <IconPattern Icon={Beef} size={15} rows={3} cols={11} spacingX={50} spacingY={38} />
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
@@ -211,6 +213,7 @@ const styles = StyleSheet.create({
   headerSafeArea: {
     backgroundColor: "#2e1914",
     paddingTop: StatusBar.currentHeight || 0,
+    overflow: "hidden",
   },
   header: {
     height: scale(56),

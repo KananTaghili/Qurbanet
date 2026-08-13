@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet, Animated, Modal, Image } from "react-native";
-import { ChevronLeft, Info, LayoutGrid, HelpCircle, Phone } from "lucide-react-native";
+import { ChevronLeft, Info, LayoutGrid, HelpCircle, Phone, Beef } from "lucide-react-native";
+import IconPattern from "./IconPattern";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../context/AuthContext";
@@ -37,6 +38,7 @@ export default function SideMenu({ visible, onClose }) {
       </Animated.View>
 
       <Animated.View style={[styles.panel, { transform: [{ translateX: slide }] }]}>
+        <IconPattern Icon={Beef} size={17} rows={22} cols={7} spacingX={54} spacingY={48} />
         <View style={[styles.panelHeader, { paddingTop: insets.top }]}>
           <Image
             source={require("../assets/images/qurban-logo.png")}
@@ -81,6 +83,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: WIDTH,
     backgroundColor: "#2e1914",
+    overflow: "hidden",
   },
   panelHeader: {
     flexDirection: "row",
