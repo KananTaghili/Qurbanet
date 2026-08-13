@@ -1,16 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
   Image,
-  ImageBackground,
   ScrollView,
   Pressable,
   StyleSheet,
   StatusBar,
   Platform,
+  AppState,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar as ExpoStatusBar, setStatusBarStyle } from "expo-status-bar";
 import {
   HeartHandshake,
   Beef,
@@ -27,80 +27,86 @@ import NotificationBell from "../components/NotificationBell";
 import HeaderUserMenu from "../components/HeaderUserMenu";
 import SideMenu from "../components/SideMenu";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../i18n/i18n";
+import { scale, scaleFont } from "../lib/scale";
 
-const cards = [
-  {
-    title: "Qurbanlıq Sifarişi",
-    text: "Qurbanlığınızı onlayn seçin, sifariş edin və kəsim prosesini video ilə izləyin. Etibarlı və şəffaf xidmət.",
-    button: "SİFARİŞ ET",
-    Icon: KnifeIcon,
-    color: "#0b6c24",
-    videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1",
-    videoType: "youtube",
-    fallbackVideoUrl:
-      "https://videos.pexels.com/video-files/3195650/3195650-hd_1920_1080_25fps.mp4",
-    fallbackVideoType: "mp4",
-    screen: "Qurban",
-  },
-  {
-    title: "Kollektiv Qurban",
-    text: "Birlikdə qurban kəsdirək, ehtiyacı olanlara pay göndərək. Şəffaf və etibarlı xeyriyyə platforması.",
-    button: "QOŞUL",
-    Icon: HeartHandshake,
-    color: "#301586",
-    videoUrl:
-      "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm",
-    videoType: "html5",
-    fallbackVideoUrl:
-      "https://videos.pexels.com/video-files/3209298/3209298-hd_1920_1080_25fps.mp4",
-    fallbackVideoType: "mp4",
-    screen: "CollectiveQurban",
-  },
-  {
-    title: "Ət Satışı",
-    text: "Təzə və keyfiyyətli ət məhsullarını onlayn sifariş edin, soyudulmuş şəkildə qapınıza çatdıraq.",
-    button: "MƏHSULLARA BAX",
-    Icon: Beef,
-    color: "#4B0F0F",
-    videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1",
-    videoType: "youtube",
-    fallbackVideoUrl:
-      "https://videos.pexels.com/video-files/3191887/3191887-hd_1920_1080_25fps.mp4",
-    fallbackVideoType: "mp4",
-    screen: "MeatHome",
-  },
-];
+function getCards(lang) {
+  return [
+    {
+      title: t(lang, "home_card1Title"),
+      text: t(lang, "home_card1Text"),
+      button: t(lang, "home_card1Btn"),
+      Icon: KnifeIcon,
+      color: "#0b6c24",
+      videoUrl: "https://www.youtube.com/embed/cF5NRPK49zU?autoplay=1",
+      videoType: "youtube",
+      fallbackVideoUrl:
+        "https://videos.pexels.com/video-files/3195650/3195650-hd_1920_1080_25fps.mp4",
+      fallbackVideoType: "mp4",
+      screen: "Qurban",
+    },
+    {
+      title: t(lang, "home_card3Title"),
+      text: t(lang, "home_card3Text"),
+      button: t(lang, "home_card3Btn"),
+      Icon: Beef,
+      color: "#4B0F0F",
+      videoUrl: "https://www.youtube.com/embed/7JRzuVPT5zU?autoplay=1",
+      videoType: "youtube",
+      fallbackVideoUrl:
+        "https://videos.pexels.com/video-files/3191887/3191887-hd_1920_1080_25fps.mp4",
+      fallbackVideoType: "mp4",
+      screen: "MeatHome",
+    },
+    {
+      title: t(lang, "home_card2Title"),
+      text: t(lang, "home_card2Text"),
+      button: t(lang, "home_card2Btn"),
+      Icon: HeartHandshake,
+      color: "#301586",
+      videoUrl:
+        "https://www.shutterstock.com/shutterstock/videos/3442647947/preview/stock-footage-close-up-of-a-man-s-hand-holding-a-cardboard-box-suggesting-a-delivery-service-in-a-nondescript.webm",
+      videoType: "html5",
+      fallbackVideoUrl:
+        "https://videos.pexels.com/video-files/3209298/3209298-hd_1920_1080_25fps.mp4",
+      fallbackVideoType: "mp4",
+      screen: "CollectiveQurban",
+    },
+  ];
+}
 
 function ServiceCard({ item, onPress }) {
   const Icon = item.Icon;
   return (
     <View style={styles.cardOuter}>
       <View style={[styles.cardBadge, { borderColor: item.color + "40" }]}>
-        <Icon size={30} color={item.color} weight="bold" />
+        <Icon size={28} color={item.color} weight="bold" />
       </View>
       <View style={styles.cardBody}>
-        <Text style={[styles.cardTitle, { color: item.color }]}>
-          {item.title}
-        </Text>
         <CardVideo
           videoUrl={item.videoUrl}
           videoType={item.videoType}
           fallbackVideoUrl={item.fallbackVideoUrl}
           fallbackVideoType={item.fallbackVideoType}
         />
-        <Text style={styles.cardText}>{item.text}</Text>
-        <Pressable
-          style={[
-            styles.cardBtn,
-            { backgroundColor: item.color },
-            !item.screen && { opacity: 0.5 },
-          ]}
-          onPress={() => item.screen && onPress(item.screen)}
-          disabled={!item.screen}
-        >
-          <Text style={styles.cardBtnText}>{item.button}</Text>
-          <ArrowRight size={18} color="#fff" />
-        </Pressable>
+        <View style={styles.cardFooterRow}>
+          <Text style={[styles.cardTitle, { color: "#8F0000" }]}>
+            {item.title}
+          </Text>
+          <Pressable
+            style={[
+              styles.cardBtn,
+              { backgroundColor: "#8F0000" },
+              !item.screen && { opacity: 0.5 },
+            ]}
+            onPress={() => item.screen && onPress(item.screen)}
+            disabled={!item.screen}
+          >
+            <Text style={styles.cardBtnText}>{item.button}</Text>
+            <ArrowRight size={18} color="#fff" />
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -110,7 +116,9 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isGuest, user } = useAuth();
+  const { lang } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
+  const cards = getCards(lang);
   const initials =
     [user?.name, user?.lastName]
       .filter(Boolean)
@@ -120,38 +128,50 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      setStatusBarStyle("light");
       if (Platform.OS !== "android") return;
       NavigationBar.setButtonStyleAsync("dark").catch(() => {});
       NavigationBar.setBackgroundColorAsync("#ffffff").catch(() => {});
     }, []),
   );
 
+  useEffect(() => {
+    if (!menuOpen) setStatusBarStyle("light");
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") setStatusBarStyle("light");
+    });
+    return () => sub.remove();
+  }, []);
+
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <ExpoStatusBar style="light" />
 
       {/* Header */}
       <View style={styles.headerSafeArea}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable style={styles.menuBtn} onPress={() => setMenuOpen(true)}>
-              <Menu size={22} color="#171717" />
+              <Menu size={22} color="#fff" />
             </Pressable>
             <Image
-              source={require("../assets/images/logo-black.png")}
+              source={require("../assets/images/logo-white.png")}
               style={styles.headerLogo}
               resizeMode="contain"
             />
           </View>
           <View style={styles.headerRight}>
-            <NotificationBell accentColor="#0b6c24" iconColor="#171717" />
+            <NotificationBell accentColor="#0b6c24" iconColor="#fff" />
             {isGuest ? (
               <Pressable
                 style={styles.loginBtn}
                 onPress={() => navigation.navigate("Login")}
               >
-                <User size={18} color="#171717" />
-                <Text style={styles.loginText}>Daxil ol</Text>
+                <User size={18} color="#fff" />
+                <Text style={styles.loginText}>{t(lang, "login")}</Text>
               </Pressable>
             ) : (
               <HeaderUserMenu initials={initials} />
@@ -164,44 +184,15 @@ export default function HomeScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={styles.scrollContent}
       >
-        {/* Hero */}
-        <ImageBackground
-          source={require("../assets/images/hero-bg.jpg")}
-          style={styles.hero}
-          imageStyle={{ opacity: 0.97 }}
-        >
-          <LinearGradient
-            colors={["rgba(5,2,0,0.60)", "rgba(5,2,0,0.22)", "rgba(0,0,0,0)"]}
-            start={{ x: 0, y: 0.3 }}
-            end={{ x: 1, y: 0.55 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.heroContent}>
-            <Text style={styles.heroTitle}>
-              Bərəkətli qurbanlıq,{"\n"}Rahat ət sifarişi!
-            </Text>
-            <Text style={styles.heroSlogan}>ETİBARLI • HALAL • SÜRƏTLİ</Text>
-            {isGuest ? (
-              <Pressable
-                style={styles.ctaBtn}
-                onPress={() => navigation.navigate("Register")}
-              >
-                <Text style={styles.ctaText}>Qeydiyyatdan keç →</Text>
-              </Pressable>
-            ) : (
-              <View style={styles.ctaBtn}>
-                <Text style={styles.ctaText}>
-                  Xoş gəlmisiniz, {user?.name}!
-                </Text>
-              </View>
-            )}
-          </View>
-        </ImageBackground>
-
         {/* Services */}
-        <View style={styles.servicesSection}>
+        <View
+          style={[
+            styles.servicesSection,
+            { paddingBottom: insets.bottom + 24 },
+          ]}
+        >
           {cards.map((item) => (
             <ServiceCard
               key={item.title}
@@ -216,101 +207,70 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#ffffff" },
+  root: { flex: 1, backgroundColor: "#f0ddd3" },
   headerSafeArea: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#2e1914",
     paddingTop: StatusBar.currentHeight || 0,
   },
   header: {
-    height: 56,
+    height: scale(56),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 12,
+    paddingHorizontal: scale(12),
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 6, flex: 1 },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: scale(6), flex: 1 },
   menuBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(18),
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
-  headerLogo: { width: 110, height: 28 },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 14 },
+  headerLogo: { width: scale(155), height: scale(42) },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: scale(14) },
   bellBtn: { alignItems: "center", justifyContent: "center" },
   loginBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginRight: 5,
+    gap: scale(6),
+    marginRight: scale(5),
   },
-  loginText: { fontSize: 14, fontWeight: "600", color: "#171717" },
+  loginText: { fontSize: scaleFont(14), fontWeight: "600", color: "#fff" },
   avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: scale(30),
+    height: scale(30),
+    borderRadius: scale(15),
     backgroundColor: "#0b6c24",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 5,
+    marginRight: scale(5),
   },
-  avatarText: { color: "#fff", fontWeight: "800", fontSize: 12 },
+  avatarText: { color: "#fff", fontWeight: "800", fontSize: scaleFont(12) },
 
   scroll: { flex: 1 },
-
-  hero: {
-    minHeight: 190,
-    justifyContent: "center",
-    backgroundColor: "#190908",
-    overflow: "hidden",
-  },
-  heroContent: { paddingHorizontal: 24, paddingVertical: 18, maxWidth: 380 },
-  heroTitle: {
-    color: "#fff",
-    fontSize: 26,
-    fontWeight: "900",
-    lineHeight: 32,
-    marginBottom: 8,
-    textShadowColor: "rgba(0,0,0,0.55)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 16,
-  },
-  heroSlogan: {
-    color: "rgba(255,255,255,0.75)",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 2,
-    marginBottom: 16,
-  },
-  ctaBtn: {
-    backgroundColor: "#CC0000",
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    alignSelf: "flex-start",
-  },
-  ctaText: { color: "#fff", fontWeight: "700", fontSize: 14 },
+  scrollContent: { flexGrow: 1, backgroundColor: "#f0ddd3" },
 
   servicesSection: {
-    backgroundColor: "#fbf7f2",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    marginTop: -22,
-    paddingTop: 18,
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    flexGrow: 1,
+    justifyContent: "center",
+    backgroundColor: "#f0ddd3",
+    paddingTop: scale(18),
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(8),
+    overflow: "hidden",
   },
 
-  cardOuter: { marginTop: 32 },
+  cardOuter: { marginTop: scale(32) },
   cardBadge: {
     position: "absolute",
-    top: -32,
-    right: 20,
+    top: scale(-22),
+    right: scale(20),
     zIndex: 10,
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
     backgroundColor: "#fff",
     borderWidth: 2,
     alignItems: "center",
@@ -323,33 +283,37 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     backgroundColor: "#fff",
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: "#e8e2db",
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingHorizontal: 16,
-    marginBottom: 6,
+    borderRadius: scale(16),
+    paddingBottom: scale(14),
+    marginBottom: scale(6),
+    overflow: "hidden",
     shadowColor: "#231208",
     shadowOpacity: 0.1,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
   },
-  cardTitle: { fontSize: 19, fontWeight: "800", paddingRight: 72 },
-  cardText: {
-    paddingVertical: 8,
-    fontSize: 12,
-    lineHeight: 18,
-    color: "#404040",
+  cardFooterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: scale(12),
+    paddingHorizontal: scale(16),
+  },
+  cardTitle: {
+    fontSize: scaleFont(19),
+    fontWeight: "800",
+    flexShrink: 1,
+    paddingRight: scale(10),
   },
   cardBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
-    borderRadius: 10,
-    paddingVertical: 11,
+    gap: scale(10),
+    borderRadius: scale(10),
+    paddingVertical: scale(11),
+    paddingHorizontal: scale(18),
   },
-  cardBtnText: { color: "#fff", fontWeight: "800", fontSize: 13.5 },
+  cardBtnText: { color: "#fff", fontWeight: "800", fontSize: scaleFont(13.5) },
 });
